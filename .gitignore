@@ -1,0 +1,19 @@
+# Local public-source research captures; retain them locally.
+/research/
+/spaceapps-2026-page.html
+
+# Secrets and machine-specific configuration.
+.env
+.env.*
+!.env.example
+
+# Local dependencies and generated output.
+node_modules/
+dist/
+.next/
+coverage/
+*.log
+*.tsbuildinfo
+/test-results/
+/playwright-report/
+/.agent-browser/

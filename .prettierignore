@@ -1,0 +1,6 @@
+node_modules
+.next
+research
+package-lock.json
+docs/PROJECT_PLAN.md
+next-env.d.ts

@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import Image from 'next/image';
-import rituLogo from '../../public/Ritu_Logo.jpeg';
+import rituLogo from '../../public/website_logo.jpg';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import type { ReactNode } from 'react';

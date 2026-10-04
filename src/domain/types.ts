@@ -10,7 +10,6 @@ export const cropIds = [
   'aus',
   'maize',
   'barley',
-  'sorghum',
   'lentil',
   'chickpea',
   'blackgram',

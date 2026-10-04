@@ -1,6 +1,7 @@
 import { defaultDemo } from '../data/demo-environment';
 import type { DemoSettings } from '../data/demo-environment';
 import { cropIds } from '../domain/types';
+import { migrateRetiredCrop } from './retired-crop-migration';
 const key = 'ritu-demo-v1';
 const server = { settings: defaultDemo, saved: true };
 let snapshot = server;
@@ -38,7 +39,7 @@ export const demoStore = {
       loaded = true;
       let settings = defaultDemo;
       try {
-        const value: unknown = JSON.parse(localStorage.getItem(key) ?? 'null');
+        const value: unknown = migrateRetiredCrop(JSON.parse(localStorage.getItem(key) ?? 'null'));
         if (validDemo(value)) settings = value;
       } catch {
         /* Use labelled default fixtures. */

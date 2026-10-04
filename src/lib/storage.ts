@@ -1,6 +1,7 @@
 import { defaultFarm } from '../data/preview';
 import type { Farm, Language, Priority } from '../domain/types';
 import { cropIds } from '../domain/types';
+import { migrateRetiredCrop } from './retired-crop-migration';
 
 const key = 'ritu-preview-v1';
 export interface SavedState {
@@ -19,7 +20,7 @@ export const initialState: SavedState = {
 };
 export function readSaved(): SavedState {
   try {
-    const value: unknown = JSON.parse(localStorage.getItem(key) ?? 'null');
+    const value: unknown = migrateRetiredCrop(JSON.parse(localStorage.getItem(key) ?? 'null'));
     if (!isSavedState(value)) return initialState;
     return value;
   } catch {

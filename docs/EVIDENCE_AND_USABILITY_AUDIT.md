@@ -82,7 +82,7 @@ Future NASA integration must preserve product/version, units, dates, grid footpr
 
 ## QA and remaining evidence
 
-The expanded [43-entry crop catalogue](CROP_CATALOGUE.md) cites BARC/FAO crop identity and groups. These do not establish local suitability. The additional 38 entries mark taxonomy as unreviewed and are excluded from reviewed-family counts. Unsupported anatomy renders no substitute plant. This makes missing evidence explicit without preventing calendar editing.
+The expanded [42-entry crop catalogue](CROP_CATALOGUE.md) cites BARC/FAO crop identity and groups. These do not establish local suitability. The additional 37 entries mark taxonomy as unreviewed and are excluded from reviewed-family counts. Unsupported anatomy renders no substitute plant. This makes missing evidence explicit without preventing calendar editing.
 
 The current reproducible checks and their results are in [PREVIEW_VERIFICATION.md](PREVIEW_VERIFICATION.md). Automated accessibility and browser tests are necessary implementation checks, not proof of universal accessibility, agronomic reliability or farmer usefulness.
 

@@ -26,11 +26,11 @@ try {
   await expect(page.getByRole('dialog')).toContainText('authored example');
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'See suggested crops', exact: true }).click();
-  for (const crop of ['Mung bean', 'Aman rice', 'Mustard', 'Wheat', 'Sorghum'])
+  for (const crop of ['Mung bean', 'Aman rice', 'Mustard', 'Wheat'])
     await page.getByRole('checkbox', { name: 'Consider ' + crop, exact: true }).check();
   await page.screenshot({ path: output + '/suggestions.png', scale: 'css' });
   await page.getByRole('button', { name: 'Build my calendar', exact: true }).click();
-  await expect(page.locator('.option-card')).toHaveCount(3);
+  await expect(page.locator('.option-card')).toHaveCount(2);
   await page.screenshot({ path: output + '/calendar.png', scale: 'css' });
   await page.getByRole('link', { name: 'Try a water-shortage scenario', exact: true }).click();
   await page.getByRole('button', { name: 'Help: Scenario simulator', exact: true }).click();

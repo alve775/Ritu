@@ -11,7 +11,7 @@ import { isSavedState, initialState } from '../lib/storage';
 describe('explicitly fictional planning engine', () => {
   it('generates deterministic complete rotations using only preferred crops and no overlapping slots', () => {
     const plans = generateDemoPlans(defaultFarm, defaultDemo, 'water');
-    expect(plans).toHaveLength(3);
+    expect(plans).toHaveLength(2);
     expect(plans).toEqual(generateDemoPlans(defaultFarm, defaultDemo, 'water'));
     for (const plan of plans) {
       expect(new Set(plan.periods.flatMap(coveredMonths)).size).toBe(12);

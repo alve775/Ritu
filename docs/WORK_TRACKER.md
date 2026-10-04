@@ -1,6 +1,25 @@
 # Ritu working record and acceptance checklist
 
-Owner: Abid Al Hossain Swakkhar. Team: three web developers in Rajshahi. Workspace: `E:\001_RITU`; repository: https://github.com/alve775/Ritu. Updated October 4, 2026. This is the continuation entry point: read it before resuming work, then verify files and runtime rather than assuming a recorded result still applies.
+Owner: Abid Al Hossain Swakkhar. Team: three web developers in Rajshahi. Workspace: `E:\001_RITU`; repository: https://github.com/alve775/Ritu. Updated October 5, 2026. This is the continuation entry point: read it before resuming work, then verify files and runtime rather than assuming a recorded result still applies.
+
+## Website and shortcut logos — October 5
+
+- [x] Use supplied `website_logo.jpg` for the visible logo; show the complete symbol and wordmark while hiding blank margins in its display frame.
+- [x] Use supplied `icon_logo.jpg` for tab/bookmark/desktop favicons, Apple home-screen icons and 192px/512px manifest icons. Add a padded maskable icon and reproducible local generator. Preserve both source JPEGs.
+- [x] Inspect desktop and phone rendering; verify metadata links, manifest, HTTP responses and actual icon dimensions. Three Playwright viewports passed (1440px, 390px, 320px); zero page errors/overlays/overflow. Scoped lint, strict TypeScript, formatting and the production build passed.
+- [ ] Physical-device shortcut installation remains untested; existing shortcuts may need recreating to discard cached icons.
+
+See [BRAND_ASSETS.md](BRAND_ASSETS.md). Abid explicitly requested committing and pushing the logo and crop-removal follow-ups to `main` on October 5. Include both supplied JPEGs and generated shortcut icons; keep local QA captures, dependencies and video outputs ignored. The remote baseline was verified at `9841cf2`; use a normal push and verify the remote commit and clean worktree afterward. Earlier branch/work-status statements below describe their historical checkpoints.
+
+## Retired crop removal — October 5
+
+- [x] Remove sorghum from the active ID list, bilingual catalogue, default preferences, mock suitability rules and planting windows. The live catalogue contains 42 named crops plus rest; 12 identities have mock rules/windows.
+- [x] Update bilingual tour copy, current catalogue documentation, acceptance counts and existing production/browser checks. Default mock choices now yield two compatible calendar options; no replacement crop or conflicting dates are introduced.
+- [x] On loading older farm/demo saves, remove only the retired crop from previous crops and preferences, preserving other farm/environment fields. An entirely removed history becomes the existing empty-history sentinel. A retired selected plan ID returns to the neutral selection; existing saved-plan validation refuses any tracked calendar containing the removed identity.
+- [x] Keep the retired name only in compatibility code and regression fixtures, never in the active catalogue or crop rules.
+- [x] Focused regression passed: **77 unit tests, 10 desktop/emulated-phone browser cases (46.2 seconds)**, scoped ESLint, formatting and production build/TypeScript. Browser checks opened all 42 remaining crop dialogs on both viewports, verified retired English/Bangla searches return zero, preserved legacy farm/environment data, and completed crop selection, automatic calendar and tracking. Missing-input/season guards still passed.
+
+This follow-up and the logo changes are included in the October 5 authorized `main` handoff. Existing video captures and earlier verification counts describe their original historical app version, not a newly recorded video or tour audit.
 
 ## Current task: strict farm-first journey — October 4
 
@@ -101,7 +120,7 @@ User requirements across this conversation:
 | R10 | Engaging farm ambience                                           | Original optional morning/evening wind and bird-like/insect-like synthesis; no scientific performance benefit claimed                                                 |
 | R11 | Sound level and off controls                                     | Reading & sound: Play, Stop, 0–100% master level, Mute all and independent clicks; persisted settings, no ambient autoplay                                            |
 | R12 | Interesting farm mascot guides tours                             | Mati / মাটি, original duck illustration; finite greeting and interactive wave, reduced-motion support                                                                 |
-| R13 | Many relevant crops                                              | 43 sourced crop identities plus rest; read-only search/filter/details, 13 mock rule/window records; 38 additional anatomies and taxonomy remain unreviewed            |
+| R13 | Many relevant crops                                              | 42 sourced crop identities plus rest; read-only search/filter/details, 12 mock rule/window records; 37 additional anatomies and taxonomy remain unreviewed            |
 | R14 | English and Bangla                                               | Existing languages; include new controls/catalogue; terminology review with team remains open                                                                         |
 | R15 | Authentic online research before fixes                           | Evidence audit and primary-source links; distinguish scientific evidence, standards and design tuning                                                                 |
 | R16 | NASA challenge alignment                                         | Published Field Shift summary aligns with concept; observations/local rules/full brief still outstanding                                                              |
@@ -110,8 +129,8 @@ User requirements across this conversation:
 | R19 | Durable checklist and detailed continuation records              | This file plus evidence audit, QA matrix/results and integration handoff                                                                                              |
 | R20 | Preserve project and team work                                   | Preview verification preceded Git writes; Abid subsequently authorized committing and pushing only to the exact branch `Swakkhar`                                     |
 | R21 | Implement the supplied real-product description as a demo        | Requirement mapping in PROJECT_DESCRIPTION_AUDIT.md; real observations/validated advice remain future work                                                            |
-| R22 | No real data APIs; mock data only                                | Local climate fixtures and 13 explicitly invented crop rules; no remote provider                                                                                      |
-| R23 | Preferred crops, screening, generated rotations and explanations | Passing windows among 13 mock records are selectable; strict generator refuses missing/unknown/conflicting combinations; seven mock checks separated from real checks |
+| R22 | No real data APIs; mock data only                                | Local climate fixtures and 12 explicitly invented crop rules; no remote provider                                                                                      |
+| R23 | Preferred crops, screening, generated rotations and explanations | Passing windows among 12 mock records are selectable; strict generator refuses missing/unknown/conflicting combinations; seven mock checks separated from real checks |
 | R24 | Scenario simulator                                               | Saved/draft comparison, immediate recalculation, Reset and explicit Apply; shortage/climate/priority controls                                                         |
 | R25 | White main content; dark green left/top                          | White planning surfaces and neutral secondary panels; corrected mobile navigation contrast                                                                            |
 | R26 | Bring 3D back and make it easy to find                           | Existing source-informed schematic models retained; prominent entry and independent study selector, no calendar mutation                                              |

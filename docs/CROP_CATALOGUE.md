@@ -1,6 +1,6 @@
 # Crop catalogue and evidence boundary
 
-Updated October 4, 2026. The preview has **43 named crop entries plus rest/fallow**. Boro, Aman and Aus are rice cropping-season entries, not three botanical species. The catalogue is searchable and expandable; the first screen starts with farm conditions; only eligible mock crops are selectable in Step 2.
+Updated October 5, 2026. The preview has **42 named crop entries plus rest/fallow**. Boro, Aman and Aus are rice cropping-season entries, not three botanical species. The catalogue is searchable and expandable; the first screen starts with farm conditions; only eligible mock crops are selectable in Step 2.
 
 The official [Field Shift summary](https://www.spaceappschallenge.org/2026/challenges/field-shift-adapting-farms-with-nasa-data/) requests crop characteristics alongside NASA observations, local soil and farmer priorities. It does not prescribe this crop list. Inclusion is not NASA endorsement or confirmation of Rajshahi suitability.
 
@@ -12,7 +12,7 @@ The official [Field Shift summary](https://www.spaceappschallenge.org/2026/chall
 
 | Group | Entries |
 | --- | --- |
-| Cereals | Boro rice, Aman rice, Aus rice, wheat, maize, barley, sorghum |
+| Cereals | Boro rice, Aman rice, Aus rice, wheat, maize, barley |
 | Pulses | Mung bean, lentil, chickpea, black gram, pigeon pea, grass pea/khesari, cowpea |
 | Oilseeds | Mustard, groundnut, soybean, sunflower, sesame, linseed |
 | Roots/tubers | Potato, sweet potato |
@@ -28,17 +28,17 @@ These are catalogue groups, not botanical families. Each crop opens its referenc
 - Search either language, filter groups, paginate and inspect sources. The library is read-only: no manual start/duration or crop injection.
 - Farmer choices are limited to passing mock suggestions. The generator assigns crop-specific windows, rejects conflicting/unknown options, and inserts explicit rest gaps.
 - Generated calendars stay within twelve March–February months. Longer crops and actual day-based transitions require a future dated engine; no compressed duration is suggested. Legacy recurring fixtures are retained in domain tests only.
-- Schematic anatomy currently covers Boro/Aman rice, wheat, mung bean and potato. The other 38 entries show **model unavailable** and render no substitute plant geometry. Calendar controls still work.
+- Schematic anatomy currently covers Boro/Aman rice, wheat, mung bean and potato. The other 37 entries show **model unavailable** and render no substitute plant geometry. Calendar controls still work.
 - Botanical family evidence covers the original five crop entries. Extra entries explicitly show **taxonomy not reviewed** and are excluded from reviewed-family counts. Catalogue group is not a proxy for botanical family. This is unfinished evidence work, not proof that a sequence contains no legumes.
 - Irrigation, soil and drainage suitability remain unassessed for every crop. No consumption, pesticide, fertilizer, yield, profit, water-saving or soil-improvement prescription is supplied.
 
 Implementation: `src/data/crop-catalogue.ts`, `src/data/preview.ts`, `src/components/crop-catalogue.tsx`. Storage uses the shared crop-ID list. Tests enumerate all IDs and inspect every crop through the browser.
 
-The optional mock generator has **13 invented crop records**, separate from the source-backed catalogue. Only passing windows among the 13 mock records are selectable preferences. The other identities remain research references and can be recorded as previous crops; they cannot enter a generated calendar. Mock seasons, water/drought indices, temperatures and soil-texture rules are demonstration fixtures, not sourced crop knowledge. Their presence does not supply missing taxonomy or 3D anatomy. See [the description audit](PROJECT_DESCRIPTION_AUDIT.md).
+The optional mock generator has **12 invented crop records**, separate from the source-backed catalogue. Only passing windows among the 12 mock records are selectable preferences. The other identities remain research references and can be recorded as previous crops; they cannot enter a generated calendar. Mock seasons, water/drought indices, temperatures and soil-texture rules are demonstration fixtures, not sourced crop knowledge. Their presence does not supply missing taxonomy or 3D anatomy. See [the description audit](PROJECT_DESCRIPTION_AUDIT.md).
 
 ## Remaining evidence work
 
-- [ ] Source taxonomy for the 38 additional entries, resolving broad names such as mustard, pumpkin and amaranth.
+- [ ] Source taxonomy for the 37 additional entries, resolving broad names such as mustard, pumpkin and amaranth.
 - [ ] Obtain local cultivar, timing, stage and management evidence before supplying crop-specific suitability or dates.
 - [ ] Build and review individual anatomy models.
 - [ ] Add multi-year planning before claiming support for longer crop cycles.

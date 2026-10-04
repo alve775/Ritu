@@ -185,8 +185,8 @@ export const tourSteps: TourStep[] = [
     '.catalogue-controls',
     ['Explore the reference library', 'ফসলের তথ্য দেখুন'],
     [
-      'Search 43 crop identities and open their sources. The library is read-only; entries without mock windows cannot bypass suggestions.',
-      '৪৩টি ফসলের নাম ও উৎস দেখুন। তথ্যভান্ডার থেকে সময় বসানো যায় না; নিয়মহীন ফসল প্রস্তাবের বাইরে থাকে।',
+      'Search 42 crop identities and open their sources. The library is read-only; entries without mock windows cannot bypass suggestions.',
+      '৪২টি ফসলের নাম ও উৎস দেখুন। তথ্যভান্ডার থেকে সময় বসানো যায় না; নিয়মহীন ফসল প্রস্তাবের বাইরে থাকে।',
     ],
   ),
   step(

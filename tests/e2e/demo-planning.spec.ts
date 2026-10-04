@@ -7,6 +7,78 @@ test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('ritu-tour-v1', 'seen'));
 });
 
+test('retired crop saves preserve farm details and other choices without exposing removed crops', async ({
+  page,
+}) => {
+  await page.goto('/farm');
+  await expect(page.getByRole('textbox', { name: 'Farm name', exact: true })).toBeVisible();
+  await page.evaluate(
+    ({ farm, demo }) => {
+      const saved = JSON.parse(localStorage.getItem('ritu-preview-v1')!);
+      localStorage.setItem(
+        'ritu-preview-v1',
+        JSON.stringify({
+          ...saved,
+          farm: {
+            ...farm,
+            name: 'Preserved field',
+            area: 4.5,
+            soil: 'clay',
+            current: [
+              { crop: 'sorghum', start: 0, duration: 3 },
+              { crop: 'wheat', start: 8, duration: 3 },
+            ],
+          },
+        }),
+      );
+      localStorage.setItem(
+        'ritu-demo-v1',
+        JSON.stringify({
+          ...demo,
+          location: 'other',
+          weather: 'dry',
+          preferred: ['sorghum', 'mung', 'mustard'],
+        }),
+      );
+    },
+    { farm: defaultFarm, demo: defaultDemo },
+  );
+  await page.reload();
+  await expect(page.getByRole('textbox', { name: 'Farm name', exact: true })).toHaveValue(
+    'Preserved field',
+  );
+  await expect(
+    page.getByRole('spinbutton', { name: 'Field area (hectares)', exact: true }),
+  ).toHaveValue('4.5');
+  await expect(page.getByRole('combobox', { name: 'Soil texture', exact: true })).toHaveValue(
+    'clay',
+  );
+  const persisted = await page.evaluate(() => ({
+    farm: JSON.parse(localStorage.getItem('ritu-preview-v1')!).farm,
+    demo: JSON.parse(localStorage.getItem('ritu-demo-v1')!),
+  }));
+  expect(persisted.farm.current).toEqual([{ crop: 'wheat', start: 8, duration: 3 }]);
+  expect(persisted.demo).toEqual({
+    ...defaultDemo,
+    location: 'other',
+    weather: 'dry',
+    preferred: ['mung', 'mustard'],
+  });
+  await page.getByText('Previous crops · optional', { exact: true }).click();
+  await expect(
+    page.getByRole('combobox', { name: 'Previous crop to add', exact: true }).locator('option'),
+  ).not.toContainText(['Sorghum']);
+  await page.getByRole('button', { name: 'See suggested crops', exact: true }).click();
+  await expect(page.getByRole('checkbox', { name: 'Consider Sorghum', exact: true })).toHaveCount(
+    0,
+  );
+  await page.getByText('Browse 42 crops', { exact: true }).click();
+  await page.getByRole('searchbox', { name: 'Search crops', exact: true }).fill('sorghum');
+  await expect(page.getByText('0 crops found', { exact: true })).toBeVisible();
+  await page.getByRole('searchbox', { name: 'Search crops', exact: true }).fill('জোয়ার');
+  await expect(page.getByText('0 crops found', { exact: true })).toBeVisible();
+});
+
 test('farm first, passing suggestions, locked windows, calendar and task tracking form one complete journey', async ({
   page,
 }, info) => {
@@ -73,7 +145,7 @@ test('missing inputs and unselected seasons cannot bypass review or force a cale
   await expect(page.locator('[data-tour="build-calendar"]')).not.toContainText(
     'No matching mock crop windows',
   );
-  await page.getByText('Browse 43 crops', { exact: true }).click();
+  await page.getByText('Browse 42 crops', { exact: true }).click();
   await page.getByRole('searchbox', { name: 'Search crops' }).fill('potato');
   await page.getByRole('button', { name: 'Inspect crop: Potato', exact: true }).click();
   await expect(page.getByRole('dialog').getByRole('combobox')).toHaveCount(0);

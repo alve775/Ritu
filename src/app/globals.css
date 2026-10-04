@@ -153,7 +153,9 @@ input::placeholder {
   display: block;
   width: 100%;
   height: auto;
-  object-fit: contain;
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+  object-position: 50% 52%;
 }
 .suggested-crops {
   display: grid;

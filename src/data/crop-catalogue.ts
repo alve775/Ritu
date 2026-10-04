@@ -28,7 +28,6 @@ const entries: [CropId, string, string, CropCategory, keyof typeof cropReference
   ['aus', 'Aus rice', 'আউশ ধান', 'cereal', 'barc'],
   ['maize', 'Maize', 'ভুট্টা', 'cereal', 'barc'],
   ['barley', 'Barley', 'যব', 'cereal', 'fao'],
-  ['sorghum', 'Sorghum', 'জোয়ার', 'cereal', 'fao'],
   ['lentil', 'Lentil', 'মসুর ডাল', 'pulse', 'barc'],
   ['chickpea', 'Chickpea', 'ছোলা', 'pulse', 'barc'],
   ['blackgram', 'Black gram', 'মাষকলাই', 'pulse', 'barc'],

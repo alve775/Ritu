@@ -99,7 +99,7 @@ try {
   await expect(page.getByRole('slider', { name: 'Sound volume' })).toHaveValue('0');
   await page.keyboard.press('Escape');
   await page.goto(base + '/crops');
-  await page.getByText('Browse 43 crops', { exact: true }).click();
+  await page.getByText('Browse 42 crops', { exact: true }).click();
   await page.getByRole('searchbox', { name: 'Search crops' }).fill('maize');
   await page.getByRole('button', { name: 'Inspect crop: Maize', exact: true }).click();
   await expect(

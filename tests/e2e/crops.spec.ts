@@ -7,7 +7,7 @@ import { seedPlan } from './fixtures';
 test.beforeEach(async ({ page }) => {
   await seedPlan(page);
   await page.goto('/crops');
-  await page.getByText('Browse 43 crops', { exact: true }).click();
+  await page.getByText('Browse 42 crops', { exact: true }).click();
 });
 
 test('catalogue search, groups and empty results work; reference records cannot inject dates', async ({
@@ -35,7 +35,7 @@ test('catalogue search, groups and empty results work; reference records cannot 
   expect(axe.violations.map((v) => v.id)).toEqual([]);
 });
 
-test('all 43 crop references open and close without injecting calendar entries', async ({
+test('all 42 crop references open and close without injecting calendar entries', async ({
   page,
 }) => {
   test.setTimeout(90000);

@@ -10,7 +10,7 @@ export interface DemoSettings {
 export const defaultDemo: DemoSettings = {
   location: 'barind',
   weather: 'seasonal',
-  preferred: ['boro', 'aman', 'mung', 'wheat', 'potato', 'mustard', 'sorghum'],
+  preferred: ['boro', 'aman', 'mung', 'wheat', 'potato', 'mustard'],
   enabled: false,
 };
 export const demoLocations: Record<DemoSettings['location'], Localized> = {
@@ -78,11 +78,6 @@ export const demoWindows: Partial<Record<CropId, Omit<CropPeriod, 'crop'>[]>> = 
     { start: 0, duration: 4 },
     { start: 8, duration: 4 },
   ],
-  sorghum: [
-    { start: 0, duration: 3 },
-    { start: 4, duration: 3 },
-    { start: 8, duration: 3 },
-  ],
   groundnut: [{ start: 0, duration: 4 }],
   soybean: [
     { start: 0, duration: 3 },
@@ -104,13 +99,6 @@ export const demoCropRules: Partial<Record<CropId, DemoCropRule>> = {
   lentil: { seasons: [2], water: 1, drought: 2, temperature: [10, 30], soils: ['loam', 'clay'] },
   chickpea: { seasons: [2], water: 1, drought: 1, temperature: [12, 32], soils: ['loam', 'clay'] },
   maize: { seasons: [0, 2], water: 2, drought: 2, temperature: [15, 36], soils: ['loam', 'sandy'] },
-  sorghum: {
-    seasons: [0, 1, 2],
-    water: 1,
-    drought: 1,
-    temperature: [15, 42],
-    soils: ['loam', 'clay', 'sandy'],
-  },
   groundnut: {
     seasons: [0],
     water: 2,

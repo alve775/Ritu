@@ -1,0 +1,26 @@
+{
+  "voice": {
+    "name": "Microsoft Mark",
+    "provider": "Windows offline speech",
+    "rate": 0,
+    "choiceReason": "User approved free alternative; cloud export rejected by automatic approval review"
+  },
+  "language": "en",
+  "targetSeconds": 210,
+  "maxSeconds": 239,
+  "team": "Code_Geass",
+  "chunks": [
+    {
+      "index": 1,
+      "text": "When water is uncertain, choosing one crop is only part of the decision. What follows it? When will the field be free? And what does the household need across the next seasons?\n\nWe are Code Geass, a team of three web developers building Ritu, a crop rotation decision support concept for Rajshahi's Barind region in Bangladesh. Our goal is to turn environmental evidence and farm constraints into choices that farmers can understand, select and revise.\n\nFAO has documented drought and variable water availability in the Barind region, and described flexible crop timing as one response to climate uncertainty. Planning must account for soil, drainage, irrigation, household needs and available help.\n\nRitu brings those questions into one journey. This is a working concept demo: the environmental values, matching rules and planting windows shown here are authored mocks. NASA integration and local agricultural validation are planned work."
+    },
+    {
+      "index": 2,
+      "text": "First, the farmer records the field area, location, soil, drainage and irrigation access. Optional settings capture priorities, household crop requirements, previous crops and months without planting or harvest help.\n\nThe demo screens its crop rules and planting windows. Only passing suggestions can be selected. The farmer chooses crops for the three seasons, then builds a calendar. Ritu assigns the dates and returns up to three distinct passing crop sequences. Crop periods cannot occupy the same month, and unused months appear as rest. If a season has no passing window, Ritu explains the blocker rather than forcing a calendar.\n\nEach plan includes reasons behind the checks. The farmer can review constraints and mock comparisons before choosing. Saving a calendar creates a local snapshot for planting, harvest and notes, kept in the same browser.\n\nEnglish and Bangla interfaces, readable controls and guided tours support exploration. Optional three dimensional crop models are schematic learning aids, separate from the planning engine."
+    },
+    {
+      "index": 3,
+      "text": "What happens if water access changes? The scenario view recalculates mock candidates when irrigation, priority or mock climate changes. A draft keeps the saved setup intact. The farmer applies a compatible scenario deliberately, and replaces an existing tracked calendar only through a separate confirmation.\n\nFor an evidence backed version, we plan to use NASA's IMERG precipitation estimates and POWER temperature histories, together with reviewed local crop windows and farm information. POWER meteorology uses reanalysis. These histories are not parcel measurements or forecasts of next season's weather.\n\nOur next step is collaboration with farmers and agricultural reviewers: validate crop rules, test the Bangla workflow and assess the plans against local conditions. We have not measured water savings, yield changes or soil improvement.\n\nRitu aims to make multi season decisions clearer, explainable and adaptable. One field. Several seasons. The farmer stays in control."
+    }
+  ]
+}

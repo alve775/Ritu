@@ -1,12 +1,14 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { ArrowRight, RotateCcw, X } from 'lucide-react';
 import { usePlanner } from './planner-provider';
 import { HouseholdControl, WaterControl, PriorityControl } from './farm-controls';
 import { months, previewData } from '../data/preview';
 import type { CropId, Farm } from '../domain/types';
 import { DemoEnvironment } from './demo-planning';
+import { Dialog } from './dialog';
+import { ResetDataControl } from './reset-data-control';
 
 function AreaInput() {
   const { t, farm, setFarm } = usePlanner();
@@ -45,6 +47,11 @@ function AreaInput() {
 }
 import { farmFingerprint } from '../domain/demo-planner';
 export function FarmView() {
+  const { resetEpoch } = usePlanner();
+  return <FarmForm key={resetEpoch} />;
+}
+
+function FarmForm() {
   const { t, language, farm, setFarm, demo, setDemo, priority, setJourney, reviewed } =
     usePlanner();
   const router = useRouter();
@@ -58,6 +65,8 @@ export function FarmView() {
     });
   const previous = [...new Set(farm.current.filter((p) => p.crop !== 'fallow').map((p) => p.crop))];
   const [previousCrop, setPreviousCrop] = useState<CropId>('mung');
+  const [clearHistory, setClearHistory] = useState(false);
+  const addPreviousRef = useRef<HTMLButtonElement>(null);
   const changePrevious = (ids: CropId[]) =>
     setFarm({
       current: ids.length
@@ -77,6 +86,7 @@ export function FarmView() {
             )}
           </p>
         </div>
+        <ResetDataControl />
       </header>
       <p className="evidence-banner">
         {t(
@@ -172,15 +182,20 @@ export function FarmView() {
               <li key={id}>
                 <span>{previewData.crops[id].name[language]}</span>
                 <button
-                  className="text-button"
+                  type="button"
+                  className="previous-crop-remove"
                   aria-label={`${t('Remove previous crop', 'আগের ফসল বাদ দিন')}: ${previewData.crops[id].name[language]}`}
+                  title={`${t('Remove previous crop', 'আগের ফসল বাদ দিন')}: ${previewData.crops[id].name[language]}`}
                   onClick={() => changePrevious(previous.filter((p) => p !== id))}
                 >
-                  {t('Remove', 'বাদ দিন')}
+                  <X size={20} aria-hidden="true" />
                 </button>
               </li>
             ))}
           </ul>
+          {!previous.length && (
+            <p role="status">{t('No previous crops recorded.', 'আগের কোনো ফসল লেখা নেই।')}</p>
+          )}
           <label>
             {t('Previous crop to add', 'আগের ফসল যোগ করুন')}
             <select
@@ -196,13 +211,26 @@ export function FarmView() {
                 ))}
             </select>
           </label>
-          <button
-            className="button secondary"
-            disabled={previous.includes(previousCrop) || previous.length >= 12}
-            onClick={() => changePrevious([...previous, previousCrop])}
-          >
-            {t('Add previous crop', 'আগের ফসল যোগ করুন')}
-          </button>
+          <div className="previous-crop-actions">
+            <button
+              ref={addPreviousRef}
+              type="button"
+              className="button secondary previous-crop-add"
+              disabled={previous.includes(previousCrop) || previous.length >= 12}
+              onClick={() => changePrevious([...previous, previousCrop])}
+            >
+              {t('Add previous crop', 'আগের ফসল যোগ করুন')}
+            </button>
+            <button
+              type="button"
+              className="button secondary"
+              disabled={!previous.length}
+              onClick={() => setClearHistory(true)}
+            >
+              <RotateCcw size={18} aria-hidden="true" />
+              {t('Reset previous crops', 'আগের ফসল রিসেট করুন')}
+            </button>
+          </div>
         </section>
       </details>
       <div className="farm-bottom-cta" data-tour="farm-continue">
@@ -237,6 +265,34 @@ export function FarmView() {
           <ArrowRight size={20} />
         </button>
       </div>
+      {clearHistory && (
+        <Dialog
+          title={t('Clear all previous crops?', 'আগের সব ফসল মুছবেন?')}
+          onClose={() => setClearHistory(false)}
+        >
+          <p>
+            {t(
+              'This clears the previous-crop list for this farm. Review your farm before generating new suggestions. Your saved calendar and tracking records are kept.',
+              'এই খামারের আগের ফসলের তালিকা মুছে যাবে। নতুন প্রস্তাব তৈরির আগে খামারের তথ্য দেখুন। রাখা ক্যালেন্ডার ও কাজের হিসাব থাকবে।',
+            )}
+          </p>
+          <div className="button-row previous-crop-actions">
+            <button className="button secondary" onClick={() => setClearHistory(false)}>
+              {t('Keep previous crops', 'আগের ফসল রাখুন')}
+            </button>
+            <button
+              className="button primary"
+              onClick={() => {
+                changePrevious([]);
+                setClearHistory(false);
+                requestAnimationFrame(() => addPreviousRef.current?.focus());
+              }}
+            >
+              {t('Clear previous crops', 'আগের ফসল মুছুন')}
+            </button>
+          </div>
+        </Dialog>
+      )}
     </div>
   );
 }

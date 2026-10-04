@@ -14,7 +14,6 @@ import {
   House,
   Layers3,
   MapPin,
-  RotateCcw,
   Sprout,
   ClipboardCheck,
 } from 'lucide-react';
@@ -22,6 +21,7 @@ import { usePlanner } from './planner-provider';
 import { Dialog } from './dialog';
 import { TourGuide } from './tour-guide';
 import { ReadingControls } from './reading-controls';
+import { ResetDataControl } from './reset-data-control';
 import { evidenceSources } from '../data/evidence';
 
 export function Shell({ children }: { children: ReactNode }) {
@@ -34,10 +34,9 @@ export function Shell({ children }: { children: ReactNode }) {
     demoSaved,
     journeySaved,
     ready,
-    reset,
   } = usePlanner();
   const saved = farmSaved && demoSaved && journeySaved;
-  const [modal, setModal] = useState<'about' | 'reset' | null>(null);
+  const [modal, setModal] = useState<'about' | null>(null);
   const nav = [
     {
       href: '/farm',
@@ -162,10 +161,7 @@ export function Shell({ children }: { children: ReactNode }) {
                       'সংরক্ষণ সম্ভব নয় — এই ট্যাব খোলা রাখুন',
                     )}
             </span>
-            <button className="text-button" onClick={() => setModal('reset')}>
-              <RotateCcw size={12} />
-              {t('Reset demo', 'নমুনা রিসেট')}
-            </button>
+            <ResetDataControl compact />
           </div>
         </footer>
       </div>
@@ -228,30 +224,6 @@ export function Shell({ children }: { children: ReactNode }) {
               'Built by the Ritu team for the 2026 Space Apps project.',
               '২০২৬ স্পেস অ্যাপস প্রকল্পের জন্য ঋতু দলের তৈরি।',
             )}
-          </div>
-        </Dialog>
-      )}
-      {modal === 'reset' && (
-        <Dialog title={t('Start fresh?', 'আবার শুরু করবেন?')} onClose={() => setModal(null)}>
-          <p>
-            {t(
-              'This restores the sample farm and priorities and clears your crop choices, saved calendar, progress and notes on this device. Your language preference will stay.',
-              'নমুনা খামার ও অগ্রাধিকার ফিরবে। এই ডিভাইসের বাছা ফসল, রাখা ক্যালেন্ডার, অগ্রগতি ও নোট মুছে যাবে। ভাষা একই থাকবে।',
-            )}
-          </p>
-          <div className="button-row">
-            <button className="button secondary" onClick={() => setModal(null)}>
-              {t('Keep my plan', 'পরিকল্পনা রাখুন')}
-            </button>
-            <button
-              className="button primary"
-              onClick={() => {
-                reset();
-                setModal(null);
-              }}
-            >
-              {t('Reset sample farm', 'নমুনা খামার রিসেট')}
-            </button>
           </div>
         </Dialog>
       )}

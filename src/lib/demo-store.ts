@@ -53,6 +53,6 @@ export const demoStore = {
     persist({ ...snapshot.settings, ...change });
   },
   reset() {
-    persist(defaultDemo);
+    persist({ ...defaultDemo, preferred: [] });
   },
 };

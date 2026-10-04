@@ -44,7 +44,9 @@ Names/catalogue source links and the five supported 3D anatomy entries remain so
 - Applying a scenario explicitly updates farm/settings and their review/generated fingerprints only when the draft has compatible plans. Draft/Reset do not save farm changes. Existing tracking is untouched until a replacement is explicitly saved.
 - Store loading uses deterministic server snapshots; main inputs appear only once browser state is ready, preventing pre-hydration edits from being discarded.
 - Each schema is validated on load. Invalid tracked timing, record keys or harvest-before-planting cannot be restored. Storage errors leave the current tab usable with a visible notice.
-- Reset confirms that crop choices, saved calendar, progress and notes will be cleared; language is preserved.
+- **Reset all data** is visible beside the farm heading; the footer invokes the same operation. After confirmation, all farm inputs, mock location/weather and priorities return to the demo defaults; crop choices, review/generated fingerprints, saved calendar, progress and notes are cleared. Language and reading/motion/sound preferences remain. Reset restores sample defaults rather than blank inputs.
+- Full reset remounts the farm form, clearing unfinished area drafts and other local form state, closes the field view and returns to the first month. Cancel/Escape leave stored data unchanged; confirmed reset restores focus to the current reset control.
+- **Reset previous crops** is a separate history-only action. It preserves other farm inputs and the saved tracking snapshot, while invalidating future suggestions until the changed farm is reviewed again.
 
 ## Design basis and scope
 

@@ -72,8 +72,10 @@ export function SuggestedCropsView() {
   );
   if (!reviewed && !tourPreview) return <JourneyGate />;
   const seasons = [t('Pre-monsoon', 'প্রাক্‌বর্ষা'), t('Monsoon', 'বর্ষা'), t('Winter', 'শীত')];
-  const missing = [0, 1, 2].filter(
+  const unavailable = [0, 1, 2].filter((season) => !suggestions.some((s) => s.season === season));
+  const unselected = [0, 1, 2].filter(
     (season) =>
+      !unavailable.includes(season) &&
       !suggestions.some((s) => s.season === season && settings.preferred.includes(s.period.crop)),
   );
   return (
@@ -178,37 +180,69 @@ export function SuggestedCropsView() {
       )}
       <section className="choice-panel" data-tour="build-calendar">
         <div>
-          <h2>{t('Ready for your calendar?', 'ক্যালেন্ডারের জন্য প্রস্তুত?')}</h2>
+          <h2>
+            {unavailable.length
+              ? t('A full calendar is not available yet', 'এখনো পূর্ণ ক্যালেন্ডার পাওয়া যাচ্ছে না')
+              : t('Ready for your calendar?', 'ক্যালেন্ডারের জন্য প্রস্তুত?')}
+          </h2>
           <p role="status">
-            {missing.length
+            {unavailable.length
               ? t(
-                  `Choose a suggested crop for: ${missing.map((i) => seasons[i]).join(', ')}.`,
-                  `প্রস্তাবিত ফসল বাছুন: ${missing.map((i) => seasons[i]).join(', ')}।`,
+                  `No matching mock crop windows for: ${unavailable.map((i) => seasons[i]).join(', ')}.`,
+                  `এই মৌসুমে নমুনার শর্তে কোনো ফসলের সময় মেলেনি: ${unavailable.map((i) => seasons[i]).join(', ')}।`,
                 )
-              : !candidates.length
+              : unselected.length
                 ? t(
-                    'These choices cannot meet every household or timing constraint together. Add more suggested crops or review your requirements.',
-                    'এই ফসলগুলো একসঙ্গে পরিবার ও সময়ের সব শর্ত মেটায় না। আরও প্রস্তাবিত ফসল বাছুন বা শর্ত দেখুন।',
+                    `Choose a suggested crop for: ${unselected.map((i) => seasons[i]).join(', ')}.`,
+                    `প্রস্তাবিত ফসল বাছুন: ${unselected.map((i) => seasons[i]).join(', ')}।`,
                   )
-                : t(
-                    `${candidates.length} compatible calendar options available. All dates are assigned automatically; no overlaps.`,
-                    `${candidates.length}টি মিলযুক্ত ক্যালেন্ডার আছে। সময় স্বয়ংক্রিয়; একটির সঙ্গে অন্যটি মেলে না।`,
-                  )}
+                : !candidates.length
+                  ? t(
+                      'These choices cannot meet every household or timing constraint together. Add more suggested crops or review your requirements.',
+                      'এই ফসলগুলো একসঙ্গে পরিবার ও সময়ের সব শর্ত মেটায় না। আরও প্রস্তাবিত ফসল বাছুন বা শর্ত দেখুন।',
+                    )
+                  : t(
+                      `${candidates.length} compatible calendar options available. All dates are assigned automatically; no overlaps.`,
+                      `${candidates.length}টি মিলযুক্ত ক্যালেন্ডার আছে। সময় স্বয়ংক্রিয়; একটির সঙ্গে অন্যটি মেলে না।`,
+                    )}
           </p>
+          {!!unavailable.length && (
+            <p>
+              {t(
+                'These seasons have no selectable suggestions under your current mock conditions. This demo requires one crop in each of the three seasons. Review soil, drainage, water, climate and help availability; a conflicting calendar is never forced.',
+                'বর্তমান নমুনার শর্তে এই মৌসুমে বাছার মতো ফসল নেই। এই নমুনায় তিনটি মৌসুমের প্রতিটিতে একটি ফসল লাগে। মাটি, নিষ্কাশন, পানি, জলবায়ু ও শ্রমের তথ্য দেখুন; শর্ত না মিললে জোর করে ক্যালেন্ডার তৈরি হয় না।',
+              )}
+            </p>
+          )}
+          {!!unavailable.length && !!unselected.length && (
+            <p>
+              {t(
+                `Also choose from the available suggestions for: ${unselected.map((i) => seasons[i]).join(', ')}.`,
+                `এছাড়া মেলা প্রস্তাব থেকে ফসল বাছুন: ${unselected.map((i) => seasons[i]).join(', ')}।`,
+              )}
+            </p>
+          )}
         </div>
-        <button
-          className="button primary"
-          disabled={!candidates.length}
-          onClick={() => {
-            setDemo({ enabled: true });
-            setJourney({ generatedFor: planFingerprint(farm, demo, priority) });
-            select(candidates[0].id);
-            router.push('/plan');
-          }}
-        >
-          {t('Build my calendar', 'আমার ক্যালেন্ডার তৈরি করুন')}
-          <ArrowRight size={20} />
-        </button>
+        <div className="calendar-actions">
+          {!candidates.length && (
+            <Link className="button secondary" href="/farm">
+              {t('Review farm conditions', 'খামারের শর্ত দেখুন')}
+            </Link>
+          )}
+          <button
+            className="button primary"
+            disabled={!candidates.length}
+            onClick={() => {
+              setDemo({ enabled: true });
+              setJourney({ generatedFor: planFingerprint(farm, demo, priority) });
+              select(candidates[0].id);
+              router.push('/plan');
+            }}
+          >
+            {t('Build my calendar', 'আমার ক্যালেন্ডার তৈরি করুন')}
+            <ArrowRight size={20} />
+          </button>
+        </div>
       </section>
       {!demoSaved && (
         <p role="status">

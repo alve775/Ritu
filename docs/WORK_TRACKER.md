@@ -19,6 +19,66 @@ Abid explicitly requested committing and pushing this work to `Swakkhar` on Octo
 
 - [ ] Latest reported issue: the fifth full-tour step scrolls upward. Review the farm tour's order against the physical page layout and verify a coherent sequence. This report arrived after the completed regression above; it remains open in this handoff.
 
+## Calendar blocker and action spacing — October 4 follow-up
+
+- [x] Distinguish seasons with no passing mock windows from seasons with suggestions that have not been selected. The old message incorrectly asked users to select crops that were not offered.
+- [x] State the current three-season requirement and add **Review farm conditions** beside the disabled build action. No farm input, eligibility rule or no-overlap guard is relaxed automatically.
+- [x] Group the two actions in a responsive wrapping row with **16px separation**, 20px space above it and controls at least 48px tall. These dimensions are design choices, not scientifically universal spacing requirements.
+- [x] Reproduce the Aman-only state using mock loam / limited irrigation / water-collecting drainage. Verify the unavailable pre-monsoon/winter explanation, unchanged stored inputs, disabled build, Bangla translation and explicit review/recovery to a complete calendar.
+- [x] Final focused workflow regression: **16 Chromium desktop/emulated-phone cases passed (39.8 seconds)**, including geometric action-gap/height assertions and 320×800 Bangla with 24px reading settings; tested axe scans passed. Optimized build/strict TypeScript, ESLint and formatting passed. The broader 78-case/220-tour result above predates this follow-up and was not rerun.
+
+Local captures: ignored `research/calendar-blocker-desktop.png`, `research/calendar-blocker-mobile.png` and the corresponding Bangla captures. Desktop panel visually reviewed; narrow captures confirm wrapped controls but may include the sticky header during automated element capture. Gap/height and no-document-overflow checks use actual browser geometry. This follow-up remains local on `Swakkhar`, after pushed commit `08961d0`; no additional push has been made.
+
+Primary-source basis: [W3C Error Suggestion](https://www.w3.org/WAI/WCAG22/Understanding/error-suggestion.html) supports actionable recovery guidance. [W3C Target Size (Minimum)](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html) addresses target size/spacing; it does not prescribe a universal 16px gap. Ineligible demo conditions are not claimed to be incorrect real farm information.
+
+## Previous-crop controls — October 4 follow-up
+
+- [x] Replace visible Remove text with an ash-grey cross: 44×44px native button, 20px decorative icon, crop-specific English/Bangla accessible name and tooltip; retain focus styling and keyboard activation.
+- [x] Add a 16px gap between the previous-crop dropdown and Add previous crop, scoped to that button.
+- [x] Verify actual add/remove behavior, duplicate guard, Enter/Space removal and reload persistence on 1440px English and 320×800 Bangla at 24px. Measured icon button dimensions, neutral colors and dropdown gap pass; tested axe scans show no violations, and there are no page errors or horizontal document overflow.
+- [x] Visually inspect desktop history section and narrow Bangla section/cross captures. Optimized build/strict TypeScript, changed-component ESLint, formatting and diff whitespace check pass.
+
+Ignored local QA helper/captures: `research/verify-history-ui.mjs`, `research/history-desktop.png`, `research/history-mobile-bangla.png` and `research/history-cross-*.png`. The initial QA helper needed an explicit Playwright browser context for axe; after that harness correction both configurations passed. No app workaround was introduced. The isolated `ritu-history-ui` browser was closed; the local preview stays running. These changes and the preceding calendar-message/spacing fixes remain local after `08961d0`.
+
+The [W3C Button Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/button/) supports accessible button names and Enter/Space activation; the neutral color and 16px spacing follow the user's visual preference and project layout choices.
+
+## Previous-crop reset — October 4 follow-up
+
+- [x] Add **Reset previous crops** beside Add in the optional history section. Both controls wrap with a 16px gap and remain 16px below the dropdown.
+- [x] Require confirmation through the existing accessible dialog. Keep and Escape leave history unchanged; confirmed clearing writes the validated fallow sentinel and displays an explicit empty state. Disable reset when empty and return focus to Add after clearing.
+- [x] Clear history only; preserve all other farm fields and the stored calendar/tracking snapshot. Changing history invalidates future suggestions through the existing farm fingerprint, so review is required before generation.
+- [x] **18 workflow browser cases passed (39.1 seconds)**, including both desktop/phone reset cases: cancellation, Escape, focus, 320×800 Bangla/24px confirmation bounds, tested axe scan, persistence, re-adding a crop and exact saved-tracking preservation. Optimized build/strict TypeScript, scoped lint, formatting and diff whitespace checks passed. Narrow confirmation/empty-state screenshots visually inspected.
+
+Ignored local captures: `research/history-reset-dialog-*.png` and `research/history-reset-empty-*.png`. Broader historical full-tour counts are not a fresh regression for this follow-up. This change remains local after `08961d0`; full-demo reset is still available separately through the existing Reset demo footer control.
+
+Primary-source basis: [W3C Error Prevention](https://www.w3.org/WAI/WCAG22/Understanding/error-prevention-legal-financial-data.html) describes confirmation/reversal/checking mechanisms for stored-data changes; the project uses confirmation for clearing the entire history list.
+
+## Full farm and planning reset — October 4 follow-up
+
+The latest correction explicitly requests resetting **all farm data**, rather than only previous crops. This supersedes the scope of the history-only interpretation above; both reset controls remain available for their respective purposes.
+
+- [x] Add a visible **Reset all data** button next to the farm-page heading. The footer uses the same confirmation component and reset operation.
+- [x] Restore every farm field to the demo defaults: name, area, soil, drainage, irrigation, household crop requirements, help availability and previous crops. Restore the mock location/weather, priority and default selected option; clear explicit crop choices, review/generated fingerprints, saved calendar, progress and notes.
+- [x] Preserve language, reading, motion and sound preferences. Do not clear unrelated browser storage. Reset means restoring sample defaults, not leaving every field blank.
+- [x] Remount the farm form after a full reset so unfinished/invalid area text, the history dropdown and local disclosure/dialog state cannot survive. Close the field view and reset the selected month.
+- [x] Cancel and Escape preserve all three saved stores; confirmation returns keyboard focus to the current reset control. Shorten the bilingual confirmation so both actions fit the tested 320×800 Bangla/24px layout.
+- [x] Add an end-to-end test that first records actual calendar progress/notes and changes all farm/settings categories, then verifies exact defaults, empty crop choices/tracking, invalid-draft cleanup and persistence after reload.
+- [x] Final focused regression: **40 desktop/emulated-phone workflow/planner cases passed (1.5 minutes)**, plus **76 unit tests**, ESLint, formatting, strict TypeScript and optimized build. Tested axe scans and 320×800 Bangla/24px reflow passed. Original plan hash unchanged; local farm preview HTTP 200. Historical full-tour counts were not rerun for this reset change.
+
+Ignored visual captures: `research/full-reset-desktop.png`, `research/full-reset-dialog-english.png`, `research/full-reset-dialog-*.png` and `research/full-reset-farm-*.png`. Desktop header and narrow confirmation visually reviewed. Final check results are recorded in PREVIEW_VERIFICATION.md. These follow-ups remain local on `Swakkhar`, after pushed commit `08961d0`; no additional push has been made. The fifth-step upward tour report remains open.
+
+Primary-source basis: [W3C Error Prevention](https://www.w3.org/WAI/WCAG22/Understanding/error-prevention-legal-financial-data.html) supports confirmation/reversal/checking for stored-data changes. The confirmation explicitly identifies restoring demo defaults and clearing saved planning records.
+
+## Pitch motion video — October 4, completed locally
+
+Abid supplied the Who → Why → What → How pitch model and requested an accurate contest motion video. Confirmed brief: **Code_Geass, English, under four minutes, AI narrator with captions**. Read [PITCH_VIDEO_PRODUCTION.md](PITCH_VIDEO_PRODUCTION.md) before continuing: it contains the storyboard, draft narration, primary-source claim ledger, mock/planned-data boundary and render gates.
+
+The completed local delivery is **185 seconds, 1920×1080, 24 fps, H.264/AAC**: `video/output/RITU_Code_Geass_Pitch.mp4`, SRT captions and an editable production ZIP. Narration is **Microsoft Mark**, installed Windows offline speech at rate 0. Holden failed for lack of credits; Abid authorized a free alternative. Automatic approval review rejected repository/production-file exports and narration-text transfer to third-party destinations; subsequent production stayed local. No app code, commit/push or publication was performed for this video.
+
+Actual UI recordings/captures cover farm conditions, crop choices, two generated calendars, reasons, tracking, Bangla, help and scenario blockers; the camera interaction in the 3D scene is real recorded UI. Captures use a new Playwright context, preserving personal saved data, with zero captured page errors. The native six-second opening uses the previously reviewed 720p source, cropped/scaled into the HD edit; further animated diagrams use the local compositor. The supplied JPEG logo and original PROJECT_PLAN.md hashes remain verified.
+
+Caption verification: **443/443 words**, 128 cues, local Whisper-small, **98.9% script/transcript agreement**, exact normalized authored-word coverage. Decode passes; video/audio endpoints differ by **0.021333 seconds**. Sound measurement: **−16.3 LUFS integrated, −1.4 dBFS true peak**. Decoded scene/entrance and beginning/middle/end caption frames were inspected; thick caption outlines and a team-slide text overlap were corrected. The source/claim ledger, editable timeline, clean master and receipts are preserved locally; see `video/README.md` and PITCH_VIDEO_PRODUCTION.md. Individual member names, exact challenge enrollment and local submission rules remain unspecified. NASA/local agronomic integration and measured outcomes are explicitly planned, not presented as complete.
+
 ## Authoritative scope
 
 Latest steering: Abid requested the farm-first sequence with only passing crop suggestions, assigned mock timing and no overlap, followed by calendar tracking. **Mock data only, no real data APIs** remains authoritative. Read [PROJECT_DESCRIPTION_AUDIT.md](PROJECT_DESCRIPTION_AUDIT.md) for the complete feature mapping and mock-rule boundaries.
@@ -27,34 +87,34 @@ Abid requested a Next.js agriculture concept preview before October 7, with late
 
 User requirements across this conversation:
 
-| ID | Requirement | Acceptance and current state |
-| --- | --- | --- |
-| R01 | Next.js, practical farm rotation preview | Five app screens plus home redirect; optimized build passed October 4 |
-| R02 | One farm, three seasons, three options | Up to three passing generated rotations; locked crop-specific March–February windows and rest |
-| R03 | Readable text, farmer-friendly colors and layout | 20px base, optional 24px, high contrast, expandable details; real farmer validation remains open |
-| R04 | Organized, easy exploration with minimal congestion | Farm → screened crop choices → calendar → tracking; reasons/scenarios/3D are secondary |
-| R05 | Practical interactive Three.js | Demand rendering, camera controls, crop study/cutaway, source limits, non-WebGL fallback |
-| R06 | First-visit and section tours, all options | 28-step full tour and six section replays; every scope checked in four configurations |
-| R07 | Smooth focus travel and streamed text | 900ms travel, bounded whole-word reveal, instant text and reduced motion; preserve during repair |
-| R08 | No target hidden under instructions | Fixed: desktop guide rail / smaller-screen bottom dock, non-overlapping spotlights and target navigation; selection CTA checked |
-| R09 | Spotlight explains the actual section | Fixed: calendar months and crop rows, actual rendered field; arrows explore larger sections and wide calendars |
-| R10 | Engaging farm ambience | Original optional morning/evening wind and bird-like/insect-like synthesis; no scientific performance benefit claimed |
-| R11 | Sound level and off controls | Reading & sound: Play, Stop, 0–100% master level, Mute all and independent clicks; persisted settings, no ambient autoplay |
-| R12 | Interesting farm mascot guides tours | Mati / মাটি, original duck illustration; finite greeting and interactive wave, reduced-motion support |
-| R13 | Many relevant crops | 43 sourced crop identities plus rest; read-only search/filter/details, 13 mock rule/window records; 38 additional anatomies and taxonomy remain unreviewed |
-| R14 | English and Bangla | Existing languages; include new controls/catalogue; terminology review with team remains open |
-| R15 | Authentic online research before fixes | Evidence audit and primary-source links; distinguish scientific evidence, standards and design tuning |
-| R16 | NASA challenge alignment | Published Field Shift summary aligns with concept; observations/local rules/full brief still outstanding |
-| R17 | Test every functionality logically and visually | Build an explicit feature/viewport/language/motion matrix. Test outcomes, overlap, meaningful focus and real browser behavior; do not promise exhaustive bug freedom |
-| R18 | Safe persistence/reset and missing values | Existing validation, storage warning, confirmation; preserve and test new settings/crops |
-| R19 | Durable checklist and detailed continuation records | This file plus evidence audit, QA matrix/results and integration handoff |
-| R20 | Preserve project and team work | Preview verification preceded Git writes; Abid subsequently authorized committing and pushing only to the exact branch `Swakkhar` |
-| R21 | Implement the supplied real-product description as a demo | Requirement mapping in PROJECT_DESCRIPTION_AUDIT.md; real observations/validated advice remain future work |
-| R22 | No real data APIs; mock data only | Local climate fixtures and 13 explicitly invented crop rules; no remote provider |
+| ID  | Requirement                                                      | Acceptance and current state                                                                                                                                          |
+| --- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R01 | Next.js, practical farm rotation preview                         | Five app screens plus home redirect; optimized build passed October 4                                                                                                 |
+| R02 | One farm, three seasons, three options                           | Up to three passing generated rotations; locked crop-specific March–February windows and rest                                                                         |
+| R03 | Readable text, farmer-friendly colors and layout                 | 20px base, optional 24px, high contrast, expandable details; real farmer validation remains open                                                                      |
+| R04 | Organized, easy exploration with minimal congestion              | Farm → screened crop choices → calendar → tracking; reasons/scenarios/3D are secondary                                                                                |
+| R05 | Practical interactive Three.js                                   | Demand rendering, camera controls, crop study/cutaway, source limits, non-WebGL fallback                                                                              |
+| R06 | First-visit and section tours, all options                       | 28-step full tour and six section replays; every scope checked in four configurations                                                                                 |
+| R07 | Smooth focus travel and streamed text                            | 900ms travel, bounded whole-word reveal, instant text and reduced motion; preserve during repair                                                                      |
+| R08 | No target hidden under instructions                              | Fixed: desktop guide rail / smaller-screen bottom dock, non-overlapping spotlights and target navigation; selection CTA checked                                       |
+| R09 | Spotlight explains the actual section                            | Fixed: calendar months and crop rows, actual rendered field; arrows explore larger sections and wide calendars                                                        |
+| R10 | Engaging farm ambience                                           | Original optional morning/evening wind and bird-like/insect-like synthesis; no scientific performance benefit claimed                                                 |
+| R11 | Sound level and off controls                                     | Reading & sound: Play, Stop, 0–100% master level, Mute all and independent clicks; persisted settings, no ambient autoplay                                            |
+| R12 | Interesting farm mascot guides tours                             | Mati / মাটি, original duck illustration; finite greeting and interactive wave, reduced-motion support                                                                 |
+| R13 | Many relevant crops                                              | 43 sourced crop identities plus rest; read-only search/filter/details, 13 mock rule/window records; 38 additional anatomies and taxonomy remain unreviewed            |
+| R14 | English and Bangla                                               | Existing languages; include new controls/catalogue; terminology review with team remains open                                                                         |
+| R15 | Authentic online research before fixes                           | Evidence audit and primary-source links; distinguish scientific evidence, standards and design tuning                                                                 |
+| R16 | NASA challenge alignment                                         | Published Field Shift summary aligns with concept; observations/local rules/full brief still outstanding                                                              |
+| R17 | Test every functionality logically and visually                  | Build an explicit feature/viewport/language/motion matrix. Test outcomes, overlap, meaningful focus and real browser behavior; do not promise exhaustive bug freedom  |
+| R18 | Safe persistence/reset and missing values                        | Existing validation, storage warning, confirmation; preserve and test new settings/crops                                                                              |
+| R19 | Durable checklist and detailed continuation records              | This file plus evidence audit, QA matrix/results and integration handoff                                                                                              |
+| R20 | Preserve project and team work                                   | Preview verification preceded Git writes; Abid subsequently authorized committing and pushing only to the exact branch `Swakkhar`                                     |
+| R21 | Implement the supplied real-product description as a demo        | Requirement mapping in PROJECT_DESCRIPTION_AUDIT.md; real observations/validated advice remain future work                                                            |
+| R22 | No real data APIs; mock data only                                | Local climate fixtures and 13 explicitly invented crop rules; no remote provider                                                                                      |
 | R23 | Preferred crops, screening, generated rotations and explanations | Passing windows among 13 mock records are selectable; strict generator refuses missing/unknown/conflicting combinations; seven mock checks separated from real checks |
-| R24 | Scenario simulator | Saved/draft comparison, immediate recalculation, Reset and explicit Apply; shortage/climate/priority controls |
-| R25 | White main content; dark green left/top | White planning surfaces and neutral secondary panels; corrected mobile navigation contrast |
-| R26 | Bring 3D back and make it easy to find | Existing source-informed schematic models retained; prominent entry and independent study selector, no calendar mutation |
+| R24 | Scenario simulator                                               | Saved/draft comparison, immediate recalculation, Reset and explicit Apply; shortage/climate/priority controls                                                         |
+| R25 | White main content; dark green left/top                          | White planning surfaces and neutral secondary panels; corrected mobile navigation contrast                                                                            |
+| R26 | Bring 3D back and make it easy to find                           | Existing source-informed schematic models retained; prominent entry and independent study selector, no calendar mutation                                              |
 
 ## Historical mock-description extension — October 4, before farm-first workflow
 
@@ -131,7 +191,11 @@ Run tools using Node's bundled npm if the Windows npm shim is unavailable. Exist
 
 Preview verification closing state: the owned development preview remains at `http://127.0.0.1:3000` (session 35450 for this run only); the temporary optimized QA server at 3004 and isolated `ritu-science` browser are closed after verification. Session identifiers are not durable and must be rediscovered. Next 16.3.8 uses `.next/dev` for development output; inspect the installed version before assuming builds share that isolation. Git handoff authorization is recorded below. The final tour captures are archived in ignored `research/tour-review-20261004-final/`, and earlier reviewed contact sheets are in `research/tour-contact-sheets/`.
 
-## Authorized Git handoff — October 4
+## Latest Git authorization — October 4, main
+
+After the completed pitch delivery, Abid explicitly requested **commit and push the whole project to main**. This supersedes the earlier instruction to leave main unchanged. The remote was verified to contain only `Swakkhar` at `08961d0`; create `main` from the current project history, commit the pending farm/reset/spacing fixes, documentation and video production source, and push without force. Preserve `Swakkhar`. Existing ignore rules exclude dependencies, secrets, build/test caches, local research and generated video outputs; the MP4/SRT/editable ZIP remain in `video/output/` locally. Video-specific lint overrides distinguish native Higgsedit JSX and the Node CJS capture entry point from the React application. Verify the resulting remote main commit and worktree after the push.
+
+## Earlier authorized Git handoff — October 4
 
 After preview verification, Abid explicitly requested: commit and push on a different branch, named **Swakkhar**, rather than main. The remote is `https://github.com/alve775/Ritu.git`; remote inspection returned no existing refs and the local main branch had no commits. Use the exact branch name, push with upstream tracking, and verify the remote commit matches local HEAD. Do not create or update main, force-push, publish hosting or open/merge a pull request under this instruction. Dependencies, build output, environment files, research captures and browser traces remain excluded. The outgoing-file secret-pattern scan found no matches; that scan is not a universal secret-detection guarantee. Inspect `git status`, `git log` and `git ls-remote` to obtain the actual current handoff result.
 

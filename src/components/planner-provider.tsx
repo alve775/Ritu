@@ -22,6 +22,7 @@ import { defaultDemo } from '../data/demo-environment';
 import type { Rotation } from '../domain/types';
 
 function usePlannerState() {
+  const [resetEpoch, setResetEpoch] = useState(0);
   const [month, setMonth] = useState(0);
   const [fieldOpen, setFieldOpen] = useState(false);
   const [tourPreview, setTourPreview] = useState(false);
@@ -51,6 +52,8 @@ function usePlannerState() {
   const select = (selected: string) => setState((s) => ({ ...s, selected }));
   const reset = () => {
     setMonth(0);
+    setFieldOpen(false);
+    setResetEpoch((epoch) => epoch + 1);
     demoStore.reset();
     journeyStore.reset();
     setState((s) => ({ ...initialState, language: s.language }));
@@ -90,6 +93,7 @@ function usePlannerState() {
     setPriority,
     select,
     reset,
+    resetEpoch,
     evaluations,
     reviewed,
     planReady,

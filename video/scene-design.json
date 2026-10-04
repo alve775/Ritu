@@ -1,0 +1,173 @@
+[
+  {
+    "key": "hook",
+    "phrase": "When water is uncertain",
+    "phase": "WHO",
+    "title": "Plan beyond the next crop.",
+    "kind": "seasons",
+    "lead": "One field. Several seasons.",
+    "detail": "What follows this crop?\nWhen is the field free?\nWhat does the household need?"
+  },
+  {
+    "key": "team",
+    "phrase": "We are Code Geass",
+    "phase": "WHO",
+    "title": "We are Code_Geass.",
+    "kind": "team",
+    "lead": "Three web developers.\nOne practical planning question.",
+    "detail": "RITU · Crop-rotation decision support\nInitial pilot: Barind, Rajshahi, Bangladesh"
+  },
+  {
+    "key": "problem",
+    "phrase": "FAO has documented",
+    "phase": "WHY",
+    "title": "The decision spans several seasons.",
+    "kind": "constraints",
+    "lead": "Drought and variable water availability\nmake timing part of the decision.",
+    "detail": "Historical context: FAO drought-adaptation work\nSources in the production notes; no new local measurements."
+  },
+  {
+    "key": "boundary",
+    "phrase": "Ritu brings those questions",
+    "phase": "WHY",
+    "title": "A working concept. An honest boundary.",
+    "kind": "boundary",
+    "lead": "Today: a usable mock-data demo.",
+    "detail": "Environmental values · Matching rules · Planting windows\nNASA integration and local agricultural validation are planned."
+  },
+  {
+    "key": "farm",
+    "phrase": "First, the farmer records",
+    "phase": "WHAT",
+    "title": "01 / Tell RITU about the field.",
+    "kind": "screen",
+    "image": "02-soil-water",
+    "lead": "Start with soil and water.",
+    "detail": "Location and field area\nSoil and drainage\nIrrigation access\nHousehold needs and help"
+  },
+  {
+    "key": "suggestions",
+    "phrase": "The demo screens its crop rules",
+    "phase": "WHAT",
+    "title": "02 / Choose among passing suggestions.",
+    "kind": "screen",
+    "image": "04-crops",
+    "lead": "The farmer chooses.",
+    "detail": "Mock rules screen the options.\nOnly passing crop windows can be selected.\nDates are assigned by the planner."
+  },
+  {
+    "key": "calendar",
+    "phrase": "Ritu assigns the dates",
+    "phase": "WHAT",
+    "title": "03 / Compare complete calendars.",
+    "kind": "screen",
+    "image": "07-calendar",
+    "lead": "Locked windows.\nDistinct crop sequences.",
+    "detail": "Up to three passing plans\nNo overlapping occupied months\nUnused intervals shown as rest"
+  },
+  {
+    "key": "blocker",
+    "phrase": "If a season has no passing window",
+    "phase": "WHAT",
+    "title": "An impossible plan stays impossible.",
+    "kind": "boundary",
+    "lead": "Explain the blocker.\nKeep the farmer in control.",
+    "detail": "The demo never forces a crop into a conflicting calendar.\nA missing passing window means the conditions need review."
+  },
+  {
+    "key": "reasons",
+    "phrase": "Each plan includes reasons",
+    "phase": "WHAT",
+    "title": "Explain the checks behind each plan.",
+    "kind": "screen",
+    "image": "08-reasons",
+    "lead": "Why this plan?",
+    "detail": "Farm constraints\nMock environmental checks\nCalendar and household fit\nVisible limits and missing evidence"
+  },
+  {
+    "key": "track",
+    "phrase": "Saving a calendar creates",
+    "phase": "WHAT",
+    "title": "04 / Save the calendar. Keep track.",
+    "kind": "screen",
+    "image": "10-record",
+    "lead": "Planting. Harvest. Notes.",
+    "detail": "A saved calendar snapshot\nTask progress for each crop\nStored in the same browser"
+  },
+  {
+    "key": "access",
+    "phrase": "English and Bangla interfaces",
+    "phase": "WHAT",
+    "title": "Guidance in English and Bangla.",
+    "kind": "screen",
+    "image": "16-bangla",
+    "lead": "Explore one step at a time.",
+    "detail": "Readable controls\nGuided mission tours\nSection help when needed\nFarmer usability testing is next"
+  },
+  {
+    "key": "3d",
+    "phrase": "Optional three dimensional crop models",
+    "phase": "WHAT",
+    "title": "A schematic view of crop structures.",
+    "kind": "screen",
+    "image": "11-3d",
+    "lead": "Explore the field in 3D.",
+    "detail": "Rotate and inspect crop structures.\nA learning aid, separate from the planning engine.\nNo measured crop growth is claimed."
+  },
+  {
+    "key": "scenario",
+    "phrase": "What happens if water access changes",
+    "phase": "HOW",
+    "title": "Change a condition. Explore the result.",
+    "kind": "screen",
+    "image": "13-scenario",
+    "lead": "A scenario is a draft.",
+    "detail": "Irrigation\nFarming priority\nMock climate\nRecalculate compatible candidates"
+  },
+  {
+    "key": "scenario-control",
+    "phrase": "A draft keeps the saved setup",
+    "phase": "HOW",
+    "title": "Apply deliberately. Preserve saved work.",
+    "kind": "screen",
+    "image": "15-scenario-blocker",
+    "lead": "Review before applying.",
+    "detail": "The saved farm stays intact.\nIncompatible scenarios cannot be applied.\nReplacing tracked work requires confirmation."
+  },
+  {
+    "key": "nasa",
+    "phrase": "For an evidence backed version",
+    "phase": "HOW",
+    "title": "NASA evidence + local crop knowledge.",
+    "kind": "nasa",
+    "lead": "Planned integration",
+    "detail": "IMERG: precipitation estimates\nPOWER: temperature histories\nReviewed local rules and farm information"
+  },
+  {
+    "key": "limits",
+    "phrase": "POWER meteorology uses reanalysis",
+    "phase": "HOW",
+    "title": "Environmental histories need context.",
+    "kind": "limits",
+    "lead": "POWER meteorology uses reanalysis.",
+    "detail": "These histories are not parcel measurements\nor forecasts of next season's weather.\nSource: NASA POWER methodology"
+  },
+  {
+    "key": "validation",
+    "phrase": "Our next step is collaboration",
+    "phase": "HOW",
+    "title": "Build the next version with farmers.",
+    "kind": "validation",
+    "lead": "What we need next",
+    "detail": "Agricultural review of crop rules\nBangla workflow testing with farmers\nEvaluation against local conditions\nNo measured water, yield or soil benefits yet"
+  },
+  {
+    "key": "close",
+    "phrase": "Ritu aims to make multi season",
+    "phase": "HOW",
+    "title": "The farmer stays in control.",
+    "kind": "close",
+    "lead": "One field. Several seasons.",
+    "detail": "RITU · Code_Geass\nCrop planning that is explainable and adaptable\ngithub.com/alve775/Ritu"
+  }
+]

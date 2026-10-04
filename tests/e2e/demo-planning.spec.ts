@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { chooseDefaultCrops, seedPlan } from './fixtures';
+import { defaultFarm } from '../../src/data/preview';
+import { defaultDemo } from '../../src/data/demo-environment';
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('ritu-tour-v1', 'seen'));
 });
@@ -68,11 +70,78 @@ test('missing inputs and unselected seasons cannot bypass review or force a cale
   await page.getByRole('checkbox', { name: 'Consider Mung bean', exact: true }).check();
   await expect(page.getByRole('button', { name: 'Build my calendar', exact: true })).toBeDisabled();
   await expect(page.locator('[data-tour="build-calendar"]')).toContainText('Winter');
+  await expect(page.locator('[data-tour="build-calendar"]')).not.toContainText(
+    'No matching mock crop windows',
+  );
   await page.getByText('Browse 43 crops', { exact: true }).click();
   await page.getByRole('searchbox', { name: 'Search crops' }).fill('potato');
   await page.getByRole('button', { name: 'Inspect crop: Potato', exact: true }).click();
   await expect(page.getByRole('dialog').getByRole('combobox')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Add to my current calendar' })).toHaveCount(0);
+});
+
+test('unavailable seasons explain the blocker and farm review restores selectable choices without forcing a plan', async ({
+  page,
+}, info) => {
+  await page.goto('/farm');
+  await page.getByRole('combobox', { name: 'Drainage', exact: true }).selectOption('poor');
+  await page.getByRole('button', { name: 'See suggested crops', exact: true }).click();
+  await expect(page.locator('.suggested-crop')).toHaveCount(1);
+  await page.getByRole('checkbox', { name: 'Consider Aman rice', exact: true }).check();
+  const panel = page.locator('[data-tour="build-calendar"]');
+  await expect(panel).toContainText('No matching mock crop windows for: Pre-monsoon, Winter.');
+  await expect(panel).not.toContainText('Choose a suggested crop for:');
+  await expect(page.getByRole('button', { name: 'Build my calendar', exact: true })).toBeDisabled();
+  await expect(
+    panel.getByRole('link', { name: 'Review farm conditions', exact: true }),
+  ).toBeVisible();
+  const stored = await page.evaluate(() => ({
+    farm: JSON.parse(localStorage.getItem('ritu-preview-v1')!).farm,
+    demo: JSON.parse(localStorage.getItem('ritu-demo-v1')!),
+  }));
+  expect(stored.farm.drainage).toBe('poor');
+  expect(stored.demo.enabled).toBe(false);
+  const checkActionSpacing = async () => {
+    const buttons = await panel.locator('.calendar-actions > .button').evaluateAll((elements) =>
+      elements.map((element) => {
+        const box = element.getBoundingClientRect();
+        return {
+          left: box.left,
+          right: box.right,
+          top: box.top,
+          bottom: box.bottom,
+          height: box.height,
+        };
+      }),
+    );
+    expect(buttons).toHaveLength(2);
+    const [review, build] = buttons;
+    expect(Math.max(build.left - review.right, build.top - review.bottom)).toBeGreaterThanOrEqual(
+      15.5,
+    );
+    expect(buttons.every((button) => button.height >= 48)).toBe(true);
+  };
+  await checkActionSpacing();
+  await panel.screenshot({ path: `research/calendar-blocker-${info.project.name}.png` });
+  await page.getByRole('button', { name: 'বাংলা', exact: true }).click();
+  await page.setViewportSize({ width: 320, height: 800 });
+  await expect(panel).toContainText('প্রাক্‌বর্ষা, শীত');
+  await expect(page.getByRole('button', { name: 'আমার ক্যালেন্ডার তৈরি করুন' })).toBeDisabled();
+  await page.getByRole('button', { name: 'পড়া ও শব্দ', exact: true }).click();
+  await page.getByRole('radio', { name: 'আরও বড়', exact: true }).check();
+  await page.keyboard.press('Escape');
+  await checkActionSpacing();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await panel.screenshot({ path: `research/calendar-blocker-bangla-${info.project.name}.png` });
+  await panel.getByRole('link', { name: 'খামারের শর্ত দেখুন', exact: true }).click();
+  await expect(page).toHaveURL('/farm');
+  await page.getByRole('button', { name: 'EN', exact: true }).click();
+  await expect(page.getByRole('combobox', { name: 'Drainage', exact: true })).toHaveValue('poor');
+  await page.getByRole('combobox', { name: 'Drainage', exact: true }).selectOption('good');
+  await chooseDefaultCrops(page);
+  await expect(page).toHaveURL('/plan');
+  await expect(page.locator('.option-card')).toHaveCount(1);
 });
 
 test('labor changes select alternate mock windows; impossible household demands produce no plan', async ({
@@ -95,6 +164,165 @@ test('labor changes select alternate mock windows; impossible household demands 
     await page.getByRole('checkbox', { name: `Consider ${crop}`, exact: true }).check();
   await expect(page.getByRole('button', { name: 'Build my calendar', exact: true })).toBeDisabled();
   await expect(page.getByText(/cannot meet every household/)).toBeVisible();
+});
+
+test('resetting previous crops confirms first, persists an empty history and preserves saved tracking', async ({
+  page,
+}, info) => {
+  await seedPlan(page);
+  await page.goto('/plan');
+  await page.getByRole('button', { name: 'Save calendar & track', exact: true }).click();
+  const savedTracking = await page.evaluate(() => localStorage.getItem('ritu-journey-v1'));
+  await page.goto('/farm');
+  const history = page.locator('[data-tour="farm-history"]');
+  await history.locator('summary').click();
+  const originalFarm = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('ritu-preview-v1')!).farm,
+  );
+  const reset = history.getByRole('button', { name: 'Reset previous crops', exact: true });
+  await reset.click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.getByRole('button', { name: 'Keep previous crops', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(reset).toBeFocused();
+  await expect(history.locator('.previous-crop-remove')).toHaveCount(2);
+  await reset.click();
+  await page.keyboard.press('Escape');
+  await expect(history.locator('.previous-crop-remove')).toHaveCount(2);
+  await page.getByRole('button', { name: 'বাংলা', exact: true }).click();
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.getByRole('button', { name: 'পড়া ও শব্দ', exact: true }).click();
+  await page.getByRole('radio', { name: 'আরও বড়', exact: true }).check();
+  await page.keyboard.press('Escape');
+  await history.getByRole('button', { name: 'আগের ফসল রিসেট করুন', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  const dialogBox = await dialog.boundingBox();
+  expect(dialogBox!.x).toBeGreaterThanOrEqual(0);
+  expect(dialogBox!.x + dialogBox!.width).toBeLessThanOrEqual(320);
+  await page.screenshot({ path: `research/history-reset-dialog-${info.project.name}.png` });
+  await dialog.getByRole('button', { name: 'আগের ফসল মুছুন', exact: true }).click();
+  await expect(history.locator('.previous-crop-remove')).toHaveCount(0);
+  await expect(history.getByRole('button', { name: 'আগের ফসল রিসেট করুন' })).toBeDisabled();
+  await expect(history.getByRole('button', { name: 'আগের ফসল যোগ করুন' })).toBeFocused();
+  await expect(history.getByText('আগের কোনো ফসল লেখা নেই।', { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem('ritu-journey-v1'))).toBe(savedTracking);
+  const clearedFarm = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('ritu-preview-v1')!).farm,
+  );
+  expect(clearedFarm).toEqual({
+    ...originalFarm,
+    current: [{ crop: 'fallow', start: 0, duration: 12 }],
+  });
+  await page.reload();
+  await history.locator('summary').click();
+  await expect(history.locator('.previous-crop-remove')).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await history.screenshot({ path: `research/history-reset-empty-${info.project.name}.png` });
+  await history.getByRole('button', { name: 'আগের ফসল যোগ করুন', exact: true }).click();
+  await expect(history.locator('.previous-crop-remove')).toHaveCount(1);
+});
+
+test('top reset restores all farm inputs and clears every saved plan record after confirmation', async ({
+  page,
+}, info) => {
+  await seedPlan(page);
+  await page.goto('/plan');
+  await page.getByRole('button', { name: 'Save calendar & track', exact: true }).click();
+  const crop = page.locator('.tracking-crops > section').first();
+  await crop.getByRole('checkbox', { name: 'Planted', exact: true }).check();
+  await crop
+    .getByRole('textbox', { name: 'Notes', exact: true })
+    .fill('Reset should clear this note');
+  await page.goto('/farm');
+  await page.getByRole('textbox', { name: 'Farm name', exact: true }).fill('Abid test farm');
+  const area = page.getByRole('spinbutton', { name: /^Field area \(hectares\)/ });
+  await area.fill('1.5');
+  await area.blur();
+  await page.getByRole('radio', { name: 'Reliable', exact: true }).check();
+  await page.getByRole('combobox', { name: 'Soil texture', exact: true }).selectOption('clay');
+  await page.getByRole('combobox', { name: 'Drainage', exact: true }).selectOption('poor');
+  await page.getByText('Location & demo environment', { exact: true }).click();
+  await page.getByRole('combobox', { name: 'Pilot location', exact: true }).selectOption('other');
+  await page.getByRole('combobox', { name: 'Mock environment', exact: true }).selectOption('hot');
+  await page.getByText('Your priorities, household & help', { exact: true }).click();
+  await page
+    .getByRole('radio', {
+      name: 'Keep it familiar Prefer crops you have grown before',
+      exact: true,
+    })
+    .check();
+  await page.getByRole('checkbox', { name: 'Potato', exact: true }).check();
+  await page.locator('.labor-months').getByRole('checkbox').first().check();
+  const history = page.locator('[data-tour="farm-history"]');
+  await history.locator('summary').click();
+  await history.getByRole('button', { name: 'Add previous crop', exact: true }).click();
+  const before = await page.evaluate(() =>
+    ['ritu-preview-v1', 'ritu-demo-v1', 'ritu-journey-v1'].map((key) => localStorage.getItem(key)),
+  );
+  const reset = page
+    .locator('.planner-heading')
+    .getByRole('button', { name: 'Reset all data', exact: true });
+  await reset.click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Keep my data', exact: true }).click();
+  expect(
+    await page.evaluate(() =>
+      ['ritu-preview-v1', 'ritu-demo-v1', 'ritu-journey-v1'].map((key) =>
+        localStorage.getItem(key),
+      ),
+    ),
+  ).toEqual(before);
+  await expect(reset).toBeFocused();
+  await reset.click();
+  await page.keyboard.press('Escape');
+  expect(await page.evaluate(() => localStorage.getItem('ritu-journey-v1'))).toBe(before[2]);
+  await area.fill('0');
+  await expect(area).toHaveAttribute('aria-invalid', 'true');
+  await page.getByRole('button', { name: 'বাংলা', exact: true }).click();
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.getByRole('button', { name: 'পড়া ও শব্দ', exact: true }).click();
+  await page.getByRole('radio', { name: 'আরও বড়', exact: true }).check();
+  await page.keyboard.press('Escape');
+  await page
+    .locator('.planner-heading')
+    .getByRole('button', { name: 'সব তথ্য রিসেট করুন' })
+    .click();
+  const dialog = page.getByRole('dialog');
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  const box = await dialog.boundingBox();
+  expect(box!.x).toBeGreaterThanOrEqual(0);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(320);
+  await page.screenshot({ path: `research/full-reset-dialog-${info.project.name}.png` });
+  await dialog.getByRole('button', { name: 'সব তথ্য রিসেট করুন', exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  const after = await page.evaluate(() => ({
+    planner: JSON.parse(localStorage.getItem('ritu-preview-v1')!),
+    demo: JSON.parse(localStorage.getItem('ritu-demo-v1')!),
+    journey: JSON.parse(localStorage.getItem('ritu-journey-v1')!),
+  }));
+  expect(after.planner.farm).toEqual(defaultFarm);
+  expect(after.planner.priority).toBe('water');
+  expect(after.planner.language).toBe('bn');
+  expect(after.demo).toEqual({ ...defaultDemo, preferred: [] });
+  expect(after.journey).toEqual({ reviewed: null, generatedFor: null, tracked: null });
+  const resetArea = page.getByRole('spinbutton', { name: 'জমির আয়তন (হেক্টর)', exact: true });
+  await expect(resetArea).toHaveValue(String(defaultFarm.area));
+  await expect(resetArea).toHaveAttribute('aria-invalid', 'false');
+  await expect(
+    page.locator('.planner-heading').getByRole('button', { name: 'সব তথ্য রিসেট করুন' }),
+  ).toBeFocused();
+  await page.reload();
+  await expect(resetArea).toHaveValue(String(defaultFarm.area));
+  await expect(page.getByRole('textbox', { name: 'খামারের নাম', exact: true })).toHaveValue(
+    defaultFarm.name,
+  );
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: `research/full-reset-farm-${info.project.name}.png` });
+  await page.goto('/plan');
+  await expect(page.locator('.option-card')).toHaveCount(0);
+  await page.goto('/track');
+  await expect(page.locator('.tracking-crops > section')).toHaveCount(0);
 });
 
 test('scenario preview is unsaved and a scenario with no compatible plan cannot Apply', async ({

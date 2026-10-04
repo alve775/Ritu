@@ -62,10 +62,13 @@ test('Bangla and explicit reset preserve language and clear calendar records', a
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('lang', 'bn');
   await page.getByRole('button', { name: 'নমুনা রিসেট', exact: true }).click();
-  await page.getByRole('button', { name: 'পরিকল্পনা রাখুন', exact: true }).click();
+  await page.getByRole('button', { name: 'আমার তথ্য রাখুন', exact: true }).click();
   await expect(page.locator('.tracking-crops > section')).toHaveCount(3);
   await page.getByRole('button', { name: 'নমুনা রিসেট', exact: true }).click();
-  await page.getByRole('button', { name: 'নমুনা খামার রিসেট', exact: true }).click();
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'সব তথ্য রিসেট করুন', exact: true })
+    .click();
   await expect(page.locator('.tracking-crops > section')).toHaveCount(0);
   expect(
     await page.evaluate(() => JSON.parse(localStorage.getItem('ritu-journey-v1')!).tracked),

@@ -1,0 +1,6 @@
+{
+  "name": "Microsoft Mark",
+  "provider": "Windows offline speech",
+  "rate": 0,
+  "choiceReason": "User approved free alternative; cloud export rejected by automatic approval review"
+}

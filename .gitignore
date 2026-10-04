@@ -16,4 +16,6 @@ coverage/
 *.tsbuildinfo
 /test-results/
 /playwright-report/
+/video/output/
+/video/**/__pycache__/
 /.agent-browser/

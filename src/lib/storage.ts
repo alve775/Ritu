@@ -33,15 +33,17 @@ export function isSavedState(value: unknown): value is SavedState {
   return (
     s.version === 1 &&
     ['en', 'bn'].includes(s.language) &&
-    ['water', 'diversity', 'familiar'].includes(s.priority) &&
-    ['current', 'balanced', 'diverse'].includes(s.selected) &&
+    ['water', 'diversity', 'familiar', 'resilience', 'soil'].includes(s.priority) &&
+    typeof s.selected === 'string' &&
+    (['current', 'balanced', 'diverse'].includes(s.selected) ||
+      /^demo-[a-z0-9-]{1,100}$/.test(s.selected)) &&
     !!f &&
     typeof f.name === 'string' &&
     f.name.length <= 80 &&
     typeof f.area === 'number' &&
     f.area > 0 &&
     f.area <= 1000 &&
-    ['reliable', 'limited', 'rainfed', 'unknown'].includes(f.irrigation) &&
+    ['reliable', 'limited', 'severe', 'rainfed', 'unknown'].includes(f.irrigation) &&
     ['loam', 'clay', 'sandy', 'unknown'].includes(f.soil) &&
     ['good', 'poor', 'unknown'].includes(f.drainage) &&
     Array.isArray(f.required) &&

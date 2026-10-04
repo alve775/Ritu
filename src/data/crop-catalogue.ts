@@ -77,8 +77,8 @@ export const extraCrops = Object.fromEntries(
       household: id === 'aus' ? 'rice' : category === 'pulse' ? 'pulses' : undefined,
       reference: cropReferences[reference],
       description: {
-        en: 'Listed in Bangladesh crop references. Choose dates from your own records; this preview supplies no validated growing window, suitability rule or anatomy model for this entry.',
-        bn: 'বাংলাদেশের ফসলের উৎসে উল্লেখ আছে। নিজের তথ্য থেকে সময় বাছুন; এই ফসলের যাচাইকৃত সময়, উপযোগিতার শর্ত বা গঠনের নমুনা এখানে নেই।',
+        en: 'Listed in Bangladesh crop references. This read-only entry does not establish a validated planting window, suitability rule or anatomy model.',
+        bn: 'বাংলাদেশের ফসলের উৎসে উল্লেখ আছে। এই তথ্য থেকে যাচাইকৃত রোপণের সময়, উপযোগিতার শর্ত বা গঠনের নমুনা নির্ধারিত হয় না।',
       },
     } satisfies Crop,
   ]),

@@ -2,14 +2,15 @@ import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { cropIds } from '../../src/domain/types';
 import { previewData } from '../../src/data/preview';
+import { seedPlan } from './fixtures';
 
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem('ritu-tour-v1', 'seen'));
-  await page.goto('/');
+  await seedPlan(page);
+  await page.goto('/crops');
   await page.getByText('Browse 43 crops', { exact: true }).click();
 });
 
-test('catalogue search, groups, empty results and explicit date entry work end to end', async ({
+test('catalogue search, groups and empty results work; reference records cannot inject dates', async ({
   page,
 }) => {
   await expect(page.locator('.catalogue-crop')).toHaveCount(8);
@@ -28,25 +29,13 @@ test('catalogue search, groups, empty results and explicit date entry work end t
     'href',
     'https://apps.barc.gov.bd/cropzoning/',
   );
-  const add = dialog.getByRole('button', { name: 'Add to my current calendar' });
-  await expect(add).toBeDisabled();
-  await dialog.getByRole('combobox', { name: 'Your start month' }).selectOption('0');
-  await expect(add).toBeDisabled();
-  await dialog.getByRole('combobox', { name: 'Your duration in months' }).selectOption('3');
+  await expect(dialog.getByRole('combobox')).toHaveCount(0);
+  await expect(dialog.getByRole('button', { name: 'Add to my current calendar' })).toHaveCount(0);
   const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
   expect(axe.violations.map((v) => v.id)).toEqual([]);
-  await add.click();
-  await expect(
-    page.getByText('Maize added with your dates. Review calendar conflicts.'),
-  ).toBeVisible();
-  await page.reload();
-  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('ritu-preview-v1')!));
-  expect(saved.farm.current.at(-1)).toEqual({ crop: 'maize', start: 0, duration: 3 });
-  expect(saved.selected).toBe('current');
-  await expect(page.locator('.choice-panel')).toContainText('Your current rotation');
 });
 
-test('every crop can be inspected and selected in the sequence editor without a runtime error', async ({
+test('all 43 crop references open and close without injecting calendar entries', async ({
   page,
 }) => {
   test.setTimeout(90000);
@@ -81,35 +70,20 @@ test('every crop can be inspected and selected in the sequence editor without a 
     expect(close!.y + close!.height).toBeLessThanOrEqual(viewport.height);
     await page.keyboard.press('Escape');
   }
-  await page.getByRole('link', { name: 'Edit farm', exact: true }).click();
-  await page.getByText('Current crops & planting dates', { exact: true }).click();
-  await page.getByRole('button', { name: 'Edit sequence', exact: true }).click();
-  for (const crop of cropIds) {
-    await page.getByRole('combobox', { name: 'Crop 1', exact: true }).selectOption(crop);
-    await expect(page.getByRole('combobox', { name: 'Crop 1', exact: true })).toHaveValue(crop);
-    expect(
-      await page.evaluate(
-        () => JSON.parse(localStorage.getItem('ritu-preview-v1')!).farm.current[0].crop,
-      ),
-    ).toBe(crop);
-  }
   expect(errors).toEqual([]);
 });
 
-test('unsupported anatomy is clearly labelled and leaves 3D controls and month inspection usable', async ({
+test('unsupported anatomy stays labelled and the calendar and month inspection remain usable', async ({
   page,
 }) => {
-  await page.getByRole('link', { name: 'Edit farm', exact: true }).click();
-  await page.getByText('Current crops & planting dates', { exact: true }).click();
-  await page.getByRole('button', { name: 'Edit sequence', exact: true }).click();
-  await page.getByRole('combobox', { name: 'Crop 1', exact: true }).selectOption('maize');
-  await page.getByRole('link', { name: 'Compare my options', exact: true }).click();
-  await page.getByRole('button', { name: 'Select Your current rotation', exact: true }).click();
+  await page.goto('/plan');
   await page.getByRole('button', { name: 'Open field view', exact: true }).click();
-  await expect(page.locator('.field-model-title')).toContainText('Maize');
+  const explorer = page.getByRole('region', { name: 'Seasonal field explorer' });
+  await explorer.getByRole('button', { name: 'Nov', exact: true }).click();
+  await expect(explorer.locator('.field-model-title')).toContainText('Mustard');
   await expect(page.getByText(/An anatomy model is not available for this crop yet/)).toBeVisible();
   await expect(page.getByRole('combobox', { name: 'Plant structure', exact: true })).toBeDisabled();
   await page.getByRole('button', { name: 'Soil cutaway', exact: true }).click();
   await page.getByRole('button', { name: 'Inspect this month', exact: true }).click();
-  await expect(page.getByRole('dialog')).toContainText('Maize');
+  await expect(page.getByRole('dialog')).toContainText('Mustard');
 });

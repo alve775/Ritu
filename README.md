@@ -1,6 +1,6 @@
 # Ritu — grow with the seasons
 
-A bilingual crop-rotation concept preview for Rajshahi, Bangladesh. **One farm. Three seasons. Three rotation options.** Built with Next.js App Router, React and TypeScript for the team's agriculture project.
+A bilingual crop-rotation concept preview for Rajshahi, Bangladesh. **One farm. Three seasons. Up to three compatible rotation options.** Built with Next.js App Router, React and TypeScript for the team's agriculture project.
 
 ## Run the preview
 
@@ -32,32 +32,24 @@ The browser suite starts a dev server if one is not already running. See [verifi
 
 ## What works
 
-- **Mati, the farm guide**: an original duck mascot accompanies a 20-step tour. A reserved desktop rail or phone dock keeps the instructions clear of the highlighted section; guide arrows explore long sections and wide calendars.
-- **Farm ambience**: Reading & sound offers synthesized morning/evening wind and calls, volume, stop, mute and independent click feedback. Ambience starts with an explicit Play action and pauses while the tab is hidden.
-- **43 crop entries**: search English/Bangla names, filter groups, inspect sources and add crops using your own dates. Unavailable anatomy and unreviewed taxonomy are identified. See [catalogue evidence and limits](docs/CROP_CATALOGUE.md).
+**Farm → suggested crops → automatic calendar → tracking.** The home page starts at Your farm. See [the workflow and timing contract](docs/JOURNEY_WORKFLOW.md).
 
-- **Your farm** (`/farm`): edit name, hectares, water access, soil texture, drainage, household crops, labor restrictions and current crop/rest periods.
-- **Compare rotations** (`/`): inspect three calendars on a shared March–February cycle, select an option, filter to the selection and explore individual crops.
-- **Interactive seasonal field** (`/#field`): choose a rotation and month, inspect its crop/rest period, planting or harvest window and applicable constraints. The Three.js scene offers camera buttons and optional drag rotation; the calendar and field share the same month selection.
-- **Guided missions**: a first-visit tour spotlights farm inputs, comparison controls, the field and explanations. **Take a tour** at the top of every page replays the full tour or any section, in English or Bangla. Instructions enter progressively while the spotlight, card and page travel smoothly. Back/Next cannot queue accidental skips; Close, Skip and Escape remain available. The tour preserves farm inputs and respects reduced motion.
-- **Fluid exploration**: finite page/dialog entrances, planning-control feedback, gentle field loading and camera travel. The 3D scene stops rendering when settled and reuses shadows during camera motion; reduced motion makes transitions immediate.
-- **Crop structure studies**: switch between field layout, crop close-up and soil cutaway. Rice panicles, wheat spikes, mung leaflets/pods and potato stolons/tubers use distinct schematic geometry with linked references. Young/mature examples are manually selected, independent of the month.
-- **Your choice, explained** (`/insights`): six checks with reasons, explicit conflicts and unknowns, sample tradeoffs and the evidence still needed.
-- Entry conflicts update immediately. Water, drainage and soil suitability remain unassessed even when recorded; priorities are saved without recommending an option.
-- Bangla/English, responsive layouts, keyboard-operable controls, native focus-trapped dialogs, reduced-motion support and versioned device-local persistence.
-- A simpler three-task flow, 20px base text, optional 24px text, streamed tour instructions and user-controlled motion/sound. Calendars, secondary inputs and 3D open on request. The field renders on demand and releases graphics resources when closed; month details work without WebGL.
+- **Your farm** (/farm): enter soil, drainage, irrigation and optional household, help-month, priority and previous-crop information. Location/weather select clearly fictional demo fixtures. Unknown inputs are never guessed.
+- **Suggested crops** (/crops): select only crops with passing mock windows. The 43-entry sourced crop library is read-only; 13 entries have mock rules/windows, and only matches are selectable.
+- **Your calendar** (/plan): compare up to three generated sequences from selected crops. Crop-specific mock windows are assigned automatically, locked, checked for overlap and completed with explicit rest months. Missing/conflicting choices produce no plan. Seven mock/entry checks explain each plan at /insights.
+- **Scenario simulator**: preview water/priority/weather changes without modifying the saved farm. Apply is available only for a complete compatible draft. Reset discards the draft.
+- **Tracking** (/track): save one March–February calendar snapshot, mark planting/harvest and record notes. Reload retains progress. Farm edits preserve the snapshot; replacement/clear/reset asks before removing records.
+- **Guided missions**: Mati the original duck guides a 28-step full tour and six section replays. Tours show temporary examples without changing inputs or records. Smooth travel, streamed words, section arrows, keyboard controls and reduced motion remain.
+- **Three.js anatomy**: optional on-demand field, close-up and cutaway, manual crop/structure selector, camera buttons/drag, shared calendar month and linked model limits. Five entries have source-informed schematic anatomy; unsupported entries have an identified placeholder. Geometry is not measured cultivar growth or surveyed land.
+- **Readable layout**: white main body, dark green navigation/top bar, 20px or 24px text, English/Bangla and device-local persistence. Optional detail is disclosed gradually. Farm sounds offer Play/Stop, morning/evening synthesis, volume/mute and optional click feedback, with no autoplay.
 
-## Data boundary
+## Mock-only boundary
 
-**Farm examples and crop windows are fictional, editable fixtures.** No water-demand ranking or unsupported irrigation/drainage rule is applied. Water, soil, drainage, rainfall, heat exposure and local suitability remain unassessed. The app checks entered calendar overlap, household crop presence and sample planting/harvest-help conflicts; these are not validated farming recommendations or yield estimates. Read the [evidence and usability audit](docs/EVIDENCE_AND_USABILITY_AUDIT.md) for the challenge coverage, corrections, primary sources and validation limits.
+All environmental numbers, crop suitability rules, indices, drainage categories and planting windows are authored fictional fixtures. No real data API, forecasts, yield predictions, measured water savings or validated farm recommendations are supplied. Source links support crop identity/anatomy only. Real water/soil/drainage suitability remains unassessed, separately from passing mock checks.
 
-The 3D field is a schematic illustration. Young/mature structure examples are selected manually and never inferred from the calendar month. The parcel dimensions, planting density, roots and soil cutaway are artistic; they do not represent entered hectares, a surveyed farm, actual soil horizons or predicted yield. Planting and harvest labels still come from the first and last sample calendar months. See [research and design notes](docs/UX_AND_MODEL_RESEARCH.md) for the evidence behind the interaction and anatomy choices.
+The locked calendar guarantees no overlapping **demo month intervals**. It does not validate actual growing durations, crop transitions or field suitability. Reviewed dated crop/variety calendars and NASA provenance are future integration work; see [the integration handoff](docs/DATA_INTEGRATION.md) and [the description audit](docs/PROJECT_DESCRIPTION_AUDIT.md).
 
-The current sample lives in `src/data/preview.ts`. Constraint logic is isolated in `src/domain/evaluate.ts`; shared types are in `src/domain/types.ts`. [The integration handoff](docs/DATA_INTEGRATION.md) explains how reviewed data can replace these assumptions without rebuilding the interface.
-
-Inputs are saved in this browser's local storage only. There is no server collection, analytics or cloud sync. A visible notice appears if storage is unavailable. Reset requires a deliberate confirmation and preserves the language choice.
-
-Tour dismissal is stored separately under `ritu-tour-v1`. Reopening a section tour does not reset the farm. If storage is unavailable, the tour remembers its automatic prompt for the current loaded tab only.
+Inputs/records stay in this browser's versioned local storage. There is no account, database, cloud sync, analytics or server collection. Reset preserves language but clears saved calendar/progress/notes after confirmation. This is not an installable offline PWA.
 
 ## Team
 

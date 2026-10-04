@@ -6,14 +6,18 @@ Updated October 4, 2026. This records what the reproducible checks exercise. Fin
 
 | Feature | Reproducible coverage | Remaining external validation |
 | --- | --- | --- |
-| Navigation / first screen | Three routes, three choices, default closed details, lazy 3D, selected option retained | Intended-user understanding |
+| Navigation / first screen | Five journey/reasons routes, four steps, default closed details, lazy 3D, selected option retained | Intended-user understanding |
 | Farm inputs | Names, area validation, irrigation categories and unknown; separate soil/drainage; household groups, unavailable-help months | Real records and agricultural terminology |
-| Calendar editor | All 44 crop/rest IDs, start/duration changes, overlap lanes, year wrapping, persistence, add/remove/reset | Real local planting windows, multi-year crops |
+| Locked calendar / tracking | Crop-specific assigned dates, exact twelve-month occupancy with rest, no manual-date bypass, immutable snapshot, planting/harvest order, notes, replacement/reset, reload | Real local day-based windows, turnaround buffers and multi-year crops |
 | Comparison | All/selected view, priorities, selection across routes, consistency checks and unknown suitability | Reviewed comparison method |
-| Crop catalogue | 43 identities, English/Bangla search, group filtering, pagination, no results, every detail dialog including centering/close bounds, source links, explicit dates, saved addition | Additional taxonomy and locally appropriate crop rules |
+| Mock location/environment | Two authored locations, seasonal/dry/hot fixtures, twelve-month table, persistence, no external API requests during the tested flow | Real NASA data and provenance |
+| Mock generation | Preferred-only complete candidates, deterministic ranking, all-check-pass filtering, 270 input combinations, alternate labor windows, missing-season/household refusal, selection/calendar/reasons/tracking/reload | Scientifically reviewed crop/rotation rules |
+| Scenario simulator | Saved/draft separation, changed ranking, Reset, explicit Apply, reload and hash disclosure reopening | Validated real-model response |
+| New demo layouts/help | White body/dark navigation colors, mock rule help, 320px extra-large Bangla generation/scenario/table reflow and axe scans | Intended-user comfort and comprehension |
+| Crop catalogue | 43 identities, English/Bangla search, group filtering, pagination, no results, every detail dialog including centering/close bounds, source links, read-only records, no date injection | Additional taxonomy and locally appropriate crop rules |
 | Reasons | Calendar/household/help conflicts; supplied water/soil/drainage remain unassessed; evidence/source disclosures | NASA integration and local scientific review |
-| Three.js | Actual WebGL render, camera buttons/reset, field/close-up/cutaway, manual structure choice, source dialogs, synchronized months, reopen cleanup, no-WebGL behavior, unsupported anatomy | Physical GPUs, measured anatomy/proportions |
-| First visit / tours | Prompt, skip/reload, full mission, Back, five scopes, route handoffs, field reopening, preserved inputs and focus | Intended-user comprehension |
+| Three.js | Actual WebGL render, camera buttons/reset, field/close-up/cutaway, manual structure choice, independent crop study in a rest month, unchanged calendar details, source dialogs, synchronized months, reopen cleanup, no-WebGL behavior, unsupported anatomy | Physical GPUs, measured anatomy/proportions |
+| First visit / tours | Prompt, skip/reload, full mission, Back, seven scopes, route handoffs, field reopening, preserved inputs and focus | Intended-user comprehension |
 | Tour geometry | Every step in every scope: card/Next bounds, zero card/spotlight overlap, minimum useful visible target area, calendar row visibility, selection CTA visibility, section and calendar arrows | Arbitrary browser/user stylesheet combinations |
 | Tour motion | Actual intermediate scroll/spotlight/copy; repeated-click guard; Escape during travel; reduced-motion changes; whole-word reveal and instant text | Subjective comfort and device performance |
 | Mati | Finite step greeting and click wave, keyboard-accessible control, reduced-motion behavior | User preference and cultural interpretation |
@@ -24,7 +28,7 @@ Updated October 4, 2026. This records what the reproducible checks exercise. Fin
 
 ## Every-tour viewport matrix
 
-`tests/e2e/tour-layout.spec.ts` traverses **20 full-tour steps + 19 section-tour steps = 39 step visits** per configuration. Every visit captures a screenshot. The 20-step total includes the welcome screen, which appears only in the full tour.
+`tests/e2e/tour-layout.spec.ts` traverses **28 full-tour steps + 27 section-tour steps = 55 step visits** per configuration. Every visit captures a screenshot. The 28-step total includes the welcome screen, which appears only in the full tour.
 
 | Width × height | Language / body text | Motion | Mode |
 | --- | --- | --- | --- |
@@ -33,7 +37,7 @@ Updated October 4, 2026. This records what the reproducible checks exercise. Fin
 | 412 × 1000 | English / 20px | Reduced | Phone dock |
 | 320 × 1000 | Bangla / 24px | Normal | Narrow phone dock |
 
-This produces **156 screenshot-backed visits** across all five scopes. Separate motion tests inspect intermediate frames. Additional production smoke checks cover shorter phone heights; record their actual completed dimensions/results in PREVIEW_VERIFICATION.md.
+This produces **220 screenshot-backed visits** across all seven scopes. Separate motion tests inspect intermediate frames. Additional production smoke checks cover shorter phone heights; record their actual completed dimensions/results in PREVIEW_VERIFICATION.md.
 
 Screenshot generation alone is not visual inspection. Use the contact sheets and inspect individual screenshots wherever a layout appears cramped. Small contact-sheet thumbnails establish placement and consistency, not fine typography legibility.
 

@@ -22,6 +22,11 @@ export function WaterControl({ compact = false }: { compact?: boolean }) {
       detail: t('Rainfall only', 'শুধু বৃষ্টির পানি'),
     },
     {
+      value: 'severe',
+      label: t('Severe shortage', 'তীব্র পানির সংকট'),
+      detail: t('Very little irrigation', 'খুব অল্প সেচ'),
+    },
+    {
       value: 'unknown',
       label: t('Not sure', 'জানা নেই'),
       detail: t('Confirm later', 'পরে নিশ্চিত করুন'),
@@ -68,10 +73,7 @@ export function PriorityControl() {
       {
         id: 'water',
         label: t('Use less irrigation', 'সেচ কম লাগুক'),
-        description: t(
-          'Saved priority · water needs not assessed',
-          'অগ্রাধিকার রাখা হবে · পানির চাহিদা যাচাই বাকি',
-        ),
+        description: t('Lower invented water-demand index', 'কাল্পনিক পানির সূচক কম লাগুক'),
         icon: Droplets,
       },
       {
@@ -83,8 +85,26 @@ export function PriorityControl() {
       {
         id: 'familiar',
         label: t('Keep it familiar', 'পরিচিত ক্রম রাখুন'),
-        description: t('Prefer the current sequence', 'বর্তমান ক্রমকে অগ্রাধিকার'),
+        description: t('Prefer crops you have grown before', 'আগে চাষ করা ফসলের অগ্রাধিকার'),
         icon: Leaf,
+      },
+      {
+        id: 'resilience',
+        label: t('Drought resilience', 'খরা সহনশীলতা'),
+        description: t(
+          'A priority for demo comparison; real resilience is unverified',
+          'নমুনার তুলনার অগ্রাধিকার; বাস্তব সহনশীলতা যাচাই বাকি',
+        ),
+        icon: Droplets,
+      },
+      {
+        id: 'soil',
+        label: t('Soil health', 'মাটির স্বাস্থ্য'),
+        description: t(
+          'Demo uses pulse inclusion; no soil benefit is predicted',
+          'নমুনায় ডাল অন্তর্ভুক্তি দেখা হয়; মাটির উপকারের পূর্বাভাস নয়',
+        ),
+        icon: Sprout,
       },
     ];
   return (
@@ -92,8 +112,8 @@ export function PriorityControl() {
       <legend>{t('What matters most?', 'আপনার অগ্রাধিকার কী?')}</legend>
       <p>
         {t(
-          'Save what matters to you. No option is recommended yet.',
-          'আপনার চাহিদা রাখুন। এখন কোনো বিকল্পের সুপারিশ দেওয়া হচ্ছে না।',
+          'This ranks passing mock calendars; it never overrides a failed check.',
+          'এটি মেলা নমুনার ক্রম তুলনা করে; না-মেলা শর্ত এড়ায় না।',
         )}
       </p>
       {priorities.map(({ id, label, description, icon: Icon }) => (

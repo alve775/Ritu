@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { seedPlan } from './fixtures';
 
 const start = async (page: Page) => {
   await page.addInitScript(() => localStorage.setItem('ritu-tour-v1', 'seen'));
@@ -11,10 +12,12 @@ test('first screen keeps optional detail closed and does not load a 3D canvas', 
   page,
 }) => {
   await start(page);
-  await expect(page.locator('.option-card')).toHaveCount(3);
+  await expect(page.locator('.option-card')).toHaveCount(0);
   await expect(page.locator('main details[open]')).toHaveCount(0);
   await expect(page.locator('.field-canvas canvas')).toHaveCount(0);
-  await page.getByText('See the planting months', { exact: true }).click();
+  await seedPlan(page);
+  await page.evaluate(() => localStorage.removeItem('ritu-preview-v1'));
+  await page.goto('/plan');
   await expect(page.locator('.calendar-board .rotation-row')).toHaveCount(1);
   await page.getByRole('button', { name: 'All options', exact: true }).click();
   await expect(page.locator('.calendar-board .rotation-row')).toHaveCount(3);
@@ -63,18 +66,20 @@ test('reading settings persist separately from the farm and honor reduced motion
 test('large Bangla, text resizing and user spacing keep the core flows within 320px', async ({
   page,
 }) => {
+  await seedPlan(page);
   await start(page);
   await page.setViewportSize({ width: 320, height: 900 });
   await page.getByRole('button', { name: 'Reading & sound' }).click();
   await page.getByRole('radio', { name: 'Extra large', exact: true }).check();
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'বাংলা', exact: true }).click();
-  for (const route of ['/', '/farm', '/insights']) {
+  for (const route of ['/farm', '/crops', '/plan', '/insights', '/track']) {
     await page.goto(route);
     await expect(page.locator('html')).toHaveAttribute('lang', 'bn');
     await page.addStyleTag({
       content: `html[data-text-size] {font-size:250%} p {margin-bottom:2em!important} * {line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}`,
     });
+    await expect(page).toHaveTitle(/ritu/i);
     await page.evaluate(() => document.fonts.ready);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
       320,
@@ -93,6 +98,7 @@ test('large Bangla, text resizing and user spacing keep the core flows within 32
 test('expanded evidence and form content have no automated accessibility violations', async ({
   page,
 }) => {
+  await seedPlan(page);
   await start(page);
   for (const route of ['/', '/farm', '/insights']) {
     await page.goto(route);
@@ -198,7 +204,7 @@ test('tour streams whole words without layout shifts and can show all text immed
   await expect(page.getByRole('heading', { name: 'Tell Ritu about water access' })).toBeVisible();
   // Full text is exposed once to assistive technology, visual word spans are hidden.
   await expect(page.locator('#tour-description .sr-only')).toHaveText(
-    'Record your water access, or choose Not sure. Crop water needs are not verified, so this preview cannot assess irrigation suitability.',
+    'Choose reliable, limited, rainfed, severe shortage or Not sure. Unknown water is never silently assumed; suggestions wait for confirmation.',
   );
   await page.getByRole('button', { name: 'Show text instantly' }).click();
   await page.getByRole('button', { name: 'Next', exact: true }).click();

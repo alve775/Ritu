@@ -2,7 +2,26 @@
 
 Owner: Abid Al Hossain Swakkhar. Team: three web developers in Rajshahi. Workspace: `E:\001_RITU`; repository: https://github.com/alve775/Ritu. Updated October 4, 2026. This is the continuation entry point: read it before resuming work, then verify files and runtime rather than assuming a recorded result still applies.
 
+## Current task: strict farm-first journey — October 4
+
+This section supersedes previous comparison-first/manual-date requirements. See [JOURNEY_WORKFLOW.md](JOURNEY_WORKFLOW.md) for detailed state, timing and continuation contracts.
+
+- [x] R27: home → farm inputs → passing suggested crops → automatic calendar → tracking; four navigation steps and no arbitrary crop/date injection.
+- [x] R28: crop-specific mock windows, safe interval guard, exact twelve-month coverage with explicit rest; every generated option passes all seven checks. Unknown/conflicting choices yield no plan.
+- [x] R29: locally saved calendar/year snapshot, planting/harvest order, notes, progress, identical-save preservation, stale-input notice and explicit replacement/clear/reset.
+- [x] R30: 28-step full mission plus six replays covering the new sequence; temporary guide examples preserve actual review/generated flags and saved tracking.
+- [x] Preserve white body/dark navigation, supplied original JPEG logo, 3D anatomy/source limits, optional audio, reading/motion/language controls.
+- [x] Finish current browser/tour visual/optimized checks and record exact outcomes in PREVIEW_VERIFICATION.md: **76 unit tests, 78 browser tests, 220 tour visits across 24 reviewed sheets and 84 optimized animated visits**. Strict journey/scenarios/tracking, actual WebGL and opt-in sounds passed; no external requests or page errors during the optimized mock flow.
+
+Current artifacts: `research/journey-verified-regression/`, `research/journey-verified-sheets/`, `research/final-production/` and `research/journey-production/` are ignored local QA captures. Source and durable verification/continuation documentation ship independently. Closing copy cleanup removes obsolete manual-date/annual-wrap instructions; **14 focused browser cases, final build/strict TypeScript, lint, formatting and diff whitespace checks passed**. The original plan remains byte-for-byte unchanged. Development preview responds at port 3000; owned production QA at port 3004 was closed.
+
+Abid explicitly requested committing and pushing this work to `Swakkhar` on October 4. Keep `main` unchanged; verify the remote branch and clean worktree after pushing. The earlier pushed baseline is historical; inspect git before future handoff.
+
+- [ ] Latest reported issue: the fifth full-tour step scrolls upward. Review the farm tour's order against the physical page layout and verify a coherent sequence. This report arrived after the completed regression above; it remains open in this handoff.
+
 ## Authoritative scope
+
+Latest steering: Abid requested the farm-first sequence with only passing crop suggestions, assigned mock timing and no overlap, followed by calendar tracking. **Mock data only, no real data APIs** remains authoritative. Read [PROJECT_DESCRIPTION_AUDIT.md](PROJECT_DESCRIPTION_AUDIT.md) for the complete feature mapping and mock-rule boundaries.
 
 Abid requested a Next.js agriculture concept preview before October 7, with later NASA-data integration. This supersedes the earlier preparation-only boundary in ABID_PRE_EVENT.md. Preserve PROJECT_PLAN.md verbatim. Do not present fictional calendars as local recommendations. Do not invent observations, water savings, yield, soil-health outcomes or NASA compliance. Do not commit/push/publish without a request. Keep the existing local preview available.
 
@@ -10,19 +29,19 @@ User requirements across this conversation:
 
 | ID | Requirement | Acceptance and current state |
 | --- | --- | --- |
-| R01 | Next.js, practical farm rotation preview | Three routes; optimized build passed October 4 |
-| R02 | One farm, three seasons, three options | Fictional example rotations, editable baseline and recurring March–February calendar |
+| R01 | Next.js, practical farm rotation preview | Five app screens plus home redirect; optimized build passed October 4 |
+| R02 | One farm, three seasons, three options | Up to three passing generated rotations; locked crop-specific March–February windows and rest |
 | R03 | Readable text, farmer-friendly colors and layout | 20px base, optional 24px, high contrast, expandable details; real farmer validation remains open |
-| R04 | Organized, easy exploration with minimal congestion | Farm → comparison → reasons; optional calendars, secondary inputs and 3D |
+| R04 | Organized, easy exploration with minimal congestion | Farm → screened crop choices → calendar → tracking; reasons/scenarios/3D are secondary |
 | R05 | Practical interactive Three.js | Demand rendering, camera controls, crop study/cutaway, source limits, non-WebGL fallback |
-| R06 | First-visit and section tours, all options | 20-step full tour and four section replays; every scope checked in four configurations |
+| R06 | First-visit and section tours, all options | 28-step full tour and six section replays; every scope checked in four configurations |
 | R07 | Smooth focus travel and streamed text | 900ms travel, bounded whole-word reveal, instant text and reduced motion; preserve during repair |
 | R08 | No target hidden under instructions | Fixed: desktop guide rail / smaller-screen bottom dock, non-overlapping spotlights and target navigation; selection CTA checked |
 | R09 | Spotlight explains the actual section | Fixed: calendar months and crop rows, actual rendered field; arrows explore larger sections and wide calendars |
 | R10 | Engaging farm ambience | Original optional morning/evening wind and bird-like/insect-like synthesis; no scientific performance benefit claimed |
 | R11 | Sound level and off controls | Reading & sound: Play, Stop, 0–100% master level, Mute all and independent clicks; persisted settings, no ambient autoplay |
 | R12 | Interesting farm mascot guides tours | Mati / মাটি, original duck illustration; finite greeting and interactive wave, reduced-motion support |
-| R13 | Many relevant crops | 43 sourced crop identities plus rest; search/filter/pagination/details/editor; explicit user dates; 38 added anatomies and taxonomy remain unreviewed |
+| R13 | Many relevant crops | 43 sourced crop identities plus rest; read-only search/filter/details, 13 mock rule/window records; 38 additional anatomies and taxonomy remain unreviewed |
 | R14 | English and Bangla | Existing languages; include new controls/catalogue; terminology review with team remains open |
 | R15 | Authentic online research before fixes | Evidence audit and primary-source links; distinguish scientific evidence, standards and design tuning |
 | R16 | NASA challenge alignment | Published Field Shift summary aligns with concept; observations/local rules/full brief still outstanding |
@@ -30,6 +49,33 @@ User requirements across this conversation:
 | R18 | Safe persistence/reset and missing values | Existing validation, storage warning, confirmation; preserve and test new settings/crops |
 | R19 | Durable checklist and detailed continuation records | This file plus evidence audit, QA matrix/results and integration handoff |
 | R20 | Preserve project and team work | Preview verification preceded Git writes; Abid subsequently authorized committing and pushing only to the exact branch `Swakkhar` |
+| R21 | Implement the supplied real-product description as a demo | Requirement mapping in PROJECT_DESCRIPTION_AUDIT.md; real observations/validated advice remain future work |
+| R22 | No real data APIs; mock data only | Local climate fixtures and 13 explicitly invented crop rules; no remote provider |
+| R23 | Preferred crops, screening, generated rotations and explanations | Passing windows among 13 mock records are selectable; strict generator refuses missing/unknown/conflicting combinations; seven mock checks separated from real checks |
+| R24 | Scenario simulator | Saved/draft comparison, immediate recalculation, Reset and explicit Apply; shortage/climate/priority controls |
+| R25 | White main content; dark green left/top | White planning surfaces and neutral secondary panels; corrected mobile navigation contrast |
+| R26 | Bring 3D back and make it easy to find | Existing source-informed schematic models retained; prominent entry and independent study selector, no calendar mutation |
+
+## Historical mock-description extension — October 4, before farm-first workflow
+
+- [x] Audit every supplied description requirement against the existing implementation and record the future real-data boundary.
+- [x] Add local climate/location fixtures, preferences and mock crop screening; never present an invented observation as NASA data.
+- [x] Generate complete preferred-only three-slot candidates; preserve missing/unknown inputs and actual entry conflicts.
+- [x] Rank actual calendar/household/help conflicts ahead of fictional priorities. A unit test found and fixed this ordering defect.
+- [x] Connect generated candidates to selection, calendars, field view, reasons and versioned storage.
+- [x] Add saved-versus-draft scenarios with Reset and explicit Apply, plus four local help dialogs.
+- [x] Change main body/cards to white and navigation to dark green. Axe exposed mobile tiles inheriting a pale background; corrected their background.
+- [x] Keep original 3D models and add independent crop study even in rest months, including correct model-source dialog identity.
+- [x] Extend all tours and verify that touring never enables generated mode or changes saved farm inputs.
+- [x] Fix scenario/builder/environment links to reopen matching disclosures on hash navigation and reload. The earlier complete run caught the mobile reload defect.
+- [x] Review all 196 captures through 20 contact sheets, plus individual new-feature screenshots.
+- [x] Record the final complete regression, optimized build and production extension results in PREVIEW_VERIFICATION.md before closing work: **72 unit cases, 88 browser cases, 196 reviewed tour visits, 75 optimized animated tour visits**, optimized mock flow/help/3D and mascot checks passed. Lint, formatting, strict TypeScript/build and diff whitespace check passed; original plan hash preserved.
+
+Current source changes for this extension are local on `Swakkhar`; the earlier pushed baseline is `1ea91bcd5bad3f6095453e6f8891821313f2e3ee`. Do not infer another commit/push from that completed one-time handoff. Follow-up instruction: Abid requested using `public/Ritu_Logo.jpeg` as the project logo. The original JPEG now supplies the desktop/mobile home brand and browser icon; its embedded Bangla wordmark is preserved with no cropping or recoloring.
+
+Historical QA artifacts: `research/demo-final-regression/` archives the closing 88-case run; `research/demo-tour-contact-sheets/` contains the 20 reviewed sheets; `research/demo-final-production/` contains the white overview and mock-flow views. `scripts/verify-demo-production.mjs` reproduces the optimized extension flow and asserts no external requests. Final production tour captures are in `research/final-production/` (now 25 steps per configuration). These ignored artifacts do not ship; the documentation is the durable record.
+
+Logo follow-up verification: actual image loads through Next.js optimization, preserves intrinsic aspect ratio, and has an accessible home link in both languages. Desktop and 320×800 Bangla captures were visually reviewed; no mobile document overflow or browser errors. Browser icon resolves to the supplied JPEG. Optimized build/strict TypeScript, changed-file ESLint, formatting and diff whitespace checks passed. No new unit tests were added for this visual-only change. The isolated `ritu-logo` QA browser was closed; development preview remains available.
 
 ## Completed implementation — October 3–4 follow-up
 
@@ -49,7 +95,7 @@ User requirements across this conversation:
 - [x] Update this record, README, evidence audit and verification documentation.
 - [x] Repair crop-dialog positioning found during production screenshot review: exclude dialogs from disclosure padding/margin rules; add bounds/centering checks for every crop on both browser projects.
 
-## Final verification record
+## Historical verification — before mock-description extension
 
 65 Vitest cases passed. The complete browser suite passed all 78 cases. Tour layout coverage includes 39 visits in each of four viewport/language/motion settings (156 visits). The final optimized rebuild passed three animated 20-step tours at 1440×1000 English, 320×800 Bangla and 320×800 extra-large Bangla, plus real WebGL cutaway, centered crop dialog/source links and audio controls. Additional optimized-app checks verified Mati's finite keyboard wave and reduced-motion behavior at 1440px and 320px. See PREVIEW_VERIFICATION.md for exact coverage and limits.
 
@@ -70,14 +116,15 @@ Automated accessibility checks do not equal full WCAG conformance. Chromium emul
 - `src/components/tour-guide.tsx`, `src/components/farm-guide.tsx`, `src/data/tours.ts`: scope, targets, routing, motion, placement, Mati and guide controls.
 - `src/components/reading-controls.tsx`, `src/lib/display-store.ts`, `src/lib/farm-audio.ts`: reading/motion/audio preferences, synthesis and lifecycle; versioned device storage.
 - `src/data/preview.ts`, `src/data/crop-catalogue.ts`, `src/components/crop-catalogue.tsx`, `src/domain/types.ts`, `src/domain/evaluate.ts`: fixtures, sources, catalogue, crop types and entry checks.
-- `src/components/farm-view.tsx`, `calendar.tsx`, `season-explorer.tsx`: editor and calendar/field inspection.
+- `src/components/farm-view.tsx`, `journey-views.tsx`, `compare-view.tsx`: farm-first flow, passing choices, save/replacement and tracking. `src/lib/journey-store.ts`: validated review/generation and saved records. `calendar.tsx`, `season-explorer.tsx`: locked timeline and field inspection.
+- `src/data/demo-environment.ts`, `src/domain/demo-planner.ts`, `src/lib/demo-store.ts`, `src/components/demo-planning.tsx`: authored fixtures, fictional generation/ranking, mock storage, section hash reopening, help and draft scenarios.
 - `src/components/crop-geometry.ts`, `field-scene.ts`, `src/data/crop-models.ts`: schematic anatomy and GPU lifecycle.
 - `tests/e2e/`, `src/**/*.test.ts`: reproducible regression tests.
 - `docs/EVIDENCE_AND_USABILITY_AUDIT.md`: claims, primary sources, NASA coverage and farmer-study limits.
 - `docs/DATA_INTEGRATION.md`: future provenance and reviewed-rule contract.
 - `docs/PREVIEW_VERIFICATION.md`: exact latest results; supersede stale counts after changes.
 - `docs/QA_MATRIX.md`, `docs/CROP_CATALOGUE.md`: coverage matrix, crop-source scope and outstanding taxonomy/anatomy.
-- `scripts/review-tours.mjs`, `scripts/verify-production.mjs`, `scripts/verify-mascot.mjs`: local contact-sheet generation, optimized runtime and mascot checks. Browser suites replace test-results; archive captures before rerunning.
+- `scripts/review-tours.mjs`, `scripts/verify-production.mjs`, `scripts/verify-demo-production.mjs`, `scripts/verify-mascot.mjs`: local contact-sheet generation, optimized runtime/demo and mascot checks. Browser suites replace test-results; archive captures before rerunning.
 - `research/`: ignored screenshots, scripts and transient QA artifacts; never assume these ship with Git.
 
 Run tools using Node's bundled npm if the Windows npm shim is unavailable. Existing QA browser session is isolated from the user's browser. Do not restart unrelated apps. Record owned server sessions/ports before stopping them. Only record completed checks after seeing their actual results.
@@ -89,6 +136,8 @@ Preview verification closing state: the owned development preview remains at `ht
 After preview verification, Abid explicitly requested: commit and push on a different branch, named **Swakkhar**, rather than main. The remote is `https://github.com/alve775/Ritu.git`; remote inspection returned no existing refs and the local main branch had no commits. Use the exact branch name, push with upstream tracking, and verify the remote commit matches local HEAD. Do not create or update main, force-push, publish hosting or open/merge a pull request under this instruction. Dependencies, build output, environment files, research captures and browser traces remain excluded. The outgoing-file secret-pattern scan found no matches; that scan is not a universal secret-detection guarantee. Inspect `git status`, `git log` and `git ls-remote` to obtain the actual current handoff result.
 
 ## External work still required
+
+Real data/rule work below remains future work under the mock-only instruction; it is not a current-turn blocker.
 
 - [ ] Review the full 2026 challenge brief/resources when published and confirm applicable preparation/submission rules with organizers.
 - [ ] Integrate NASA observations with product/version, units, time/grid footprint, quality and processing provenance.

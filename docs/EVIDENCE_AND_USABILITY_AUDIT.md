@@ -4,11 +4,13 @@ Reviewed October 4, 2026. This audit separates published requirements, research,
 
 ## Does Ritu meet the NASA challenge?
 
+October 4 extension: Abid explicitly requested mock data instead of any real data API. [PROJECT_DESCRIPTION_AUDIT.md](PROJECT_DESCRIPTION_AUDIT.md) maps the new functional demo to the intended product. Location/climate fixtures, generated candidates and draft scenarios now exist; their invented crop rules and numbers are not scientific evidence and do not satisfy real NASA-integration requirements. The prior real-world checks below remain unassessed.
+
 The official [Field Shift: Adapting Farms with NASA Data summary](https://www.spaceappschallenge.org/2026/challenges/field-shift-adapting-farms-with-nasa-data/) asks for decision support combining NASA Earth observations, local soil information, crop characteristics and farmer priorities to explore rotations that could support soil health and adaptation. The official page's indexed summary was verified; the complete challenge requirements have not been reviewed. An [official Ramallah event page](https://www.spaceappschallenge.org/2026/local-events/ramallah/) identifies October 28, 2026 as the full-statement release. This is an event listing, not independent confirmation of every global rule or Rajshahi deadline.
 
 | Summary component | Current preview | Outstanding work |
 | --- | --- | --- |
-| Rotation exploration | Three editable/example calendars, month inspection, visible entry conflicts | Locally reviewed crop windows, varieties and day-based transitions |
+| Rotation exploration | Up to three generated mock calendars, locked non-overlapping windows, month inspection and saved tracking | Locally reviewed crop windows, varieties and day-based transitions |
 | Farmer priorities | Reported irrigation, family crop groups, available help and priorities are saved | Intended-user interviews and an agreed comparison method |
 | Local soil | Reported texture and drainage are separate inputs | Verified field conditions and reviewed crop-specific rules |
 | Crop characteristics | Botanical family counts and source-informed schematic anatomy | Local crop stages, water/heat response, management and applicability |
@@ -44,7 +46,7 @@ English and Bangla are available without login. Fonts are bundled locally. Input
 
 Tour headings and descriptions reveal whole word segments with a short opacity fade. [Intl.Segmenter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Segmenter) supports locale-sensitive segmentation; the fallback preserves complete whitespace-separated strings, instead of slicing Unicode code units. The text occupies its final space throughout, so revealing it does not push controls downward. A single full-text version is exposed to assistive technology; visual word spans are hidden from it. There is no word-by-word live announcement or automatic next step. Closing a tour does not wait for an animation.
 
-Spotlight/card/page travel is 900ms; each word fades over 180ms, with stagger bounded so the word sequence finishes within about 830ms. Camera travel is 520ms and finite. **Those timings are product tuning, not scientifically established reading thresholds.** They are cancellable; rapid Next presses cannot skip missions. The full tour now has 20 steps, including the catalogue and reading/sound controls. All five scopes can be replayed. Tours restore only the disclosures they opened.
+Spotlight/card/page travel is 900ms; each word fades over 180ms, with stagger bounded so the word sequence finishes within about 830ms. Camera travel is 520ms and finite. **Those timings are product tuning, not scientifically established reading thresholds.** They are cancellable; rapid Next presses cannot skip missions. The full tour now has 25 steps, including mock planning/scenarios, crop studies, the catalogue and reading/sound controls. All five scopes can be replayed. Tours restore only the disclosures they opened.
 
 The reported overlap was repaired by reserving a guide rail at widths of 1200px and above and a bottom dock at smaller widths. The calendar spotlight includes months and crop rows; the camera step includes the rendered field. Arrows explore long sections and wide calendars while the modal guide is open. This applies a project rule stronger than [WCAG 2.4.11's unobscured-focus minimum](https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html): settled tour cards must not overlap spotlights. Meaningful visible context and navigation are checked separately from card bounds.
 
@@ -87,3 +89,7 @@ The current reproducible checks and their results are in [PREVIEW_VERIFICATION.m
 Before claiming ease of use, conduct consent-based task observation with intended Rajshahi users on their own phones. Include varying reading proficiency, age and farming experience. Ask them to enter what they know, leave an uncertain soil/water input unknown, select an example, find an entry conflict and explain why no option is yet recommended. Observe unaided completion, mistakes, requests for help, interpretation of unknowns and ability to return to editing. Compare large/extra-large text and motion off/on without suggesting a preferred answer. Record actual feedback and revise the flow. This protocol is proposed; no participant counts, completion rates or satisfaction scores have been invented.
 
 No source establishes that this is the “best ever” interface. The defensible outcome is a simpler, testable preview with documented evidence and explicit limits.
+
+## October 4 farm-first flow
+
+[W3C multi-page forms](https://www.w3.org/WAI/tutorials/forms/multi-page/) was rechecked October 4. It recommends logical stages, visible progress, optional-stage identification and retaining earlier inputs. The four-step farm → suggested crops → locked calendar → tracking workflow follows this guidance. This is a design basis, not a farmer usability study. See JOURNEY_WORKFLOW.md for current behavior; previous manual-calendar descriptions are historical. All new windows and drainage rules remain explicitly invented mocks; no scientific timing suitability is claimed.

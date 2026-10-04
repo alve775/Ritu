@@ -1,5 +1,5 @@
 export type Language = 'en' | 'bn';
-export type Irrigation = 'reliable' | 'limited' | 'rainfed' | 'unknown';
+export type Irrigation = 'reliable' | 'limited' | 'severe' | 'rainfed' | 'unknown';
 export const cropIds = [
   'boro',
   'aman',
@@ -50,7 +50,7 @@ export type CropId = (typeof cropIds)[number];
 export type CropCategory =
   'cereal' | 'pulse' | 'oilseed' | 'vegetable' | 'tuber' | 'spice' | 'fibre' | 'sugar' | 'rest';
 export type HouseholdCrop = 'rice' | 'pulses' | 'potato';
-export type Priority = 'water' | 'diversity' | 'familiar';
+export type Priority = 'water' | 'diversity' | 'familiar' | 'resilience' | 'soil';
 export interface CropPeriod {
   crop: CropId;
   start: number;

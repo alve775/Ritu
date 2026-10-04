@@ -1,5 +1,7 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
+import rituLogo from '../../public/Ritu_Logo.jpeg';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
@@ -14,7 +16,7 @@ import {
   MapPin,
   RotateCcw,
   Sprout,
-  BookOpen,
+  ClipboardCheck,
 } from 'lucide-react';
 import { usePlanner } from './planner-provider';
 import { Dialog } from './dialog';
@@ -24,7 +26,17 @@ import { evidenceSources } from '../data/evidence';
 
 export function Shell({ children }: { children: ReactNode }) {
   const path = usePathname();
-  const { t, language, setLanguage, saved, ready, reset } = usePlanner();
+  const {
+    t,
+    language,
+    setLanguage,
+    saved: farmSaved,
+    demoSaved,
+    journeySaved,
+    ready,
+    reset,
+  } = usePlanner();
+  const saved = farmSaved && demoSaved && journeySaved;
   const [modal, setModal] = useState<'about' | 'reset' | null>(null);
   const nav = [
     {
@@ -34,16 +46,22 @@ export function Shell({ children }: { children: ReactNode }) {
       icon: House,
     },
     {
-      href: '/',
-      label: t('Compare', 'তুলনা'),
-      detail: t('Explore three possibilities', 'তিনটি সম্ভাবনা দেখুন'),
+      href: '/crops',
+      label: t('Crops', 'ফসল'),
+      detail: t('Choose from your matches', 'মেলা ফসল বাছুন'),
+      icon: Sprout,
+    },
+    {
+      href: '/plan',
+      label: t('Calendar', 'ক্যালেন্ডার'),
+      detail: t('Compare assigned dates', 'নির্ধারিত সময় তুলনা'),
       icon: Layers3,
     },
     {
-      href: '/insights',
-      label: t('Reasons', 'কারণ'),
-      detail: t('Understand the tradeoffs', 'সুবিধা ও সীমা বুঝুন'),
-      icon: BookOpen,
+      href: '/track',
+      label: t('Track', 'হিসাব'),
+      detail: t('Record your progress', 'কাজের তথ্য রাখুন'),
+      icon: ClipboardCheck,
     },
   ];
   return (
@@ -53,13 +71,13 @@ export function Shell({ children }: { children: ReactNode }) {
       </a>
       <aside className="sidebar" aria-label={t('Main navigation', 'মূল নেভিগেশন')}>
         <Link className="brand" href="/" aria-label={t('Ritu home', 'ঋতু হোম')}>
-          <span className="brand-mark">
-            <Sprout size={29} strokeWidth={1.7} />
-          </span>
-          <span>
-            ritu<span className="brand-dot">.</span>
-            <small>{t('GROW WITH THE SEASONS', 'ঋতুর সাথে বেড়ে উঠুন')}</small>
-          </span>
+          <Image
+            className="brand-logo"
+            src={rituLogo}
+            alt="RITU · ঋতু"
+            sizes="180px"
+            loading="eager"
+          />
         </Link>
         <div className="sidebar-label">{t('YOUR SEASONAL PLAN', 'আপনার মৌসুমি পরিকল্পনা')}</div>
         <nav className="nav-list">
@@ -125,7 +143,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
         </header>
         <main id="main" className="main-content" tabIndex={-1}>
-          {children}
+          {ready ? children : <p role="status">{t('Loading your farm…', 'খামার লোড হচ্ছে…')}</p>}
         </main>
         <footer className="footer">
           <span>
@@ -169,8 +187,8 @@ export function Shell({ children }: { children: ReactNode }) {
               <strong>{t('All examples are illustrative.', 'সব উদাহরণ নমুনাভিত্তিক।')}</strong>
               <p>
                 {t(
-                  'This is a fictional example farm. Dates are editable examples. No NASA observations, water-demand rankings or verified farming recommendations are included.',
-                  'এটি একটি কাল্পনিক নমুনা খামার। সময় সম্পাদনযোগ্য নমুনা। নাসার পর্যবেক্ষণ, পানির চাহিদার ক্রম বা যাচাইকৃত কৃষি সুপারিশ নেই।',
+                  'This is a fictional example farm. Crop matching and dates use authored mock rules. Dates are assigned automatically and checked for overlap. No NASA observations or verified farming recommendations are included.',
+                  'এটি কাল্পনিক নমুনা খামার। ফসলের মিল ও সময় নমুনার নিয়মে তৈরি। সময় স্বয়ংক্রিয়ভাবে ঠিক হয় এবং সংঘাত যাচাই হয়। নাসার পর্যবেক্ষণ বা যাচাইকৃত কৃষি পরামর্শ নেই।',
                 )}
               </p>
             </div>
@@ -178,8 +196,8 @@ export function Shell({ children }: { children: ReactNode }) {
           <h3>{t('What is ready', 'যা প্রস্তুত')}</h3>
           <p>
             {t(
-              'You can edit farm constraints, compare calendars, inspect conflicts, switch languages and save a plan on this device. Your input is stored in this browser only.',
-              'খামারের শর্ত বদলানো, সময় তুলনা, সংঘাত দেখা, ভাষা পরিবর্তন ও এই ডিভাইসে পরিকল্পনা সংরক্ষণ করা যায়। আপনার তথ্য শুধু এই ব্রাউজারে থাকে।',
+              'Enter farm conditions, choose suggested crops, compare automatic calendars, try scenarios and track planting, harvest and notes. Your input is stored in this browser only.',
+              'খামারের শর্ত দিন, প্রস্তাবিত ফসল বাছুন, স্বয়ংক্রিয় ক্যালেন্ডার তুলনা করুন, পরিস্থিতি বদলান এবং রোপণ, ফসল কাটা ও নোট রাখুন। তথ্য শুধু এই ব্রাউজারে থাকে।',
             )}
           </p>
           <h3>{t('Sources & challenge status', 'উৎস ও চ্যালেঞ্জের অবস্থা')}</h3>
@@ -217,8 +235,8 @@ export function Shell({ children }: { children: ReactNode }) {
         <Dialog title={t('Start fresh?', 'আবার শুরু করবেন?')} onClose={() => setModal(null)}>
           <p>
             {t(
-              'This will restore the sample farm, rotation and priorities on this device. Your language preference will stay.',
-              'এই ডিভাইসে নমুনা খামার, ফসলক্রম ও অগ্রাধিকার ফিরে আসবে। ভাষা একই থাকবে।',
+              'This restores the sample farm and priorities and clears your crop choices, saved calendar, progress and notes on this device. Your language preference will stay.',
+              'নমুনা খামার ও অগ্রাধিকার ফিরবে। এই ডিভাইসের বাছা ফসল, রাখা ক্যালেন্ডার, অগ্রগতি ও নোট মুছে যাবে। ভাষা একই থাকবে।',
             )}
           </p>
           <div className="button-row">

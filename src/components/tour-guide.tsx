@@ -25,12 +25,17 @@ interface Run {
 }
 
 export function TourGuide() {
-  const { t, ready } = usePlanner();
+  const { t, ready, setTourPreview } = usePlanner();
   const path = usePathname();
   const [chooser, setChooser] = useState(false);
   const [run, setRun] = useState<Run | null>(null);
+  const touring = Boolean(run);
   useEffect(() => {
-    if (!ready || autoPrompted) return;
+    setTourPreview(touring);
+    return () => setTourPreview(false);
+  }, [touring, setTourPreview]);
+  useEffect(() => {
+    if (!ready || path === '/' || autoPrompted) return;
     try {
       if (localStorage.getItem(TOUR_STORAGE_KEY) === 'seen') return;
     } catch {
@@ -41,7 +46,7 @@ export function TourGuide() {
       setRun({ scope: 'full', index: 0 });
     }, 200);
     return () => clearTimeout(timer);
-  }, [ready]);
+  }, [ready, path]);
   const finish = () => {
     try {
       localStorage.setItem(TOUR_STORAGE_KEY, 'seen');
@@ -54,15 +59,20 @@ export function TourGuide() {
     {
       scope: 'full',
       title: t('Full mission tour', 'সম্পূর্ণ পরিচিতি'),
-      description: t('Farm → comparison → field → explanation', 'খামার → তুলনা → জমি → ব্যাখ্যা'),
+      description: t(
+        'Farm → suggested crops → calendar → tracking',
+        'খামার → প্রস্তাবিত ফসল → ক্যালেন্ডার → হিসাব',
+      ),
     },
     {
       scope: 'farm',
       title: t('Your farm', 'আপনার খামার'),
-      description: t(
-        'Inputs, requirements and your current sequence',
-        'তথ্য, প্রয়োজন ও বর্তমান ফসলক্রম',
-      ),
+      description: t('Inputs, requirements and previous crops', 'তথ্য, প্রয়োজন ও আগের ফসল'),
+    },
+    {
+      scope: 'crops',
+      title: t('Suggested crops', 'প্রস্তাবিত ফসল'),
+      description: t('Passing windows and your crop choices', 'মেলা সময় ও ফসলের পছন্দ'),
     },
     {
       scope: 'compare',
@@ -79,9 +89,25 @@ export function TourGuide() {
       title: t('Your choice, explained', 'আপনার সিদ্ধান্তের ব্যাখ্যা'),
       description: t('Checks, tradeoffs and missing evidence', 'শর্ত, সুবিধা-সীমা ও বাকি তথ্য'),
     },
+    {
+      scope: 'track',
+      title: t('Track your plan', 'পরিকল্পনার হিসাব'),
+      description: t(
+        'Saved calendar, planting, harvest and notes',
+        'রাখা ক্যালেন্ডার, রোপণ, কাটা ও নোট',
+      ),
+    },
   ];
   const currentScope: TourScope =
-    path === '/farm' ? 'farm' : path === '/insights' ? 'insights' : 'compare';
+    path === '/farm'
+      ? 'farm'
+      : path === '/crops'
+        ? 'crops'
+        : path === '/track'
+          ? 'track'
+          : path === '/insights'
+            ? 'insights'
+            : 'compare';
   return (
     <>
       <button
@@ -339,7 +365,7 @@ function TourOverlay({
       const cardWidth = card.current?.offsetWidth ?? Math.min(480, window.innerWidth - 32);
       const desktop = window.innerWidth >= 1200;
       const available = desktop ? window.innerHeight - 32 : window.innerHeight - cardHeight - 40;
-      setCanPan(Boolean(original && original.height > available));
+      setCanPan(Boolean(original && original.height > available + 8));
       setCanPanCalendar(
         Boolean(target?.matches('.calendar-scroll') && target.scrollWidth > target.clientWidth),
       );

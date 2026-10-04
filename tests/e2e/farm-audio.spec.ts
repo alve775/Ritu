@@ -130,7 +130,7 @@ test('denied audio reports a useful error and leaves the planner usable', async 
   await page.getByRole('button', { name: 'Play farm sounds' }).click();
   await expect(page.getByText('Audio unavailable. Try again or use Ritu silently.')).toBeVisible();
   await page.keyboard.press('Escape');
-  await page.getByRole('link', { name: 'Edit farm', exact: true }).click();
+
   await page.getByLabel('Farm name', { exact: true }).fill('My quiet farm');
   await expect(page.getByLabel('Farm name', { exact: true })).toHaveValue('My quiet farm');
 });

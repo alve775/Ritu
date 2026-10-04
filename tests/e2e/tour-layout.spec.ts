@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { stepsForTour, type TourScope } from '../../src/data/tours';
 
 for (const language of ['en', 'bn'] as const) {
-  test(`every step in all five tours has useful unobscured focus · ${language}`, async ({
+  test(`every step in all seven tours has useful unobscured focus · ${language}`, async ({
     page,
   }, info) => {
     test.setTimeout(180000);
@@ -38,6 +38,8 @@ for (const language of ['en', 'bn'] as const) {
     const saved = await page.evaluate(() => localStorage.getItem('ritu-preview-v1'));
     const choices = {
       full: language === 'en' ? 'Full mission tour' : 'সম্পূর্ণ পরিচিতি',
+      crops: language === 'en' ? 'Suggested crops' : 'প্রস্তাবিত ফসল',
+      track: language === 'en' ? 'Track your plan' : 'পরিকল্পনার হিসাব',
       farm: language === 'en' ? 'Your farm' : 'আপনার খামার',
       compare: language === 'en' ? 'Compare rotations' : 'ফসলক্রম তুলনা',
       field: language === 'en' ? 'Interactive field' : 'জমির ইন্টারঅ্যাকটিভ দৃশ্য',
@@ -47,7 +49,7 @@ for (const language of ['en', 'bn'] as const) {
       await page.locator('[data-tour-launch]').click();
       await page
         .getByRole('dialog')
-        .getByRole('button', { name: new RegExp(choices[scope]) })
+        .getByRole('button', { name: new RegExp(`^${choices[scope]}`) })
         .click();
       const steps = stepsForTour(scope);
       for (const [index, step] of steps.entries()) {
@@ -55,6 +57,12 @@ for (const language of ['en', 'bn'] as const) {
           const card = page.locator('.tour-card');
           await expect(card).toHaveAttribute('aria-busy', 'false');
           await expect(page.locator('#tour-title')).toHaveAccessibleName(step.title[language]);
+          if (step.id === 'field-controls') {
+            await expect(page.locator('.field-viewport')).toHaveAttribute('data-renderer', 'ready');
+            await expect(page.locator('.field-model-title')).toContainText(
+              language === 'en' ? 'Mung bean' : 'মুগ ডাল',
+            );
+          }
           const c = (await card.boundingBox())!;
           expect(c.x).toBeGreaterThanOrEqual(0);
           expect(c.y).toBeGreaterThanOrEqual(0);
@@ -115,7 +123,7 @@ for (const language of ['en', 'bn'] as const) {
                 .click();
             }
             if (step.id === 'selection' && width >= 1200) {
-              const action = (await page.locator('.choice-panel .button').boundingBox())!;
+              const action = (await page.locator('.choice-summary .button').boundingBox())!;
               expect(action.x + action.width).toBeLessThan(c.x);
               expect(action.y).toBeGreaterThanOrEqual(light.y);
               expect(action.y + action.height).toBeLessThanOrEqual(light.y + light.height);
@@ -137,6 +145,9 @@ for (const language of ['en', 'bn'] as const) {
       ).toBeUndefined();
     }
     expect(await page.evaluate(() => localStorage.getItem('ritu-preview-v1'))).toBe(saved);
+    expect(
+      await page.evaluate(() => JSON.parse(localStorage.getItem('ritu-demo-v1')!).enabled),
+    ).toBe(false);
     expect(errors).toEqual([]);
   });
 }

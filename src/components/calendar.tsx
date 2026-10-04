@@ -155,8 +155,8 @@ export function Timeline({ periods, name }: { periods: CropPeriod[]; name: strin
           )}
           <div className="notice small">
             {t(
-              'These are monthly sample windows in a recurring year, not verified planting dates. A ↔ mark means the crop crosses February into March.',
-              'এগুলো পুনরাবৃত্ত বছরের মাসভিত্তিক নমুনা; যাচাইকৃত রোপণের তারিখ নয়। ↔ চিহ্নের ফসল ফেব্রুয়ারি পেরিয়ে মার্চে চলবে।',
+              'These are locked monthly mock windows for the March–February cycle, not verified local planting dates.',
+              'এগুলো মার্চ–ফেব্রুয়ারি চক্রের নির্ধারিত মাসভিত্তিক নমুনা সময়; যাচাইকৃত স্থানীয় রোপণের তারিখ নয়।',
             )}
           </div>
         </Dialog>
@@ -198,7 +198,7 @@ export function RotationRow({
               <span>
                 {rotation.isCurrent
                   ? t('BASELINE', 'বর্তমান')
-                  : `${t('OPTION', 'বিকল্প')} 0${index}`}
+                  : `${t('OPTION', 'বিকল্প')} 0${index + 1}`}
               </span>
               {preferred === rotation.id && (
                 <span className="preference-tag">

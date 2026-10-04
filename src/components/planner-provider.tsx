@@ -1,22 +1,46 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, useSyncExternalStore } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import type { ReactNode } from 'react';
-import { evaluate, preferredOption, rotationsFor } from '../domain/evaluate';
+import { evaluate, preferredOption } from '../domain/evaluate';
 import type { Farm, Language, Priority } from '../domain/types';
 import { initialState } from '../lib/storage';
 import { plannerStore } from '../lib/planner-store';
 import { tr } from '../lib/translate';
+import { demoStore } from '../lib/demo-store';
+import { generateDemoPlans, farmFingerprint, planFingerprint } from '../domain/demo-planner';
+import { journeyStore } from '../lib/journey-store';
+import { defaultFarm } from '../data/preview';
+import { defaultDemo } from '../data/demo-environment';
+import type { Rotation } from '../domain/types';
 
 function usePlannerState() {
   const [month, setMonth] = useState(0);
   const [fieldOpen, setFieldOpen] = useState(false);
+  const [tourPreview, setTourPreview] = useState(false);
   const { state, ready, saved } = useSyncExternalStore(
     plannerStore.subscribe,
     plannerStore.getSnapshot,
     plannerStore.getServerSnapshot,
   );
   const setState = plannerStore.update;
+  const demo = useSyncExternalStore(
+    demoStore.subscribe,
+    demoStore.getSnapshot,
+    demoStore.getServerSnapshot,
+  );
+  const journey = useSyncExternalStore(
+    journeyStore.subscribe,
+    journeyStore.getSnapshot,
+    journeyStore.getServerSnapshot,
+  );
   useEffect(() => {
     document.documentElement.lang = state.language;
   }, [state.language]);
@@ -27,11 +51,37 @@ function usePlannerState() {
   const select = (selected: string) => setState((s) => ({ ...s, selected }));
   const reset = () => {
     setMonth(0);
+    demoStore.reset();
+    journeyStore.reset();
     setState((s) => ({ ...initialState, language: s.language }));
   };
-  const evaluations = rotationsFor(state.farm).map((rotation) => evaluate(rotation, state.farm));
+  const reviewed =
+    journey.state.reviewed === farmFingerprint(state.farm, demo.settings, state.priority);
+  const planReady =
+    reviewed &&
+    demo.settings.enabled &&
+    journey.state.generatedFor === planFingerprint(state.farm, demo.settings, state.priority);
+  const generated = useMemo(
+    () => (planReady ? generateDemoPlans(state.farm, demo.settings, state.priority) : []),
+    [state.farm, demo.settings, state.priority, planReady],
+  );
+  const tourPlans = useMemo(() => generateDemoPlans(defaultFarm, defaultDemo, 'water'), []);
+  const evaluations = (tourPreview ? tourPlans : generated).map((rotation) =>
+    evaluate(rotation, tourPreview ? defaultFarm : state.farm),
+  );
   const preferred = preferredOption(evaluations, state.priority);
-  const selected = evaluations.find((e) => e.rotation.id === state.selected) ?? evaluations[1];
+  const selected =
+    evaluations.find((e) => e.rotation.id === state.selected) ??
+    evaluations[0] ??
+    evaluate(
+      {
+        id: 'empty',
+        name: { en: 'No generated plan', bn: 'পরিকল্পনা তৈরি হয়নি' },
+        subtitle: { en: '', bn: '' },
+        periods: [],
+      } as Rotation,
+      state.farm,
+    );
   const t = (en: string, bn: string) => tr(state.language, en, bn);
   return {
     ...state,
@@ -41,6 +91,16 @@ function usePlannerState() {
     select,
     reset,
     evaluations,
+    reviewed,
+    planReady,
+    journey: journey.state,
+    journeySaved: journey.saved,
+    setJourney: journeyStore.update,
+    tourPreview,
+    setTourPreview,
+    demo: demo.settings,
+    demoSaved: demo.saved,
+    setDemo: demoStore.update,
     preferred,
     selected,
     saved,

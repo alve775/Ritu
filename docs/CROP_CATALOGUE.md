@@ -1,6 +1,6 @@
 # Crop catalogue and evidence boundary
 
-Updated October 4, 2026. The preview has **43 named crop entries plus rest/fallow**. Boro, Aman and Aus are rice cropping-season entries, not three botanical species. The catalogue is searchable and expandable; the first screen continues to present three rotation choices.
+Updated October 4, 2026. The preview has **43 named crop entries plus rest/fallow**. Boro, Aman and Aus are rice cropping-season entries, not three botanical species. The catalogue is searchable and expandable; the first screen starts with farm conditions; only eligible mock crops are selectable in Step 2.
 
 The official [Field Shift summary](https://www.spaceappschallenge.org/2026/challenges/field-shift-adapting-farms-with-nasa-data/) requests crop characteristics alongside NASA observations, local soil and farmer priorities. It does not prescribe this crop list. Inclusion is not NASA endorsement or confirmation of Rajshahi suitability.
 
@@ -25,14 +25,16 @@ These are catalogue groups, not botanical families. Each crop opens its referenc
 
 ## Calendar and model behavior
 
-- Search either language, filter by group, show more results, inspect a source, and add a period with an explicitly chosen start month and duration. The catalogue form supplies no default dates.
-- Existing periods remain intact. Adding selects the current rotation and participates in calendar overlap, household-presence and first/last-month labor-entry checks. Conflicts remain visible rather than silently moving another crop.
-- The recurring calendar supports at most 12 periods and durations of 1–12 months. It cannot represent a crop extending beyond one year. Longer cycles require future multi-year modeling; no compressed duration is suggested.
+- Search either language, filter groups, paginate and inspect sources. The library is read-only: no manual start/duration or crop injection.
+- Farmer choices are limited to passing mock suggestions. The generator assigns crop-specific windows, rejects conflicting/unknown options, and inserts explicit rest gaps.
+- Generated calendars stay within twelve March–February months. Longer crops and actual day-based transitions require a future dated engine; no compressed duration is suggested. Legacy recurring fixtures are retained in domain tests only.
 - Schematic anatomy currently covers Boro/Aman rice, wheat, mung bean and potato. The other 38 entries show **model unavailable** and render no substitute plant geometry. Calendar controls still work.
 - Botanical family evidence covers the original five crop entries. Extra entries explicitly show **taxonomy not reviewed** and are excluded from reviewed-family counts. Catalogue group is not a proxy for botanical family. This is unfinished evidence work, not proof that a sequence contains no legumes.
 - Irrigation, soil and drainage suitability remain unassessed for every crop. No consumption, pesticide, fertilizer, yield, profit, water-saving or soil-improvement prescription is supplied.
 
 Implementation: `src/data/crop-catalogue.ts`, `src/data/preview.ts`, `src/components/crop-catalogue.tsx`. Storage uses the shared crop-ID list. Tests enumerate all IDs and inspect every crop through the browser.
+
+The optional mock generator has **13 invented crop records**, separate from the source-backed catalogue. Only passing windows among the 13 mock records are selectable preferences. The other identities remain research references and can be recorded as previous crops; they cannot enter a generated calendar. Mock seasons, water/drought indices, temperatures and soil-texture rules are demonstration fixtures, not sourced crop knowledge. Their presence does not supply missing taxonomy or 3D anatomy. See [the description audit](PROJECT_DESCRIPTION_AUDIT.md).
 
 ## Remaining evidence work
 

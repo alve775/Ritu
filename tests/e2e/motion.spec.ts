@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { seedPlan } from './fixtures';
 
 test.use({ reducedMotion: 'no-preference' });
 
@@ -119,6 +120,7 @@ test('switching to reduced motion settles a moving tour and keeps navigation usa
 });
 
 test('3D camera renders intermediate views and stops rendering when settled', async ({ page }) => {
+  await seedPlan(page);
   await page.addInitScript(() => {
     localStorage.setItem('ritu-tour-v1', 'seen');
     const state = window as Window & { rituDrawTimes?: number[] };
@@ -129,7 +131,7 @@ test('3D camera renders intermediate views and stops rendering when settled', as
       return original.apply(this, args);
     };
   });
-  await page.goto('/');
+  await page.goto('/plan');
   await page.getByRole('button', { name: 'Open field view', exact: true }).click();
   await expect(page.locator('.field-viewport')).toHaveAttribute('data-renderer', 'ready');
   await page.locator('.field-viewport').scrollIntoViewIfNeeded();

@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: 'Ritu — Grow with the seasons',
   description:
     'A thoughtful crop-rotation planner for Bangladesh. Explore three seasons with your farm, water access and household needs in mind. Illustrative concept preview.',
-  icons: { icon: '/favicon.svg' },
+  icons: { icon: { url: '/Ritu_Logo.jpeg', type: 'image/jpeg' } },
 };
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

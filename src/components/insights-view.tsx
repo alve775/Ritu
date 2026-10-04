@@ -3,13 +3,18 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, CircleAlert, CircleHelp } from 'lucide-react';
 import { usePlanner } from './planner-provider';
+import { JourneyGate } from './journey-views';
 import { CalendarLegend, CalendarScrollHint, MonthHeader, Status, Timeline } from './calendar';
 import { PriorityControl } from './farm-controls';
 import { evidenceSources } from '../data/evidence';
+import { DemoPlanReasons } from './demo-planning';
 
 export function InsightsView() {
-  const { t, language, selected, evaluations, select } = usePlanner();
+  const { t, language, selected, evaluations, select, reviewed, planReady, tourPreview } =
+    usePlanner();
   const [acknowledged, setAcknowledged] = useState(false);
+  if ((!planReady || !evaluations.length) && !tourPreview)
+    return <JourneyGate step={reviewed ? 'crops' : 'farm'} />;
   const blockers = selected.checks.filter((check) => check.state === 'block');
   return (
     <div className="page-enter calm-page">
@@ -24,7 +29,7 @@ export function InsightsView() {
             )}
           </p>
         </div>
-        <Link href="/" className="button secondary">
+        <Link href="/plan" className="button secondary">
           <ArrowLeft size={20} />
           {t('Back to comparison', 'তুলনায় ফিরে যান')}
         </Link>
@@ -54,6 +59,7 @@ export function InsightsView() {
           <Status status={selected.status} />
         </div>
       </section>
+      <DemoPlanReasons rotation={selected.rotation} />
       <div className="next-step-card simple-next-step">
         <div>
           <h2>
@@ -161,8 +167,8 @@ export function InsightsView() {
               <strong>{t('Local crop & soil suitability', 'স্থানীয় ফসল ও মাটির উপযোগিতা')}</strong>
               <p>
                 {t(
-                  'These editable example dates are not local recommendations. No soil-health outcome has been estimated.',
-                  'এই সম্পাদনযোগ্য নমুনার সময় স্থানীয় সুপারিশ নয়। মাটির স্বাস্থ্যের ফলাফল হিসাব হয়নি।',
+                  'These locked mock dates are not local recommendations. No soil-health outcome has been estimated.',
+                  'এই স্থির নমুনার সময় স্থানীয় সুপারিশ নয়। মাটির স্বাস্থ্যের ফলাফল হিসাব হয়নি।',
                 )}
               </p>
             </li>

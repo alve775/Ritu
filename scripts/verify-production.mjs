@@ -72,9 +72,13 @@ try {
   page.on('pageerror', (error) => errors.push(error.message));
   await page.addInitScript(() => localStorage.setItem('ritu-tour-v1', 'seen'));
   await page.goto(base);
+  await page.getByRole('button', { name: 'See suggested crops', exact: true }).click();
+  for (const crop of ['Mung bean', 'Aman rice', 'Mustard'])
+    await page.getByRole('checkbox', { name: 'Consider ' + crop, exact: true }).check();
+  await page.getByRole('button', { name: 'Build my calendar', exact: true }).click();
   await page.getByRole('button', { name: 'Open field view', exact: true }).click();
   await expect(page.locator('.field-viewport')).toHaveAttribute('data-renderer', 'ready');
-  await page.getByRole('combobox', { name: 'Rotation to explore' }).selectOption('diverse');
+  await page.getByRole('combobox', { name: 'Crop to study', exact: true }).selectOption('potato');
   await page.locator('.explorer-months').getByRole('button', { name: 'Jan', exact: true }).click();
   await page.getByRole('button', { name: 'Soil cutaway', exact: true }).click();
   await expect(page.getByText(/tubers connected to stolons/)).toBeVisible();
@@ -94,6 +98,7 @@ try {
   await page.getByRole('button', { name: 'Mute all sounds' }).click();
   await expect(page.getByRole('slider', { name: 'Sound volume' })).toHaveValue('0');
   await page.keyboard.press('Escape');
+  await page.goto(base + '/crops');
   await page.getByText('Browse 43 crops', { exact: true }).click();
   await page.getByRole('searchbox', { name: 'Search crops' }).fill('maize');
   await page.getByRole('button', { name: 'Inspect crop: Maize', exact: true }).click();

@@ -3,12 +3,15 @@ import { readdir, readFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 
 const source = path.resolve(process.argv[2] ?? 'research/tour-review-20261004');
-const destination = path.resolve('research/tour-contact-sheets');
+const destination = path.resolve(process.argv[3] ?? 'research/tour-contact-sheets');
 await mkdir(destination, { recursive: true });
 const browser = await chromium.launch();
 try {
   const page = await browser.newPage({ viewport: { width: 1600, height: 1400 } });
-  for (const directory of await readdir(source)) {
+  const directories = (await readdir(source, { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name);
+  for (const directory of directories) {
     const files = (await readdir(path.join(source, directory)))
       .filter((file) => file.endsWith('.png'))
       .sort();

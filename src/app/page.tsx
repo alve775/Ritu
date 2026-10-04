@@ -1,4 +1,4 @@
-import { CompareView } from '../components/compare-view';
+import { redirect } from 'next/navigation';
 export default function Page() {
-  return <CompareView />;
+  redirect('/farm');
 }

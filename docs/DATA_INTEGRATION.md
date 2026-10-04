@@ -1,10 +1,20 @@
 # Replacing preview assumptions with reviewed evidence
 
-The preview is a functional interface, not an agronomic model. Keep it visibly illustrative until the team's data and crop rules have been reviewed. The full challenge resources and submission rules still need to be checked when available.
+The preview is a functional interface with an optional fictional planning engine, not a validated agronomic model. Keep it visibly illustrative until the team's data and crop rules have been reviewed. The full challenge resources and submission rules still need to be checked when available.
 
-## Current boundaries
+October 4 instruction: **mock data only; no real data APIs**. `src/data/demo-environment.ts` owns authored environment fixtures and 13 invented crop records; `src/domain/demo-planner.ts` generates/ranks fictional rotations separately from real-world entry checks. Mock settings use `ritu-demo-v1`. Follow [PROJECT_DESCRIPTION_AUDIT.md](PROJECT_DESCRIPTION_AUDIT.md) when replacing this contract: do not reuse invented thresholds as scientific rules or relabel fixtures as NASA observations. Relative wetness is display-only; pulse months do not predict soil improvement.
 
-`src/data/preview.ts` supplies a fictional farm and two fictional alternatives. `src/domain/types.ts` defines their structure. `src/domain/evaluate.ts` checks entered calendar/household/labor consistency; water, soil and drainage suitability always remain unknown. Unsupported water-demand rankings and irrigation thresholds were removed. No option currently receives a recommendation. The UI reads results through `PlannerProvider`; it contains no remote-data download code.
+## October 4 farm-first update — current interface
+
+[JOURNEY_WORKFLOW.md](JOURNEY_WORKFLOW.md) supersedes the older manual calendar/editor flow described below. Generated calendars use authored crop-specific integer intervals within March–February; they cannot wrap or overlap, and every idle month is explicit rest. Legacy recurring example periods remain test fixtures in evaluate/season modules, not selectable farmer plans. There is no manual date or crop injection.
+
+The 13 fictional records now include window alternatives and drainage categories. Every generated candidate passes all mock checks plus entered household/help consistency; priorities rank only passing options. Review/generated fingerprints invalidate stale future suggestions, while ritu-journey-v1 preserves an immutable saved calendar/year and planting/harvest/notes. The year is a label, not a forecasting parameter. Scenario Apply is refused with zero compatible candidates.
+
+For real integration replace month assumptions with locally reviewed dated windows, stage durations and minimum turnaround buffers. Validate rotation/family rules separately; no rule is scientifically validated merely by the current software timing tests. Preserve missingness, provenance, snapshot stability and no-conflict generation when replacing the mocks. No live API is authorized now.
+
+## Legacy evaluator and test-fixture boundaries
+
+`src/data/preview.ts` supplies a fictional farm, crop identity records and legacy calendar test fixtures. The two fixed alternatives are not selectable in the farm-first interface. `src/domain/types.ts` defines their structure. `src/domain/evaluate.ts` checks entered calendar/household/labor consistency; water, soil and drainage suitability always remain unknown. Unsupported water-demand rankings and irrigation thresholds were removed. No option currently receives a recommendation. The UI reads results through `PlannerProvider`; it contains no remote-data download code.
 
 Month index 0 is March, 11 is February. Periods use a start index and a duration in whole months, and repeat annually. Boro starting at 10 for four months covers 10, 11, 0, 1. The rendered fragments are not two unrelated crops. Unspecified months are unknown, not implicit fallow. Crop/rest overlap is a blocker. The monthly preview does not check actual planting windows, real day durations or transition buffers.
 
@@ -29,4 +39,4 @@ Keep rainfall histories (planned IMERG, documented POWER fallback) and temperatu
 7. Update the provenance dialog and visible labels to identify exactly which parts are reviewed and which remain illustrative. Do not remove the preview label because only one dataset is connected.
 8. Preserve a packaged, reproducible local fixture for the demonstration. Record reviewer feedback and changes. Re-run domain, browser and accessibility checks.
 
-Priorities are currently saved only. No example passes all checks because agronomic evidence is unavailable. Before adding ranking, agree on real criteria, provenance, missing-data behavior and sensitivity analysis; a priority must never erase a conflict or unknown. NASA products are already public; the October 28 full-challenge release is not the beginning of public NASA data availability. See [the scientific and usability audit](EVIDENCE_AND_USABILITY_AUDIT.md).
+Priorities affect only mock ranking. No example passes all real-world checks because agronomic evidence is unavailable. Before adding evidence-backed ranking, agree on real criteria, provenance, missing-data behavior and sensitivity analysis; a priority must never erase a conflict or unknown. NASA products are already public; the October 28 full-challenge release is not the beginning of public NASA data availability. See [the scientific and usability audit](EVIDENCE_AND_USABILITY_AUDIT.md).

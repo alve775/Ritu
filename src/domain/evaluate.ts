@@ -13,7 +13,7 @@ export function segments(period: CropPeriod): { start: number; length: number }[
       ]
     : [{ start: period.start, length: first }];
 }
-export function rotationsFor(farm: Farm): Rotation[] {
+export function rotationsFor(farm: Farm, alternatives = previewData.alternatives): Rotation[] {
   const crops = farm.current
     .filter((p) => p.crop !== 'fallow')
     .map((p) => previewData.crops[p.crop]);
@@ -28,7 +28,7 @@ export function rotationsFor(farm: Farm): Rotation[] {
       periods: farm.current,
       isCurrent: true,
     },
-    ...previewData.alternatives,
+    ...alternatives,
   ];
 }
 export function evaluate(rotation: Rotation, farm: Farm): Evaluation {

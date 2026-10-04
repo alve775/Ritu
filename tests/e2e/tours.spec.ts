@@ -8,7 +8,7 @@ test('first visit offers a tour; skipping preserves the plan and does not repeat
   await page.goto('/');
   const tour = page.getByRole('dialog');
   await expect(
-    tour.getByRole('heading', { name: 'Your mission: build a seasonal plan' }),
+    tour.getByRole('heading', { name: 'Your mission: plan, then keep track' }),
   ).toBeVisible();
   const saved = await page.evaluate(() => localStorage.getItem('ritu-preview-v1'));
   await tour.getByRole('button', { name: 'Skip tour' }).click();
@@ -34,7 +34,7 @@ test('full mission visits every control with visible spotlights and preserves in
   await expect(page).toHaveURL('/farm');
   await tour.getByRole('button', { name: 'Back', exact: true }).click();
   await expect(
-    tour.getByRole('heading', { name: 'Your mission: build a seasonal plan' }),
+    tour.getByRole('heading', { name: 'Your mission: plan, then keep track' }),
   ).toBeVisible();
   await tour.getByRole('button', { name: 'Start the tour' }).click();
   for (let step = 2; step <= tourSteps.length; step++) {
@@ -50,21 +50,22 @@ test('full mission visits every control with visible spotlights and preserves in
     else await tour.getByRole('button', { name: 'Next', exact: true }).click();
   }
   await expect(tour).toHaveCount(0);
-  await expect(page).toHaveURL('/insights');
+  await expect(page).toHaveURL('/track');
   expect(await page.evaluate(() => localStorage.getItem('ritu-preview-v1'))).toBe(saved);
 });
 
 test('top tour chooser replays every section and reopens a collapsed field', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('ritu-tour-v1', 'seen'));
   await page.goto('/');
-  await expect(page.getByRole('button', { name: 'Open field view' })).toBeVisible();
   const cases = [
-    { choice: 'Interactive field', title: 'Inspect one rotation and month', route: '/' },
+    { choice: 'Interactive field', title: 'Inspect one rotation and month', route: '/plan' },
+    { choice: 'Suggested crops', title: 'See only matching suggestions', route: '/crops' },
+    { choice: 'Track your plan', title: 'Keep your saved calendar', route: '/track' },
     { choice: 'Your farm', title: 'Make this farm yours', route: '/farm' },
-    { choice: 'Compare rotations', title: 'Compare the same twelve months', route: '/' },
+    { choice: 'Compare rotations', title: 'Compare the same twelve months', route: '/plan' },
     {
       choice: 'Your choice, explained',
-      title: 'Read each check and its reason',
+      title: 'Read each mock rule and reason',
       route: '/insights',
     },
   ];
@@ -93,7 +94,7 @@ test('tour is accessible, keyboard-contained and supports Bangla at 320px', asyn
   await tour.getByRole('button', { name: 'বাংলা', exact: true }).click();
   await page.setViewportSize({ width: 320, height: 800 });
   await expect(
-    tour.getByRole('heading', { name: 'আপনার কাজ: মৌসুমি পরিকল্পনা তৈরি' }),
+    tour.getByRole('heading', { name: 'আপনার কাজ: পরিকল্পনা ও কাজের হিসাব' }),
   ).toBeVisible();
   await tour.getByRole('button', { name: 'পরিচিতি শুরু করুন' }).click();
   await expect(page).toHaveURL('/farm');
@@ -127,7 +128,7 @@ test('first-visit tour can be dismissed when storage is unavailable', async ({ p
   await page.goto('/');
   await page.getByRole('dialog').getByRole('button', { name: 'Skip tour' }).click();
   await expect(page.getByText('Storage unavailable — keep this tab open')).toBeVisible();
-  await page.getByRole('link', { name: 'Edit farm', exact: true }).click();
+  await page.goto('/farm');
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByLabel('Farm name', { exact: true })).toBeVisible();
 });

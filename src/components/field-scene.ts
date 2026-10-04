@@ -49,7 +49,7 @@ export function createFieldScene(
     powerPreference: 'low-power',
   });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-  renderer.setClearColor('#edf2e7');
+  renderer.setClearColor('#f6f8fa');
   renderer.shadowMap.enabled = true;
   // Camera movement does not change the sun or plants: reuse the shadow texture.
   renderer.shadowMap.autoUpdate = false;
@@ -110,7 +110,7 @@ export function createFieldScene(
   for (let row = 0; row < 13; row++)
     box(7.9, 0.06, 0.11, '#9b7a4e', 0.15, 0.13, -2.55 + row * 0.42);
   // A normalized field layout, not a surveyed parcel or physical crop model.
-  const floor = box(28, 0.04, 25, '#e6ecdd', 0, -0.58);
+  const floor = box(28, 0.04, 25, '#f0f3f5', 0, -0.58);
   floor.castShadow = false;
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();

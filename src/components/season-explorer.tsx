@@ -22,6 +22,7 @@ import { Dialog } from './dialog';
 import { Status } from './calendar';
 import type { FieldView } from './field-scene';
 import { cropModelNotes } from '../data/crop-models';
+import type { CropId } from '../domain/types';
 
 export function SeasonExplorer() {
   const {
@@ -40,10 +41,12 @@ export function SeasonExplorer() {
   const [view, setView] = useState<FieldView>('field');
   const [mature, setMature] = useState(true);
   const [sources, setSources] = useState(false);
+  const [studyCrop, setStudyCrop] = useState<CropId | null>(null);
   const showDetails = useCallback(() => setInspect(true), []);
   const activities = activitiesForMonth(selected.rotation, month);
   const single = activities.length === 1 ? activities[0] : null;
-  const note = single ? cropModelNotes[single.period.crop] : null;
+  const modelCrop = studyCrop ?? single?.period.crop ?? null;
+  const note = modelCrop ? cropModelNotes[modelCrop] : null;
   const phaseText: Record<WindowPhase, string> = {
     planting: t('Sample planting month', 'নমুনার রোপণের মাস'),
     harvest: t('Sample harvest month', 'নমুনার ফসল কাটার মাস'),
@@ -90,55 +93,78 @@ export function SeasonExplorer() {
       </div>
       {open && (
         <div id="field-explorer-body">
-          <div className="explorer-selection">
-            <label>
-              {t('Rotation to explore', 'যে ক্রম দেখতে চান')}
-              <select value={selected.rotation.id} onChange={(event) => select(event.target.value)}>
-                {evaluations.map((e) => (
-                  <option key={e.rotation.id} value={e.rotation.id}>
-                    {e.rotation.name[language]}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className="month-navigation">
-              <button
-                className="icon-button"
-                aria-label={t('Previous month', 'আগের মাস')}
-                onClick={() => setMonth((month + 11) % 12)}
-              >
-                <ChevronLeft size={22} />
-              </button>
-              <span>
-                <CalendarDays size={19} />
-                <strong>{months[language][month]}</strong>
-              </span>
-              <button
-                className="icon-button"
-                aria-label={t('Next month', 'পরের মাস')}
-                onClick={() => setMonth((month + 1) % 12)}
-              >
-                <ChevronRight size={22} />
-              </button>
+          <div data-tour="field-months">
+            <div className="explorer-selection">
+              <label>
+                {t('Rotation to explore', 'যে ক্রম দেখতে চান')}
+                <select
+                  value={selected.rotation.id}
+                  onChange={(event) => select(event.target.value)}
+                >
+                  {evaluations.map((e) => (
+                    <option key={e.rotation.id} value={e.rotation.id}>
+                      {e.rotation.name[language]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="month-navigation">
+                <button
+                  className="icon-button"
+                  aria-label={t('Previous month', 'আগের মাস')}
+                  onClick={() => setMonth((month + 11) % 12)}
+                >
+                  <ChevronLeft size={22} />
+                </button>
+                <span>
+                  <CalendarDays size={19} />
+                  <strong>{months[language][month]}</strong>
+                </span>
+                <button
+                  className="icon-button"
+                  aria-label={t('Next month', 'পরের মাস')}
+                  onClick={() => setMonth((month + 1) % 12)}
+                >
+                  <ChevronRight size={22} />
+                </button>
+              </div>
+              <Status status={selected.status} />
             </div>
-            <Status status={selected.status} />
-          </div>
-          <div
-            className="explorer-months"
-            aria-label={t('Choose a sample month', 'নমুনার মাস বাছুন')}
-          >
-            {months[language].map((label, index) => (
-              <button key={label} onClick={() => setMonth(index)} aria-pressed={month === index}>
-                {label}
-              </button>
-            ))}
+            <div
+              className="explorer-months"
+              aria-label={t('Choose a sample month', 'নমুনার মাস বাছুন')}
+            >
+              {months[language].map((label, index) => (
+                <button key={label} onClick={() => setMonth(index)} aria-pressed={month === index}>
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="explorer-layout">
             <figure className="field-figure">
+              <label className="crop-study-selector">
+                {t('Crop to study', 'গঠন দেখার ফসল')}
+                <select
+                  value={studyCrop ?? 'calendar'}
+                  onChange={(e) =>
+                    setStudyCrop(e.target.value === 'calendar' ? null : (e.target.value as CropId))
+                  }
+                >
+                  <option value="calendar">
+                    {t('Follow selected calendar month', 'ক্যালেন্ডারের বাছা মাস অনুসরণ')}
+                  </option>
+                  {(['boro', 'aman', 'wheat', 'mung', 'potato'] as const).map((id) => (
+                    <option key={id} value={id}>
+                      {previewData.crops[id].name[language]}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <div className="field-model-title">
                 <strong>
-                  {single
-                    ? previewData.crops[single.period.crop].name[language]
+                  {modelCrop
+                    ? previewData.crops[modelCrop].name[language]
                     : t('No single crop specified', 'একটি ফসল নির্ধারিত নয়')}
                 </strong>
                 <span>{t('Structure study', 'গঠন শেখার দৃশ্য')}</span>
@@ -168,7 +194,7 @@ export function SeasonExplorer() {
                 <label>
                   {t('Plant structure', 'গাছের গঠন')}
                   <select
-                    disabled={!note || !single || single.period.crop === 'fallow'}
+                    disabled={!note || !modelCrop || modelCrop === 'fallow'}
                     value={mature ? 'mature' : 'young'}
                     onChange={(event) => setMature(event.target.value === 'mature')}
                   >
@@ -179,7 +205,7 @@ export function SeasonExplorer() {
               </div>
               <FieldViewport
                 appearance={{
-                  crop: single?.period.crop ?? null,
+                  crop: modelCrop,
                   view,
                   mature,
                   water: farm.irrigation,
@@ -187,6 +213,14 @@ export function SeasonExplorer() {
                 }}
                 onInspect={showDetails}
               />
+              {studyCrop && (
+                <p className="manual-study-notice">
+                  {t(
+                    'Manual anatomy study. Your calendar, selected crop plan and month details have not changed.',
+                    'নিজে বাছা গঠনের নমুনা। ক্যালেন্ডার, ফসলক্রম বা মাসের তথ্য বদলায়নি।',
+                  )}
+                </p>
+              )}
               <figcaption>
                 <Info size={15} />
                 {t(
@@ -326,9 +360,9 @@ export function SeasonExplorer() {
               'উৎসগুলো গাছের গঠন জানায়, নমুনার ক্যালেন্ডার বা স্থানীয় পরামর্শ নয়। দৃশ্যগুলো নিজেদের প্রতীকী আঁকা; জাত, গঠন ও অনুপাত সরল করা হয়েছে।',
             )}
           </p>
-          {note && (
+          {note && modelCrop && (
             <>
-              <h3>{previewData.crops[single!.period.crop].name[language]}</h3>
+              <h3>{previewData.crops[modelCrop].name[language]}</h3>
               <p>{note.structure[language]}</p>
               <p>{note.belowGround[language]}</p>
               <ul className="model-references">

@@ -45,8 +45,8 @@ export function ReadingControls() {
     audio.current?.update(preferences);
   }, [preferences]);
   const statusText: Record<AudioStatus, string> = {
-    off: t('Farm sounds are off', 'খামারের শব্দ বন্ধ'),
-    playing: t('Farm sounds are playing', 'খামারের শব্দ চলছে'),
+    off: t('Farm sounds are off', 'মাঠের শব্দ বন্ধ'),
+    playing: t('Farm sounds are playing', 'মাঠের শব্দ চলছে'),
     paused: t('Paused while this tab is hidden', 'ট্যাব আড়ালে থাকায় বিরতি'),
     muted: t('Muted · volume is zero', 'নিঃশব্দ · শব্দের মাত্রা শূন্য'),
     unavailable: t(
@@ -88,7 +88,7 @@ export function ReadingControls() {
             {t('Animate transitions and tour text', 'পরিবর্তন ও পরিচিতির লেখায় অ্যানিমেশন')}
           </label>
           <fieldset className="farm-sound-controls">
-            <legend>{t('Farm sounds', 'খামারের শব্দ')}</legend>
+            <legend>{t('Farm sounds', 'মাঠের শব্দ')}</legend>
             <p>
               {t(
                 'Original synthesized wind and bird-like or insect-like calls. Optional atmosphere, not a field recording.',
@@ -125,10 +125,10 @@ export function ReadingControls() {
             </label>
             <div className="button-row">
               <button className="button primary" onClick={() => void audio.current?.start()}>
-                {t('Play farm sounds', 'খামারের শব্দ চালান')}
+                {t('Play farm sounds', 'মাঠের শব্দ চালান')}
               </button>
               <button className="button secondary" onClick={() => audio.current?.stop()}>
-                {t('Stop farm sounds', 'খামারের শব্দ বন্ধ করুন')}
+                {t('Stop farm sounds', 'মাঠের শব্দ বন্ধ করুন')}
               </button>
               <button
                 className="button secondary"

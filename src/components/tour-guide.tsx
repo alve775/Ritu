@@ -61,12 +61,12 @@ export function TourGuide() {
       title: t('Full mission tour', 'সম্পূর্ণ পরিচিতি'),
       description: t(
         'Farm → suggested crops → calendar → tracking',
-        'খামার → প্রস্তাবিত ফসল → ক্যালেন্ডার → হিসাব',
+        'জমি → প্রস্তাবিত ফসল → ক্যালেন্ডার → হিসাব',
       ),
     },
     {
       scope: 'farm',
-      title: t('Your farm', 'আপনার খামার'),
+      title: t('Your farm', 'আপনার জমি'),
       description: t('Inputs, requirements and previous crops', 'তথ্য, প্রয়োজন ও আগের ফসল'),
     },
     {
@@ -125,7 +125,7 @@ export function TourGuide() {
           <p>
             {t(
               'Follow one mission at a time. Your farm inputs will stay as you left them.',
-              'একবারে একটি কাজ জানুন। খামারের তথ্য আগের মতো থাকবে।',
+              'একবারে একটি কাজ জানুন। জমির তথ্য আগের মতো থাকবে।',
             )}
           </p>
           <div className="tour-choices">

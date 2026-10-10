@@ -15,7 +15,7 @@ export const defaultDemo: DemoSettings = {
 };
 export const demoLocations: Record<DemoSettings['location'], Localized> = {
   barind: { en: 'Rajshahi · Barind pilot', bn: 'রাজশাহী · বরেন্দ্র পাইলট' },
-  other: { en: 'Another region · example', bn: 'অন্য অঞ্চল · নমুনা' },
+  other: { en: 'Another region', bn: 'অন্য অঞ্চল' },
 };
 export interface DemoMonth {
   month: number;

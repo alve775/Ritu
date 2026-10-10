@@ -19,7 +19,7 @@ export const previewData: PreviewData = {
       color: 'rice',
       description: {
         en: 'Rice structure is illustrated here. This example calendar does not establish local dates or water needs.',
-        bn: 'এখানে ধানগাছের গঠন দেখানো হয়েছে। নমুনার সময় স্থানীয় তারিখ বা পানির চাহিদা নির্ধারণ করে না।',
+        bn: 'এখানে ধানগাছের গঠন দেখানো হয়েছে। সময় স্থানীয় তারিখ বা পানির চাহিদা নির্ধারণ করে না।',
       },
     },
     aman: {
@@ -80,15 +80,15 @@ export const previewData: PreviewData = {
       family: { en: 'No crop', bn: 'ফসল নেই' },
       color: 'fallow',
       description: {
-        en: 'A planned gap in this sample calendar. Cover and management are unspecified.',
-        bn: 'এই নমুনা ক্যালেন্ডারে ফসলের বিরতি। আচ্ছাদন ও ব্যবস্থাপনা নির্ধারিত নয়।',
+        en: 'A planned gap in this calendar. Cover and management are unspecified.',
+        bn: 'এই ক্যালেন্ডারে ফসলের বিরতি। আচ্ছাদন ও ব্যবস্থাপনা নির্ধারিত নয়।',
       },
     },
   },
   alternatives: [
     {
       id: 'balanced',
-      name: { en: 'Example 1: rice, pulses & wheat', bn: 'নমুনা ১: ধান, ডাল ও গম' },
+      name: { en: 'Example 1: rice, pulses & wheat', bn: 'উদাহরণ ১: ধান, ডাল ও গম' },
       subtitle: { en: 'Mung bean → Aman rice → Wheat', bn: 'মুগ ডাল → আমন ধান → গম' },
       periods: [
         { crop: 'mung', start: 0, duration: 3 },
@@ -99,7 +99,7 @@ export const previewData: PreviewData = {
     },
     {
       id: 'diverse',
-      name: { en: 'Example 2: rice, pulses & potato', bn: 'নমুনা ২: ধান, ডাল ও আলু' },
+      name: { en: 'Example 2: rice, pulses & potato', bn: 'উদাহরণ ২: ধান, ডাল ও আলু' },
       subtitle: { en: 'Mung bean → Aman rice → Potato', bn: 'মুগ ডাল → আমন ধান → আলু' },
       periods: [
         { crop: 'mung', start: 0, duration: 3 },

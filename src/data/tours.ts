@@ -11,7 +11,7 @@ export interface TourStep {
 }
 const missions = {
   welcome: { en: 'Welcome to RITU', bn: 'ঋতুতে স্বাগতম' },
-  farm: { en: 'Mission 1 · Know your farm', bn: 'কাজ ১ · খামারকে জানুন' },
+  farm: { en: 'Mission 1 · Know your farm', bn: 'কাজ ১ · নিজের জমি চিনুন' },
   crops: { en: 'Mission 2 · Choose suggested crops', bn: 'কাজ ২ · প্রস্তাবিত ফসল বাছুন' },
   compare: { en: 'Mission 3 · Choose a calendar', bn: 'কাজ ৩ · ক্যালেন্ডার বাছুন' },
   field: { en: 'Explore the field', bn: 'জমি দেখুন' },
@@ -42,8 +42,8 @@ export const tourSteps: TourStep[] = [
     undefined,
     ['Your mission: plan, then keep track', 'আপনার কাজ: পরিকল্পনা ও কাজের হিসাব'],
     [
-      'I’m Mati. We start with your farm, show matching mock crops, build a calendar with locked dates, and record progress. This tour uses a temporary example and never changes your farm or saved plan.',
-      'আমি মাটি। আগে খামার, তারপর নমুনার ফসল, স্থির সময়ের ক্যালেন্ডার ও কাজের হিসাব। পরিচিতি সাময়িক নমুনা দেখায়; খামার বা রাখা পরিকল্পনা বদলায় না।',
+      'I’m Mati. We start with your farm, show matching crops, build a calendar with locked dates, and record progress. This tour uses a temporary example and never changes your farm or saved plan.',
+      'আমি মাটি। আগে জমি, তারপর ফসল, স্থির সময়ের ক্যালেন্ডার ও কাজের হিসাব। পরিচিতি সাময়িক উদাহরণ দেখায়; জমির তথ্য বা রাখা পরিকল্পনা বদলায় না।',
     ],
   ),
   step(
@@ -51,10 +51,10 @@ export const tourSteps: TourStep[] = [
     'farm',
     '/farm',
     '[data-tour="farm-basics"] .form-grid',
-    ['Make this farm yours', 'নিজের খামারের তথ্য দিন'],
+    ['Make this farm yours', 'নিজের জমির তথ্য দিন'],
     [
       'Give your field a name and area. Area does not predict yield. Invalid entries keep the previous value and stop Continue until corrected.',
-      'খামারের নাম ও আয়তন দিন। আয়তন ফলন বলে না। ভুল তথ্য ঠিক না হওয়া পর্যন্ত পরের ধাপে যাওয়া বন্ধ থাকে।',
+      'জমির নাম ও আয়তন দিন। আয়তন ফলন বলে না। ভুল তথ্য ঠিক না হওয়া পর্যন্ত পরের ধাপে যাওয়া বন্ধ থাকে।',
     ],
   ),
   step(
@@ -75,8 +75,8 @@ export const tourSteps: TourStep[] = [
     '.soil-fields',
     ['Record soil and drainage separately', 'মাটি ও নিষ্কাশন আলাদা দিন'],
     [
-      'Soil texture and drainage are separate mock constraints. Not sure is allowed, but you must confirm them before crop suggestions are available.',
-      'মাটির গঠন ও নিষ্কাশন আলাদা নমুনার শর্ত। জানা নেই বলা যায়; ফসলের প্রস্তাবের আগে নিশ্চিত করতে হবে।',
+      'Soil texture and drainage are separate constraints. Not sure is allowed, but you must confirm them before crop suggestions are available.',
+      'মাটির গঠন ও নিষ্কাশন আলাদা শর্ত। জানা নেই বলা যায়; ফসলের প্রস্তাবের আগে নিশ্চিত করতে হবে।',
     ],
   ),
   step(
@@ -84,10 +84,10 @@ export const tourSteps: TourStep[] = [
     'farm',
     '/farm',
     '.demo-controls',
-    ['Choose a location and mock climate', 'স্থান ও নমুনার জলবায়ু বাছুন'],
+    ['Choose a location and climate', 'স্থান ও জলবায়ু বাছুন'],
     [
-      'Choose an authored location and seasonal, drier or hotter fixture. All numbers and crop windows are fictional. No NASA API is called.',
-      'হাতে তৈরি স্থান ও মৌসুমি, শুষ্ক বা উষ্ণ নমুনা বাছুন। সংখ্যা ও সময় কাল্পনিক। নাসার API নেই।',
+      'Choose an authored location and seasonal, drier or hotter fixture. No NASA API is called.',
+      'হাতে তৈরি স্থান ও মৌসুমি, শুষ্ক বা উষ্ণ পরিবেশ বাছুন। নাসার API নেই।',
     ],
   ),
   step(
@@ -97,8 +97,8 @@ export const tourSteps: TourStep[] = [
     '.priority-control',
     ['Choose what matters most', 'অগ্রাধিকার বাছুন'],
     [
-      'Priority ranks only already passing mock options. Water, diversity, familiarity, drought and pulse inclusion never override a failed check.',
-      'শুধু মেলা নমুনার মধ্যে অগ্রাধিকার কাজ করে। পানি, বৈচিত্র্য, পরিচিতি, খরা ও ডাল কোনো ব্যর্থ শর্ত ঢাকে না।',
+      'Priority ranks only already passing options. Water, diversity, familiarity, drought and pulse inclusion never override a failed check.',
+      'শুধু মেলা বিকল্পের মধ্যে অগ্রাধিকার কাজ করে। পানি, বৈচিত্র্য, পরিচিতি, খরা ও ডাল কোনো ব্যর্থ শর্ত ঢাকে না।',
     ],
   ),
   step(
@@ -152,8 +152,8 @@ export const tourSteps: TourStep[] = [
     '[data-tour="suggestion-summary"]',
     ['See only matching suggestions', 'শুধু মেলা প্রস্তাব দেখুন'],
     [
-      'Only windows passing every mock soil, drainage, water, climate and help check appear. These are demo matches, not verified local advice.',
-      'নমুনার মাটি, নিষ্কাশন, পানি, জলবায়ু ও শ্রমে মেলা সময়ই আসে। এগুলো যাচাইকৃত স্থানীয় পরামর্শ নয়।',
+      'Only windows passing every soil, drainage, water, climate and help check appear. These are illustrative matches, not verified local advice.',
+      'মাটি, নিষ্কাশন, পানি, জলবায়ু ও শ্রমে মেলা সময়ই আসে। এগুলো যাচাইকৃত স্থানীয় পরামর্শ নয়।',
     ],
   ),
   step(
@@ -185,7 +185,7 @@ export const tourSteps: TourStep[] = [
     '.catalogue-controls',
     ['Explore the reference library', 'ফসলের তথ্য দেখুন'],
     [
-      'Search 42 crop identities and open their sources. The library is read-only; entries without mock windows cannot bypass suggestions.',
+      'Search 42 crop identities and open their sources. The library is read-only; entries without planting windows cannot bypass suggestions.',
       '৪২টি ফসলের নাম ও উৎস দেখুন। তথ্যভান্ডার থেকে সময় বসানো যায় না; নিয়মহীন ফসল প্রস্তাবের বাইরে থাকে।',
     ],
   ),
@@ -207,8 +207,8 @@ export const tourSteps: TourStep[] = [
     '.choice-summary',
     ['Choose an explained plan', 'ব্যাখ্যাসহ পরিকল্পনা বাছুন'],
     [
-      'Review alternatives and open Understand this choice. A selected demo match remains a fictional model, not a verified farming recommendation.',
-      'বিকল্প ও পছন্দের ব্যাখ্যা দেখুন। মেলা নমুনা বাস্তব চাষের যাচাইকৃত সুপারিশ নয়।',
+      'Review alternatives and open Understand this choice. A selected match remains a model, not a verified farming recommendation.',
+      'বিকল্প ও পছন্দের ব্যাখ্যা দেখুন। মেলা বিকল্প বাস্তব চাষের যাচাইকৃত সুপারিশ নয়।',
     ],
   ),
   step(
@@ -219,7 +219,7 @@ export const tourSteps: TourStep[] = [
     ['Try a scenario before applying it', 'প্রয়োগের আগে পরিস্থিতি দেখুন'],
     [
       'Draft changes recalculate passing calendars. Reset leaves your farm unchanged. Apply is disabled if the scenario has no compatible plan.',
-      'খসড়ায় মেলা ক্রমের হিসাব বদলায়। রিসেট খামার বদলায় না। কোনো মেলা ক্রম না থাকলে প্রয়োগ বন্ধ।',
+      'খসড়ায় মেলা ক্রমের হিসাব বদলায়। রিসেট জমির তথ্য বদলায় না। কোনো মেলা ক্রম না থাকলে প্রয়োগ বন্ধ।',
     ],
   ),
   step(
@@ -252,7 +252,7 @@ export const tourSteps: TourStep[] = [
     ['Study a crop independently', 'আলাদাভাবে ফসলের গঠন দেখুন'],
     [
       'The crop-study selector opens the five supported schematic entries even during rest. It never edits the calendar.',
-      'বিরতির সময়ও পাঁচটি সমর্থিত ফসলের নমুনা দেখা যায়। ক্যালেন্ডার বদলায় না।',
+      'বিরতির সময়ও পাঁচটি সমর্থিত ফসলের মডেল দেখা যায়। ক্যালেন্ডার বদলায় না।',
     ],
   ),
   step(
@@ -282,10 +282,10 @@ export const tourSteps: TourStep[] = [
     'insights',
     '/insights',
     '.demo-reasons',
-    ['Read each mock rule and reason', 'নমুনার প্রতিটি নিয়ম পড়ুন'],
+    ['Read each rule and reason', 'প্রতিটি নিয়ম পড়ুন'],
     [
-      'Expand the mock checks. The separate real-world checks still say Not assessed because NASA observations and validated rules are not integrated.',
-      'নমুনার শর্ত খুলুন। বাস্তব তথ্য ও যাচাইকৃত নিয়ম না থাকায় বাস্তব শর্তের যাচাই বাকি থাকে।',
+      'Expand the checks. The separate real-world checks still say Not assessed because NASA observations and validated rules are not integrated.',
+      'শর্ত খুলুন। বাস্তব তথ্য ও যাচাইকৃত নিয়ম না থাকায় বাস্তব শর্তের যাচাই বাকি থাকে।',
     ],
   ),
   step(
@@ -295,8 +295,8 @@ export const tourSteps: TourStep[] = [
     '.missing-card',
     ['See what still needs evidence', 'কোন প্রমাণ বাকি দেখুন'],
     [
-      'Review source links and missing observations. Fictional climate and windows must later be replaced with reviewed data and regional crop knowledge.',
-      'উৎস ও বাকি তথ্য দেখুন। পরে কাল্পনিক জলবায়ু ও সময় যাচাইকৃত তথ্য দিয়ে বদলাতে হবে।',
+      'Review source links and missing observations. The climate and windows must later be replaced with reviewed data and regional crop knowledge.',
+      'উৎস ও বাকি তথ্য দেখুন। পরে জলবায়ু ও সময় যাচাইকৃত তথ্য দিয়ে বদলাতে হবে।',
     ],
   ),
   step(
@@ -307,7 +307,7 @@ export const tourSteps: TourStep[] = [
     ['Keep your saved calendar', 'রাখা ক্যালেন্ডার দেখুন'],
     [
       'Tracking uses a saved snapshot, so later farm edits cannot silently change its dates or erase your recorded tasks.',
-      'হিসাব রাখা ক্রমের অনুলিপি মেনে চলে। খামার বদলালে সময় বা কাজের তথ্য নিজে থেকে বদলায় না।',
+      'হিসাব রাখা ক্রমের অনুলিপি মেনে চলে। জমির তথ্য বদলালে সময় বা কাজের তথ্য নিজে থেকে বদলায় না।',
     ],
   ),
   step(
@@ -337,7 +337,7 @@ export const tourSteps: TourStep[] = [
     'track',
     '/track',
     '.reading-launch',
-    ['Choose your reading and farm sounds', 'লেখা ও খামারের শব্দ বাছুন'],
+    ['Choose your reading and farm sounds', 'লেখা ও মাঠের শব্দ বাছুন'],
     [
       'After the tour, adjust text size, motion, morning/evening ambience and volume. Sounds start only after Play, and you can mute all sounds.',
       'পরিচিতির পরে লেখা, অ্যানিমেশন, সকাল/সন্ধ্যার শব্দ ও মাত্রা বাছুন। চালান বাছলেই শব্দ শুরু; সব বন্ধ করা যায়।',

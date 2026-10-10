@@ -4,11 +4,20 @@ import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { usePlanner } from './planner-provider';
-import { suggestDemoWindows, generateDemoPlans, planFingerprint } from '../domain/demo-planner';
+import {
+  suggestDemoWindows,
+  generateDemoPlans,
+  planFingerprint,
+  farmFingerprint,
+  blockingHousehold,
+  repairSelection,
+  selectionStatus,
+  viableCropSets,
+} from '../domain/demo-planner';
 import { previewData, months } from '../data/preview';
 import { defaultFarm } from '../data/preview';
 import { defaultDemo } from '../data/demo-environment';
-import type { CropPeriod } from '../domain/types';
+import type { CropId, CropPeriod } from '../domain/types';
 import { activityKey } from '../lib/journey-store';
 import { CalendarLegend, CalendarScrollHint, MonthHeader, Timeline } from './calendar';
 import { CropCatalogue } from './crop-catalogue';
@@ -21,22 +30,22 @@ export function JourneyGate({ step = 'farm' }: { step?: 'farm' | 'crops' }) {
   return (
     <section className="page-enter calm-page journey-gate">
       <span className="eyebrow">
-        {t('FOLLOW YOUR FARM PLAN', 'খামারের পরিকল্পনার ধাপ অনুসরণ করুন')}
+        {t('FOLLOW YOUR FARM PLAN', 'চাষের পরিকল্পনার ধাপ অনুসরণ করুন')}
       </span>
       <h1>
         {step === 'farm'
-          ? t('Start with your farm', 'আপনার খামার দিয়ে শুরু করুন')
+          ? t('Start with your farm', 'আপনার জমি দিয়ে শুরু করুন')
           : t('Choose suggested crops first', 'আগে প্রস্তাবিত ফসল বাছুন')}
       </h1>
       <p>
         {t(
           'Farm details → suggested crops → an automatic calendar → tracking. Your dates are checked before any plan can be saved.',
-          'খামারের তথ্য → প্রস্তাবিত ফসল → স্বয়ংক্রিয় ক্যালেন্ডার → কাজের হিসাব। রাখার আগে সময়ের মিল যাচাই হয়।',
+          'জমির তথ্য → প্রস্তাবিত ফসল → স্বয়ংক্রিয় ক্যালেন্ডার → কাজের হিসাব। রাখার আগে সময়ের মিল যাচাই হয়।',
         )}
       </p>
       <Link className="button primary" href={step === 'farm' ? '/farm' : '/crops'}>
         {step === 'farm'
-          ? t('Review farm details', 'খামারের তথ্য দেখুন')
+          ? t('Review farm details', 'জমির তথ্য দেখুন')
           : t('Choose crops', 'ফসল বাছুন')}
         <ArrowRight size={20} />
       </Link>
@@ -53,6 +62,7 @@ export function SuggestedCropsView() {
     reviewed,
     tourPreview,
     setDemo,
+    setFarm,
     setJourney,
     select,
     demoSaved,
@@ -65,19 +75,67 @@ export function SuggestedCropsView() {
     () => suggestDemoWindows(sourceFarm, settings, priority),
     [sourceFarm, settings, priority],
   );
-  const choices = [...new Set(suggestions.map((s) => s.period.crop))];
-  const candidates = useMemo(
-    () => generateDemoPlans(sourceFarm, settings, priority),
-    [sourceFarm, settings, priority],
-  );
+  const { sets, offered, preferred, candidates, unfit } = useMemo(() => {
+    const sets = viableCropSets(sourceFarm, settings, priority);
+    // Only offer crops that can appear in a complete calendar. When no mix can pass, show every
+    // suggestion so the panel below can explain the blocker.
+    const offered = sets.length
+      ? suggestions.filter((s) => sets.some((set) => set.includes(s.period.crop)))
+      : suggestions;
+    // Stale choices (e.g. household needs changed on the farm page) gain the fewest crops needed.
+    const preferred = repairSelection(settings.preferred, offered, sets);
+    const candidates = generateDemoPlans(sourceFarm, { ...settings, preferred }, priority);
+    // Household groups no suggested crop can satisfy; no crop choice could fix these.
+    const unfit = sets.length ? [] : blockingHousehold(sourceFarm, settings, priority);
+    return { sets, offered, preferred, candidates, unfit };
+  }, [sourceFarm, settings, priority, suggestions]);
+  const added = preferred.filter((crop) => !settings.preferred.includes(crop));
+  const choices = [...new Set(offered.map((s) => s.period.crop))];
   if (!reviewed && !tourPreview) return <JourneyGate />;
   const seasons = [t('Pre-monsoon', 'প্রাক্‌বর্ষা'), t('Monsoon', 'বর্ষা'), t('Winter', 'শীত')];
   const unavailable = [0, 1, 2].filter((season) => !suggestions.some((s) => s.season === season));
   const unselected = [0, 1, 2].filter(
     (season) =>
       !unavailable.includes(season) &&
-      !suggestions.some((s) => s.season === season && settings.preferred.includes(s.period.crop)),
+      !offered.some((s) => s.season === season && preferred.includes(s.period.crop)),
   );
+  const groupNames = {
+    rice: t('rice', 'ধান'),
+    pulses: t('pulses', 'ডাল'),
+    potato: t('potato', 'আলু'),
+  };
+  const unfitNames = unfit.map((group) => groupNames[group]).join(', ');
+  const cropNames = (ids: CropId[]) =>
+    ids.map((id) => previewData.crops[id].name[language]).join(', ');
+  // Why a toggle is blocked: it would leave every season chosen but no calendar possible.
+  const blockedReason = (id: CropId) => {
+    const chosen = preferred.includes(id);
+    const next = chosen ? preferred.filter((c) => c !== id) : [...preferred, id];
+    if (!sets.length || selectionStatus(next, offered, sets) !== 'conflict') return null;
+    const missing = sourceFarm.required
+      .filter(
+        (group) =>
+          !offered.some(
+            (s) =>
+              next.includes(s.period.crop) && previewData.crops[s.period.crop].household === group,
+          ),
+      )
+      .map((group) => groupNames[group])
+      .join(', ');
+    if (chosen)
+      return missing
+        ? t(`Keeps ${missing} in your calendar.`, `ক্যালেন্ডারে ${missing} রাখতে দরকার।`)
+        : t(
+            'Needed so your other choices still make a calendar.',
+            'অন্য পছন্দগুলো দিয়ে ক্যালেন্ডার হতে এটি দরকার।',
+          );
+    return missing
+      ? t(`Choose a ${missing} crop first.`, `আগে একটি ${missing} ফসল বাছুন।`)
+      : t(
+          'Does not fit a calendar with your other choices.',
+          'আপনার অন্য পছন্দের সঙ্গে ক্যালেন্ডারে মেলে না।',
+        );
+  };
   return (
     <div className="page-enter calm-page">
       <header className="planner-heading">
@@ -85,7 +143,7 @@ export function SuggestedCropsView() {
           <span className="eyebrow">
             {t('STEP 2 OF 4 · SUGGESTED CROPS', 'ধাপ ২ / ৪ · প্রস্তাবিত ফসল')}
           </span>
-          <h1>{t('Choose from your farm’s matches', 'খামারের মিল থেকে ফসল বাছুন')}</h1>
+          <h1>{t('Choose from your farm’s matches', 'জমির সঙ্গে মেলা ফসল বাছুন')}</h1>
           <p>
             {t(
               'Select the crops you want to consider. RITU chooses compatible planting windows and builds the calendar.',
@@ -94,21 +152,21 @@ export function SuggestedCropsView() {
           </p>
         </div>
         <Link className="button secondary" href="/farm">
-          {t('Edit farm', 'খামার বদলান')}
+          {t('Edit farm', 'জমির তথ্য বদলান')}
         </Link>
       </header>
       <p className="evidence-banner">
         {t(
-          'Mock suggestions only. All crop rules and dates are fictional; no real data API or verified farming recommendation.',
-          'শুধু কাল্পনিক প্রস্তাব। ফসলের নিয়ম ও সময় নমুনা; বাস্তব API বা চাষের যাচাইকৃত পরামর্শ নয়।',
+          'No real data API or verified farming recommendation.',
+          'বাস্তব API বা চাষের যাচাইকৃত পরামর্শ নয়।',
         )}
       </p>
       <section className="suggestion-intro" data-tour="suggestion-summary">
         <h2>{t('Matched to your conditions', 'আপনার শর্তের সঙ্গে মেলে')}</h2>
         <p>
           {t(
-            'Every selectable window passes the mock soil, water, drainage, climate and available-help checks. Missing or conflicting windows are excluded.',
-            'বাছার প্রতিটি সময় নমুনার মাটি, পানি, নিষ্কাশন, জলবায়ু ও শ্রমের শর্তে মেলে। অজানা বা সংঘাতের সময় বাদ যায়।',
+            'Every selectable window passes the soil, water, drainage, climate and available-help checks. Missing or conflicting windows are excluded.',
+            'বাছার প্রতিটি সময় মাটি, পানি, নিষ্কাশন, জলবায়ু ও শ্রমের শর্তে মেলে। অজানা বা সংঘাতের সময় বাদ যায়।',
           )}
         </p>
         <p>
@@ -124,27 +182,35 @@ export function SuggestedCropsView() {
           const best = windows.filter(
             (s, i) => windows.findIndex((w) => w.season === s.season) === i,
           );
+          const reason = blockedReason(id);
           return (
             <section
-              className={`suggested-crop ${settings.preferred.includes(id) ? 'chosen' : ''}`}
+              className={`suggested-crop ${preferred.includes(id) ? 'chosen' : ''}`}
               key={id}
             >
               <label className="suggested-crop-choice">
                 <input
                   type="checkbox"
                   aria-label={`${t('Consider', 'বিবেচনা করুন')} ${previewData.crops[id].name[language]}`}
-                  checked={settings.preferred.includes(id)}
+                  aria-describedby={reason ? `crop-lock-${id}` : undefined}
+                  checked={preferred.includes(id)}
+                  disabled={!!reason}
                   onChange={() =>
                     setDemo({
-                      preferred: demo.preferred.includes(id)
-                        ? demo.preferred.filter((crop) => crop !== id)
-                        : [...demo.preferred, id],
+                      preferred: preferred.includes(id)
+                        ? preferred.filter((crop) => crop !== id)
+                        : [...preferred, id],
                       enabled: false,
                     })
                   }
                 />
                 <strong>{previewData.crops[id].name[language]}</strong>
               </label>
+              {reason && (
+                <p className="suggested-crop-lock" id={`crop-lock-${id}`}>
+                  {reason}
+                </p>
+              )}
               <ul className="suggested-windows">
                 {best.map((s) => (
                   <li key={s.season}>
@@ -157,12 +223,12 @@ export function SuggestedCropsView() {
                 <summary>{t('Why suggested?', 'কেন প্রস্তাবিত?')}</summary>
                 <p>
                   {t(
-                    'The displayed window passed every mock environmental and help check. Alternative passing windows may be used to find the best compatible sequence.',
-                    'দেখানো সময় নমুনার পরিবেশ ও শ্রমের সব শর্তে মেলে। সেরা মিলযুক্ত ক্রমে অন্য মেলা সময় ব্যবহার হতে পারে।',
+                    'The displayed window passed every environmental and help check. Alternative passing windows may be used to find the best compatible sequence.',
+                    'দেখানো সময় পরিবেশ ও শ্রমের সব শর্তে মেলে। সেরা মিলযুক্ত ক্রমে অন্য মেলা সময় ব্যবহার হতে পারে।',
                   )}
                 </p>
                 <p>
-                  {t('Demo water demand index', 'নমুনার পানির চাহিদা সূচক')}:{' '}
+                  {t('Water demand index', 'পানির চাহিদা সূচক')}:{' '}
                   {best[0].assessment.demand?.toFixed(1)} / 3
                 </p>
               </details>
@@ -170,11 +236,19 @@ export function SuggestedCropsView() {
           );
         })}
       </div>
+      {!!added.length && (
+        <p role="status" className="suggested-crop-added">
+          {t(
+            `Added ${cropNames(added)} so your choices can make a full calendar with your household crops.`,
+            `${cropNames(added)} যোগ করা হয়েছে, যাতে পরিবারের ফসলসহ পূর্ণ ক্যালেন্ডার তৈরি হয়।`,
+          )}
+        </p>
+      )}
       {!choices.length && (
         <p role="status">
           {t(
-            'No crops pass these mock conditions. Review soil, water, drainage, climate or unavailable-help months; nothing is substituted.',
-            'নমুনার শর্তে কোনো ফসল মেলেনি। মাটি, পানি, নিষ্কাশন, জলবায়ু বা শ্রমের মাস দেখুন; বিকল্প ধরে নেওয়া হয় না।',
+            'No crops pass these conditions. Review soil, water, drainage, climate or unavailable-help months; nothing is substituted.',
+            'শর্তে কোনো ফসল মেলেনি। মাটি, পানি, নিষ্কাশন, জলবায়ু বা শ্রমের মাস দেখুন; বিকল্প ধরে নেওয়া হয় না।',
           )}
         </p>
       )}
@@ -188,29 +262,34 @@ export function SuggestedCropsView() {
           <p role="status">
             {unavailable.length
               ? t(
-                  `No matching mock crop windows for: ${unavailable.map((i) => seasons[i]).join(', ')}.`,
-                  `এই মৌসুমে নমুনার শর্তে কোনো ফসলের সময় মেলেনি: ${unavailable.map((i) => seasons[i]).join(', ')}।`,
+                  `No matching crop windows for: ${unavailable.map((i) => seasons[i]).join(', ')}.`,
+                  `এই মৌসুমে শর্তে কোনো ফসলের সময় মেলেনি: ${unavailable.map((i) => seasons[i]).join(', ')}।`,
                 )
-              : unselected.length
+              : unfit.length
                 ? t(
-                    `Choose a suggested crop for: ${unselected.map((i) => seasons[i]).join(', ')}.`,
-                    `প্রস্তাবিত ফসল বাছুন: ${unselected.map((i) => seasons[i]).join(', ')}।`,
+                    `No crop suggested for this farm can include ${unfitNames} in a full calendar. Remove it from your household crops to continue.`,
+                    `এই জমির প্রস্তাবিত কোনো ফসলে পূর্ণ ক্যালেন্ডারে ${unfitNames} রাখা যায় না। এগোতে পরিবারের ফসল থেকে এটি বাদ দিন।`,
                   )
-                : !candidates.length
+                : unselected.length
                   ? t(
-                      'These choices cannot meet every household or timing constraint together. Add more suggested crops or review your requirements.',
-                      'এই ফসলগুলো একসঙ্গে পরিবার ও সময়ের সব শর্ত মেটায় না। আরও প্রস্তাবিত ফসল বাছুন বা শর্ত দেখুন।',
+                      `Choose a suggested crop for: ${unselected.map((i) => seasons[i]).join(', ')}.`,
+                      `প্রস্তাবিত ফসল বাছুন: ${unselected.map((i) => seasons[i]).join(', ')}।`,
                     )
-                  : t(
-                      `${candidates.length} compatible calendar options available. All dates are assigned automatically; no overlaps.`,
-                      `${candidates.length}টি মিলযুক্ত ক্যালেন্ডার আছে। সময় স্বয়ংক্রিয়; একটির সঙ্গে অন্যটি মেলে না।`,
-                    )}
+                  : !candidates.length
+                    ? t(
+                        'No mix of the suggested crops can include every crop your household wants to keep. Review your household crops on the farm page.',
+                        'প্রস্তাবিত ফসলের কোনো মিশ্রণে পরিবারের চাওয়া সব ফসল রাখা যায় না। জমির পাতায় পরিবারের ফসল দেখুন।',
+                      )
+                    : t(
+                        `${candidates.length} compatible calendar options available. All dates are assigned automatically; no overlaps.`,
+                        `${candidates.length}টি মিলযুক্ত ক্যালেন্ডার আছে। সময় স্বয়ংক্রিয়; একটির সঙ্গে অন্যটি মেলে না।`,
+                      )}
           </p>
           {!!unavailable.length && (
             <p>
               {t(
-                'These seasons have no selectable suggestions under your current mock conditions. This demo requires one crop in each of the three seasons. Review soil, drainage, water, climate and help availability; a conflicting calendar is never forced.',
-                'বর্তমান নমুনার শর্তে এই মৌসুমে বাছার মতো ফসল নেই। এই নমুনায় তিনটি মৌসুমের প্রতিটিতে একটি ফসল লাগে। মাটি, নিষ্কাশন, পানি, জলবায়ু ও শ্রমের তথ্য দেখুন; শর্ত না মিললে জোর করে ক্যালেন্ডার তৈরি হয় না।',
+                'These seasons have no selectable suggestions under your current conditions. This planner requires one crop in each of the three seasons. Review soil, drainage, water, climate and help availability; a conflicting calendar is never forced.',
+                'বর্তমান শর্তে এই মৌসুমে বাছার মতো ফসল নেই। এখানে তিনটি মৌসুমের প্রতিটিতে একটি ফসল লাগে। মাটি, নিষ্কাশন, পানি, জলবায়ু ও শ্রমের তথ্য দেখুন; শর্ত না মিললে জোর করে ক্যালেন্ডার তৈরি হয় না।',
               )}
             </p>
           )}
@@ -224,17 +303,33 @@ export function SuggestedCropsView() {
           )}
         </div>
         <div className="calendar-actions">
+          {!!unfit.length && !tourPreview && (
+            <button
+              className="button primary"
+              onClick={() => {
+                const next = { ...farm, required: farm.required.filter((g) => !unfit.includes(g)) };
+                setFarm({ required: next.required });
+                // Keep the farm review valid so the crop list stays open after the fix.
+                setJourney({ reviewed: farmFingerprint(next, demo, priority), generatedFor: null });
+              }}
+            >
+              {t(
+                `Remove ${unfitNames} from household crops`,
+                `পরিবারের ফসল থেকে ${unfitNames} বাদ দিন`,
+              )}
+            </button>
+          )}
           {!candidates.length && (
             <Link className="button secondary" href="/farm">
-              {t('Review farm conditions', 'খামারের শর্ত দেখুন')}
+              {t('Review farm conditions', 'জমির শর্ত দেখুন')}
             </Link>
           )}
           <button
             className="button primary"
             disabled={!candidates.length}
             onClick={() => {
-              setDemo({ enabled: true });
-              setJourney({ generatedFor: planFingerprint(farm, demo, priority) });
+              setDemo({ enabled: true, preferred });
+              setJourney({ generatedFor: planFingerprint(farm, { ...demo, preferred }, priority) });
               select(candidates[0].id);
               router.push('/plan');
             }}
@@ -330,15 +425,15 @@ export function TrackingView() {
       </header>
       <p className="evidence-banner">
         {t(
-          'Demo plan, farmer-entered progress. Completed tasks are not verified observations.',
-          'নমুনার পরিকল্পনা, নিজের কাজের হিসাব। কাজের চিহ্ন যাচাইকৃত পর্যবেক্ষণ নয়।',
+          'Generated plan, farmer-entered progress. Completed tasks are not verified observations.',
+          'পরিকল্পনা, নিজের কাজের হিসাব। কাজের চিহ্ন যাচাইকৃত পর্যবেক্ষণ নয়।',
         )}
       </p>
       {stale && !tourPreview && (
         <p role="status" className="evidence-banner">
           {t(
             'Your farm or crop choices changed. This is the saved snapshot; create and explicitly save a replacement to change its dates. Existing progress is retained.',
-            'খামার বা ফসলের পছন্দ বদলেছে। এটি আগে রাখা ক্রম; সময় বদলাতে নতুন ক্রম তৈরি করে রাখুন। আগের কাজের তথ্য থাকে।',
+            'জমির তথ্য বা ফসলের পছন্দ বদলেছে। এটি আগে রাখা ক্রম; সময় বদলাতে নতুন ক্রম তৈরি করে রাখুন। আগের কাজের তথ্য থাকে।',
           )}
         </p>
       )}
@@ -383,8 +478,7 @@ export function TrackingView() {
             <section className="form-card" key={key}>
               <h2>{previewData.crops[period.crop].name[language]}</h2>
               <p>
-                {periodLabel(period, language)} ·{' '}
-                {t('Assigned demo dates', 'নমুনার নির্ধারিত সময়')}
+                {periodLabel(period, language)} · {t('Assigned dates', 'নির্ধারিত সময়')}
               </p>
               <div className="tracking-actions">
                 <label>

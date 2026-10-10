@@ -16,7 +16,7 @@ export function ResetDataControl({ compact = false }: { compact?: boolean }) {
         onClick={() => setOpen(true)}
       >
         <RotateCcw size={compact ? 12 : 18} aria-hidden="true" />
-        {compact ? t('Reset demo', 'নমুনা রিসেট') : t('Reset all data', 'সব তথ্য রিসেট করুন')}
+        {compact ? t('Reset', 'রিসেট') : t('Reset all data', 'সব তথ্য রিসেট করুন')}
       </button>
       {open && (
         <Dialog
@@ -25,8 +25,8 @@ export function ResetDataControl({ compact = false }: { compact?: boolean }) {
         >
           <p>
             {t(
-              'All farm fields, including name, area, soil, water and location, will return to the demo defaults. Crop choices, saved calendar, progress and notes on this device will be cleared. Language and reading/sound settings will stay.',
-              'খামারের সব তথ্য নমুনার মূল মানে ফিরবে। এই ডিভাইসের বাছা ফসল, ক্যালেন্ডার, অগ্রগতি ও নোট মুছে যাবে। ভাষা, পড়া ও শব্দের পছন্দ থাকবে।',
+              'All farm fields, including name, area, soil, water and location, will return to the defaults. Crop choices, saved calendar, progress and notes on this device will be cleared. Language and reading/sound settings will stay.',
+              'জমির সব তথ্য মূল মানে ফিরবে। এই ডিভাইসের বাছা ফসল, ক্যালেন্ডার, অগ্রগতি ও নোট মুছে যাবে। ভাষা, পড়া ও শব্দের পছন্দ থাকবে।',
             )}
           </p>
           <div className="button-row previous-crop-actions">

@@ -65,7 +65,7 @@ test('top tour chooser replays every section and reopens a collapsed field', asy
     { choice: 'Compare rotations', title: 'Compare the same twelve months', route: '/plan' },
     {
       choice: 'Your choice, explained',
-      title: 'Read each mock rule and reason',
+      title: 'Read each rule and reason',
       route: '/insights',
     },
   ];
@@ -98,7 +98,7 @@ test('tour is accessible, keyboard-contained and supports Bangla at 320px', asyn
   ).toBeVisible();
   await tour.getByRole('button', { name: 'পরিচিতি শুরু করুন' }).click();
   await expect(page).toHaveURL('/farm');
-  await expect(tour.getByRole('heading', { name: 'নিজের খামারের তথ্য দিন' })).toBeVisible();
+  await expect(tour.getByRole('heading', { name: 'নিজের জমির তথ্য দিন' })).toBeVisible();
   await tour.getByRole('button', { name: 'পরের ধাপ' }).click();
   await expect(tour.getByRole('heading', { name: 'সেচের সুযোগ জানান' })).toBeVisible();
   for (let i = 0; i < 10; i++) {

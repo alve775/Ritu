@@ -18,7 +18,7 @@ export function Status({ status }: { status: Evaluation['status'] }) {
         ? t('Has a conflict', 'শর্তে সংঘাত')
         : status === 'confirm'
           ? t('Needs confirmation', 'নিশ্চিত করা দরকার')
-          : t('Passes preview checks', 'নমুনার শর্ত পূরণ')}
+          : t('Passes preview checks', 'শর্ত পূরণ')}
     </span>
   );
 }
@@ -124,7 +124,7 @@ export function Timeline({ periods, name }: { periods: CropPeriod[]; name: strin
           </div>
           <div className="detail-grid">
             <div>
-              <small>{t('Sample window', 'নমুনার সময়')}</small>
+              <small>{t('Crop window', 'ফসলের সময়')}</small>
               <strong>
                 {months[language][active.start]} —{' '}
                 {months[language][(active.start + active.duration - 1) % 12]}
@@ -155,8 +155,8 @@ export function Timeline({ periods, name }: { periods: CropPeriod[]; name: strin
           )}
           <div className="notice small">
             {t(
-              'These are locked monthly mock windows for the March–February cycle, not verified local planting dates.',
-              'এগুলো মার্চ–ফেব্রুয়ারি চক্রের নির্ধারিত মাসভিত্তিক নমুনা সময়; যাচাইকৃত স্থানীয় রোপণের তারিখ নয়।',
+              'These are locked monthly windows for the March–February cycle, not verified local planting dates.',
+              'এগুলো মার্চ–ফেব্রুয়ারি চক্রের নির্ধারিত মাসভিত্তিক সময়; যাচাইকৃত স্থানীয় রোপণের তারিখ নয়।',
             )}
           </div>
         </Dialog>

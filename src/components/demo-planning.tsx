@@ -15,16 +15,16 @@ import {
 import type { Irrigation, Priority, Rotation } from '../domain/types';
 
 const weatherLabels = {
-  seasonal: { en: 'Seasonal example', bn: 'মৌসুমি নমুনা' },
-  dry: { en: 'Drier example', bn: 'শুষ্ক নমুনা' },
-  hot: { en: 'Hotter example', bn: 'উষ্ণ নমুনা' },
+  seasonal: { en: 'Seasonal example', bn: 'মৌসুমি' },
+  dry: { en: 'Drier example', bn: 'শুষ্ক' },
+  hot: { en: 'Hotter example', bn: 'উষ্ণ' },
 };
 const priorityLabels: Record<Priority, { en: string; bn: string }> = {
-  water: { en: 'Lower demo water demand', bn: 'নমুনায় কম পানির চাহিদা' },
+  water: { en: 'Lower water demand', bn: 'কম পানির চাহিদা' },
   diversity: { en: 'More crop groups', bn: 'বেশি ধরনের ফসল' },
   familiar: { en: 'Familiar crops', bn: 'পরিচিত ফসল' },
-  resilience: { en: 'Demo drought resilience', bn: 'নমুনায় খরা সহনশীলতা' },
-  soil: { en: 'Pulse inclusion · soil-health proxy', bn: 'ডাল অন্তর্ভুক্তি · মাটির সূচকের নমুনা' },
+  resilience: { en: 'Drought resilience', bn: 'খরা সহনশীলতা' },
+  soil: { en: 'Pulse inclusion · soil-health proxy', bn: 'ডাল অন্তর্ভুক্তি · মাটির সূচক' },
 };
 const irrigationLabels: Record<Irrigation, { en: string; bn: string }> = {
   reliable: { en: 'Reliable irrigation', bn: 'নিয়মিত সেচ' },
@@ -72,22 +72,19 @@ export function DemoEnvironment() {
   return (
     <details ref={disclosure} className="disclosure demo-environment" id="demo-environment">
       <summary>
-        <MapPin size={20} /> {t('Location & demo environment', 'স্থান ও নমুনার পরিবেশ')}
+        <MapPin size={20} /> {t('Location & environment', 'স্থান ও পরিবেশ')}
       </summary>
       <section>
         <div className="demo-section-heading">
           <h2>{t('Start with a location', 'স্থান দিয়ে শুরু করুন')}</h2>
           <Help
-            title={t('Demo environment', 'নমুনার পরিবেশ')}
+            title={t('Environment', 'পরিবেশ')}
             text={t(
               'Location selects an authored example, not measurements for that place. Rainfall (mm), mean air temperature (°C) and relative wetness (0–1) illustrate the future data contract. No NASA API, observations, forecast, or soil-moisture measurement is used.',
-              'স্থান অনুযায়ী হাতে তৈরি নমুনা বাছা হয়; ওই স্থানের পরিমাপ নয়। বৃষ্টি (মিমি), গড় তাপ (°C) ও আপেক্ষিক ভেজাভাব (০–১) ভবিষ্যৎ তথ্যের গঠন দেখায়। কোনো নাসা API, বাস্তব তথ্য বা পূর্বাভাস নেই।',
+              'স্থান অনুযায়ী হাতে তৈরি তথ্য বাছা হয়; ওই স্থানের পরিমাপ নয়। বৃষ্টি (মিমি), গড় তাপ (°C) ও আপেক্ষিক ভেজাভাব (০–১) ভবিষ্যৎ তথ্যের গঠন দেখায়। কোনো নাসা API, বাস্তব তথ্য বা পূর্বাভাস নেই।',
             )}
           />
         </div>
-        <p className="demo-label">
-          {t('MOCK DATA · All numbers are fictional', 'নমুনা তথ্য · সব সংখ্যা কাল্পনিক')}
-        </p>
         <div className="demo-controls">
           <label>
             {t('Pilot location', 'পাইলট স্থান')}
@@ -103,7 +100,7 @@ export function DemoEnvironment() {
             </select>
           </label>
           <label>
-            {t('Mock environment', 'কাল্পনিক পরিবেশ')}
+            {t('Environment', 'পরিবেশ')}
             <select
               value={demo.weather}
               onChange={(e) => setDemo({ weather: e.target.value as DemoSettings['weather'] })}
@@ -118,11 +115,11 @@ export function DemoEnvironment() {
         </div>
         <dl className="demo-metrics">
           <div>
-            <dt>{t('Example annual rainfall', 'বার্ষিক বৃষ্টির নমুনা')}</dt>
+            <dt>{t('Example annual rainfall', 'বার্ষিক বৃষ্টি')}</dt>
             <dd>{data.reduce((n, m) => n + m.rain, 0)} mm</dd>
           </div>
           <div>
-            <dt>{t('Example monthly temperatures', 'মাসিক তাপের নমুনা')}</dt>
+            <dt>{t('Example monthly temperatures', 'মাসিক তাপমাত্রা')}</dt>
             <dd>
               {Math.min(...data.map((m) => m.temperature))}–
               {Math.max(...data.map((m) => m.temperature))} °C
@@ -134,17 +131,17 @@ export function DemoEnvironment() {
           </div>
         </dl>
         <details className="demo-monthly">
-          <summary>{t('Explore the twelve mock months', 'বারো মাসের কাল্পনিক তথ্য দেখুন')}</summary>
+          <summary>{t('Explore the twelve months', 'বারো মাসের তথ্য দেখুন')}</summary>
           <div
             className="demo-table-scroll"
             tabIndex={0}
-            aria-label={t('Mock monthly climate table', 'নমুনার মাসিক জলবায়ুর সারণি')}
+            aria-label={t('Monthly climate table', 'মাসিক জলবায়ুর সারণি')}
           >
             <table>
               <caption>
                 {t(
-                  'Fictional March–February environment. No observation years or NASA provenance.',
-                  'কাল্পনিক মার্চ–ফেব্রুয়ারির পরিবেশ। বাস্তব বছর বা নাসার উৎস নেই।',
+                  'March–February environment. No observation years or NASA provenance.',
+                  'মার্চ–ফেব্রুয়ারির পরিবেশ। বাস্তব বছর বা নাসার উৎস নেই।',
                 )}
               </caption>
               <thead>
@@ -168,17 +165,11 @@ export function DemoEnvironment() {
             </table>
           </div>
         </details>
-        <p>
-          {t(
-            'NASA integration is reserved for later. Wetness is displayed for the demo and is not used to infer crop suitability.',
-            'নাসার তথ্য পরে যুক্ত হবে। ভেজাভাব শুধু নমুনায় দেখানো হয়; তা দিয়ে ফসলের উপযোগিতা নির্ধারণ করা হয় না।',
-          )}
-        </p>
         {!demoSaved && (
           <p role="status">
             {t(
-              'Demo settings could not be saved; you can continue in this tab.',
-              'নমুনার তথ্য রাখা যায়নি; এই ট্যাবে চালিয়ে যেতে পারেন।',
+              'Settings could not be saved; you can continue in this tab.',
+              'তথ্য রাখা যায়নি; এই ট্যাবে চালিয়ে যেতে পারেন।',
             )}
           </p>
         )}
@@ -192,25 +183,23 @@ export function DemoPlanReasons({ rotation }: { rotation: Rotation }) {
   return (
     <section className="demo-reasons" data-tour="demo-reasons">
       <div className="demo-section-heading">
-        <h2>{t('Why this demo plan?', 'এই নমুনা পরিকল্পনা কেন?')}</h2>
+        <h2>{t('Why this plan?', 'এই পরিকল্পনা কেন?')}</h2>
         <Help
-          title={t('Demo comparison rules', 'নমুনার তুলনার নিয়ম')}
+          title={t('Comparison rules', 'তুলনার নিয়ম')}
           text={t(
-            'All climate, temperature limits, water demand indices, drought categories and texture preferences in this engine are invented. Only windows passing every mock and entered consistency check are generated. Your priority ranks those passing calendars. Water and drought indices range from 1 to 3 and are weighted by fictional months. Pulse inclusion and crop-group counts are descriptive proxies, not predicted soil-health benefits. No option is verified for a real farm.',
-            'এই ইঞ্জিনের জলবায়ু, তাপের সীমা, পানির সূচক, খরার ধরন ও মাটির পছন্দ কাল্পনিক। প্রতিটি নমুনার শর্তে মেলা ক্রমই তৈরি হয়। অগ্রাধিকার শুধু মেলা ক্রমের তুলনায় ব্যবহৃত হয়। পানি ও খরার সূচক ১–৩; কাল্পনিক মাস অনুযায়ী গড় করা হয়। ডাল ও ফসলের ধরন মাটির উপকারের পূর্বাভাস নয়।',
+            'Only windows passing every rule and entered consistency check are generated. Your priority ranks those passing calendars. Water and drought indices range from 1 to 3 and are weighted by month. Pulse inclusion and crop-group counts are descriptive proxies, not predicted soil-health benefits. No option is verified for a real farm.',
+            'প্রতিটি শর্তে মেলা ক্রমই তৈরি হয়। অগ্রাধিকার শুধু মেলা ক্রমের তুলনায় ব্যবহৃত হয়। পানি ও খরার সূচক ১–৩; মাস অনুযায়ী গড় করা হয়। ডাল ও ফসলের ধরন মাটির উপকারের পূর্বাভাস নয়।',
           )}
         />
       </div>
-      <p className="demo-label">
-        {t('DEMO RULES · not farming advice', 'নমুনার নিয়ম · চাষের পরামর্শ নয়')}
-      </p>
+      <p className="demo-label">{t('RULES · not farming advice', 'নিয়ম · চাষের পরামর্শ নয়')}</p>
       <dl className="demo-metrics">
         <div>
-          <dt>{t('Demo demand index', 'নমুনার চাহিদা সূচক')}</dt>
+          <dt>{t('Demand index', 'চাহিদা সূচক')}</dt>
           <dd>{result.demand?.toFixed(2) ?? '—'} / 3</dd>
         </div>
         <div>
-          <dt>{t('Demo drought sensitivity', 'নমুনার খরা সংবেদনশীলতা')}</dt>
+          <dt>{t('Drought sensitivity', 'খরা সংবেদনশীলতা')}</dt>
           <dd>{result.drought?.toFixed(2) ?? '—'} / 3</dd>
         </div>
         <div>
@@ -222,8 +211,8 @@ export function DemoPlanReasons({ rotation }: { rotation: Rotation }) {
       </dl>
       <p>
         {t(
-          'Lower indices rank earlier only within the fictional model. No water saving, yield or soil improvement is estimated.',
-          'কম সূচক শুধু কাল্পনিক মডেলে আগে আসে। পানি সাশ্রয়, ফলন বা মাটির উন্নতির হিসাব নেই।',
+          'Lower indices rank earlier only within the model. No water saving, yield or soil improvement is estimated.',
+          'কম সূচক শুধু মডেলে আগে আসে। পানি সাশ্রয়, ফলন বা মাটির উন্নতির হিসাব নেই।',
         )}
       </p>
       {result.checks.map((check) => (
@@ -232,9 +221,9 @@ export function DemoPlanReasons({ rotation }: { rotation: Rotation }) {
             <strong>{check.label[language]}</strong>
             <span>
               {check.state === 'fit'
-                ? t('Fits demo rules', 'নমুনার নিয়মে মেলে')
+                ? t('Fits the rules', 'নিয়মে মেলে')
                 : check.state === 'conflict'
-                  ? t('Demo conflict', 'নমুনায় সংঘাত')
+                  ? t('Conflict', 'সংঘাত')
                   : t('Unknown', 'অজানা')}
             </span>
           </summary>
@@ -275,7 +264,7 @@ export function ScenarioSimulator() {
   return (
     <details ref={disclosure} className="disclosure demo-simulator" id="scenario-simulator">
       <summary>
-        {t('Try a scenario · before changing your farm', 'খামার বদলানোর আগে পরিস্থিতি দেখুন')}
+        {t('Try a scenario · before changing your farm', 'জমির তথ্য বদলানোর আগে পরিস্থিতি দেখুন')}
       </summary>
       <section>
         <div className="demo-section-heading">
@@ -283,13 +272,13 @@ export function ScenarioSimulator() {
           <Help
             title={t('Scenario simulator', 'পরিস্থিতির অনুকরণ')}
             text={t(
-              'Draft changes recalculate the mock candidates without altering saved farm inputs. Apply explicitly to save. The comparison uses only fictional rules and climate, plus your entered constraints. Conflicting or unknown windows are excluded; Apply is disabled when no complete compatible calendar remains. No real recommendation or predicted outcome is implied.',
-              'খামারের তথ্য না বদলে খসড়া দিয়ে নমুনা আবার হিসাব হয়। রাখতে চাইলে প্রয়োগ করুন। তুলনায় কাল্পনিক নিয়ম, পরিবেশ ও আপনার শর্ত ব্যবহার হয়। অজানা বা সংঘাতের সময় বাদ যায়। সম্পূর্ণ মেলা ক্রম না থাকলে প্রয়োগ বন্ধ থাকে। বাস্তব সুপারিশ বা পূর্বাভাস নয়।',
+              'Draft changes recalculate the candidates without altering saved farm inputs. Apply explicitly to save. The comparison uses only this planner’s rules and climate, plus your entered constraints. Conflicting or unknown windows are excluded; Apply is disabled when no complete compatible calendar remains. No real recommendation or predicted outcome is implied.',
+              'জমির তথ্য না বদলে খসড়া দিয়ে বিকল্প আবার হিসাব হয়। রাখতে চাইলে প্রয়োগ করুন। তুলনায় নিয়ম, পরিবেশ ও আপনার শর্ত ব্যবহার হয়। অজানা বা সংঘাতের সময় বাদ যায়। সম্পূর্ণ মেলা ক্রম না থাকলে প্রয়োগ বন্ধ থাকে। বাস্তব সুপারিশ বা পূর্বাভাস নয়।',
             )}
           />
         </div>
         <p className="demo-label">
-          {t('SIMULATED CONDITIONS · not a forecast', 'কাল্পনিক পরিস্থিতি · পূর্বাভাস নয়')}
+          {t('CONDITIONS · not a forecast', 'পরিস্থিতি · পূর্বাভাস নয়')}
         </p>
         <div className="demo-controls">
           <label>
@@ -357,8 +346,8 @@ export function ScenarioSimulator() {
                       <strong>{plan.subtitle[language]}</strong>
                       <p>
                         {t(
-                          `Demo demand ${result.demand?.toFixed(2) ?? 'unknown'}/3 · ${result.conflicts} conflicts · ${result.unknowns} unknowns`,
-                          `নমুনার চাহিদা ${result.demand?.toFixed(2) ?? 'অজানা'}/৩ · ${result.conflicts} সংঘাত · ${result.unknowns} অজানা`,
+                          `Demand ${result.demand?.toFixed(2) ?? 'unknown'}/3 · ${result.conflicts} conflicts · ${result.unknowns} unknowns`,
+                          `চাহিদা ${result.demand?.toFixed(2) ?? 'অজানা'}/৩ · ${result.conflicts} সংঘাত · ${result.unknowns} অজানা`,
                         )}
                       </p>
                     </li>
@@ -369,7 +358,7 @@ export function ScenarioSimulator() {
                 <p>
                   {t(
                     'No compatible calendar for these conditions and choices. Review crops or farm constraints; no conflicting plan is forced.',
-                    'শর্ত ও পছন্দে মেলা ক্যালেন্ডার নেই। ফসল বা খামারের শর্ত দেখুন; সংঘাতের ক্রম তৈরি হয় না।',
+                    'শর্ত ও পছন্দে মেলা ক্যালেন্ডার নেই। ফসল বা জমির শর্ত দেখুন; সংঘাতের ক্রম তৈরি হয় না।',
                   )}
                 </p>
               )}
@@ -380,7 +369,7 @@ export function ScenarioSimulator() {
           {changed
             ? t(
                 'Draft only. Your saved farm is unchanged until Apply scenario.',
-                'শুধু খসড়া। প্রয়োগ না করা পর্যন্ত খামারের তথ্য বদলায়নি।',
+                'শুধু খসড়া। প্রয়োগ না করা পর্যন্ত জমির তথ্য বদলায়নি।',
               )
             : t(
                 'Both columns currently use the same inputs. A change can reorder plans or reveal conflicts; it does not guarantee a different top plan.',

@@ -48,10 +48,10 @@ export function SeasonExplorer() {
   const modelCrop = studyCrop ?? single?.period.crop ?? null;
   const note = modelCrop ? cropModelNotes[modelCrop] : null;
   const phaseText: Record<WindowPhase, string> = {
-    planting: t('Sample planting month', 'নমুনার রোপণের মাস'),
-    harvest: t('Sample harvest month', 'নমুনার ফসল কাটার মাস'),
-    'plant-and-harvest': t('Sample planting & harvest month', 'নমুনার রোপণ ও কাটার মাস'),
-    'in-window': t('Within the sample crop window', 'নমুনার ফসলের সময়ের মধ্যে'),
+    planting: t('Planting month', 'রোপণের মাস'),
+    harvest: t('Harvest month', 'ফসল কাটার মাস'),
+    'plant-and-harvest': t('Planting & harvest month', 'রোপণ ও কাটার মাস'),
+    'in-window': t('Within the crop window', 'ফসলের সময়ের মধ্যে'),
     rest: t('Planned rest / fallow', 'পরিকল্পিত বিরতি / পতিত'),
   };
   const water = selected.checks.find((check) => check.id === 'water')!;
@@ -130,10 +130,7 @@ export function SeasonExplorer() {
               </div>
               <Status status={selected.status} />
             </div>
-            <div
-              className="explorer-months"
-              aria-label={t('Choose a sample month', 'নমুনার মাস বাছুন')}
-            >
+            <div className="explorer-months" aria-label={t('Choose a month', 'মাস বাছুন')}>
               {months[language].map((label, index) => (
                 <button key={label} onClick={() => setMonth(index)} aria-pressed={month === index}>
                   {label}
@@ -172,7 +169,7 @@ export function SeasonExplorer() {
               <div className="field-study-controls">
                 <div
                   role="group"
-                  aria-label={t('Field model view', 'জমির নমুনার দৃশ্য')}
+                  aria-label={t('Field model view', 'জমির দৃশ্য')}
                   className="field-view-tabs"
                 >
                   {(
@@ -198,8 +195,8 @@ export function SeasonExplorer() {
                     value={mature ? 'mature' : 'young'}
                     onChange={(event) => setMature(event.target.value === 'mature')}
                   >
-                    <option value="young">{t('Young example', 'নতুন গাছের নমুনা')}</option>
-                    <option value="mature">{t('Mature example', 'পূর্ণ গাছের নমুনা')}</option>
+                    <option value="young">{t('Young example', 'নতুন গাছ')}</option>
+                    <option value="mature">{t('Mature example', 'পূর্ণ গাছ')}</option>
                   </select>
                 </label>
               </div>
@@ -217,7 +214,7 @@ export function SeasonExplorer() {
                 <p className="manual-study-notice">
                   {t(
                     'Manual anatomy study. Your calendar, selected crop plan and month details have not changed.',
-                    'নিজে বাছা গঠনের নমুনা। ক্যালেন্ডার, ফসলক্রম বা মাসের তথ্য বদলায়নি।',
+                    'নিজে বাছা গঠনের মডেল। ক্যালেন্ডার, ফসলক্রম বা মাসের তথ্য বদলায়নি।',
                   )}
                 </p>
               )}
@@ -242,7 +239,7 @@ export function SeasonExplorer() {
                     : single
                       ? t(
                           'An anatomy model is not available for this crop yet. The empty parcel is a placeholder; use the calendar and crop reference.',
-                          'এই ফসলের গঠনের নমুনা এখনো নেই। খালি জমি একটি স্থানধারক; ক্যালেন্ডার ও ফসলের উৎস দেখুন।',
+                          'এই ফসলের গঠনের মডেল এখনো নেই। খালি জমি একটি স্থানধারক; ক্যালেন্ডার ও ফসলের উৎস দেখুন।',
                         )
                       : t(
                           'The calendar does not identify one crop here. Review missing or overlapping periods before interpreting the field.',
@@ -250,7 +247,7 @@ export function SeasonExplorer() {
                         )}
                 </p>
                 <button className="text-button" onClick={() => setSources(true)}>
-                  {t('Model sources & limits', 'নমুনার উৎস ও সীমা')}
+                  {t('Model sources & limits', 'মডেলের উৎস ও সীমা')}
                   <ArrowRight size={16} />
                 </button>
               </div>
@@ -325,8 +322,8 @@ export function SeasonExplorer() {
         >
           <p>
             {t(
-              'These activities come from the sample calendar, not a growth forecast.',
-              'এই কাজগুলো নমুনার ক্যালেন্ডার থেকে এসেছে, বৃদ্ধির পূর্বাভাস নয়।',
+              'These activities come from the calendar, not a growth forecast.',
+              'এই কাজগুলো ক্যালেন্ডার থেকে এসেছে, বৃদ্ধির পূর্বাভাস নয়।',
             )}
           </p>
           {activities.map((activity, index) => (
@@ -351,13 +348,13 @@ export function SeasonExplorer() {
       )}
       {sources && (
         <Dialog
-          title={t('Model sources & limits', 'নমুনার উৎস ও সীমা')}
+          title={t('Model sources & limits', 'মডেলের উৎস ও সীমা')}
           onClose={() => setSources(false)}
         >
           <p>
             {t(
-              'These sources guide plant anatomy, not the sample calendar or a local recommendation. The models are original schematic drawings; variety, geometry and proportions are simplified.',
-              'উৎসগুলো গাছের গঠন জানায়, নমুনার ক্যালেন্ডার বা স্থানীয় পরামর্শ নয়। দৃশ্যগুলো নিজেদের প্রতীকী আঁকা; জাত, গঠন ও অনুপাত সরল করা হয়েছে।',
+              'These sources guide plant anatomy, not the calendar or a local recommendation. The models are original schematic drawings; variety, geometry and proportions are simplified.',
+              'উৎসগুলো গাছের গঠন জানায়, ক্যালেন্ডার বা স্থানীয় পরামর্শ নয়। দৃশ্যগুলো নিজেদের প্রতীকী আঁকা; জাত, গঠন ও অনুপাত সরল করা হয়েছে।',
             )}
           </p>
           {note && modelCrop && (
@@ -381,7 +378,7 @@ export function SeasonExplorer() {
             <p>
               {t(
                 'Young/mature examples are manual educational views, not predicted stages for this month. No cultivar, sowing date, soil profile, water depth, crop density or parcel boundary has been measured. A blue channel represents the reported irrigation category, not water available or a recommended irrigation design.',
-                'নতুন/পূর্ণ গাছের নমুনা নিজে বেছে শেখার জন্য, এই মাসের পর্যায়ের পূর্বাভাস নয়। জাত, রোপণের দিন, মাটির স্তর, পানির গভীরতা, ফসলের ঘনত্ব বা জমির সীমানা মাপা হয়নি। নীল নালা দেওয়া সেচের বিভাগকে বোঝায়, পানির পরিমাণ বা সেচের নকশার পরামর্শ নয়।',
+                'নতুন/পূর্ণ গাছের মডেল নিজে বেছে শেখার জন্য, এই মাসের পর্যায়ের পূর্বাভাস নয়। জাত, রোপণের দিন, মাটির স্তর, পানির গভীরতা, ফসলের ঘনত্ব বা জমির সীমানা মাপা হয়নি। নীল নালা দেওয়া সেচের বিভাগকে বোঝায়, পানির পরিমাণ বা সেচের নকশার পরামর্শ নয়।',
               )}
             </p>
           </div>

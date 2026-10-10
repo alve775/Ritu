@@ -75,7 +75,7 @@ export function InsightsView() {
           </p>
         </div>
         <Link href="/farm" className="button primary">
-          {t('Review my farm inputs', 'খামারের তথ্য দেখুন')}
+          {t('Review my farm inputs', 'জমির তথ্য দেখুন')}
           <ArrowRight size={20} />
         </Link>
       </div>
@@ -111,7 +111,7 @@ export function InsightsView() {
       <details className="disclosure">
         <summary>{t('Sequence details', 'ফসলক্রমের বিস্তারিত')}</summary>
         <section className="tradeoffs-card">
-          <h2>{t('What is in this example?', 'এই নমুনায় কী আছে?')}</h2>
+          <h2>{t('What is in this example?', 'এখানে কী আছে?')}</h2>
           <div className="tradeoff-grid">
             <div>
               <small>{t('Reviewed botanical families', 'যাচাইকৃত উদ্ভিদ পরিবার')}</small>
@@ -167,8 +167,8 @@ export function InsightsView() {
               <strong>{t('Local crop & soil suitability', 'স্থানীয় ফসল ও মাটির উপযোগিতা')}</strong>
               <p>
                 {t(
-                  'These locked mock dates are not local recommendations. No soil-health outcome has been estimated.',
-                  'এই স্থির নমুনার সময় স্থানীয় সুপারিশ নয়। মাটির স্বাস্থ্যের ফলাফল হিসাব হয়নি।',
+                  'These locked dates are not local recommendations. No soil-health outcome has been estimated.',
+                  'এই স্থির সময় স্থানীয় সুপারিশ নয়। মাটির স্বাস্থ্যের ফলাফল হিসাব হয়নি।',
                 )}
               </p>
             </li>
@@ -213,7 +213,7 @@ export function InsightsView() {
       </details>
       <button className="button secondary" onClick={() => setAcknowledged(true)}>
         <Check size={20} />
-        {t('Keep this preview choice', 'এই নমুনার পছন্দ রাখুন')}
+        {t('Keep this preview choice', 'এই পছন্দ রাখুন')}
       </button>
       {acknowledged && (
         <p className="choice-confirmation" role="status">

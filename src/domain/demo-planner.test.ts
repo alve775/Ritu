@@ -1,9 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import { defaultFarm } from '../data/preview';
 import { defaultDemo, demoEnvironment, demoWindows } from '../data/demo-environment';
-import { assessDemo, generateDemoPlans, completeCalendar, hasSafeTiming } from './demo-planner';
+import {
+  assessDemo,
+  generateDemoPlans,
+  completeCalendar,
+  hasSafeTiming,
+  blockingHousehold,
+  householdBlockers,
+  settleHousehold,
+  repairSelection,
+  selectionStatus,
+  suggestDemoWindows,
+  viableCropSets,
+} from './demo-planner';
 import { validJourney, activityKey } from '../lib/journey-store';
-import type { CropId } from './types';
+import type { CropId, Farm } from './types';
 import { evaluate, coveredMonths } from './evaluate';
 import { validDemo } from '../lib/demo-store';
 import { isSavedState, initialState } from '../lib/storage';
@@ -109,6 +121,78 @@ describe('explicitly fictional planning engine', () => {
             }
     expect(produced).toBeGreaterThan(0);
   }, 15000);
+  it('never lets a complete crop selection reach a dead end once some calendar is possible', () => {
+    let checked = 0;
+    for (const soil of ['loam', 'clay'] as const)
+      for (const irrigation of ['reliable', 'limited', 'rainfed'] as const)
+        for (const required of [[], ['rice'], ['rice', 'pulses'], ['rice', 'potato']] as const) {
+          const farm = { ...defaultFarm, soil, irrigation, required: [...required] };
+          const suggestions = suggestDemoWindows(farm, defaultDemo, 'water');
+          const sets = viableCropSets(farm, defaultDemo, 'water');
+          if (!sets.length) continue;
+          const offered = suggestions.filter((s) =>
+            sets.some((set) => set.includes(s.period.crop)),
+          );
+          const crops = [...new Set(offered.map((s) => s.period.crop))];
+          for (let mask = 0; mask < 1 << crops.length; mask++) {
+            const preferred = crops.filter((_, i) => mask & (1 << i));
+            const status = selectionStatus(preferred, offered, sets);
+            const plans = (p: CropId[]) =>
+              generateDemoPlans(farm, { ...defaultDemo, preferred: p }, 'water');
+            if (status === 'fits') expect(plans(preferred).length).toBeGreaterThan(0);
+            if (status === 'conflict') {
+              expect(plans(preferred)).toEqual([]);
+              const repaired = repairSelection(preferred, offered, sets);
+              expect(selectionStatus(repaired, offered, sets)).toBe('fits');
+              expect(repaired.slice(0, preferred.length)).toEqual(preferred);
+            }
+            checked++;
+          }
+        }
+    expect(checked).toBeGreaterThan(0);
+  }, 30000);
+  it('repairs a rice-less selection by adding the fewest crops instead of leaving no calendar', () => {
+    // Mung covers pre-monsoon and monsoon, so mung + mustard fills every season without rice.
+    const suggestions = suggestDemoWindows(defaultFarm, defaultDemo, 'water');
+    const sets = viableCropSets(defaultFarm, defaultDemo, 'water');
+    expect(selectionStatus(['mung'], suggestions, sets)).toBe('incomplete');
+    expect(selectionStatus(['mung', 'mustard'], suggestions, sets)).toBe('conflict');
+    expect(repairSelection(['mung', 'mustard'], suggestions, sets)).toEqual([
+      'mung',
+      'mustard',
+      'aman',
+    ]);
+    expect(selectionStatus(['mung', 'aman', 'mustard'], suggestions, sets)).toBe('fits');
+  });
+  it('names the fewest household groups blocking every calendar', () => {
+    expect(blockingHousehold(defaultFarm, defaultDemo, 'water')).toEqual([]);
+    const farm = { ...defaultFarm, required: ['rice' as const, 'potato' as const] };
+    expect(viableCropSets(farm, defaultDemo, 'water')).toEqual([]);
+    expect(blockingHousehold(farm, defaultDemo, 'water')).toEqual(['potato']);
+    // Unknown soil blocks every crop, so dropping household needs would not help.
+    expect(blockingHousehold({ ...farm, soil: 'unknown' }, defaultDemo, 'water')).toEqual([]);
+  });
+  it('unticks household groups that a farm condition change makes impossible', () => {
+    const watered = {
+      ...defaultFarm,
+      irrigation: 'reliable' as const,
+      required: ['rice', 'potato'],
+    };
+    expect(settleHousehold(watered as Farm, defaultDemo, 'water').dropped).toEqual([]);
+    const limited = { ...watered, irrigation: 'limited' } as Farm;
+    const settled = settleHousehold(limited, defaultDemo, 'water');
+    expect(settled.dropped).toEqual(['potato']);
+    expect(settled.farm.required).toEqual(['rice']);
+    expect(limited.required).toEqual(['rice', 'potato']);
+  });
+  it('explains why a household group is unavailable and what would unlock it', () => {
+    expect(householdBlockers('potato', defaultFarm, defaultDemo)).toEqual(['water']);
+    const watered = { ...defaultFarm, irrigation: 'reliable' as const };
+    expect(householdBlockers('potato', watered, defaultDemo)).toEqual([]);
+    expect(
+      viableCropSets({ ...watered, required: ['rice', 'potato'] }, defaultDemo, 'water').length,
+    ).toBeGreaterThan(0);
+  });
   it('rejects overlapping, out-of-cycle and malformed windows before completing a calendar', () => {
     expect(
       hasSafeTiming([

@@ -10,12 +10,18 @@ import {
 } from 'react';
 import type { ReactNode } from 'react';
 import { evaluate, preferredOption } from '../domain/evaluate';
-import type { Farm, Language, Priority } from '../domain/types';
+import type { Farm, HouseholdCrop, Language, Priority } from '../domain/types';
 import { initialState } from '../lib/storage';
 import { plannerStore } from '../lib/planner-store';
 import { tr } from '../lib/translate';
 import { demoStore } from '../lib/demo-store';
-import { generateDemoPlans, farmFingerprint, planFingerprint } from '../domain/demo-planner';
+import {
+  generateDemoPlans,
+  farmFingerprint,
+  planFingerprint,
+  settleHousehold,
+} from '../domain/demo-planner';
+import type { DemoSettings } from '../data/demo-environment';
 import { journeyStore } from '../lib/journey-store';
 import { defaultFarm } from '../data/preview';
 import { defaultDemo } from '../data/demo-environment';
@@ -45,8 +51,34 @@ function usePlannerState() {
   useEffect(() => {
     document.documentElement.lang = state.language;
   }, [state.language]);
-  const setFarm = (update: Partial<Farm>) =>
-    setState((s) => ({ ...s, farm: { ...s.farm, ...update } }));
+  // Household groups unticked because a farm condition change made them impossible.
+  const [householdDropped, setHouseholdDropped] = useState<HouseholdCrop[]>([]);
+  const settle = (farm: Farm, settings: DemoSettings, priority: Priority) => {
+    const settled = settleHousehold(farm, settings, priority);
+    if (settled.dropped.length) setHouseholdDropped(settled.dropped);
+    return settled.farm;
+  };
+  const conditions: (keyof Farm)[] = ['irrigation', 'soil', 'drainage', 'unavailableMonths'];
+  const setFarm = (update: Partial<Farm>) => {
+    if ('required' in update) setHouseholdDropped([]);
+    setState((s) => {
+      const farm = { ...s.farm, ...update };
+      return {
+        ...s,
+        farm: conditions.some((key) => key in update)
+          ? settle(farm, demo.settings, s.priority)
+          : farm,
+      };
+    });
+  };
+  const setDemo = (change: Partial<DemoSettings>) => {
+    demoStore.update(change);
+    if ('location' in change || 'weather' in change)
+      setState((s) => {
+        const farm = settle(s.farm, demoStore.getSnapshot().settings, s.priority);
+        return farm === s.farm ? s : { ...s, farm };
+      });
+  };
   const setLanguage = (language: Language) => setState((s) => ({ ...s, language }));
   const setPriority = (priority: Priority) => setState((s) => ({ ...s, priority }));
   const select = (selected: string) => setState((s) => ({ ...s, selected }));
@@ -54,6 +86,7 @@ function usePlannerState() {
     setMonth(0);
     setFieldOpen(false);
     setResetEpoch((epoch) => epoch + 1);
+    setHouseholdDropped([]);
     demoStore.reset();
     journeyStore.reset();
     setState((s) => ({ ...initialState, language: s.language }));
@@ -104,7 +137,8 @@ function usePlannerState() {
     setTourPreview,
     demo: demo.settings,
     demoSaved: demo.saved,
-    setDemo: demoStore.update,
+    setDemo,
+    householdDropped,
     preferred,
     selected,
     saved,

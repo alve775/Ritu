@@ -12,7 +12,7 @@ export interface CropModelNote {
 const rice: CropModelNote = {
   structure: {
     en: 'Rice has narrow leaves and branching panicles bearing spikelets. The model uses clustered shoots and branched grain heads, rather than wheat-like spikes.',
-    bn: 'ধানে সরু পাতা ও শাখাযুক্ত শীষ থাকে। নমুনায় গুচ্ছ কাণ্ড ও শাখাযুক্ত শীষ দেখানো হয়েছে।',
+    bn: 'ধানে সরু পাতা ও শাখাযুক্ত শীষ থাকে। মডেলে গুচ্ছ কাণ্ড ও শাখাযুক্ত শীষ দেখানো হয়েছে।',
   },
   belowGround: {
     en: 'Roots are drawn schematically. Their depth, density and water uptake have not been measured.',
@@ -32,7 +32,7 @@ export const cropModelNotes: Partial<Record<CropId, CropModelNote>> = {
   wheat: {
     structure: {
       en: 'Wheat has narrow leaves and a compact spike with spikelets arranged along its axis. The illustration includes awns; their appearance varies by variety.',
-      bn: 'গমে সরু পাতা ও কাণ্ডের অক্ষ বরাবর সাজানো ঘন শীষ থাকে। নমুনায় শীষের সূচালো অংশ দেখানো হয়েছে; জাতভেদে চেহারা বদলায়।',
+      bn: 'গমে সরু পাতা ও কাণ্ডের অক্ষ বরাবর সাজানো ঘন শীষ থাকে। মডেলে শীষের সূচালো অংশ দেখানো হয়েছে; জাতভেদে চেহারা বদলায়।',
     },
     belowGround: rice.belowGround,
     references: [
@@ -45,7 +45,7 @@ export const cropModelNotes: Partial<Record<CropId, CropModelNote>> = {
   mung: {
     structure: {
       en: 'Mung bean has trifoliate leaves and elongated pods. Three leaflets form each illustrated leaf; the pods are distinct from cereal grain heads.',
-      bn: 'মুগে তিন পত্রকযুক্ত পাতা ও লম্বা ফলি থাকে। প্রতিটি নমুনার পাতায় তিনটি পত্রক দেখানো হয়েছে; ফলি শস্যের শীষ থেকে আলাদা।',
+      bn: 'মুগে তিন পত্রকযুক্ত পাতা ও লম্বা ফলি থাকে। প্রতিটি পাতায় তিনটি পত্রক দেখানো হয়েছে; ফলি শস্যের শীষ থেকে আলাদা।',
     },
     belowGround: {
       en: 'Roots are schematic. Nitrogen fixation and soil benefits are not simulated or quantified.',
@@ -69,7 +69,7 @@ export const cropModelNotes: Partial<Record<CropId, CropModelNote>> = {
     },
     belowGround: {
       en: 'The cutaway shows a few tubers connected to stolons. Their number, size and depth are illustrative; this is not a yield or soil-depth estimate.',
-      bn: 'মাটির ভেতরের দৃশ্যে স্টোলনে যুক্ত কয়েকটি আলু আছে। সংখ্যা, আকার ও গভীরতা নমুনা; ফলন বা মাটির গভীরতার হিসাব নয়।',
+      bn: 'মাটির ভেতরের দৃশ্যে স্টোলনে যুক্ত কয়েকটি আলু আছে। সংখ্যা, আকার ও গভীরতা প্রতীকী; ফলন বা মাটির গভীরতার হিসাব নয়।',
     },
     references: [
       {
@@ -85,7 +85,7 @@ export const cropModelNotes: Partial<Record<CropId, CropModelNote>> = {
     },
     belowGround: {
       en: 'This schematic contains no sampled soil profile or surveyed root data.',
-      bn: 'এখানে মাটির নমুনা বা জরিপের শিকড়ের তথ্য নেই।',
+      bn: 'এখানে মাটি পরীক্ষা বা জরিপের শিকড়ের তথ্য নেই।',
     },
     references: [],
   },

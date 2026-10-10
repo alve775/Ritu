@@ -70,12 +70,6 @@ export function CompareView() {
             {t('STEP 3 OF 4 · YOUR CALENDAR', 'ধাপ ৩ / ৪ · আপনার ক্যালেন্ডার')}
           </span>
           <h1>{t('Choose your automatic calendar', 'স্বয়ংক্রিয় ক্যালেন্ডার বাছুন')}</h1>
-          <p>
-            {t(
-              'These options use only your suggested crop choices. Dates are assigned and locked; crop periods never overlap.',
-              'শুধু বাছা প্রস্তাবিত ফসলের ক্রম। সময় নির্ধারিত ও স্থির; ফসলের সময় মেলে না।',
-            )}
-          </p>
         </div>
         <div className="planner-actions">
           <button
@@ -95,19 +89,13 @@ export function CompareView() {
           </button>
           <Link href="/farm" className="button secondary">
             <SlidersHorizontal size={20} />
-            {t('Edit farm', 'খামার বদলান')}
+            {t('Edit farm', 'জমির তথ্য বদলান')}
           </Link>
         </div>
       </header>
-      <p className="evidence-banner">
-        {t(
-          'Demo only. Climate numbers and planning rules are fictional. No NASA data API or verified local recommendation.',
-          'শুধু নমুনা। জলবায়ুর সংখ্যা ও পরিকল্পনার নিয়ম কাল্পনিক। নাসার API বা যাচাইকৃত স্থানীয় সুপারিশ নেই।',
-        )}
-      </p>
       <section
         className="rotation-picker"
-        aria-label={t('Choose a rotation example', 'ফসলক্রমের নমুনা বাছুন')}
+        aria-label={t('Choose a rotation example', 'ফসলক্রম বাছুন')}
       >
         {evaluations.map((evaluation) => (
           <section
@@ -133,8 +121,8 @@ export function CompareView() {
                 {(() => {
                   const result = assessDemo(evaluation.rotation, farm, demo);
                   return t(
-                    `Mock model: ${result.conflicts} conflicts · ${result.unknowns} unknowns`,
-                    `কাল্পনিক মডেল: ${result.conflicts} সংঘাত · ${result.unknowns} অজানা`,
+                    `Model: ${result.conflicts} conflicts · ${result.unknowns} unknowns`,
+                    `মডেল: ${result.conflicts} সংঘাত · ${result.unknowns} অজানা`,
                   );
                 })()}
               </p>
@@ -205,8 +193,8 @@ export function CompareView() {
           <CalendarLegend />
           <p className="calendar-footnote">
             {t(
-              'Locked mock windows, March–February. Empty intervals are explicitly marked rest. Real dates need local review.',
-              'মার্চ–ফেব্রুয়ারির স্থির নমুনা। খালি সময় বিরতি হিসেবে থাকে। বাস্তব সময় যাচাই দরকার।',
+              'Locked windows, March–February. Empty intervals are explicitly marked rest. Real dates need local review.',
+              'মার্চ–ফেব্রুয়ারির স্থির সময়। খালি সময় বিরতি হিসেবে থাকে। বাস্তব সময় যাচাই দরকার।',
             )}
           </p>
         </section>
@@ -227,8 +215,8 @@ export function CompareView() {
           </label>
           <p>
             {t(
-              'The year labels the saved cycle; it does not change mock climate or assigned planting windows.',
-              'বছর চক্রের নাম; নমুনার জলবায়ু বা সময় বদলায় না।',
+              'The year labels the saved cycle; it does not change the climate or assigned planting windows.',
+              'বছর চক্রের নাম; জলবায়ু বা সময় বদলায় না।',
             )}
           </p>
         </div>

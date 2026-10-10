@@ -77,7 +77,7 @@ export const extraCrops = Object.fromEntries(
       reference: cropReferences[reference],
       description: {
         en: 'Listed in Bangladesh crop references. This read-only entry does not establish a validated planting window, suitability rule or anatomy model.',
-        bn: 'বাংলাদেশের ফসলের উৎসে উল্লেখ আছে। এই তথ্য থেকে যাচাইকৃত রোপণের সময়, উপযোগিতার শর্ত বা গঠনের নমুনা নির্ধারিত হয় না।',
+        bn: 'বাংলাদেশের ফসলের উৎসে উল্লেখ আছে। এই তথ্য থেকে যাচাইকৃত রোপণের সময়, উপযোগিতার শর্ত বা গঠনের মডেল নির্ধারিত হয় না।',
       },
     } satisfies Crop,
   ]),

@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     id: '/',
     name: 'RITU — Grow with the seasons',
     short_name: 'RITU',
-    description: 'A demo crop-rotation planner for Bangladesh.',
+    description: 'A crop-rotation planner for Bangladesh.',
     start_url: '/',
     scope: '/',
     display: 'standalone',

@@ -10,7 +10,7 @@ export function FarmGuide({ step }: { step: string }) {
   return (
     <button
       className="farm-guide"
-      aria-label={t('Say hello to Mati, the farm guide', 'খামারের সঙ্গী মাটিকে শুভেচ্ছা জানান')}
+      aria-label={t('Say hello to Mati, the farm guide', 'মাঠের সঙ্গী মাটিকে শুভেচ্ছা জানান')}
       onClick={() => {
         if (!prefersReducedMotion())
           wing.current?.animate(

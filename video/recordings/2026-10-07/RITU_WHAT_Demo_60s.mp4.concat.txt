@@ -1,0 +1,6 @@
+file 'clips/01-farm.mp4'
+file 'clips/02-crop-choices.mp4'
+file 'clips/03-seasonal-calendars.mp4'
+file 'clips/04-explain-the-choice.mp4'
+file 'clips/05-track-progress.mp4'
+file 'clips/06-bangla-access.mp4'

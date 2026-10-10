@@ -77,28 +77,17 @@ function FarmForm() {
     <div className="page-enter calm-page farm-page">
       <header className="planner-heading">
         <div>
-          <span className="eyebrow">{t('STEP 1 OF 4 · YOUR FARM', 'ধাপ ১ / ৪ · আপনার খামার')}</span>
-          <h1>{t('Start with your farm', 'আপনার খামার দিয়ে শুরু করুন')}</h1>
-          <p>
-            {t(
-              'Tell us about soil and water. RITU will suggest crops and dates before you choose.',
-              'মাটি ও পানির তথ্য দিন। বাছার আগে ঋতু ফসল ও সময়ের নমুনা দেখাবে।',
-            )}
-          </p>
+          <span className="eyebrow">{t('STEP 1 OF 4 · YOUR FARM', 'ধাপ ১ / ৪ · আপনার জমি')}</span>
+          <h1>{t('Start with your farm', 'আপনার জমি দিয়ে শুরু করুন')}</h1>
+          <p>{t('Tell us about soil and water.', 'মাটি ও পানির তথ্য দিন।')}</p>
         </div>
         <ResetDataControl />
       </header>
-      <p className="evidence-banner">
-        {t(
-          'Demo only: environmental values, crop matching and planting windows are authored mock examples.',
-          'শুধু নমুনা: পরিবেশ, ফসলের মিল ও রোপণের সময় কাল্পনিক।',
-        )}
-      </p>
       <section className="form-card" data-tour="farm-basics">
         <h2>{t('Your field', 'আপনার জমি')}</h2>
         <div className="form-grid">
           <label className="form-field">
-            {t('Farm name', 'খামারের নাম')}
+            {t('Farm name', 'জমির নাম')}
             <input
               maxLength={80}
               value={farm.name}
@@ -235,17 +224,14 @@ function FarmForm() {
       </details>
       <div className="farm-bottom-cta" data-tour="farm-continue">
         <div>
-          <p>
-            {missing
-              ? t(
-                  'Confirm soil, drainage and irrigation to receive mock suggestions. Unknown values are never guessed.',
-                  'নমুনার ফসল পেতে মাটি, নিষ্কাশন ও সেচ নিশ্চিত করুন। অজানা তথ্য অনুমান করা হয় না।',
-                )
-              : t(
-                  'Next, choose from crops that match these mock conditions. The planner controls all dates.',
-                  'পরের ধাপে নমুনার শর্তে মেলা ফসল বাছুন। সব সময় পরিকল্পনাকারী ঠিক করবে।',
-                )}
-          </p>
+          {missing && (
+            <p>
+              {t(
+                'Confirm soil, drainage and irrigation to receive suggestions. Unknown values are never guessed.',
+                'ফসলের প্রস্তাব পেতে মাটি, নিষ্কাশন ও সেচ নিশ্চিত করুন। অজানা তথ্য অনুমান করা হয় না।',
+              )}
+            </p>
+          )}
         </div>
         <button
           className="button primary"
@@ -273,7 +259,7 @@ function FarmForm() {
           <p>
             {t(
               'This clears the previous-crop list for this farm. Review your farm before generating new suggestions. Your saved calendar and tracking records are kept.',
-              'এই খামারের আগের ফসলের তালিকা মুছে যাবে। নতুন প্রস্তাব তৈরির আগে খামারের তথ্য দেখুন। রাখা ক্যালেন্ডার ও কাজের হিসাব থাকবে।',
+              'এই জমির আগের ফসলের তালিকা মুছে যাবে। নতুন প্রস্তাব তৈরির আগে জমির তথ্য দেখুন। রাখা ক্যালেন্ডার ও কাজের হিসাব থাকবে।',
             )}
           </p>
           <div className="button-row previous-crop-actions">

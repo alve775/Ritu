@@ -109,11 +109,11 @@ export function CropCatalogue() {
             {cropModelNotes[active.id]
               ? t(
                   'An original schematic anatomy model is available in the field explorer.',
-                  'জমির দৃশ্যে নিজেদের তৈরি প্রতীকী গঠনের নমুনা আছে।',
+                  'জমির দৃশ্যে নিজেদের তৈরি প্রতীকী গঠনের মডেল আছে।',
                 )
               : t(
                   'Anatomy model not available yet. This reference does not establish a planting window.',
-                  'গঠনের নমুনা এখনো নেই। এই উৎস রোপণের সময় নিশ্চিত করে না।',
+                  'গঠনের মডেল এখনো নেই। এই উৎস রোপণের সময় নিশ্চিত করে না।',
                 )}
           </p>
           {active.reference && (

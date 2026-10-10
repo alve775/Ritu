@@ -188,6 +188,16 @@ input::placeholder {
   flex-shrink: 0;
   accent-color: var(--green);
 }
+.suggested-crop-lock {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.suggested-crop-added {
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: var(--sage);
+}
 .suggested-windows {
   list-style: none;
   padding: 0;
@@ -1319,6 +1329,16 @@ input::placeholder {
   background: #edf4e0;
   border-color: #8caa6c;
   color: #49632f;
+}
+.household-control label:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.household-control label.unfit {
+  border-color: #c98a3d;
+}
+.household-warning {
+  color: #8a5a1c;
 }
 .household-control input {
   width: 16px;

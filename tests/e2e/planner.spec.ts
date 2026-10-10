@@ -18,7 +18,7 @@ test('generated options pass mock checks while real suitability stays unverified
   await expect(page.locator('.option-card')).toHaveCount(3);
   await expect(page.locator('.option-card .status.confirm')).toHaveCount(3);
   await expect(page.locator('.demo-card-result')).toHaveText(
-    Array(3).fill('Mock model: 0 conflicts · 0 unknowns'),
+    Array(3).fill('Model: 0 conflicts · 0 unknowns'),
   );
   await openCalendar(page);
   await expect(page.locator('.calendar-board .rotation-row')).toHaveCount(3);
@@ -61,10 +61,10 @@ test('Bangla and explicit reset preserve language and clear calendar records', a
   await page.getByRole('button', { name: 'বাংলা', exact: true }).click();
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('lang', 'bn');
-  await page.getByRole('button', { name: 'নমুনা রিসেট', exact: true }).click();
+  await page.getByRole('button', { name: 'রিসেট', exact: true }).click();
   await page.getByRole('button', { name: 'আমার তথ্য রাখুন', exact: true }).click();
   await expect(page.locator('.tracking-crops > section')).toHaveCount(3);
-  await page.getByRole('button', { name: 'নমুনা রিসেট', exact: true }).click();
+  await page.getByRole('button', { name: 'রিসেট', exact: true }).click();
   await page
     .getByRole('dialog')
     .getByRole('button', { name: 'সব তথ্য রিসেট করুন', exact: true })
@@ -103,7 +103,7 @@ test('calendar and field stay connected across crops, rest and the year boundary
   );
   await expect(explorer.getByText('Planned rest / fallow', { exact: true })).toBeVisible();
   await explorer.getByRole('button', { name: 'Jan', exact: true }).click();
-  await expect(explorer.getByText('Sample harvest month', { exact: true })).toBeVisible();
+  await expect(explorer.getByText('Harvest month', { exact: true })).toBeVisible();
   await expect(
     page.getByRole('button', { name: 'Inspect month: Jan', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
@@ -160,7 +160,7 @@ test('planning and month details remain usable without WebGL', async ({ page }) 
   ).toBeVisible();
   const explorer = page.getByRole('region', { name: 'Seasonal field explorer' });
   await explorer.getByRole('button', { name: 'Apr', exact: true }).click();
-  await expect(explorer.getByText('Sample harvest month', { exact: true })).toBeVisible();
+  await expect(explorer.getByText('Harvest month', { exact: true })).toBeVisible();
   await explorer.getByRole('button', { name: 'Inspect this month' }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
 });
@@ -209,7 +209,7 @@ test('crop study and soil cutaway stay separate from calendar timing and expose 
   await expect(
     explorer.getByRole('combobox', { name: 'Plant structure', exact: true }),
   ).toHaveValue('young');
-  await expect(explorer.getByText('Sample harvest month', { exact: true })).toBeVisible();
+  await expect(explorer.getByText('Harvest month', { exact: true })).toBeVisible();
   await explorer.getByRole('button', { name: 'Model sources & limits', exact: true }).click();
   await expect(
     page

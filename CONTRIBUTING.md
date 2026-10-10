@@ -22,7 +22,7 @@ Do not edit the preserved `docs/PROJECT_PLAN.md`. Record subsequent decisions in
 - Server pages compose interactive client components. A versioned browser store uses `useSyncExternalStore`; its server snapshot is deterministic and saved inputs load on client subscription. DOM language updates stay in an effect.
 - Use named shared types. Derive statuses and tradeoffs from inputs, rather than copying them into separate state.
 - Keep known blockers visible. Unknown input must never become a successful check by default.
-- Do not label sample categories as measured savings, confidence, crop performance or forecasts. See `docs/DATA_INTEGRATION.md` before changing evidence-related labels.
+- Do not label example categories as measured savings, confidence, crop performance or forecasts. See `docs/DATA_INTEGRATION.md` before changing evidence-related labels.
 - Add both English and Bangla for user-facing copy. Do not translate user-entered farm names.
 - Use semantic inputs, visible labels, focus styles and keyboard interactions. Calendars scroll within their panel on small screens; the document must not overflow.
 - Preserve the 20px body baseline, optional 24px setting and readable supporting labels. The Three.js canvas supplements the month details; keep an equivalent keyboard-accessible inspection button and a usable WebGL fallback. Render only on changes, dispose GPU resources, and keep drag rotation opt-in so normal page scrolling works.

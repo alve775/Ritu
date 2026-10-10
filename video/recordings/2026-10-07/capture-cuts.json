@@ -1,0 +1,56 @@
+[
+  {
+    "clip": "01-farm.mp4",
+    "source": "ritu-computer-walkthrough.webm",
+    "start_seconds": 5,
+    "duration_seconds": 10
+  },
+  {
+    "clip": "02-crop-choices.mp4",
+    "source": "ritu-computer-walkthrough.webm",
+    "start_seconds": 81,
+    "duration_seconds": 10
+  },
+  {
+    "clip": "03-seasonal-calendars.mp4",
+    "source": "ritu-computer-walkthrough.webm",
+    "start_seconds": 109,
+    "duration_seconds": 10
+  },
+  {
+    "clip": "04-explain-the-choice.mp4",
+    "source": "ritu-computer-walkthrough.webm",
+    "start_seconds": 122,
+    "duration_seconds": 10
+  },
+  {
+    "clip": "05-track-progress.mp4",
+    "source": "ritu-computer-walkthrough.webm",
+    "start_seconds": 262,
+    "duration_seconds": 10
+  },
+  {
+    "clip": "06-bangla-access.mp4",
+    "source": "ritu-computer-walkthrough.webm",
+    "start_seconds": 277,
+    "duration_seconds": 10
+  },
+  {
+    "clip": "07-water-scenario.mp4",
+    "source": "ritu-scenario-take.webm",
+    "start_seconds": 178,
+    "duration_seconds": 10
+  },
+  {
+    "clip": "08-drier-scenario-result.mp4",
+    "source": "ritu-scenario-take.webm",
+    "start_seconds": 190,
+    "duration_seconds": 10
+  },
+  {
+    "clip": "09-soil-water-extra.mp4",
+    "source": "ritu-computer-walkthrough.webm",
+    "start_seconds": 30,
+    "duration_seconds": 10
+  }
+]

@@ -70,8 +70,8 @@ export function evaluate(rotation: Rotation, farm: Farm): Evaluation {
                 bn: 'কিছু মাসের তথ্য নেই। বছর পূরণ করতে ফসল বা বিরতি যোগ করুন।',
               }
             : {
-                en: 'No overlap in the sample monthly calendar. Actual planting windows still need review.',
-                bn: 'নমুনা মাসভিত্তিক ক্যালেন্ডারে সময় মেলেনি। প্রকৃত রোপণের সময় যাচাই দরকার।',
+                en: 'No overlap in the monthly calendar. Actual planting windows still need review.',
+                bn: 'মাসভিত্তিক ক্যালেন্ডারে সময় মেলেনি। প্রকৃত রোপণের সময় যাচাই দরকার।',
               },
     },
     {
@@ -115,7 +115,7 @@ export function evaluate(rotation: Rotation, farm: Farm): Evaluation {
             }
           : {
               en: 'Soil texture is recorded, but crop-specific soil suitability is not assessed in this preview.',
-              bn: 'মাটির গঠন দেওয়া আছে, তবে এই নমুনায় ফসলভিত্তিক উপযোগিতা যাচাই হয়নি।',
+              bn: 'মাটির গঠন দেওয়া আছে, তবে এখানে ফসলভিত্তিক উপযোগিতা যাচাই হয়নি।',
             },
     },
     {
@@ -138,12 +138,12 @@ export function evaluate(rotation: Rotation, farm: Farm): Evaluation {
       label: { en: 'Planting & harvest help', bn: 'রোপণ ও কাটার শ্রম' },
       detail: laborConflict
         ? {
-            en: 'A sample planting or harvest month falls in a month without help. Change the labor constraint or calendar.',
-            bn: 'নমুনার রোপণ বা কাটার মাসে শ্রম নেই। শ্রমের শর্ত বা ক্যালেন্ডার বদলান।',
+            en: 'A planting or harvest month falls in a month without help. Change the labor constraint or calendar.',
+            bn: 'রোপণ বা কাটার মাসে শ্রম নেই। শ্রমের শর্ত বা ক্যালেন্ডার বদলান।',
           }
         : {
-            en: 'No sample planting or harvest month conflicts with the months you marked.',
-            bn: 'চিহ্নিত মাসে নমুনার রোপণ বা কাটার সংঘাত নেই।',
+            en: 'No planting or harvest month conflicts with the months you marked.',
+            bn: 'চিহ্নিত মাসে রোপণ বা কাটার সংঘাত নেই।',
           },
     },
   ];

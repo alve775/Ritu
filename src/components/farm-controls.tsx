@@ -1,6 +1,8 @@
 'use client';
 import { Droplets, Check, Sprout, Leaf, Wheat, CircleDot } from 'lucide-react';
+import { useMemo } from 'react';
 import { usePlanner } from './planner-provider';
+import { blockingHousehold, householdBlockers, viableCropSets } from '../domain/demo-planner';
 import type { HouseholdCrop, Irrigation, Priority } from '../domain/types';
 
 export function WaterControl({ compact = false }: { compact?: boolean }) {
@@ -73,7 +75,7 @@ export function PriorityControl() {
       {
         id: 'water',
         label: t('Use less irrigation', 'সেচ কম লাগুক'),
-        description: t('Lower invented water-demand index', 'কাল্পনিক পানির সূচক কম লাগুক'),
+        description: t('Lower water-demand index', 'পানির সূচক কম লাগুক'),
         icon: Droplets,
       },
       {
@@ -92,8 +94,8 @@ export function PriorityControl() {
         id: 'resilience',
         label: t('Drought resilience', 'খরা সহনশীলতা'),
         description: t(
-          'A priority for demo comparison; real resilience is unverified',
-          'নমুনার তুলনার অগ্রাধিকার; বাস্তব সহনশীলতা যাচাই বাকি',
+          'A priority for comparison; real resilience is unverified',
+          'তুলনার অগ্রাধিকার; বাস্তব সহনশীলতা যাচাই বাকি',
         ),
         icon: Droplets,
       },
@@ -101,8 +103,8 @@ export function PriorityControl() {
         id: 'soil',
         label: t('Soil health', 'মাটির স্বাস্থ্য'),
         description: t(
-          'Demo uses pulse inclusion; no soil benefit is predicted',
-          'নমুনায় ডাল অন্তর্ভুক্তি দেখা হয়; মাটির উপকারের পূর্বাভাস নয়',
+          'Uses pulse inclusion; no soil benefit is predicted',
+          'ডাল অন্তর্ভুক্তি দেখা হয়; মাটির উপকারের পূর্বাভাস নয়',
         ),
         icon: Sprout,
       },
@@ -112,8 +114,8 @@ export function PriorityControl() {
       <legend>{t('What matters most?', 'আপনার অগ্রাধিকার কী?')}</legend>
       <p>
         {t(
-          'This ranks passing mock calendars; it never overrides a failed check.',
-          'এটি মেলা নমুনার ক্রম তুলনা করে; না-মেলা শর্ত এড়ায় না।',
+          'This ranks passing calendars; it never overrides a failed check.',
+          'এটি মেলা ক্রম তুলনা করে; না-মেলা শর্ত এড়ায় না।',
         )}
       </p>
       {priorities.map(({ id, label, description, icon: Icon }) => (
@@ -138,12 +140,45 @@ export function PriorityControl() {
   );
 }
 export function HouseholdControl() {
-  const { t, farm, setFarm } = usePlanner();
+  const { t, farm, setFarm, demo, priority, householdDropped } = usePlanner();
+  // A group is offered only if some calendar can still include it on this farm.
+  const { blocked, unfit } = useMemo(() => {
+    const possible = viableCropSets(farm, demo, priority).length > 0;
+    return {
+      blocked: (['rice', 'pulses', 'potato'] as const).filter(
+        (id) =>
+          possible &&
+          !farm.required.includes(id) &&
+          !viableCropSets({ ...farm, required: [...farm.required, id] }, demo, priority).length,
+      ) as HouseholdCrop[],
+      unfit: blockingHousehold(farm, demo, priority),
+    };
+  }, [farm, demo, priority]);
   const groups: { id: HouseholdCrop; label: string; icon: typeof Wheat }[] = [
     { id: 'rice', label: t('Rice', 'ধান'), icon: Wheat },
     { id: 'pulses', label: t('Pulses', 'ডাল'), icon: Sprout },
     { id: 'potato', label: t('Potato', 'আলু'), icon: CircleDot },
   ];
+  const label = (id: HouseholdCrop) => groups.find((g) => g.id === id)!.label;
+  const reasons: Record<string, string> = {
+    water: t(
+      'it needs more water than your water supply',
+      'আপনার পানির সরবরাহের চেয়ে বেশি পানি লাগে',
+    ),
+    soil: t('it does not suit your soil', 'আপনার মাটিতে মেলে না'),
+    drainage: t('it does not suit your drainage', 'আপনার নিষ্কাশনে মেলে না'),
+    climate: t('it does not suit the weather', 'আবহাওয়ায় মেলে না'),
+    labor: t('its planting or harvest falls in months without help', 'রোপণ বা কাটার মাসে শ্রম নেই'),
+  };
+  const reason = (id: HouseholdCrop) => {
+    const failed = householdBlockers(id, farm, demo);
+    return failed.length
+      ? failed.map((check) => reasons[check]).join(t(' and ', ' ও '))
+      : t(
+          'it cannot fit in one calendar with your other household crops',
+          'পরিবারের অন্য ফসলের সঙ্গে একই ক্যালেন্ডারে মেলে না',
+        );
+  };
   return (
     <fieldset className="household-control">
       <legend>{t('Crops your household wants to keep', 'পরিবার যে ফসল রাখতে চায়')}</legend>
@@ -155,10 +190,17 @@ export function HouseholdControl() {
       </p>
       <div>
         {groups.map(({ id, label, icon: Icon }) => (
-          <label key={id} className={farm.required.includes(id) ? 'chosen' : ''}>
+          <label
+            key={id}
+            className={`${farm.required.includes(id) ? 'chosen' : ''} ${unfit.includes(id) ? 'unfit' : ''}`}
+          >
             <input
               type="checkbox"
               checked={farm.required.includes(id)}
+              disabled={blocked.includes(id)}
+              aria-describedby={
+                blocked.includes(id) || unfit.includes(id) ? `household-why-${id}` : undefined
+              }
               onChange={(e) =>
                 setFarm({
                   required: e.target.checked
@@ -172,6 +214,29 @@ export function HouseholdControl() {
           </label>
         ))}
       </div>
+      {[...blocked, ...unfit].map((id) => (
+        <p
+          key={id}
+          id={`household-why-${id}`}
+          className={`field-help ${unfit.includes(id) || householdDropped.includes(id) ? 'household-warning' : ''}`}
+          role={unfit.includes(id) || householdDropped.includes(id) ? 'status' : undefined}
+        >
+          {unfit.includes(id)
+            ? t(
+                `Untick ${label(id)} to get a calendar: ${reason(id)}.`,
+                `ক্যালেন্ডার পেতে ${label(id)} বাদ দিন: ${reason(id)}।`,
+              )
+            : householdDropped.includes(id)
+              ? t(
+                  `${label(id)} was unticked: ${reason(id)}. Change the farm details back to add it again.`,
+                  `${label(id)} বাদ দেওয়া হয়েছে: ${reason(id)}। আবার যোগ করতে জমির তথ্য আগের মতো করুন।`,
+                )
+              : t(
+                  `${label(id)} is not available on this farm: ${reason(id)}. Change the farm details to add it.`,
+                  `এই জমিতে ${label(id)} পাওয়া যাচ্ছে না: ${reason(id)}। যোগ করতে জমির তথ্য বদলান।`,
+                )}
+        </p>
+      ))}
     </fieldset>
   );
 }

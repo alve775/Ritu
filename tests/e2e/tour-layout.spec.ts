@@ -40,7 +40,7 @@ for (const language of ['en', 'bn'] as const) {
       full: language === 'en' ? 'Full mission tour' : 'সম্পূর্ণ পরিচিতি',
       crops: language === 'en' ? 'Suggested crops' : 'প্রস্তাবিত ফসল',
       track: language === 'en' ? 'Track your plan' : 'পরিকল্পনার হিসাব',
-      farm: language === 'en' ? 'Your farm' : 'আপনার খামার',
+      farm: language === 'en' ? 'Your farm' : 'আপনার জমি',
       compare: language === 'en' ? 'Compare rotations' : 'ফসলক্রম তুলনা',
       field: language === 'en' ? 'Interactive field' : 'জমির ইন্টারঅ্যাকটিভ দৃশ্য',
       insights: language === 'en' ? 'Your choice, explained' : 'আপনার সিদ্ধান্তের ব্যাখ্যা',

@@ -40,7 +40,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const nav = [
     {
       href: '/farm',
-      label: t('Your farm', 'আপনার খামার'),
+      label: t('Your farm', 'আপনার জমি'),
       detail: t('Start with what you know', 'জানা তথ্য দিয়ে শুরু করুন'),
       icon: House,
     },
@@ -104,10 +104,10 @@ export function Shell({ children }: { children: ReactNode }) {
             <span>{t('Made for Bangladesh', 'বাংলাদেশের জন্য')}</span>
           </div>
           <button className="text-button" onClick={() => setModal('about')}>
-            {t('About this preview', 'এই নমুনা সম্পর্কে')}
+            {t('About this preview', 'এই প্রিভিউ সম্পর্কে')}
             <ArrowUpRight size={14} />
           </button>
-          <span className="version">{t('CONCEPT PREVIEW · V0.1', 'ধারণামূলক নমুনা · V0.1')}</span>
+          <span className="version">{t('CONCEPT PREVIEW · V0.1', 'ধারণামূলক প্রিভিউ · V0.1')}</span>
         </div>
       </aside>
       <div className="workspace">
@@ -122,7 +122,7 @@ export function Shell({ children }: { children: ReactNode }) {
             <ReadingControls />
             <span className="preview-tag">
               <span />
-              {t('Illustrative preview', 'নমুনা তথ্য')}
+              {t('Illustrative preview', 'উদাহরণভিত্তিক প্রিভিউ')}
             </span>
             <div className="language-switch" aria-label={t('Language', 'ভাষা')}>
               <button onClick={() => setLanguage('en')} aria-pressed={language === 'en'}>
@@ -142,7 +142,11 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
         </header>
         <main id="main" className="main-content" tabIndex={-1}>
-          {ready ? children : <p role="status">{t('Loading your farm…', 'খামার লোড হচ্ছে…')}</p>}
+          {ready ? (
+            children
+          ) : (
+            <p role="status">{t('Loading your farm…', 'জমির তথ্য লোড হচ্ছে…')}</p>
+          )}
         </main>
         <footer className="footer">
           <span>
@@ -167,7 +171,7 @@ export function Shell({ children }: { children: ReactNode }) {
       </div>
       {modal === 'about' && (
         <Dialog
-          title={t('A preview with a purpose.', 'উদ্দেশ্যপূর্ণ এক নমুনা।')}
+          title={t('A preview with a purpose.', 'উদ্দেশ্যপূর্ণ এক প্রিভিউ।')}
           onClose={() => setModal(null)}
         >
           <span className="eyebrow">{t('TRANSPARENCY FIRST', 'স্বচ্ছতা সবার আগে')}</span>
@@ -180,11 +184,11 @@ export function Shell({ children }: { children: ReactNode }) {
           <div className="notice">
             <Earth size={23} />
             <div>
-              <strong>{t('All examples are illustrative.', 'সব উদাহরণ নমুনাভিত্তিক।')}</strong>
+              <strong>{t('All examples are illustrative.', 'সব উদাহরণ প্রতীকী।')}</strong>
               <p>
                 {t(
-                  'This is a fictional example farm. Crop matching and dates use authored mock rules. Dates are assigned automatically and checked for overlap. No NASA observations or verified farming recommendations are included.',
-                  'এটি কাল্পনিক নমুনা খামার। ফসলের মিল ও সময় নমুনার নিয়মে তৈরি। সময় স্বয়ংক্রিয়ভাবে ঠিক হয় এবং সংঘাত যাচাই হয়। নাসার পর্যবেক্ষণ বা যাচাইকৃত কৃষি পরামর্শ নেই।',
+                  'This is an example farm. Crop matching and dates use authored rules. Dates are assigned automatically and checked for overlap. No NASA observations or verified farming recommendations are included.',
+                  'এটি একটি উদাহরণ জমি। ফসলের মিল ও সময় হাতে তৈরি নিয়মে তৈরি। সময় স্বয়ংক্রিয়ভাবে ঠিক হয় এবং সংঘাত যাচাই হয়। নাসার পর্যবেক্ষণ বা যাচাইকৃত কৃষি পরামর্শ নেই।',
                 )}
               </p>
             </div>
@@ -193,7 +197,7 @@ export function Shell({ children }: { children: ReactNode }) {
           <p>
             {t(
               'Enter farm conditions, choose suggested crops, compare automatic calendars, try scenarios and track planting, harvest and notes. Your input is stored in this browser only.',
-              'খামারের শর্ত দিন, প্রস্তাবিত ফসল বাছুন, স্বয়ংক্রিয় ক্যালেন্ডার তুলনা করুন, পরিস্থিতি বদলান এবং রোপণ, ফসল কাটা ও নোট রাখুন। তথ্য শুধু এই ব্রাউজারে থাকে।',
+              'জমির শর্ত দিন, প্রস্তাবিত ফসল বাছুন, স্বয়ংক্রিয় ক্যালেন্ডার তুলনা করুন, পরিস্থিতি বদলান এবং রোপণ, ফসল কাটা ও নোট রাখুন। তথ্য শুধু এই ব্রাউজারে থাকে।',
             )}
           </p>
           <h3>{t('Sources & challenge status', 'উৎস ও চ্যালেঞ্জের অবস্থা')}</h3>

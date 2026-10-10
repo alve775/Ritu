@@ -1,0 +1,68 @@
+[
+  {
+    "file": "clips/01-farm.mp4",
+    "seconds": 10,
+    "frames": 300,
+    "decode": "passed"
+  },
+  {
+    "file": "clips/02-crop-choices.mp4",
+    "seconds": 10,
+    "frames": 300,
+    "decode": "passed"
+  },
+  {
+    "file": "clips/03-seasonal-calendars.mp4",
+    "seconds": 10,
+    "frames": 300,
+    "decode": "passed"
+  },
+  {
+    "file": "clips/04-explain-the-choice.mp4",
+    "seconds": 10,
+    "frames": 300,
+    "decode": "passed"
+  },
+  {
+    "file": "clips/05-track-progress.mp4",
+    "seconds": 10,
+    "frames": 300,
+    "decode": "passed"
+  },
+  {
+    "file": "clips/06-bangla-access.mp4",
+    "seconds": 10,
+    "frames": 300,
+    "decode": "passed"
+  },
+  {
+    "file": "clips/07-water-scenario.mp4",
+    "seconds": 10,
+    "frames": 300,
+    "decode": "passed"
+  },
+  {
+    "file": "clips/08-drier-scenario-result.mp4",
+    "seconds": 10,
+    "frames": 300,
+    "decode": "passed"
+  },
+  {
+    "file": "clips/09-soil-water-extra.mp4",
+    "seconds": 10,
+    "frames": 300,
+    "decode": "passed"
+  },
+  {
+    "file": "RITU_WHAT_Demo_60s.mp4",
+    "seconds": 60,
+    "frames": 1800,
+    "decode": "passed"
+  },
+  {
+    "file": "RITU_HOW_Climate_Decisions_20s.mp4",
+    "seconds": 20,
+    "frames": 600,
+    "decode": "passed"
+  }
+]

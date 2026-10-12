@@ -296,4 +296,81 @@
     min-height: 44px;
     padding: 0;
   }
+
+  .action-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px;
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-1);
+  }
+  .action-bar.sticky {
+    position: sticky;
+    bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 12px);
+    z-index: var(--z-actionbar);
+    background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-2);
+  }
+  .action-bar-status {
+    flex: 1 1 260px;
+    color: var(--color-ink-muted);
+  }
+  .action-bar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .season-chip {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 12px;
+    border-radius: var(--radius-control);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .season-chip.season-0 {
+    background: color-mix(in srgb, var(--season-pre) 14%, transparent);
+    color: var(--season-pre-text);
+  }
+  .season-chip.season-1 {
+    background: color-mix(in srgb, var(--season-mon) 14%, transparent);
+    color: var(--season-mon-text);
+  }
+  .season-chip.season-2 {
+    background: color-mix(in srgb, var(--season-win) 14%, transparent);
+    color: var(--season-win-text);
+  }
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: var(--radius-pill);
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .status-pill.checked {
+    background: var(--color-success-bg);
+    color: var(--color-success-ink);
+  }
+  .status-pill.unassessed {
+    background: var(--color-warn-bg);
+    color: var(--color-warn-ink);
+  }
+  .status-pill.conflict {
+    background: color-mix(in srgb, var(--color-danger) 12%, transparent);
+    color: var(--color-danger);
+  }
+  @media (max-width: 767px) {
+    .action-bar.sticky .action-bar-actions,
+    .action-bar.sticky .action-bar-actions > * {
+      width: 100%;
+    }
+  }
 }

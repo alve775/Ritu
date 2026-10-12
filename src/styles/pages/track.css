@@ -25,7 +25,7 @@
   }
   .track-summary {
     display: grid;
-    grid-template-columns: minmax(200px, 300px) 1fr;
+    grid-template-columns: minmax(260px, 320px) 1fr;
     align-items: center;
     gap: 24px;
   }
@@ -103,14 +103,25 @@
   .stepper label:has(input:checked) {
     background: var(--color-primary);
     color: var(--color-on-primary);
+  }
+  .stepper input:checked {
     accent-color: var(--color-on-primary);
+  }
+  .stepper label:has(input:focus-visible) {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+  .stepper input:focus-visible {
+    outline: none;
   }
   .stepper label:has(input:disabled) {
     opacity: 0.5;
     cursor: not-allowed;
   }
   .track-crop textarea {
+    field-sizing: content;
     min-height: 48px;
+    max-height: 12rem;
     resize: vertical;
     border: 1px solid var(--color-line);
     border-radius: var(--radius-control);
@@ -128,7 +139,11 @@
   .track-empty {
     display: grid;
     gap: 12px;
-    justify-items: start;
+    justify-items: center;
+    text-align: center;
+  }
+  .track-empty p {
+    max-width: 52ch;
   }
   .track-page > .notice-amber {
     flex-wrap: wrap;

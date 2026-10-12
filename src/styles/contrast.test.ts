@@ -80,6 +80,30 @@ describe.each([
   });
 });
 
+/** Mirrors CSS `color-mix(in srgb, fg pct%, bg)`: linear interpolation of the 0-255 channels. */
+function mix(fg: RGB, pct: number, bg: RGB): RGB {
+  return fg.map((c, i) => Math.round(pct * c + (1 - pct) * bg[i])) as RGB;
+}
+
+// [foreground token, tint token, tint share] for text on a tinted chip/pill (components.css).
+const tinted: [string, string, number][] = [
+  ['season-pre-text', 'season-pre', 0.14],
+  ['season-mon-text', 'season-mon', 0.14],
+  ['season-win-text', 'season-win', 0.14],
+  ['color-danger', 'color-danger', 0.12],
+];
+
+describe.each([
+  ['light', light],
+  ['dark', { ...light, ...darkManual }],
+])('%s theme tinted chip contrast', (_, tokens) => {
+  it.each(tinted)('--%s on %s tint (%s) ≥ 4.5:1', (fg, tint, share) => {
+    const surface = resolve(tokens, 'color-surface');
+    const background = mix(resolve(tokens, tint), share, surface);
+    expect(ratio(resolve(tokens, fg), background)).toBeGreaterThanOrEqual(4.5);
+  });
+});
+
 it('defines the dark theme identically for Auto and manual Dark', () => {
   expect(darkAuto).toEqual(darkManual);
 });

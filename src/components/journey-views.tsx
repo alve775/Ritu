@@ -28,6 +28,7 @@ import type { SeasonIndex } from '../domain/year-wheel';
 import { YearWheel } from './ui/year-wheel';
 
 export function periodLabel(period: CropPeriod, language: 'en' | 'bn') {
+  if (period.duration === 1) return months[language][period.start];
   return `${months[language][period.start]} → ${months[language][period.start + period.duration - 1]}`;
 }
 export function JourneyGate({ step = 'farm' }: { step?: 'farm' | 'crops' }) {

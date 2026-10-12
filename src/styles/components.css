@@ -367,6 +367,12 @@
     background: color-mix(in srgb, var(--color-danger) 12%, var(--color-surface));
     color: var(--color-danger);
   }
+  @media (prefers-reduced-transparency: reduce) {
+    .action-bar.sticky {
+      background: var(--color-surface);
+      backdrop-filter: none;
+    }
+  }
   @media (max-width: 767px) {
     .action-bar.sticky .action-bar-actions,
     .action-bar.sticky .action-bar-actions > * {

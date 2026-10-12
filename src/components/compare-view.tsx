@@ -191,7 +191,7 @@ export function CompareView() {
             )}
           </p>
         </div>
-        <Link href="/insights" className="button primary">
+        <Link href="/insights" className="button secondary">
           {t('Understand this choice', 'পছন্দের ব্যাখ্যা দেখুন')}
           <ArrowRight size={20} />
         </Link>
@@ -251,6 +251,12 @@ export function CompareView() {
       </details>
       <ScenarioSimulator />
       <SeasonExplorer />
+      <p className="save-help" id="save-year-help">
+        {t(
+          'The year labels the saved cycle; it does not change the climate or assigned planting windows.',
+          'বছর চক্রের নাম; জলবায়ু বা সময় বদলায় না।',
+        )}
+      </p>
       <ActionBar
         sticky
         tour="save-calendar"
@@ -264,14 +270,9 @@ export function CompareView() {
               max={2100}
               value={year}
               aria-invalid={!validYear}
+              aria-describedby="save-year-help"
               onChange={(e) => setYear(e.target.value)}
             />
-            <small>
-              {t(
-                'The year labels the saved cycle; it does not change the climate or assigned planting windows.',
-                'বছর চক্রের নাম; জলবায়ু বা সময় বদলায় না।',
-              )}
-            </small>
           </label>
         }
       >

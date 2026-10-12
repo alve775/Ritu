@@ -62,6 +62,63 @@ test('tabbing through the farm form never hides the focused control behind the s
   expect(covered).toEqual([]);
 });
 
+for (const size of [
+  { width: 800, height: 1100 },
+  { width: 1440, height: 900 },
+]) {
+  for (const text of ['comfortable', 'larger'] as const) {
+    test(`tabbing through the calendar never hides the focused control behind the save bar · ${size.width}px ${text} text`, async ({
+      page,
+    }) => {
+      await page.addInitScript((value) => {
+        localStorage.setItem(
+          'ritu-display-v1',
+          JSON.stringify({
+            text: value,
+            motion: false,
+            sound: false,
+            volume: 35,
+            ambience: 'morning',
+            theme: 'light',
+          }),
+        );
+      }, text);
+      await page.setViewportSize(size);
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await page.goto('/farm');
+      await chooseDefaultCrops(page);
+      await page.getByRole('button', { name: 'Open field view', exact: true }).click();
+      await expect(page.getByRole('region', { name: 'Seasonal field explorer' })).toBeVisible();
+      await page.evaluate(() => {
+        (document.activeElement as HTMLElement | null)?.blur();
+        window.scrollTo(0, 0);
+      });
+      const covered: string[] = [];
+      let visited = 0;
+      for (let i = 0; i < 130; i++) {
+        await page.keyboard.press('Tab');
+        const result = await page.evaluate(() => {
+          const el = document.activeElement as HTMLElement | null;
+          const bar = document.querySelector('.save-bar');
+          if (!el || el === document.body || !bar || bar.contains(el)) return null;
+          const a = el.getBoundingClientRect();
+          if (!a.width || !a.height) return null;
+          const b = bar.getBoundingClientRect();
+          const x = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+          const y = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+          const name = (el.getAttribute('aria-label') ?? el.textContent ?? el.tagName).trim();
+          return { ratio: (x * y) / (a.width * a.height), name: name.slice(0, 40) };
+        });
+        if (!result) continue;
+        visited++;
+        if (result.ratio > 0.5) covered.push(`${result.name} (${Math.round(result.ratio * 100)}%)`);
+      }
+      expect(visited).toBeGreaterThan(20);
+      expect(covered).toEqual([]);
+    });
+  }
+}
+
 test('the year wheel is keyboard operable and stays in sync with the calendar month', async ({
   page,
 }) => {

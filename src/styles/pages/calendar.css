@@ -143,21 +143,21 @@
     flex-shrink: 0;
     font-size: 0.8rem;
   }
-  /* Crop colours come from the season tokens, so every bar is themed in light and dark. */
-  .crop-rice {
-    --bar: var(--season-win);
-  }
-  .crop-aman {
-    --bar: var(--season-mon);
-  }
-  .crop-mung {
+  /* Bars take the colour of the season their window starts in (data colour), from the season tokens. */
+  .crop-bar.season-0,
+  .crop-detail-icon.season-0 {
     --bar: var(--season-pre);
+    --bar-text: var(--season-pre-text);
   }
-  .crop-wheat {
-    --bar: color-mix(in srgb, var(--season-pre) 60%, var(--season-win));
+  .crop-bar.season-1,
+  .crop-detail-icon.season-1 {
+    --bar: var(--season-mon);
+    --bar-text: var(--season-mon-text);
   }
-  .crop-potato {
-    --bar: color-mix(in srgb, var(--season-pre) 55%, var(--color-ink-muted));
+  .crop-bar.season-2,
+  .crop-detail-icon.season-2 {
+    --bar: var(--season-win);
+    --bar-text: var(--season-win-text);
   }
   .crop-fallow {
     --bar: var(--color-ink-muted);
@@ -335,6 +335,18 @@
     height: 70px;
     margin-bottom: 4px;
     border-radius: 50%;
+    background: color-mix(
+      in srgb,
+      var(--bar, var(--color-ink-muted)) 22%,
+      var(--color-surface-raised)
+    );
+    box-shadow: inset 0 0 0 1.5px
+      color-mix(in srgb, var(--bar, var(--color-ink-muted)) 55%, transparent);
+    color: var(--bar-text, var(--color-ink-muted));
+  }
+  .crop-detail-icon.crop-fallow {
+    --bar: var(--color-ink-muted);
+    background: var(--color-soft);
   }
   .detail-grid {
     display: grid;
@@ -419,6 +431,10 @@
     outline: 3px solid var(--color-focus);
     outline-offset: 3px;
   }
+  /* The wedge draws its own focus stroke. */
+  .calendar-page .year-wheel .month-hit:focus-visible {
+    outline: none;
+  }
   .calendar-page h1,
   .calendar-page h2,
   .calendar-page h3 {
@@ -454,11 +470,6 @@
     flex-wrap: wrap;
     gap: 10px;
     margin: 0;
-  }
-  .calendar-page .explore-3d {
-    background: var(--stage-bg);
-    color: var(--stage-ink);
-    box-shadow: inset 0 0 0 1px var(--stage-line);
   }
 
   /* Plan cards */
@@ -758,18 +769,25 @@
   .save-bar .year-field input {
     max-width: 140px;
   }
-  .save-bar .year-field small {
-    grid-column: 1 / -1;
-    color: var(--color-ink-muted);
-    font-weight: 400;
-    line-height: 1.4;
+  .save-help {
+    margin: 0 0 -8px;
+    font-size: 0.8rem;
   }
   .save-bar .action-bar-actions .button {
     min-width: 0;
   }
   /* The tour measures its target once and scrolls to it; a stuck bar would drift out of the spotlight. */
-  html[data-tour-layout='active'] .save-bar.sticky {
+  html[data-tour-layout='active'] .save-bar.sticky,
+  /* At the larger text size the bar would cover too much of the screen, so it sits in the flow. */
+  html[data-text-size='larger'] .save-bar.sticky {
     position: static;
+  }
+  /* Focused controls scroll clear of the stuck bar (WCAG 2.2 SC 2.4.11): tab bar + bar offset + bar height + margin. */
+  html:not([data-text-size='larger']):has(.save-bar.sticky) {
+    --save-bar-h: 100px;
+    scroll-padding-bottom: calc(
+      var(--tabbar-h) + env(safe-area-inset-bottom) + 12px + var(--save-bar-h) + 16px
+    );
   }
 
   /* ---------- Deep-green 3D stage ---------- */
@@ -832,6 +850,7 @@
   }
   .field-stage .explorer-heading {
     display: flex;
+    flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
@@ -1175,10 +1194,6 @@
       background: var(--stage-bg);
       backdrop-filter: none;
     }
-    .action-bar.sticky {
-      background: var(--color-surface);
-      backdrop-filter: none;
-    }
   }
 
   /* ---------- Responsive ---------- */
@@ -1230,7 +1245,7 @@
     .field-stage .month-navigation {
       margin-left: 0;
     }
-    /* Compact one-row sticky bar: the year sits beside its label; the helper line stays for assistive tech. */
+    /* Compact sticky bar: the year sits beside its label, the button fills the row below. */
     .save-bar {
       gap: 8px;
       padding: 10px 14px;
@@ -1239,7 +1254,6 @@
       flex: 1 1 100%;
     }
     .save-bar .year-field {
-      position: relative;
       grid-template-columns: minmax(0, 1fr) 110px;
       max-width: none;
       font-size: 0.85rem;
@@ -1248,28 +1262,20 @@
       min-height: 44px;
       padding: 4px 10px;
     }
-    .save-bar .year-field small {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip: rect(0 0 0 0);
-      white-space: nowrap;
-    }
     .save-bar .action-bar-actions {
       flex: 1 1 100%;
     }
-    html:has(.save-bar) {
-      scroll-padding-bottom: calc(var(--tabbar-h) + 170px);
-    }
-    /* At the larger text size the bar would cover a third of a phone screen, so it sits in the flow. */
-    html[data-text-size='larger'] .save-bar.sticky {
-      position: static;
+    html:not([data-text-size='larger']):has(.save-bar.sticky) {
+      --save-bar-h: 124px;
     }
   }
+  /* Very narrow phones: the bar would cover too much, so it sits in the flow. */
   @media (max-width: 359px) {
     .save-bar.sticky {
       position: static;
+    }
+    html:not([data-text-size='larger']):has(.save-bar.sticky) {
+      scroll-padding-bottom: calc(var(--tabbar-h) + 120px);
     }
   }
   @media (max-width: 479px) {

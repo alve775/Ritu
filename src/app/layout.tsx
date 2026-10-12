@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import '@fontsource-variable/newsreader/opsz.css';
 import '@fontsource-variable/newsreader/opsz-italic.css';
@@ -35,6 +35,13 @@ export const metadata: Metadata = {
     apple: { url: '/icons/ritu-180.png', sizes: '180x180', type: 'image/png' },
   },
   appleWebApp: { capable: true, title: 'RITU', statusBarStyle: 'default' },
+};
+export const viewport: Viewport = {
+  colorScheme: 'light dark',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f4f5ef' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f1d17' },
+  ],
 };
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

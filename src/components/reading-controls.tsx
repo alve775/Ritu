@@ -4,6 +4,7 @@ import { Settings2 } from 'lucide-react';
 import { displayStore } from '../lib/display-store';
 import { usePlanner } from './planner-provider';
 import { Dialog } from './dialog';
+import { ThemeSwitch } from './ui/theme-switch';
 import { FarmAudio } from '../lib/farm-audio';
 import type { AudioStatus } from '../lib/farm-audio';
 
@@ -79,6 +80,7 @@ export function ReadingControls() {
               </label>
             ))}
           </fieldset>
+          <ThemeSwitch />
           <label className="setting-check">
             <input
               type="checkbox"

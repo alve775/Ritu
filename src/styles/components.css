@@ -1,2 +1,44 @@
 @layer components {
+  .segmented {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 4px;
+    border-radius: var(--radius-pill);
+    background: var(--color-soft);
+  }
+  .segmented label {
+    position: relative;
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    padding: 0 16px;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .segmented input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    margin: 0;
+    cursor: pointer;
+  }
+  .segmented label:has(input:checked) {
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+  .segmented label:has(input:focus-visible) {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+  .theme-switch {
+    border: 0;
+    margin: 0 0 16px;
+    padding: 0;
+  }
+  .theme-switch legend {
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
 }

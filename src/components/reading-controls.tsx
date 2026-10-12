@@ -57,9 +57,14 @@ export function ReadingControls() {
   };
   return (
     <>
-      <button className="button secondary reading-launch" onClick={() => setOpen(true)}>
-        <Settings2 size={20} />
-        {t('Reading & sound', 'পড়া ও শব্দ')}
+      <button
+        className="button secondary tool-button reading-launch"
+        aria-label={t('Reading & sound', 'পড়া ও শব্দ')}
+        title={t('Reading & sound', 'পড়া ও শব্দ')}
+        onClick={() => setOpen(true)}
+      >
+        <Settings2 size={20} aria-hidden="true" />
+        <span className="tool-label">{t('Reading & sound', 'পড়া ও শব্দ')}</span>
       </button>
       {open && (
         <Dialog

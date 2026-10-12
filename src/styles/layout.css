@@ -9,4 +9,316 @@
     color: var(--color-ink);
     font-family: var(--font-ui);
   }
+  .app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+  }
+  .sidebar,
+  .topbar,
+  .breadcrumb,
+  .preview-tag {
+    display: none;
+  }
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    background: color-mix(in srgb, var(--color-bg) 92%, transparent);
+    backdrop-filter: saturate(1.2) blur(10px);
+    border-bottom: 1px solid var(--color-line);
+  }
+  .app-header-inner {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 16px;
+    max-width: calc(var(--page-max) + 160px);
+    min-height: var(--header-h);
+    margin: 0 auto;
+    padding: 8px var(--gutter);
+  }
+  .brand {
+    display: inline-flex;
+    flex-shrink: 0;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border-radius: var(--radius-control);
+  }
+  .brand-chip {
+    display: inline-flex;
+    padding: 3px 8px;
+    border-radius: var(--radius-control);
+    background: var(--logo-chip);
+    box-shadow: var(--shadow-1);
+  }
+  .brand-logo {
+    display: block;
+    width: 104px;
+    height: 52px;
+    object-fit: cover;
+  }
+  .step-progress ol {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .step + .step::before {
+    content: '';
+    width: 28px;
+    margin: 0 6px;
+    border-top: 2px dashed var(--color-line);
+  }
+  .step {
+    display: flex;
+    align-items: center;
+  }
+  .step.done + .step::before,
+  .step.current::before {
+    border-top-color: color-mix(in srgb, var(--color-primary) 55%, transparent);
+  }
+  .step .nav-item:hover {
+    background: transparent;
+  }
+  .step .nav-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 6px;
+    border-radius: var(--radius-pill);
+    color: var(--color-ink-muted);
+    text-decoration: none;
+  }
+  .step .nav-text strong {
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .step-dot {
+    width: 10px;
+    height: 10px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+  }
+  .step.done .nav-item {
+    color: var(--color-primary);
+  }
+  .step.done .step-dot {
+    background: currentColor;
+  }
+  .step.current .nav-item {
+    color: var(--color-ink);
+  }
+  .step.current .step-dot {
+    border-color: var(--season-pre);
+    background: var(--season-pre);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--season-pre) 28%, transparent);
+  }
+  .header-tools {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+  .language-switch {
+    display: inline-flex;
+    border: 0;
+    gap: 2px;
+    padding: 3px;
+    border-radius: var(--radius-pill);
+    background: var(--color-soft);
+  }
+  .language-switch button {
+    min-width: 44px;
+    min-height: 40px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-ink);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .language-switch button[aria-pressed='true'] {
+    background: var(--color-surface-raised);
+    box-shadow: var(--shadow-1);
+  }
+  .main-content {
+    flex: 1;
+    width: 100%;
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: 32px var(--gutter) 48px;
+    outline: none;
+  }
+  .footer {
+    display: block;
+    padding: 0;
+    border-top: 1px solid var(--color-line);
+  }
+  .footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: 16px var(--gutter);
+    font-size: 0.8rem;
+    color: var(--color-ink-muted);
+  }
+  .save-indicator {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .save-indicator.unsaved {
+    color: var(--color-danger);
+  }
+  .preview-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-warn-bg);
+    color: var(--color-warn-ink);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .tab-bar {
+    display: none;
+  }
+  /* Phones and tablets: the steps move to a bottom tab bar, because the header cannot hold them. */
+  @media (max-width: 1023px) {
+    :root {
+      --tabbar-h: 68px;
+    }
+    .step-progress {
+      display: none;
+    }
+    .main-content {
+      padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 24px);
+    }
+    .footer {
+      padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+    }
+    .tab-bar {
+      position: fixed;
+      inset: auto 0 0;
+      z-index: var(--z-tabbar);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+      background: var(--color-surface-raised);
+      border-top: 1px solid var(--color-line);
+    }
+    .tab {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      min-height: 56px;
+      color: var(--color-ink-muted);
+      text-decoration: none;
+    }
+    .tab .nav-text strong {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    .tab.current {
+      color: var(--color-primary);
+    }
+    .tab.current::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      width: 28px;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--season-pre);
+    }
+  }
+  @media (max-width: 767px) {
+    :root {
+      --header-h: 56px;
+      --gutter: 16px;
+    }
+    .brand-logo {
+      width: 80px;
+      height: 40px;
+    }
+    .header-tools {
+      gap: 6px;
+    }
+    .main-content {
+      padding-top: 20px;
+    }
+  }
+  /* body sets overflow-wrap: anywhere, which lets flex items shrink to nothing. Keep header chrome on one line. */
+  .app-header .nav-text,
+  .app-header .tool-label,
+  .language-switch button {
+    white-space: nowrap;
+    overflow-wrap: normal;
+  }
+  .step-progress,
+  .header-tools,
+  .brand {
+    flex-shrink: 0;
+  }
+  /* Very narrow phones: compact the header so the tools stay on one line with the logo. */
+  @media (max-width: 359px) {
+    .app-header-inner {
+      gap: 8px;
+    }
+    .brand-logo {
+      width: 56px;
+      height: 28px;
+    }
+    .header-tools {
+      gap: 4px;
+    }
+    .language-switch {
+      padding: 2px;
+    }
+    .language-switch button {
+      padding: 0 6px;
+    }
+  }
+  /* Tour layout: legacy.css reserved room for the tour guide on the old .workspace. The new frame has no workspace, so it reserves the same room here. */
+  .app:has(.tour-dialog[open]) .app-header {
+    position: relative;
+  }
+  html[data-tour-layout='active'] .app {
+    padding-bottom: 60vh;
+  }
+  @media (min-width: 1200px) {
+    html[data-tour-layout='active'] .main-content,
+    html[data-tour-layout='active'] .footer {
+      width: calc(100% - 436px);
+      max-width: none;
+      margin: 0;
+    }
+    html[data-tour-layout='active'] .main-content {
+      padding-inline: 20px;
+    }
+    html[data-tour-layout='active'] .app-header {
+      margin-right: 436px;
+    }
+  }
 }

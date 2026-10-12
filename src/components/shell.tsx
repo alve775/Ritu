@@ -6,14 +6,12 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import {
-  ArrowUpRight,
   Check,
-  ChevronRight,
+  CircleAlert,
   CircleHelp,
   Earth,
   House,
   Layers3,
-  MapPin,
   Sprout,
   ClipboardCheck,
 } from 'lucide-react';
@@ -22,6 +20,8 @@ import { Dialog } from './dialog';
 import { TourGuide } from './tour-guide';
 import { ReadingControls } from './reading-controls';
 import { ResetDataControl } from './reset-data-control';
+import { StepProgress } from './ui/step-progress';
+import { BottomTabBar } from './ui/bottom-tab-bar';
 import { evidenceSources } from '../data/evidence';
 
 export function Shell({ children }: { children: ReactNode }) {
@@ -37,29 +37,26 @@ export function Shell({ children }: { children: ReactNode }) {
   } = usePlanner();
   const saved = farmSaved && demoSaved && journeySaved;
   const [modal, setModal] = useState<'about' | null>(null);
+  const stepPath = path === '/insights' ? '/plan' : path;
   const nav = [
     {
       href: '/farm',
       label: t('Your farm', 'আপনার জমি'),
-      detail: t('Start with what you know', 'জানা তথ্য দিয়ে শুরু করুন'),
       icon: House,
     },
     {
       href: '/crops',
       label: t('Crops', 'ফসল'),
-      detail: t('Choose from your matches', 'মেলা ফসল বাছুন'),
       icon: Sprout,
     },
     {
       href: '/plan',
       label: t('Calendar', 'ক্যালেন্ডার'),
-      detail: t('Compare assigned dates', 'নির্ধারিত সময় তুলনা'),
       icon: Layers3,
     },
     {
       href: '/track',
       label: t('Track', 'হিসাব'),
-      detail: t('Record your progress', 'কাজের তথ্য রাখুন'),
       icon: ClipboardCheck,
     },
   ];
@@ -68,63 +65,24 @@ export function Shell({ children }: { children: ReactNode }) {
       <a className="skip-link" href="#main">
         {t('Skip to content', 'মূল অংশে যান')}
       </a>
-      <aside className="sidebar" aria-label={t('Main navigation', 'মূল নেভিগেশন')}>
-        <Link className="brand" href="/" aria-label={t('Ritu home', 'ঋতু হোম')}>
-          <Image
-            className="brand-logo"
-            src={rituLogo}
-            alt="RITU · ঋতু"
-            sizes="180px"
-            loading="eager"
-          />
-        </Link>
-        <div className="sidebar-label">{t('YOUR SEASONAL PLAN', 'আপনার মৌসুমি পরিকল্পনা')}</div>
-        <nav className="nav-list">
-          {nav.map(({ href, label, detail, icon: Icon }, index) => (
-            <Link
-              key={href}
-              href={href}
-              className={`nav-item ${path === href ? 'active' : ''}`}
-              aria-current={path === href ? 'page' : undefined}
-            >
-              <span className="nav-icon">
-                <Icon size={19} />
-              </span>
-              <span className="nav-text">
-                <strong>{label}</strong>
-                <small>{detail}</small>
-              </span>
-              <span className="nav-number">0{index + 1}</span>
-            </Link>
-          ))}
-        </nav>
-        <div className="sidebar-bottom">
-          <div className="location">
-            <MapPin size={15} />
-            <span>{t('Made for Bangladesh', 'বাংলাদেশের জন্য')}</span>
-          </div>
-          <button className="text-button" onClick={() => setModal('about')}>
-            {t('About this preview', 'এই প্রিভিউ সম্পর্কে')}
-            <ArrowUpRight size={14} />
-          </button>
-          <span className="version">{t('CONCEPT PREVIEW · V0.1', 'ধারণামূলক প্রিভিউ · V0.1')}</span>
-        </div>
-      </aside>
-      <div className="workspace">
-        <header className="topbar">
-          <div className="breadcrumb">
-            <span>{t('Season planner', 'মৌসুমি পরিকল্পনা')}</span>
-            <ChevronRight size={13} />
-            <strong>{nav.find((n) => n.href === path)?.label ?? t('Ritu', 'ঋতু')}</strong>
-          </div>
-          <div className="topbar-actions">
+      <header className="app-header">
+        <div className="app-header-inner">
+          <Link className="brand" href="/" aria-label={t('Ritu home', 'ঋতু হোম')}>
+            <span className="brand-chip">
+              <Image
+                className="brand-logo"
+                src={rituLogo}
+                alt="RITU · ঋতু"
+                sizes="120px"
+                loading="eager"
+              />
+            </span>
+          </Link>
+          <StepProgress items={nav} path={stepPath} label={t('Main navigation', 'মূল নেভিগেশন')} />
+          <div className="header-tools">
             <TourGuide />
             <ReadingControls />
-            <span className="preview-tag">
-              <span />
-              {t('Illustrative preview', 'উদাহরণভিত্তিক প্রিভিউ')}
-            </span>
-            <div className="language-switch" aria-label={t('Language', 'ভাষা')}>
+            <div className="language-switch" role="group" aria-label={t('Language', 'ভাষা')}>
               <button onClick={() => setLanguage('en')} aria-pressed={language === 'en'}>
                 EN
               </button>
@@ -140,35 +98,32 @@ export function Shell({ children }: { children: ReactNode }) {
               <CircleHelp size={20} />
             </button>
           </div>
-        </header>
-        <main id="main" className="main-content" tabIndex={-1}>
-          {ready ? (
-            children
-          ) : (
-            <p role="status">{t('Loading your farm…', 'জমির তথ্য লোড হচ্ছে…')}</p>
-          )}
-        </main>
-        <footer className="footer">
-          <span>
-            <Sprout size={15} />
-            {t('Thoughtful choices. Season by season.', 'ভেবেচিন্তে সিদ্ধান্ত। মৌসুমে মৌসুমে।')}
-          </span>
-          <div>
-            <span className={`save-indicator ${saved ? '' : 'unsaved'}`}>
-              <Check size={13} />
-              {!ready
-                ? t('Loading your plan…', 'পরিকল্পনা লোড হচ্ছে…')
-                : saved
-                  ? t('Saved on this device', 'এই ডিভাইসে সংরক্ষিত')
-                  : t(
-                      'Storage unavailable — keep this tab open',
-                      'সংরক্ষণ সম্ভব নয় — এই ট্যাব খোলা রাখুন',
-                    )}
-            </span>
+        </div>
+      </header>
+      <main id="main" className="main-content" tabIndex={-1}>
+        {ready ? children : <p role="status">{t('Loading your farm…', 'জমির তথ্য লোড হচ্ছে…')}</p>}
+      </main>
+      <footer className="footer">
+        <div className="footer-inner">
+          <span className={`save-indicator ${saved ? '' : 'unsaved'}`}>
+            <Check size={16} aria-hidden="true" />
+            {!ready
+              ? t('Loading your plan…', 'পরিকল্পনা লোড হচ্ছে…')
+              : saved
+                ? t('Saved on this device', 'এই ডিভাইসে সংরক্ষিত')
+                : t(
+                    'Storage unavailable — keep this tab open',
+                    'সংরক্ষণ সম্ভব নয় — এই ট্যাব খোলা রাখুন',
+                  )}
             <ResetDataControl compact />
-          </div>
-        </footer>
-      </div>
+          </span>
+          <button className="preview-badge" onClick={() => setModal('about')}>
+            <CircleAlert size={16} aria-hidden="true" />
+            {t('Illustrative preview', 'উদাহরণভিত্তিক প্রিভিউ')}
+          </button>
+        </div>
+      </footer>
+      <BottomTabBar items={nav} path={stepPath} label={t('Main navigation', 'মূল নেভিগেশন')} />
       {modal === 'about' && (
         <Dialog
           title={t('A preview with a purpose.', 'উদ্দেশ্যপূর্ণ এক প্রিভিউ।')}

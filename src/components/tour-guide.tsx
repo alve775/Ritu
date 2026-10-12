@@ -111,11 +111,14 @@ export function TourGuide() {
   return (
     <>
       <button
-        className="button secondary tour-launch"
+        className="button secondary tool-button tour-launch"
         data-tour-launch
+        aria-label={t('Take a tour', 'পরিচিতি দেখুন')}
+        title={t('Take a tour', 'পরিচিতি দেখুন')}
         onClick={() => setChooser(true)}
       >
-        <Compass size={18} /> {t('Take a tour', 'পরিচিতি দেখুন')}
+        <Compass size={20} aria-hidden="true" />
+        <span className="tool-label">{t('Take a tour', 'পরিচিতি দেখুন')}</span>
       </button>
       {chooser && (
         <Dialog

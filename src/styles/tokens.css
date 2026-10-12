@@ -31,6 +31,7 @@
     --stage-muted: #b9c9bd;
     --stage-line: rgba(238, 240, 230, 0.14);
     --stage-accent: #f5c36b;
+    --stage-glow: #1d7a55;
     --logo-chip: #ffffff;
     --shadow-1: 0 1px 2px rgba(16, 36, 27, 0.05), 0 10px 26px rgba(16, 36, 27, 0.07);
     --shadow-2: 0 18px 48px rgba(16, 36, 27, 0.18);
@@ -81,6 +82,7 @@
       --season-win-text: #97b46c;
       --wheel-track: rgba(241, 237, 226, 0.08);
       --stage-bg: #0a2a1d;
+      --stage-glow: #1d5c42;
       --stage-ink: #f1ede2;
       --stage-muted: #b9c9bd;
       --logo-chip: #efe8d6;
@@ -115,6 +117,7 @@
     --season-win-text: #97b46c;
     --wheel-track: rgba(241, 237, 226, 0.08);
     --stage-bg: #0a2a1d;
+    --stage-glow: #1d5c42;
     --stage-ink: #f1ede2;
     --stage-muted: #b9c9bd;
     --logo-chip: #efe8d6;

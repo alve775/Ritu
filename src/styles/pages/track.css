@@ -111,7 +111,7 @@
     outline: 3px solid var(--color-focus);
     outline-offset: 2px;
   }
-  .stepper input:focus-visible {
+  .stepper label:has(input:focus-visible) input {
     outline: none;
   }
   .stepper label:has(input:disabled) {

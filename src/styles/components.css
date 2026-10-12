@@ -335,15 +335,15 @@
     font-weight: 600;
   }
   .season-chip.season-0 {
-    background: color-mix(in srgb, var(--season-pre) 14%, transparent);
+    background: color-mix(in srgb, var(--season-pre) 14%, var(--color-surface));
     color: var(--season-pre-text);
   }
   .season-chip.season-1 {
-    background: color-mix(in srgb, var(--season-mon) 14%, transparent);
+    background: color-mix(in srgb, var(--season-mon) 14%, var(--color-surface));
     color: var(--season-mon-text);
   }
   .season-chip.season-2 {
-    background: color-mix(in srgb, var(--season-win) 14%, transparent);
+    background: color-mix(in srgb, var(--season-win) 14%, var(--color-surface));
     color: var(--season-win-text);
   }
   .status-pill {
@@ -364,7 +364,7 @@
     color: var(--color-warn-ink);
   }
   .status-pill.conflict {
-    background: color-mix(in srgb, var(--color-danger) 12%, transparent);
+    background: color-mix(in srgb, var(--color-danger) 12%, var(--color-surface));
     color: var(--color-danger);
   }
   @media (max-width: 767px) {

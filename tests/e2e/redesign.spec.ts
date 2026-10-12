@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { chooseDefaultCrops } from './fixtures';
+import { chooseDefaultCrops, seedPlan } from './fixtures';
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('ritu-tour-v1', 'seen'));
@@ -123,4 +123,22 @@ test('season filters with no matching crops are disabled in the blocker state', 
   await expect(page.getByRole('button', { name: 'Winter', exact: true })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'All', exact: true })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Monsoon', exact: true })).toBeEnabled();
+});
+
+test('track wheel renders at zero and full progress without broken paths', async ({ page }) => {
+  await seedPlan(page);
+  await page.goto('/plan');
+  await page.getByRole('button', { name: 'Save calendar & track', exact: true }).click();
+  await expect(page).toHaveURL('/track');
+  const paths = () =>
+    page
+      .locator('.track-summary .year-wheel path')
+      .evaluateAll((els) => els.map((el) => el.getAttribute('d') ?? ''));
+  expect((await paths()).some((d) => /NaN|Infinity/.test(d))).toBe(false);
+  for (const crop of await page.locator('.tracking-crops > section').all()) {
+    await crop.getByRole('checkbox', { name: 'Planted' }).check();
+    await crop.getByRole('checkbox', { name: 'Harvested' }).check();
+  }
+  await expect(page.getByText(/6 \/ 6/)).toBeVisible();
+  expect((await paths()).some((d) => /NaN|Infinity/.test(d))).toBe(false);
 });

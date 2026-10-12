@@ -23,7 +23,9 @@ import { CalendarLegend, CalendarScrollHint, MonthHeader, Timeline } from './cal
 import { CropCatalogue } from './crop-catalogue';
 import { seasonCoverage } from '../domain/season-coverage';
 import { SeasonChip } from './ui/season-chip';
+import { seasonOfMonth } from '../domain/year-wheel';
 import type { SeasonIndex } from '../domain/year-wheel';
+import { YearWheel } from './ui/year-wheel';
 
 export function periodLabel(period: CropPeriod, language: 'en' | 'bn') {
   return `${months[language][period.start]} → ${months[language][period.start + period.duration - 1]}`;
@@ -418,17 +420,19 @@ export function TrackingView() {
       : null);
   if (!tracked)
     return (
-      <div className="page-enter calm-page">
-        <h1>{t('Save a calendar to begin tracking', 'কাজের হিসাবের আগে ক্যালেন্ডার রাখুন')}</h1>
-        <p>
-          {t(
-            'Choose a generated plan first. No planting or harvest is marked automatically.',
-            'আগে তৈরি পরিকল্পনা বাছুন। রোপণ বা কাটা নিজে থেকে চিহ্নিত হয় না।',
-          )}
-        </p>
-        <Link className="button primary" href="/plan">
-          {t('Review calendar options', 'ক্যালেন্ডারের বিকল্প দেখুন')}
-        </Link>
+      <div className="page track-page">
+        <section className="card track-empty">
+          <h1>{t('Save a calendar to begin tracking', 'কাজের হিসাবের আগে ক্যালেন্ডার রাখুন')}</h1>
+          <p>
+            {t(
+              'Choose a generated plan first. No planting or harvest is marked automatically.',
+              'আগে তৈরি পরিকল্পনা বাছুন। রোপণ বা কাটা নিজে থেকে চিহ্নিত হয় না।',
+            )}
+          </p>
+          <Link className="button primary" href="/plan">
+            {t('Review calendar options', 'ক্যালেন্ডারের বিকল্প দেখুন')}
+          </Link>
+        </section>
       </div>
     );
   const periods = tracked.rotation.periods.filter((p) => p.crop !== 'fallow');
@@ -438,12 +442,9 @@ export function TrackingView() {
   );
   const stale = tracked.fingerprint !== planFingerprint(farm, demo, priority);
   return (
-    <div className="page-enter calm-page">
-      <header className="planner-heading">
+    <div className="page track-page">
+      <header className="page-header planner-heading">
         <div>
-          <span className="eyebrow">
-            {t('STEP 4 OF 4 · KEEP TRACK', 'ধাপ ৪ / ৪ · কাজের হিসাব')}
-          </span>
           <h1>{t('Your saved calendar', 'আপনার রাখা ক্যালেন্ডার')}</h1>
           <p>
             {t(
@@ -456,25 +457,50 @@ export function TrackingView() {
           {t('Review calendar options', 'ক্যালেন্ডারের বিকল্প দেখুন')}
         </Link>
       </header>
-      <p className="evidence-banner">
+      <p className="notice-amber">
         {t(
           'Generated plan, farmer-entered progress. Completed tasks are not verified observations.',
           'পরিকল্পনা, নিজের কাজের হিসাব। কাজের চিহ্ন যাচাইকৃত পর্যবেক্ষণ নয়।',
         )}
       </p>
       {stale && !tourPreview && (
-        <p role="status" className="evidence-banner">
+        <p role="status" className="notice-amber">
           {t(
             'Your farm or crop choices changed. This is the saved snapshot; create and explicitly save a replacement to change its dates. Existing progress is retained.',
             'জমির তথ্য বা ফসলের পছন্দ বদলেছে। এটি আগে রাখা ক্রম; সময় বদলাতে নতুন ক্রম তৈরি করে রাখুন। আগের কাজের তথ্য থাকে।',
           )}
         </p>
       )}
-      <section className="form-card" data-tour="tracking-calendar">
-        <h2>{tracked.rotation.subtitle[language]}</h2>
-        <p>
-          {t('March', 'মার্চ')} {tracked.year} → {t('February', 'ফেব্রুয়ারি')} {tracked.year + 1}
-        </p>
+      <section className="card track-summary" data-tour="tracking-progress">
+        <YearWheel
+          periods={tracked.rotation.periods}
+          label={tracked.rotation.name[language]}
+          progress={Object.fromEntries(
+            Object.entries(tracked.records).map(([key, r]) => [
+              key,
+              (Number(r.planted) + Number(r.harvested)) / 2,
+            ]),
+          )}
+        />
+        <div className="track-summary-copy">
+          <h2>{tracked.rotation.subtitle[language]}</h2>
+          <p>
+            {t('March', 'মার্চ')} {tracked.year} → {t('February', 'ফেব্রুয়ারি')} {tracked.year + 1}
+          </p>
+          <h3>{t('Your recorded progress', 'আপনার কাজের হিসাব')}</h3>
+          <p>
+            {completed} / {periods.length * 2}{' '}
+            {t('planting and harvest tasks marked', 'রোপণ ও কাটার কাজ চিহ্নিত')}
+          </p>
+          <progress
+            value={completed}
+            max={periods.length * 2}
+            aria-label={t('Recorded task progress', 'চিহ্নিত কাজের অগ্রগতি')}
+          />
+        </div>
+      </section>
+      <section className="card form-card" data-tour="tracking-calendar">
+        <h2 className="sr-only">{tracked.rotation.subtitle[language]}</h2>
         <CalendarScrollHint />
         <div className="calendar-scroll">
           <div className="calendar-inner">
@@ -483,18 +509,6 @@ export function TrackingView() {
           </div>
         </div>
         <CalendarLegend />
-      </section>
-      <section className="tracking-progress" data-tour="tracking-progress">
-        <h2>{t('Your recorded progress', 'আপনার কাজের হিসাব')}</h2>
-        <p>
-          {completed} / {periods.length * 2}{' '}
-          {t('planting and harvest tasks marked', 'রোপণ ও কাটার কাজ চিহ্নিত')}
-        </p>
-        <progress
-          value={completed}
-          max={periods.length * 2}
-          aria-label={t('Recorded task progress', 'চিহ্নিত কাজের অগ্রগতি')}
-        />
       </section>
       <div className="tracking-crops" data-tour="tracking-crops">
         {periods.map((period) => {
@@ -508,12 +522,12 @@ export function TrackingView() {
               },
             });
           return (
-            <section className="form-card" key={key}>
+            <section className={`track-crop card season-${seasonOfMonth(period.start)}`} key={key}>
               <h2>{previewData.crops[period.crop].name[language]}</h2>
               <p>
                 {periodLabel(period, language)} · {t('Assigned dates', 'নির্ধারিত সময়')}
               </p>
-              <div className="tracking-actions">
+              <div className="tracking-actions stepper">
                 <label>
                   <input
                     type="checkbox"
@@ -543,6 +557,7 @@ export function TrackingView() {
                 {t('Notes', 'নোট')}
                 <textarea
                   maxLength={500}
+                  placeholder={t('+ Add a note', '+ নোট যোগ করুন')}
                   value={record.note}
                   onChange={(e) => update({ note: e.target.value })}
                 />
@@ -559,11 +574,11 @@ export function TrackingView() {
           )}
         </p>
       )}
-      <button className="button secondary" onClick={() => setReplace(true)}>
+      <button className="text-button danger" onClick={() => setReplace(true)}>
         {t('Clear saved calendar & progress', 'রাখা ক্যালেন্ডার ও কাজের তথ্য মুছুন')}
       </button>
       {replace && (
-        <div className="form-card">
+        <div className="card notice-amber">
           <p>
             {t(
               'Clear this saved calendar and every recorded task/note?',

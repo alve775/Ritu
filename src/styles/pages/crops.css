@@ -35,6 +35,7 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
   }
+  .crops-page > p,
   .crops-page :where(.page-header, .suggested-crop, .choice-panel, .catalogue-browser) p {
     color: var(--color-ink-muted);
   }

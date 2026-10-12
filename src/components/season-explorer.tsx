@@ -63,7 +63,7 @@ export function SeasonExplorer() {
   return (
     <section
       id="field"
-      className="season-explorer"
+      className="season-explorer field-stage"
       aria-label={t('Seasonal field explorer', 'মৌসুমি জমির দৃশ্য')}
     >
       <div className="explorer-heading">

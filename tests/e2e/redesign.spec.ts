@@ -62,7 +62,7 @@ test('tabbing through the farm form never hides the focused control behind the s
   expect(covered).toEqual([]);
 });
 
-test.fixme('the year wheel is keyboard operable and stays in sync with the calendar month', async ({
+test('the year wheel is keyboard operable and stays in sync with the calendar month', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });

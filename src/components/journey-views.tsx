@@ -100,9 +100,12 @@ export function SuggestedCropsView() {
   const coverage = seasonCoverage(suggestions, offered, preferred);
   const unavailable = [0, 1, 2].filter((season) => coverage[season] === 'unavailable');
   const unselected = [0, 1, 2].filter((season) => coverage[season] === 'missing');
+  // A season with no suggestions can't be filtered to; fall back to showing everything.
+  const activeFilter = filter !== 'all' && coverage[filter] === 'unavailable' ? 'all' : filter;
   const visible = choices.filter(
     (id) =>
-      filter === 'all' || suggestions.some((s) => s.period.crop === id && s.season === filter),
+      activeFilter === 'all' ||
+      suggestions.some((s) => s.period.crop === id && s.season === activeFilter),
   );
   const groupNames = {
     rice: t('rice', 'ধান'),
@@ -186,7 +189,8 @@ export function SuggestedCropsView() {
             key={value}
             type="button"
             className={`chip filter ${value === 'all' ? '' : `season-${value}`}`}
-            aria-pressed={filter === value}
+            aria-pressed={activeFilter === value}
+            disabled={value !== 'all' && coverage[value] === 'unavailable'}
             onClick={() => setFilter(value)}
           >
             {value === 'all' ? t('All', 'সব') : seasons[value]}
@@ -287,7 +291,7 @@ export function SuggestedCropsView() {
               ? t('A full calendar is not available yet', 'এখনো পূর্ণ ক্যালেন্ডার পাওয়া যাচ্ছে না')
               : t('Ready for your calendar?', 'ক্যালেন্ডারের জন্য প্রস্তুত?')}
           </h2>
-          <p role="status">
+          <p role="status" id="build-calendar-status">
             {unavailable.length
               ? t(
                   `No matching crop windows for: ${unavailable.map((i) => seasons[i]).join(', ')}.`,
@@ -355,6 +359,7 @@ export function SuggestedCropsView() {
           <button
             className="button primary"
             disabled={!candidates.length}
+            aria-describedby="build-calendar-status"
             onClick={() => {
               setDemo({ enabled: true, preferred });
               setJourney({ generatedFor: planFingerprint(farm, { ...demo, preferred }, priority) });

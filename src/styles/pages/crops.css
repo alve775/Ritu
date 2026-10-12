@@ -21,6 +21,10 @@
     color: var(--color-ink);
     cursor: pointer;
   }
+  .chip.filter:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
   .chip.filter[aria-pressed='true'] {
     background: var(--color-ink);
     color: var(--color-bg);
@@ -31,11 +35,19 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
   }
-  .crops-page p {
+  .crops-page :where(.page-header, .suggested-crop, .choice-panel, .catalogue-browser) p {
     color: var(--color-ink-muted);
   }
   .crops-page .notice-amber p {
     color: inherit;
+  }
+  /* The crop dialog renders inside the catalogue but in the top layer; legacy paints its text slate. */
+  .crops-page .crop-catalogue .dialog p {
+    color: var(--color-ink-muted);
+  }
+  .crops-page .crop-catalogue .dialog a {
+    color: var(--color-primary);
+    text-underline-offset: 3px;
   }
   .crops-page > * {
     min-width: 0;

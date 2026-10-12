@@ -81,3 +81,46 @@ test.fixme('the year wheel is keyboard operable and stays in sync with the calen
     .evaluate((el) => getComputedStyle(el).animationName);
   expect(animation).toBe('none');
 });
+
+test('the disabled Build button points to the status that explains it, and filters never change choices', async ({
+  page,
+}) => {
+  await page.goto('/farm');
+  await page.getByRole('button', { name: 'See suggested crops', exact: true }).click();
+  await page.getByRole('checkbox', { name: 'Consider Mung bean', exact: true }).check();
+  const checkboxes = page.getByRole('checkbox');
+  const states = () =>
+    checkboxes.evaluateAll((els) => els.map((el) => (el as HTMLInputElement).checked));
+  const before = await states();
+  expect(before.filter(Boolean).length).toBeGreaterThan(0);
+  const build = page.getByRole('button', { name: 'Build my calendar', exact: true });
+  await expect(build).toBeDisabled();
+  const describedBy = await build.getAttribute('aria-describedby');
+  expect(describedBy).toBeTruthy();
+  await expect(page.locator(`#${describedBy}`)).toContainText('Choose a suggested crop for:');
+  await page.getByRole('button', { name: 'Pre-monsoon', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Pre-monsoon', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await page.getByRole('button', { name: 'All', exact: true }).click();
+  expect(await states()).toEqual(before);
+});
+
+test('season filters with no matching crops are disabled in the blocker state', async ({
+  page,
+}) => {
+  await page.goto('/farm');
+  await page.getByRole('combobox', { name: 'Drainage', exact: true }).selectOption('poor');
+  await page.getByRole('button', { name: 'See suggested crops', exact: true }).click();
+  await page.getByRole('checkbox', { name: 'Consider Aman rice', exact: true }).check();
+  const build = page.getByRole('button', { name: 'Build my calendar', exact: true });
+  const describedBy = await build.getAttribute('aria-describedby');
+  await expect(page.locator(`#${describedBy}`)).toContainText(
+    'No matching crop windows for: Pre-monsoon, Winter.',
+  );
+  await expect(page.getByRole('button', { name: 'Pre-monsoon', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Winter', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'All', exact: true })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Monsoon', exact: true })).toBeEnabled();
+});

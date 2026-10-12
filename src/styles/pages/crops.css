@@ -1,2 +1,258 @@
 @layer pages {
+  .crops-page .suggestion-intro {
+    display: grid;
+    gap: 6px;
+  }
+  .crops-page .suggestion-intro h2 {
+    color: inherit;
+    font-size: 1.1rem;
+  }
+  .season-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip.filter {
+    min-height: 44px;
+    padding: 0 16px;
+    border: 0;
+    background: var(--color-surface);
+    box-shadow: inset 0 0 0 1.5px var(--color-line);
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+  .chip.filter[aria-pressed='true'] {
+    background: var(--color-ink);
+    color: var(--color-bg);
+    box-shadow: none;
+  }
+  .suggested-crops {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .crops-page p {
+    color: var(--color-ink-muted);
+  }
+  .crops-page .notice-amber p {
+    color: inherit;
+  }
+  .crops-page > * {
+    min-width: 0;
+    margin-block: 0;
+  }
+  .suggested-crop {
+    display: grid;
+    align-content: start;
+    gap: 10px;
+    min-width: 0;
+    margin: 0;
+    padding: 16px 18px;
+    border: 0;
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-1);
+  }
+  .suggested-crop.chosen {
+    padding: 16px 18px;
+    border: 0;
+    box-shadow:
+      inset 0 0 0 2px var(--color-primary),
+      var(--shadow-1);
+  }
+  .suggested-crop-choice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row-reverse;
+    gap: 12px;
+    min-height: 44px;
+    cursor: pointer;
+  }
+  .suggested-crop-choice input {
+    accent-color: var(--color-primary);
+  }
+  .suggested-crop-choice strong {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
+  .suggested-windows {
+    display: grid;
+    gap: 6px;
+  }
+  .suggested-crop details {
+    margin-top: 0;
+  }
+  .suggested-crop details summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    color: var(--color-ink-muted);
+    font-size: 0.8rem;
+    text-decoration: underline dotted;
+    cursor: pointer;
+  }
+  .crops-page .suggested-crop-lock {
+    margin: 0;
+    color: var(--color-warn-ink);
+    font-size: 0.8rem;
+  }
+  .crops-page .suggested-crop-added {
+    padding: 12px 16px;
+    border-radius: var(--radius-control);
+    background: var(--color-success-bg);
+    color: var(--color-success-ink);
+  }
+  .crops-page .choice-panel {
+    display: flex;
+    margin: 0;
+    border: 0;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 20px 22px;
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-1);
+  }
+  .crops-page .choice-panel h2 {
+    font-size: 1.3rem;
+  }
+  .crops-page .choice-panel p {
+    margin: 0;
+    font-size: 1rem;
+  }
+  .crops-page .choice-panel > div:first-child {
+    flex: 1 1 340px;
+    display: grid;
+    gap: 8px;
+  }
+  .crops-page .calendar-actions {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+  }
+  .year-tracker {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .tracker-label {
+    color: var(--color-ink-muted);
+  }
+  .tracker-slot {
+    padding: 4px 12px;
+    border-radius: var(--radius-pill);
+    box-shadow: inset 0 0 0 1.5px var(--color-line);
+    color: var(--color-ink-muted);
+  }
+  .tracker-slot.chosen.season-0 {
+    background: color-mix(in srgb, var(--season-pre) 14%, var(--color-surface));
+    color: var(--season-pre-text);
+    box-shadow: none;
+  }
+  .tracker-slot.chosen.season-1 {
+    background: color-mix(in srgb, var(--season-mon) 14%, var(--color-surface));
+    color: var(--season-mon-text);
+    box-shadow: none;
+  }
+  .tracker-slot.chosen.season-2 {
+    background: color-mix(in srgb, var(--season-win) 14%, var(--color-surface));
+    color: var(--season-win-text);
+    box-shadow: none;
+  }
+  .tracker-slot.unavailable {
+    text-decoration: line-through;
+  }
+  .crop-catalogue {
+    border-radius: var(--radius-card);
+  }
+  .catalogue-browser {
+    display: grid;
+    gap: 14px;
+  }
+  .catalogue-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin: 0;
+  }
+  .catalogue-controls label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+  .catalogue-controls label:has(> svg) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 8px;
+  }
+  .catalogue-controls label > input {
+    grid-column: 1 / -1;
+  }
+  .catalogue-results {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0;
+  }
+  .catalogue-crop {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 56px;
+    padding: 12px 16px;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-1);
+    color: var(--color-ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .catalogue-crop:hover {
+    background: var(--color-soft);
+  }
+  .catalogue-crop > svg {
+    flex-shrink: 0;
+    color: var(--color-primary);
+  }
+  .catalogue-crop > span {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .catalogue-crop span span {
+    color: var(--color-ink-muted);
+    font-size: 0.8rem;
+  }
+  @media (max-width: 1023px) {
+    .suggested-crops {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 767px) {
+    .suggested-crops {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 600px) {
+    .catalogue-controls,
+    .catalogue-results {
+      grid-template-columns: 1fr;
+    }
+  }
 }

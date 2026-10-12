@@ -21,6 +21,9 @@ import type { CropId, CropPeriod } from '../domain/types';
 import { activityKey } from '../lib/journey-store';
 import { CalendarLegend, CalendarScrollHint, MonthHeader, Timeline } from './calendar';
 import { CropCatalogue } from './crop-catalogue';
+import { seasonCoverage } from '../domain/season-coverage';
+import { SeasonChip } from './ui/season-chip';
+import type { SeasonIndex } from '../domain/year-wheel';
 
 export function periodLabel(period: CropPeriod, language: 'en' | 'bn') {
   return `${months[language][period.start]} → ${months[language][period.start + period.duration - 1]}`;
@@ -68,6 +71,7 @@ export function SuggestedCropsView() {
     demoSaved,
   } = usePlanner();
   const router = useRouter();
+  const [filter, setFilter] = useState<'all' | 0 | 1 | 2>('all');
   const sample = useMemo(() => ({ ...defaultDemo }), []);
   const sourceFarm = tourPreview ? defaultFarm : farm;
   const settings = tourPreview ? sample : demo;
@@ -93,11 +97,12 @@ export function SuggestedCropsView() {
   const choices = [...new Set(offered.map((s) => s.period.crop))];
   if (!reviewed && !tourPreview) return <JourneyGate />;
   const seasons = [t('Pre-monsoon', 'প্রাক্‌বর্ষা'), t('Monsoon', 'বর্ষা'), t('Winter', 'শীত')];
-  const unavailable = [0, 1, 2].filter((season) => !suggestions.some((s) => s.season === season));
-  const unselected = [0, 1, 2].filter(
-    (season) =>
-      !unavailable.includes(season) &&
-      !offered.some((s) => s.season === season && preferred.includes(s.period.crop)),
+  const coverage = seasonCoverage(suggestions, offered, preferred);
+  const unavailable = [0, 1, 2].filter((season) => coverage[season] === 'unavailable');
+  const unselected = [0, 1, 2].filter((season) => coverage[season] === 'missing');
+  const visible = choices.filter(
+    (id) =>
+      filter === 'all' || suggestions.some((s) => s.period.crop === id && s.season === filter),
   );
   const groupNames = {
     rice: t('rice', 'ধান'),
@@ -137,12 +142,9 @@ export function SuggestedCropsView() {
         );
   };
   return (
-    <div className="page-enter calm-page">
-      <header className="planner-heading">
+    <div className="page crops-page">
+      <header className="page-header planner-heading">
         <div>
-          <span className="eyebrow">
-            {t('STEP 2 OF 4 · SUGGESTED CROPS', 'ধাপ ২ / ৪ · প্রস্তাবিত ফসল')}
-          </span>
           <h1>{t('Choose from your farm’s matches', 'জমির সঙ্গে মেলা ফসল বাছুন')}</h1>
           <p>
             {t(
@@ -151,17 +153,19 @@ export function SuggestedCropsView() {
             )}
           </p>
         </div>
-        <Link className="button secondary" href="/farm">
-          {t('Edit farm', 'জমির তথ্য বদলান')}
-        </Link>
+        <div className="page-header-actions">
+          <Link className="button secondary" href="/farm">
+            {t('Edit farm', 'জমির তথ্য বদলান')}
+          </Link>
+        </div>
       </header>
-      <p className="evidence-banner">
-        {t(
-          'No real data API or verified farming recommendation.',
-          'বাস্তব API বা চাষের যাচাইকৃত পরামর্শ নয়।',
-        )}
-      </p>
-      <section className="suggestion-intro" data-tour="suggestion-summary">
+      <section className="suggestion-intro notice-amber" data-tour="suggestion-summary">
+        <p>
+          {t(
+            'No real data API or verified farming recommendation.',
+            'বাস্তব API বা চাষের যাচাইকৃত পরামর্শ নয়।',
+          )}
+        </p>
         <h2>{t('Matched to your conditions', 'আপনার শর্তের সঙ্গে মেলে')}</h2>
         <p>
           {t(
@@ -176,8 +180,21 @@ export function SuggestedCropsView() {
           )}
         </p>
       </section>
+      <div className="season-filter" role="group" aria-label={t('Season', 'মৌসুম')}>
+        {(['all', 0, 1, 2] as const).map((value) => (
+          <button
+            key={value}
+            type="button"
+            className={`chip filter ${value === 'all' ? '' : `season-${value}`}`}
+            aria-pressed={filter === value}
+            onClick={() => setFilter(value)}
+          >
+            {value === 'all' ? t('All', 'সব') : seasons[value]}
+          </button>
+        ))}
+      </div>
       <div className="suggested-crops" data-tour="suggested-crops">
-        {choices.map((id) => {
+        {visible.map((id) => {
           const windows = suggestions.filter((s) => s.period.crop === id);
           const best = windows.filter(
             (s, i) => windows.findIndex((w) => w.season === s.season) === i,
@@ -211,14 +228,16 @@ export function SuggestedCropsView() {
                   {reason}
                 </p>
               )}
-              <ul className="suggested-windows">
+              <div className="suggested-windows">
                 {best.map((s) => (
-                  <li key={s.season}>
-                    <span>{seasons[s.season]}</span>
-                    <strong>{periodLabel(s.period, language)}</strong>
-                  </li>
+                  <SeasonChip
+                    key={s.season}
+                    season={s.season as SeasonIndex}
+                    label={seasons[s.season]}
+                    range={periodLabel(s.period, language)}
+                  />
                 ))}
-              </ul>
+              </div>
               <details>
                 <summary>{t('Why suggested?', 'কেন প্রস্তাবিত?')}</summary>
                 <p>
@@ -254,6 +273,15 @@ export function SuggestedCropsView() {
       )}
       <section className="choice-panel" data-tour="build-calendar">
         <div>
+          <div className="year-tracker" aria-hidden="true">
+            <span className="tracker-label">{t('Your year', 'আপনার বছর')}</span>
+            {coverage.map((state, season) => (
+              <span key={season} className={`tracker-slot ${state} season-${season}`}>
+                {state === 'chosen' ? '✓ ' : state === 'missing' ? '+ ' : '– '}
+                {seasons[season]}
+              </span>
+            ))}
+          </div>
           <h2>
             {unavailable.length
               ? t('A full calendar is not available yet', 'এখনো পূর্ণ ক্যালেন্ডার পাওয়া যাচ্ছে না')

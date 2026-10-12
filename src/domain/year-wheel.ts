@@ -88,7 +88,8 @@ function labelArc(g: WheelGeometry, start: number, duration: number): string {
   const a0 = start * 30 + 2;
   const a1 = (start + duration) * 30 - 2;
   const mid = (a0 + a1) / 2;
-  const flipped = mid > 90 && mid < 270;
+  const m = ((mid % 360) + 360) % 360;
+  const flipped = m > 90 && m < 270;
   const sweep = Math.min(MAX_SWEEP, a1 - a0);
   const large = sweep > 180 ? 1 : 0;
   const r = flipped ? g.labelRadius + 6 : g.labelRadius;
@@ -112,7 +113,7 @@ export function wheelSegments(periods: CropPeriod[], g: WheelGeometry, gap = 1.5
     }));
 }
 
-/** A crop arc filled to `fraction` (0–1) of its length, for tracking progress. */
+/** A crop arc filled to `fraction` (0–1) of its visible length, for tracking progress. */
 export function progressSector(
   g: WheelGeometry,
   start: number,
@@ -122,7 +123,9 @@ export function progressSector(
 ): string | null {
   const f = Math.max(0, Math.min(1, fraction));
   if (f === 0) return null;
-  return ringSector(g.center, g.center, g.inner, g.outer, start, duration * f, gap);
+  // ringSector draws months·30 − 2·gap degrees, so pick the months value whose visible sweep is f of the full visible arc.
+  const months = (f * (duration * 30 - 2 * gap) + 2 * gap) / 30;
+  return ringSector(g.center, g.center, g.inner, g.outer, start, months, gap);
 }
 
 /** Invisible wedge spanning the ring and its labels: the ≥44px tap target for one month. */

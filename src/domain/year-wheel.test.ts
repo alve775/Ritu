@@ -49,6 +49,15 @@ describe('ringSector', () => {
     const path = ringSector(160, 160, 100, 130, 0, 12);
     expect(finite(path)).toBe(true);
     expect(path).toContain(' 0 1 1 ');
+    const [mx, my, ax, ay] = [...path.matchAll(/-?\d+(?:\.\d+)?/g)]
+      .map((m) => Number(m[0]))
+      .filter((_, i) => [0, 1, 7, 8].includes(i));
+    expect([mx, my]).not.toEqual([ax, ay]);
+  });
+  it('produces the exact path for a gapped two-month sector', () => {
+    expect(ringSector(160, 160, 100, 130, 0, 2, 1.5)).toBe(
+      'M 163.4 30.04 A 130 130 0 0 1 270.84 92.08 L 245.26 107.75 A 100 100 0 0 0 162.62 60.03 Z',
+    );
   });
 });
 
@@ -69,6 +78,10 @@ describe('wheelSegments', () => {
     expect(mung.labelPath).toContain(' 0 0 1 ');
     expect(aman.labelPath).toContain(' 0 0 0 ');
   });
+  it('flips the label of a period that wraps past February', () => {
+    const [wrap] = wheelSegments([{ crop: 'mung', start: 11, duration: 9 }], fullWheel);
+    expect(wrap.labelPath).toContain(' 0 1 0 ');
+  });
   it('handles a full-year rest, single-month crops, February starts and no periods', () => {
     expect(wheelSegments([{ crop: 'fallow', start: 0, duration: 12 }], miniWheel)).toHaveLength(1);
     const [feb] = wheelSegments([{ crop: 'mung', start: 11, duration: 1 }], fullWheel);
@@ -82,6 +95,13 @@ describe('progressSector', () => {
   it('is empty at 0 and covers the arc at 1', () => {
     expect(progressSector(fullWheel, 4, 4, 0)).toBeNull();
     expect(progressSector(fullWheel, 4, 4, 1)).toBe(ringSector(160, 160, 100, 130, 4, 4, 1.5));
+  });
+  it('fills a proportional share of the visible arc', () => {
+    const half = progressSector(fullWheel, 4, 4, 0.5);
+    expect(half).toBe(ringSector(160, 160, 100, 130, 4, (0.5 * (4 * 30 - 3) + 3) / 30, 1.5));
+    // 0.5 × (4·30 − 3)° = 58.5° of sweep, starting at 4·30 + 1.5 = 121.5°
+    const end = polar(160, 160, 130, 121.5 + 58.5);
+    expect(half).toContain(`A 130 130 0 0 1 ${end.x} ${end.y} `);
   });
   it('clamps out-of-range fractions', () => {
     expect(progressSector(fullWheel, 4, 4, 2)).toBe(progressSector(fullWheel, 4, 4, 1));

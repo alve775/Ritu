@@ -1,0 +1,12 @@
+@layer layout {
+  /* Legacy bridge: maps old variable names to the new type and colours. Removed with legacy.css in Task 13. */
+  :root {
+    --serif: var(--font-display);
+    --sans: var(--font-ui);
+  }
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-ui);
+  }
+}

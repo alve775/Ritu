@@ -263,10 +263,16 @@
     flex-wrap: wrap;
     gap: 12px;
   }
-  /* Dialogs stay centred on phones: crops.spec.ts asserts a centred dialog at most viewport-16px wide, so the brief's bottom-sheet layout is not used. */
   @media (max-width: 767px) {
     .dialog-body {
       padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
+    }
+    /* Reading & sound is a bottom sheet on phones. Other dialogs stay centred (crops.spec.ts asserts it). */
+    .reading-launch + .dialog {
+      width: 100vw;
+      max-width: 100vw;
+      margin: auto 0 0;
+      border-radius: var(--radius-card) var(--radius-card) 0 0;
     }
   }
   /* Header tool buttons: icon-only below 1280px, where the header runs out of room. Lives here so it can override .button. */
@@ -284,5 +290,10 @@
     .help-button {
       display: none;
     }
+  }
+  html[data-tour-layout='active'] .tool-button {
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
   }
 }

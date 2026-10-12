@@ -105,18 +105,20 @@ export function Shell({ children }: { children: ReactNode }) {
       </main>
       <footer className="footer">
         <div className="footer-inner">
-          <span className={`save-indicator ${saved ? '' : 'unsaved'}`}>
-            <Check size={16} aria-hidden="true" />
-            {!ready
-              ? t('Loading your plan…', 'পরিকল্পনা লোড হচ্ছে…')
-              : saved
-                ? t('Saved on this device', 'এই ডিভাইসে সংরক্ষিত')
-                : t(
-                    'Storage unavailable — keep this tab open',
-                    'সংরক্ষণ সম্ভব নয় — এই ট্যাব খোলা রাখুন',
-                  )}
+          <div className="footer-status">
+            <span className={`save-indicator ${saved ? '' : 'unsaved'}`}>
+              <Check size={16} aria-hidden="true" />
+              {!ready
+                ? t('Loading your plan…', 'পরিকল্পনা লোড হচ্ছে…')
+                : saved
+                  ? t('Saved on this device', 'এই ডিভাইসে সংরক্ষিত')
+                  : t(
+                      'Storage unavailable — keep this tab open',
+                      'সংরক্ষণ সম্ভব নয় — এই ট্যাব খোলা রাখুন',
+                    )}
+            </span>
             <ResetDataControl compact />
-          </span>
+          </div>
           <button className="preview-badge" onClick={() => setModal('about')}>
             <CircleAlert size={16} aria-hidden="true" />
             {t('Illustrative preview', 'উদাহরণভিত্তিক প্রিভিউ')}

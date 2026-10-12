@@ -41,6 +41,8 @@
   }
   .brand {
     display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     flex-shrink: 0;
     max-width: none;
     margin: 0;
@@ -101,6 +103,7 @@
     font-weight: 600;
   }
   .step-dot {
+    background: transparent;
     width: 10px;
     height: 10px;
     border: 2px solid currentColor;
@@ -136,7 +139,7 @@
   }
   .language-switch button {
     min-width: 44px;
-    min-height: 40px;
+    min-height: 44px;
     padding: 0 12px;
     border: 0;
     border-radius: var(--radius-pill);
@@ -174,6 +177,12 @@
     font-size: 0.8rem;
     color: var(--color-ink-muted);
   }
+  .footer-status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+  }
   .save-indicator {
     display: inline-flex;
     flex-wrap: wrap;
@@ -207,9 +216,6 @@
     }
     .step-progress {
       display: none;
-    }
-    .main-content {
-      padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 24px);
     }
     .footer {
       padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
@@ -264,6 +270,9 @@
     }
     .header-tools {
       gap: 6px;
+    }
+    .app-header-inner {
+      padding-block: 6px;
     }
     .main-content {
       padding-top: 20px;
@@ -320,5 +329,15 @@
     html[data-tour-layout='active'] .app-header {
       margin-right: 436px;
     }
+  }
+  /* legacy.css resets scroll-padding-top at 620px; keep room for the sticky header. */
+  @media (max-width: 620px) {
+    html {
+      scroll-padding-top: calc(var(--header-h) + 16px);
+    }
+  }
+  /* While the tour rail is open the header has less room, so the tools go icon-only. */
+  html[data-tour-layout='active'] .tool-label {
+    display: none;
   }
 }

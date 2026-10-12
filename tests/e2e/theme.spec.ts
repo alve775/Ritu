@@ -32,10 +32,35 @@ test('an invalid stored theme falls back to auto', async ({ page }) => {
   await page.addInitScript(() =>
     localStorage.setItem(
       'ritu-display-v1',
-      JSON.stringify({ text: 'comfortable', motion: true, sound: false, theme: 'neon' }),
+      JSON.stringify({ text: 'larger', motion: true, sound: false, theme: 'neon' }),
     ),
   );
   await page.goto('/farm');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await expect(page.locator('html')).toHaveAttribute('data-text-size', 'larger');
   await expect(page.locator('html')).not.toHaveAttribute('data-theme', /.+/);
+});
+
+test('a stored record without a theme key loads other preferences and uses auto', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem(
+      'ritu-display-v1',
+      JSON.stringify({ text: 'larger', motion: true, sound: false }),
+    ),
+  );
+  await page.goto('/farm');
+  await expect(page.locator('html')).toHaveAttribute('data-text-size', 'larger');
+  await expect(page.locator('html')).not.toHaveAttribute('data-theme', /.+/);
+});
+
+test('manual light overrides a dark system scheme', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.goto('/farm');
+  await page.getByRole('button', { name: 'Reading & sound' }).click();
+  await page.getByRole('radio', { name: 'Light', exact: true }).check();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  expect(await bodyBackground(page)).toBe('rgb(244, 245, 239)');
 });

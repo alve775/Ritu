@@ -38,6 +38,7 @@ export const metadata: Metadata = {
 };
 export const viewport: Viewport = {
   colorScheme: 'light dark',
+  // These hex values mirror --color-bg in src/styles/tokens.css (viewport metadata cannot read CSS variables).
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#f4f5ef' },
     { media: '(prefers-color-scheme: dark)', color: '#0f1d17' },

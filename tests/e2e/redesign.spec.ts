@@ -22,6 +22,46 @@ test('the app frame shows the logo, four steps and the tools', async ({ page }, 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
+test('tabbing through the farm form never hides the focused control behind the sticky bar', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/farm');
+  await expect(
+    page.getByRole('button', { name: 'See suggested crops', exact: true }),
+  ).toBeEnabled();
+  for (const summary of await page.locator('main details > summary').all()) await summary.click();
+  await page.evaluate(() => {
+    (document.activeElement as HTMLElement | null)?.blur();
+    window.scrollTo(0, 0);
+  });
+  const covered: string[] = [];
+  let visited = 0;
+  for (let i = 0; i < 70; i++) {
+    await page.keyboard.press('Tab');
+    const result = await page.evaluate(() => {
+      const el = document.activeElement as HTMLElement | null;
+      const bar = document.querySelector('.farm-bottom-cta');
+      if (!el || el === document.body || !bar || bar.contains(el)) return null;
+      // Radios and checkboxes are visually hidden inside their label tile.
+      const target = el.matches('input') ? (el.closest('label') ?? el) : el;
+      const a = target.getBoundingClientRect();
+      if (!a.width || !a.height) return null;
+      const b = bar.getBoundingClientRect();
+      const x = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+      const y = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+      const name = (el.getAttribute('aria-label') ?? el.textContent ?? el.tagName).trim();
+      return { ratio: (x * y) / (a.width * a.height), name: name.slice(0, 40) };
+    });
+    if (!result) continue;
+    visited++;
+    if (result.ratio > 0.5) covered.push(`${result.name} (${Math.round(result.ratio * 100)}%)`);
+  }
+  expect(visited).toBeGreaterThan(20);
+  expect(covered).toEqual([]);
+});
+
 test.fixme('the year wheel is keyboard operable and stays in sync with the calendar month', async ({
   page,
 }) => {

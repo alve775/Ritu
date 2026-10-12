@@ -86,8 +86,7 @@
   .water-options label:hover {
     transform: translateY(-1px);
   }
-  .water-options label strong,
-  .water-options label > span:first-of-type {
+  .water-options label strong {
     color: var(--color-ink);
     font-size: 0.9rem;
     font-weight: 600;
@@ -95,8 +94,9 @@
   .water-options label small {
     display: block;
     margin-top: 2px;
-    color: inherit;
+    color: var(--color-ink-muted);
     font-size: 0.8rem;
+    font-weight: 400;
     line-height: 1.4;
   }
   .water-options label svg {
@@ -119,9 +119,11 @@
     background: var(--color-primary);
     color: var(--color-on-primary);
   }
-  .water-options label.chosen strong,
-  .water-options label.chosen > span:first-of-type {
+  .water-options label.chosen strong {
     color: var(--color-on-primary);
+  }
+  .water-options label.chosen small {
+    color: color-mix(in srgb, var(--color-on-primary) 84%, transparent);
   }
   .water-options label:has(input:focus-visible) {
     outline: 3px solid var(--color-focus);
@@ -185,9 +187,28 @@
   }
 
   .farm-page .demo-environment > summary {
+    flex-wrap: wrap;
     justify-content: flex-start;
+    gap: 6px 10px;
+    padding-block: 10px;
+  }
+  .farm-page .demo-environment > summary > svg {
+    flex-shrink: 0;
+  }
+  .farm-page .demo-summary-label {
+    order: 1;
+    min-width: 0;
+  }
+  .farm-page .demo-summary-chip {
+    order: 2;
+    min-width: 0;
+    max-width: 100%;
+    background: var(--color-soft);
+    color: var(--color-ink-muted);
+    font-weight: 600;
   }
   .farm-page .demo-environment > summary::after {
+    order: 3;
     margin-left: auto;
   }
 
@@ -208,7 +229,12 @@
     font-size: 0.9rem;
   }
   .priority-control > label {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     margin-top: 0;
+    cursor: pointer;
     padding: 10px 12px;
     border: 0;
     border-radius: var(--radius-control);
@@ -237,32 +263,63 @@
     outline-offset: 2px;
   }
   .priority-control .priority-icon {
+    display: flex;
     color: var(--color-primary);
   }
   .priority-control strong {
+    display: block;
     font-weight: 600;
   }
   .priority-control small {
+    display: block;
+    margin-top: 2px;
     color: var(--color-ink-muted);
     font-size: 0.8rem;
+    line-height: 1.5;
   }
   .priority-control .priority-radio {
-    border-color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin-left: auto;
+    border: 1.5px solid var(--color-primary);
+    border-radius: 50%;
   }
   .priority-control .priority-radio > span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
     background: var(--color-primary);
   }
 
   /* Household */
   .household-control > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
     margin-top: 8px;
   }
   .household-control label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
     min-height: 44px;
     border: 0;
     border-radius: var(--radius-pill);
     background: var(--color-soft);
     color: var(--color-ink);
+  }
+  .household-control label:has(input:disabled) {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+  .household-control input {
+    margin: 0;
   }
   .household-control label.chosen {
     background: var(--color-primary);
@@ -341,15 +398,34 @@
     background: var(--color-soft);
   }
   .farm-page .demo-preferences {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
     margin: 0;
+    padding: 0;
+    list-style: none;
   }
   .farm-page .demo-preferences li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 100%;
+    padding: 4px 4px 4px 16px;
     min-height: 44px;
     border: 0;
     border-radius: var(--radius-pill);
     background: var(--color-soft);
   }
+  .farm-page .demo-preferences li > span {
+    overflow-wrap: anywhere;
+  }
   .farm-page .previous-crop-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
     border: 0;
     border-radius: 50%;
     background: transparent;
@@ -360,6 +436,10 @@
     color: var(--color-ink);
   }
   .farm-page .previous-crop-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
     margin-top: 0;
   }
   .farm-page .disclosure > section > label {
@@ -370,6 +450,9 @@
 
   /* Action bar */
   .farm-bottom-cta {
+    margin-top: 0;
+  }
+  .farm-bottom-cta .button {
     margin-top: 0;
   }
   .farm-bottom-cta .action-bar-status p {
@@ -411,11 +494,31 @@
     .farm-page .form-card {
       padding: 18px;
     }
-    .farm-bottom-cta {
-      display: flex;
+    .farm-page .farm-bottom-cta {
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      padding: 10px 14px;
+    }
+    .farm-page .farm-bottom-cta .action-bar-status {
+      flex: 0 0 auto;
+    }
+    .farm-page .farm-bottom-cta .action-bar-status:has(p) {
+      flex: 1 1 100%;
+    }
+    .farm-page .farm-bottom-cta .action-bar-actions {
+      flex: 1 1 200px;
+      width: auto;
+    }
+    .farm-page .farm-bottom-cta .action-bar-actions > * {
+      flex: 1 1 auto;
+      width: auto;
+    }
+    /* The long "confirm soil, drainage…" message would hide the fields above it; let it sit in the flow. */
+    .farm-page .farm-bottom-cta.sticky:has(.action-bar-status p) {
+      position: static;
     }
   }
-  @media (max-width: 480px) {
+  @media (max-width: 359px) {
     .water-options {
       grid-template-columns: minmax(0, 1fr);
     }

@@ -30,11 +30,9 @@
   .year-wheel .arc.season-2 {
     fill: var(--season-win);
   }
-  .year-wheel .segment.rest .arc {
-    fill-opacity: 1;
-  }
   .year-wheel .rest-stripe {
-    fill: var(--color-line);
+    fill: var(--color-ink-muted);
+    opacity: 0.45;
   }
   .year-wheel .arc.pending {
     opacity: 0.28;
@@ -107,14 +105,15 @@
   }
   @media (prefers-reduced-motion: no-preference) {
     html:not([data-motion='off']) .year-wheel.full .arc {
-      animation: wheel-in 480ms var(--ease-out) both;
+      transform-origin: center;
+      transform-box: view-box;
+      animation: wheel-in calc(var(--dur-enter) * 2) var(--ease-out) both;
     }
   }
   @keyframes wheel-in {
     from {
       opacity: 0;
       transform: scale(0.94);
-      transform-origin: center;
     }
   }
 }

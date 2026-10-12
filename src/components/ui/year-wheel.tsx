@@ -33,7 +33,7 @@ export function YearWheel({
   progress,
 }: YearWheelProps) {
   const { t, language } = usePlanner();
-  const id = useId().replace(/:/g, '');
+  const id = useId();
   const g = size === 'mini' ? miniWheel : fullWheel;
   const segments = wheelSegments(periods, g);
   const name = (crop: CropPeriod['crop']) => previewData.crops[crop].name[language];
@@ -64,6 +64,10 @@ export function YearWheel({
 
   const selected = month ?? null;
   const focus = selected === null ? null : cropAtMonth(periods, selected);
+  const marker =
+    selected === null
+      ? null
+      : monthLabelPoint({ ...g, monthRadius: (g.inner + g.outer) / 2 }, selected);
   const keyed = (m: number) => (event: KeyboardEvent<SVGPathElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
@@ -102,15 +106,19 @@ export function YearWheel({
           return (
             <g key={s.start} className={`segment ${s.kind}`}>
               <path
-                className={`arc season-${s.season} ${fraction !== null ? 'pending' : ''}`}
+                className={
+                  s.kind === 'rest'
+                    ? 'arc rest'
+                    : `arc season-${s.season} ${fraction !== null ? 'pending' : ''}`
+                }
                 d={s.path}
-                fill={s.kind === 'rest' ? `url(#rest-${id})` : undefined}
+                style={s.kind === 'rest' ? { fill: `url(#rest-${id})` } : undefined}
               />
               {filled && <path className={`arc season-${s.season}`} d={filled} />}
               {s.kind === 'crop' && (
                 <>
                   <path id={`label-${id}-${s.start}`} d={s.labelPath} fill="none" />
-                  <text className={`arc-label season-${s.season}`}>
+                  <text className={`arc-label season-${s.season}`} aria-hidden="true">
                     <textPath
                       href={`#label-${id}-${s.start}`}
                       startOffset="50%"
@@ -134,6 +142,7 @@ export function YearWheel({
               y={p.y}
               textAnchor="middle"
               dominantBaseline="middle"
+              aria-hidden="true"
             >
               {m}
             </text>
@@ -153,14 +162,7 @@ export function YearWheel({
               onKeyDown={keyed(index)}
             />
           ))}
-        {selected !== null && (
-          <circle
-            className="month-marker"
-            cx={monthLabelPoint({ ...g, monthRadius: (g.inner + g.outer) / 2 }, selected).x}
-            cy={monthLabelPoint({ ...g, monthRadius: (g.inner + g.outer) / 2 }, selected).y}
-            r="8"
-          />
-        )}
+        {marker && <circle className="month-marker" cx={marker.x} cy={marker.y} r="8" />}
       </svg>
       {selected !== null && (
         <figcaption className="wheel-center" aria-live="polite">

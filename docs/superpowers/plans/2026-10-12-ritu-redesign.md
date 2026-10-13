@@ -1,7 +1,5 @@
 # Ritu Golden Hour Redesign Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
-
 **Goal:** Restyle and simplify every Ritu page into the Golden Hour (light) and Deep Forest (dark) design. Every feature, string, route, store and the 3D field model keep working exactly as before.
 
 **Architecture:**
@@ -40,7 +38,7 @@ Every task's requirements include all of these:
 - **Motion:** only `transform` and `opacity` are animated, using `--dur-enter: 240ms`, `--dur-exit: 160ms`, `--dur-micro: 150ms` and `--ease-out`. Nothing animates when `prefers-reduced-motion: reduce` or `html[data-motion='off']`.
 - **Selectors:** every selector listed in spec §10.2 keeps resolving to an equivalent element. That covers test selectors, tour selectors, `data-tour` values and accessible names.
 - **Icons:** `lucide-react` only, with `strokeWidth` left at its default of 2. No emoji in the interface.
-- **Commits:** author is the local git user. **No** `Co-Authored-By` trailer, **no** "Generated with Claude Code" line, no AI attribution of any kind (repo memory: only Alve, Abid and Mahia are credited). Conventional, imperative subject lines.
+- **Commits:** author is the local git user. **No** `Co-Authored-By` trailer, **no** generated-by line, no AI co-author trailers or generated-by lines (only Alve, Abid and Mahia are credited). Conventional, imperative subject lines.
 - **Verification per task:** `npm run format` then `npm run lint`, `npm run typecheck`, `npm test` and `npm run build` must pass. Run `npm run test:browser` wherever the task says so. Playwright starts its own dev server on port 3000, so stop any other server on 3000 first, or let it reuse one started with `npm run dev`.
 
 ## Review Focus
@@ -97,12 +95,12 @@ The five input classes most likely to hurt a real user that no single feature te
 
 | Phase | Tasks | Parallel? |
 |---|---|---|
-| 1 Foundation | 1 → 2 → 3 | Sequential, one worker |
+| 1 Foundation | 1 → 2 → 3 | Sequential, one implementer |
 | 2 Shared pieces | 4 → 5; 6 | 4→5 sequential; 6 can run alongside 4/5 |
-| 3 Pages | 7 (Farm) · 8→9 (Crops then Track, same worker, both in `journey-views.tsx`) · 10 (Calendar) · 11 (Insights) | Four parallel workers in separate worktrees (`isolation: "worktree"`). Each touches only its listed files and its own `src/styles/pages/*.css`. **No JSX edits in `demo-planning.tsx`, `farm-controls.tsx` or `calendar.tsx`**: style them through CSS from the owning page file. |
+| 3 Pages | 7 (Farm) · 8→9 (Crops then Track, same worker, both in `journey-views.tsx`) · 10 (Calendar) · 11 (Insights) | Can be done in parallel on separate branches. Each touches only its listed files and its own `src/styles/pages/*.css`. **No JSX edits in `demo-planning.tsx`, `farm-controls.tsx` or `calendar.tsx`**: style them through CSS from the owning page file. |
 | 4 Finish | 12 → 13 → 14 | Sequential |
 
-The orchestrator (Opus 5.5) reviews each task's diff and reruns that task's verification before merging, plus the full suite at the end of each phase. Workers are Sonnet 5.5 at high effort.
+Each task's diff is reviewed and that task's verification rerun before merging, plus the full suite at the end of each phase.
 
 ---
 
@@ -2546,7 +2544,7 @@ Append inside `@layer components { … }` in `src/styles/components.css`:
 }
 ```
 
-Season-chip text sits on a 14% tint of its own season colour over the surface. The orchestrator checks these with the contrast script in Task 14; if any fail, the tint drops to 10%.
+Season-chip text sits on a 14% tint of its own season colour over the surface. The reviewer checks these with the contrast script in Task 14; if any fail, the tint drops to 10%.
 
 - [ ] **Step 7: Verify and commit**
 
@@ -3040,7 +3038,7 @@ git commit -m "Redesign the crops page with season filters, chips and the year t
 
 ### Task 9: Track page
 
-Run this task after Task 8, with the same worker in the same worktree, since both edit `journey-views.tsx`.
+Run this task after Task 8, by the same implementer on the same branch, since both edit `journey-views.tsx`.
 
 **Files:**
 - Modify: `src/components/journey-views.tsx` (`TrackingView`, from line 354 to the end)
@@ -3773,7 +3771,7 @@ Fill `src/styles/pages/insights.css` inside `@layer pages { … }`:
 }
 ```
 
-Read `demo-planning.tsx` (`DemoPlanReasons`) and port the remaining needed rules for `.demo-reasons`, `.demo-check`, `.demo-label` and `.demo-section-heading` from `legacy.css` into this file with tokens. The metric value is shown as text only: if `DemoPlanReasons` renders any bar with a background track, hide the track (`background: none`) and keep the fill as a short inline mark (taste-skill rule). Do not change `demo-planning.tsx` JSX.
+Read `demo-planning.tsx` (`DemoPlanReasons`) and port the remaining needed rules for `.demo-reasons`, `.demo-check`, `.demo-label` and `.demo-section-heading` from `legacy.css` into this file with tokens. The metric value is shown as text only: if `DemoPlanReasons` renders any bar with a background track, hide the track (`background: none`) and keep the fill as a short inline mark (design rule). Do not change `demo-planning.tsx` JSX.
 
 - [ ] **Step 3: Verify**
 

@@ -1,6 +1,6 @@
 # Ritu redesign: Golden Hour (light) and Deep Forest (dark)
 
-Date: 2026-10-12. Status: awaiting review. Mockups referenced below live in `.superpowers/brainstorm/` (local only, ignored by git).
+Date: 2026-10-12. Status: awaiting review. Mockups were produced during design review (not committed).
 
 ## 1. Goal and success criteria
 
@@ -23,7 +23,7 @@ Success means:
 | Scope | Restyle and simplify: new visual system plus reorganised pages. Same four-step flow; every feature still reachable. |
 | 3D model | Kept. Restyled into a deep-green "stage"; geometry, materials and controls unchanged. |
 | Logo | `public/website_logo.jpg` is unchanged. It is shown on a rounded chip (white in light theme, ivory `#efe8d6` in dark theme). No recolouring, cropping changes or replacement. |
-| Visual direction | **D · Golden Hour**, refined by the taste-skill and ui-ux-pro-max audits (Section 5). |
+| Visual direction | **D · Golden Hour**, refined by a design audit and an accessibility audit (Section 5). |
 | English type | **Newsreader** (display) + **Geist** (UI and body). |
 | Bangla | Copy and font stay as they are: **Noto Sans Bengali**, existing translations only. No decorative Bangla lines are added under English headlines. |
 | Dark mode | Shipped now. **A · Deep Forest**. Follows the system setting by default, with a manual Light / Dark / Auto switch. |
@@ -37,7 +37,7 @@ Success means:
 - Do not label example values as measured, forecast or validated.
 - The versioned storage keys stay. The display preference gains one field (Section 7.3) with backward-compatible parsing.
 - File ownership (`CONTRIBUTING.md`): colours, typography and art are Mahia's area. Share this spec with Mahia before merge.
-- Commits must not contain Claude attribution. Credit only the team (Alve, Abid, Mahia).
+- Commits must not contain AI co-author trailers or generated-by lines. Credit only the team (Alve, Abid, Mahia).
 
 ## 4. Out of scope
 
@@ -45,7 +45,7 @@ New landing page; changes to routes, data, domain logic, crop rules or storage k
 
 ## 5. Visual system
 
-### 5.1 Principles (from the taste-skill and ui-ux-pro-max audits)
+### 5.1 Principles (from the design and accessibility audits)
 
 1. One primary action per screen. Secondary actions are outlined or plain links.
 2. Colour carries meaning: the three season colours are data colours. Interface chrome stays neutral, and deep green is the only action colour.
@@ -95,7 +95,7 @@ Components use semantic tokens only, never raw hex. Each season colour has a **g
 
 ### 5.4 Contrast (measured)
 
-The audit script lives at `.superpowers/tools/contrast.py`; the implementation plan will move a copy into `scripts/`. With the tokens above, all 14 checked pairs pass in both themes:
+The audit lives in `src/styles/contrast.test.ts` (run by `npm test`). With the tokens above, all 14 checked pairs pass in both themes:
 
 - Light: body text 14.9, muted 5.8, button 7.7, season text 5.6 to 6.0, arcs 3.0 to 3.8.
 - Dark: body text 13.4, button 11.3, season text 5.8 or higher, arcs 4.7 or higher.
@@ -203,7 +203,7 @@ Existing caveat copy is reused verbatim. None is deleted without an equivalent v
 
 ## 8. Pages
 
-Mockups: `pages-farm-crops.html`, `page-calendar.html`, `pages-track-insights.html`, `dark-options.html` (in the brainstorm content folder). Where a mockup and this spec disagree, the spec wins. Mockups still show the eyebrows, which are removed per Section 5.1.
+Mockups: `pages-farm-crops.html`, `page-calendar.html`, `pages-track-insights.html`, `dark-options.html` (not committed). Where a mockup and this spec disagree, the spec wins. Mockups still show the eyebrows, which are removed per Section 5.1.
 
 ### 8.1 Farm (`/farm`)
 
@@ -242,7 +242,7 @@ Mockups: `pages-farm-crops.html`, `page-calendar.html`, `pages-track-insights.ht
 ### 8.5 Insights (`/insights`)
 
 - Heading "Know the why." (no italic) and subline; outlined "← Back to comparison".
-- Left card: plan name, sequence, status pill; "Why this plan?" with the existing "RULES · not farming advice" label; the three indices shown as **value plus a small inline mark with no background track** (taste skill); the existing explanatory sentence.
+- Left card: plan name, sequence, status pill; "Why this plan?" with the existing "RULES · not farming advice" label; the three indices shown as **value plus a small inline mark with no background track** (design rule); the existing explanatory sentence.
 - Right card: "Check this selection" as a status list (`StatusPill`s), with rows still expanding to show their reasons.
 - The seven planner checks in a compact grid.
 - "Ask a local agricultural adviser" banner on the stage colour with "Review my farm inputs →".
@@ -289,7 +289,7 @@ Existing strings are reused wherever possible.
 
 ### 10.4 Visual review
 
-Before/after screenshots of all five pages at 1440, 390 and 320px, in English and Bangla, in light and dark, reviewed by the orchestrator. The contrast script passes.
+Before/after screenshots of all five pages at 1440, 390 and 320px, in English and Bangla, in light and dark, reviewed by the team. The contrast test passes.
 
 ## 11. Delivery plan (summary; the detailed plan follows in writing-plans)
 
@@ -297,7 +297,7 @@ Before/after screenshots of all five pages at 1440, 390 and 320px, in English an
 |---|---|---|
 | 1 | Fonts, tokens and layered CSS skeleton, theme preference and ThemeSwitch, app frame (header, StepProgress, BottomTabBar, footer, restyled Reading & sound dialog) | Sequential |
 | 2 | Shared components: ActionBar, YearWheel, SeasonChip, StatusPill | Partly parallel |
-| 3 | Pages: Farm · Crops · Calendar and 3D stage · Track · Insights | Parallel (one worker each) |
+| 3 | Pages: Farm · Crops · Calendar and 3D stage · Track · Insights | Parallel (one implementer each) |
 | 4 | Tour, dialogs, 404/error restyle; selector and test updates; screenshot review | Sequential |
 
 The work happens on a feature branch, and nothing is merged to `main` without the team's review.
@@ -330,3 +330,6 @@ Where these amendments conflict with earlier sections, the amendments win.
 - The contrast audit lives in `src/styles/contrast.test.ts` (run by `npm test`), not in a `contrast.py` script.
 - §9's "Wheel / Months" strings were dropped; "Year wheel" (বছরের চক্র) was added instead.
 - §10.3's overflow matrix is implemented at 320px with the larger text size in both languages and both themes; wider widths are covered by the focus and frame tests.
+- The active step dot, tab indicator, tour spotlight/card/progress accents and the 404 border use `--season-pre` (amber) as the brand accent in both themes (deviation from §5.1 rule 2 and §5.2, which had the active step use `--color-accent`).
+- "Take a tour" keeps the compass icon (§7.1 mentioned Mati's face).
+- axe checks run in both themes (§10.3), covering /farm, /crops, /plan, /track and /insights.

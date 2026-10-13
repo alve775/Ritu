@@ -14,10 +14,10 @@ import {
   selectionStatus,
   viableCropSets,
 } from '../domain/demo-planner';
-import { previewData, months } from '../data/preview';
+import { previewData } from '../data/preview';
 import { defaultFarm } from '../data/preview';
 import { defaultDemo } from '../data/demo-environment';
-import type { CropId, CropPeriod } from '../domain/types';
+import type { CropId } from '../domain/types';
 import { activityKey } from '../lib/journey-store';
 import { CalendarLegend, CalendarScrollHint, MonthHeader, Timeline } from './calendar';
 import { CropCatalogue } from './crop-catalogue';
@@ -26,15 +26,13 @@ import { SeasonChip } from './ui/season-chip';
 import { seasonOfMonth } from '../domain/year-wheel';
 import type { SeasonIndex } from '../domain/year-wheel';
 import { YearWheel } from './ui/year-wheel';
+import { periodLabel } from '../lib/period-label';
 
-export function periodLabel(period: CropPeriod, language: 'en' | 'bn') {
-  if (period.duration === 1) return months[language][period.start];
-  return `${months[language][period.start]} → ${months[language][(period.start + period.duration - 1) % 12]}`;
-}
+export { periodLabel };
 export function JourneyGate({ step = 'farm' }: { step?: 'farm' | 'crops' }) {
   const { t } = usePlanner();
   return (
-    <section className="page-enter calm-page journey-gate">
+    <section className="journey-gate">
       <span className="eyebrow">
         {t('FOLLOW YOUR FARM PLAN', 'চাষের পরিকল্পনার ধাপ অনুসরণ করুন')}
       </span>

@@ -13,6 +13,7 @@ import {
 } from '../../domain/year-wheel';
 import type { CropPeriod } from '../../domain/types';
 import { activityKey } from '../../lib/journey-store';
+import { periodLabel } from '../../lib/period-label';
 import { usePlanner } from '../planner-provider';
 
 export interface YearWheelProps {
@@ -37,8 +38,7 @@ export function YearWheel({
   const g = size === 'mini' ? miniWheel : fullWheel;
   const segments = wheelSegments(periods, g);
   const name = (crop: CropPeriod['crop']) => previewData.crops[crop].name[language];
-  const range = (s: { start: number; duration: number }) =>
-    `${months[language][s.start]} → ${months[language][(s.start + s.duration - 1) % 12]}`;
+  const range = (s: { start: number; duration: number }) => periodLabel(s, language);
   const summary = segments
     .filter((s) => s.kind === 'crop')
     .map((s) => `${name(s.crop)} ${range(s)}`)

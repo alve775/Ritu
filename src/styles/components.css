@@ -466,7 +466,6 @@
     margin-top: 22px;
   }
   .planner-heading .button,
-  .page-heading .button,
   .explorer-heading > .button {
     flex-shrink: 0;
   }

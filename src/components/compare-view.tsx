@@ -147,7 +147,7 @@ export function CompareView() {
           </section>
         ))}
       </section>
-      <section className="understand" aria-label={selected.rotation.name[language]}>
+      <section className="understand">
         <div className="card wheel-card">
           <YearWheel
             periods={selected.rotation.periods}

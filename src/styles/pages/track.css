@@ -4,8 +4,7 @@
     margin-block: 0;
   }
   /* Bare paragraphs stay muted in both themes. */
-  .track-page p,
-  .track-page > p {
+  .track-page p {
     color: var(--color-ink-muted);
   }
   .track-page .notice-amber,

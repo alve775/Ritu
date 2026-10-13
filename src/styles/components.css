@@ -258,6 +258,35 @@
     justify-content: space-between;
     gap: 12px;
   }
+  .dialog p {
+    color: var(--color-ink-muted);
+  }
+  /* Legacy dialog bits (About): pale-green notice, slate eyebrow and footer text, green links. */
+  .dialog .eyebrow,
+  .dialog .dialog-footer {
+    color: var(--color-ink-muted);
+  }
+  .dialog .dialog-footer {
+    border-top-color: var(--color-line);
+  }
+  .dialog .notice {
+    margin-top: 6px;
+    padding: 16px;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: var(--color-soft);
+    color: var(--color-ink-muted);
+  }
+  .dialog .notice strong {
+    color: var(--color-ink);
+  }
+  .dialog .notice svg {
+    flex-shrink: 0;
+    color: var(--color-primary);
+  }
+  .dialog .model-references a {
+    color: var(--color-primary);
+  }
   .dialog .button-row {
     display: flex;
     flex-wrap: wrap;

@@ -103,6 +103,7 @@
     font-weight: 600;
   }
   .step-dot {
+    color: inherit;
     background: transparent;
     width: 10px;
     height: 10px;
@@ -328,6 +329,25 @@
     }
     html[data-tour-layout='active'] .app-header {
       margin-right: 436px;
+    }
+    /* The header only has viewport - 436px, so the steps shrink to dots. The names stay for assistive tech and the hit area stays 44px. */
+    html[data-tour-layout='active'] .step .nav-item {
+      position: relative;
+      justify-content: center;
+      min-width: 44px;
+      padding: 0;
+    }
+    html[data-tour-layout='active'] .step .nav-text {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    html[data-tour-layout='active'] .step + .step::before {
+      width: 12px;
+      margin: 0 2px;
     }
   }
   /* legacy.css resets scroll-padding-top at 620px; keep room for the sticky header. */

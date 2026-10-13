@@ -199,3 +199,41 @@ test('track wheel renders at zero and full progress without broken paths', async
   await expect(page.getByText(/6 \/ 6/)).toBeVisible();
   expect((await paths()).some((d) => /NaN|Infinity/.test(d))).toBe(false);
 });
+
+for (const theme of ['light', 'dark'] as const)
+  for (const language of ['en', 'bn'] as const)
+    test(`no overflow or clipping at 320px · ${language} · ${theme} · extra large`, async ({
+      page,
+    }) => {
+      await seedPlan(page);
+      await page.addInitScript(
+        ({ theme, language }) => {
+          localStorage.setItem(
+            'ritu-display-v1',
+            JSON.stringify({ text: 'larger', motion: false, sound: false, theme }),
+          );
+          const saved = JSON.parse(localStorage.getItem('ritu-preview-v1') ?? '{}');
+          localStorage.setItem('ritu-preview-v1', JSON.stringify({ ...saved, language }));
+        },
+        { theme, language },
+      );
+      await page.setViewportSize({ width: 320, height: 800 });
+      for (const route of ['/farm', '/crops', '/plan', '/insights']) {
+        await page.goto(route);
+        await page.evaluate(() => document.fonts.ready);
+        await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+        expect(
+          await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+          route,
+        ).toBe(true);
+        const clipped = await page
+          .locator('.nav-text strong, .button, .tool-button, .season-chip, .tracker-slot')
+          .evaluateAll((els) =>
+            els
+              .filter((el) => el.getBoundingClientRect().width > 0)
+              .filter((el) => el.scrollWidth > el.clientWidth + 1)
+              .map((el) => el.textContent),
+          );
+        expect(clipped, route).toEqual([]);
+      }
+    });

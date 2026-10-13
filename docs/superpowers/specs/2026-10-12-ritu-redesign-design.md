@@ -301,3 +301,27 @@ Before/after screenshots of all five pages at 1440, 390 and 320px, in English an
 | 4 | Tour, dialogs, 404/error restyle; selector and test updates; screenshot review | Sequential |
 
 Roles for this session: **Sonnet 5.5 (high effort)** workers implement each task from a written brief; **Opus 5.5** plans, reviews every diff and runs the verification in Section 10 before the next phase starts. The work happens on a feature branch, and nothing is merged to `main` without the team's review.
+
+## 13. Amendments during planning and implementation
+
+- No Wheel/Months switch: the YearWheel is shown alongside the months grid on Calendar and Track (tests require the grid visible).
+- Crops action panel stays in normal flow (not sticky).
+- Single CSS entry is `src/app/layout.tsx` importing ordered stylesheets; `globals.css` only declares the layer order.
+- Year-wheel crop names are curved text outside the ring in season text colours; month names sit inside; wheel month buttons are named "Year wheel: <Mon>" / "বছরের চক্র: <মাস>".
+- Layer order is `tokens, base, layout, components, pages` (a temporary `legacy` layer sat between base and layout during migration and was removed).
+- The tab bar (phone navigation) is used at 1023px and below (tablets included); StepProgress shows at 1024px and above. Tool-button labels are icon-only below 1280px and at the larger text size, so the header fits on one line at a 20/24px root.
+- The phone bottom sheet applies only to the Reading & sound dialog; other dialogs stay centred.
+- Footer: ResetDataControl sits beside the save indicator (not nested in it).
+- Farm: on phones the sticky action bar is one compact row; when it shows the "Confirm soil, drainage and irrigation…" message it is not sticky.
+- Calendar: "Explore 3D crops" and "Understand this choice" are secondary buttons; "Save calendar & track" is the only primary. The save bar is not sticky at the larger text size, and its helper text is a visible line linked via `aria-describedby`.
+- Calendar: the scenario simulator remains the existing disclosure (not a sheet opened from the bar); the water note, Model line and links sit with the choice summary; the explorer's month stepper keeps its component layout.
+- Crop bars and the crop-detail icon are coloured by the season of the crop window's start month.
+- 3D field: the renderer clear colour and the scene's floor plane colour changed to the stage green; field and crop model geometry, materials, lights and camera are unchanged.
+- New token `--stage-glow` (light `#1d7a55`, dark `#1d5c42`).
+- Insights: index values are shown as text only (no inline mark); the seven planner checks use a two-column grid on desktop.
+- Crops: season filter pills for seasons with no available windows are disabled; "Build my calendar" has `aria-describedby` pointing to the status message.
+- 404 page: the "PAGE NOT FOUND" eyebrow was removed (consistent with the no-eyebrow rule).
+- One-month periods display a single month (e.g. "Feb", not "Feb → Feb").
+- New string beyond §9: "Season" (মৌসুম), the crops filter group label.
+- Theme preference lives in the existing Reading & sound dialog (ThemeSwitch); `themeColor` follows the system scheme only (a manual theme does not change the browser chrome colour).
+- Bangla headings use weight 600 (Noto Sans Bengali is loaded at 400 and 600).

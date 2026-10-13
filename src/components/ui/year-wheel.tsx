@@ -150,17 +150,19 @@ export function YearWheel({
         })}
         {onSelectMonth &&
           months[language].map((m, index) => (
-            <path
-              key={`hit-${m}`}
-              className="month-hit"
-              d={monthHitPath(g, index)}
-              role="button"
-              tabIndex={0}
-              aria-label={`${t('Year wheel', 'বছরের চক্র')}: ${m}`}
-              aria-pressed={selected === index}
-              onClick={() => onSelectMonth(index)}
-              onKeyDown={keyed(index)}
-            />
+            <g key={`hit-${m}`}>
+              <path className="month-hit-halo" d={monthHitPath(g, index)} aria-hidden="true" />
+              <path
+                className="month-hit"
+                d={monthHitPath(g, index)}
+                role="button"
+                tabIndex={0}
+                aria-label={`${t('Year wheel', 'বছরের চক্র')}: ${m}`}
+                aria-pressed={selected === index}
+                onClick={() => onSelectMonth(index)}
+                onKeyDown={keyed(index)}
+              />
+            </g>
           ))}
         {marker && <circle className="month-marker" cx={marker.x} cy={marker.y} r="8" />}
       </svg>

@@ -205,20 +205,25 @@
   }
   /* Phones and tablets: the steps move to a bottom tab bar, because the header cannot hold them. */
   @media (max-width: 1023px) {
-    /* Measured tab bar heights: labels wrap to two lines on 320px phones, in Bangla and at Extra large. */
+    /* Measured tab bar heights. Labels wrap to two lines below these widths:
+       Bangla 355px, Extra large English 363px, Extra large Bangla 424px. */
     :root {
       --tabbar-h: 69px;
     }
-    @media (max-width: 359px) {
+    @media (max-width: 355px) {
       html:lang(bn) {
         --tabbar-h: 84px;
       }
+    }
+    @media (max-width: 363px) {
       html[data-text-size='larger'] {
         --tabbar-h: 93px;
       }
     }
-    html[data-text-size='larger']:lang(bn) {
-      --tabbar-h: 93px;
+    @media (max-width: 424px) {
+      html[data-text-size='larger']:lang(bn) {
+        --tabbar-h: 93px;
+      }
     }
     .step-progress {
       display: none;

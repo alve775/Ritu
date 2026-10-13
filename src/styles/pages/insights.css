@@ -8,8 +8,7 @@
     margin-block: 0;
   }
   /* Legacy paints bare paragraphs slate; keep them readable in both themes. */
-  .insights-page p,
-  .insights-page > p {
+  .insights-page p {
     color: var(--color-ink-muted);
   }
   .insights-page .page-header {
@@ -23,13 +22,13 @@
   }
 
   /* Option switcher */
-  .option-tabs {
+  .insights-page .option-tabs {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
     margin: 0;
   }
-  .option-tabs button {
+  .insights-page .option-tabs button {
     min-height: 44px;
     padding: 0 16px;
     border: 0;
@@ -41,34 +40,34 @@
     font-weight: 600;
     cursor: pointer;
   }
-  .option-tabs button[aria-pressed='true'] {
+  .insights-page .option-tabs button[aria-pressed='true'] {
     background: var(--color-ink);
     color: var(--color-bg);
     box-shadow: none;
   }
 
   /* Summary, reasons and checks */
-  .insights-grid {
+  .insights-page .insights-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
     gap: 16px;
     align-items: start;
   }
-  .insights-grid > * {
+  .insights-page .insights-grid > * {
     min-width: 0;
     margin: 0;
   }
-  .insights-grid > :first-child,
-  .insights-grid > .demo-reasons {
+  .insights-page .insights-grid > :first-child,
+  .insights-page .insights-grid > .demo-reasons {
     grid-column: 1;
   }
-  .insights-grid > .checks-card {
+  .insights-page .insights-grid > .checks-card {
     grid-column: 2;
     grid-row: 1 / span 2;
   }
-  .insight-summary,
-  .checks-card,
-  .demo-reasons {
+  .insights-page .insight-summary,
+  .insights-page .checks-card,
+  .insights-page .demo-reasons {
     display: block;
     padding: 20px 22px;
     border: 0;
@@ -76,33 +75,33 @@
     background: var(--color-surface);
     box-shadow: var(--shadow-1);
   }
-  .insight-summary h2 {
+  .insights-page .insight-summary h2 {
     margin: 0;
     font-size: 1.6rem;
   }
-  .insight-summary p {
+  .insights-page .insight-summary p {
     margin: 8px 0 14px;
     font-size: 1rem;
   }
-  .insight-summary-copy {
+  .insights-page .insight-summary-copy {
     width: 100%;
   }
-  .checks-card > h2 {
+  .insights-page .checks-card > h2 {
     font-size: 1.3rem;
   }
-  .checks-card > p {
+  .insights-page .checks-card > p {
     margin: 8px 0 12px;
     font-size: 1rem;
   }
 
   /* Check rows (details) */
-  .check-row {
+  .insights-page .check-row {
     display: block;
     padding: 0;
     border: 0;
   }
-  .check-row > summary,
-  .demo-check > summary {
+  .insights-page .check-row > summary,
+  .insights-page .demo-check > summary {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -115,22 +114,22 @@
     cursor: pointer;
     list-style: none;
   }
-  .check-row > summary::-webkit-details-marker,
-  .demo-check > summary::-webkit-details-marker {
+  .insights-page .check-row > summary::-webkit-details-marker,
+  .insights-page .demo-check > summary::-webkit-details-marker {
     display: none;
   }
-  .check-row > summary strong {
+  .insights-page .check-row > summary strong {
     flex: 1 1 8rem;
     min-width: 0;
     font-size: 1rem;
     font-weight: 600;
   }
-  .check-row > summary .status-pill {
+  .insights-page .check-row > summary .status-pill {
     flex-shrink: 0;
     white-space: normal;
   }
-  .check-row > summary::after,
-  .demo-check > summary::after {
+  .insights-page .check-row > summary::after,
+  .insights-page .demo-check > summary::after {
     content: '';
     width: 9px;
     height: 9px;
@@ -141,36 +140,35 @@
     transform: rotate(45deg) translateY(-3px);
     transition: transform var(--dur-micro) var(--ease-out);
   }
-  .check-row[open] > summary::after,
-  .demo-check[open] > summary::after {
-    content: '';
+  .insights-page .check-row[open] > summary::after,
+  .insights-page .demo-check[open] > summary::after {
     transform: rotate(225deg) translateY(-3px);
   }
-  .check-row > summary:focus-visible,
-  .demo-check > summary:focus-visible {
+  .insights-page .check-row > summary:focus-visible,
+  .insights-page .demo-check > summary:focus-visible {
     outline-offset: 2px;
     border-radius: var(--radius-control);
   }
-  .check-row > p {
+  .insights-page .check-row > p {
     margin: 0;
     padding: 12px 0 14px;
     font-size: 1rem;
   }
 
   /* Rules and metrics */
-  .demo-reasons {
+  .insights-page .demo-reasons {
     display: grid;
     gap: 12px;
   }
-  .demo-reasons > * {
+  .insights-page .demo-reasons > * {
     margin-block: 0;
     min-width: 0;
   }
-  .demo-section-heading h2 {
+  .insights-page .demo-section-heading h2 {
     font-family: var(--font-display);
     font-size: 1.3rem;
   }
-  .demo-label {
+  .insights-page .demo-label {
     padding: 8px 14px;
     border: 0;
     border-radius: var(--radius-control);
@@ -179,27 +177,27 @@
     font-size: 0.8rem;
     font-weight: 600;
   }
-  .demo-reasons p:not(.demo-label) {
+  .insights-page .demo-reasons p:not(.demo-label) {
     font-size: 1rem;
   }
-  .demo-metrics {
+  .insights-page .demo-metrics {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
     margin: 0;
   }
-  .demo-metrics > * {
+  .insights-page .demo-metrics > * {
     min-width: 0;
     padding: 12px 14px;
     border: 0;
     border-radius: var(--radius-control);
     background: var(--color-soft);
   }
-  .demo-metrics dt {
+  .insights-page .demo-metrics dt {
     color: var(--color-ink-muted);
     font-size: 0.8rem;
   }
-  .demo-metrics dd {
+  .insights-page .demo-metrics dd {
     margin: 6px 0 0;
     color: var(--color-ink);
     font-family: var(--font-display);
@@ -207,26 +205,26 @@
     font-weight: 500;
     line-height: 1.2;
   }
-  .demo-check {
+  .insights-page .demo-check {
     padding-block: 0;
     border-top: 0;
   }
-  .demo-check > summary strong {
+  .insights-page .demo-check > summary strong {
     flex: 1 1 8rem;
     min-width: 0;
   }
-  .demo-check > summary span {
+  .insights-page .demo-check > summary span {
     color: var(--color-ink-muted);
     font-size: 0.8rem;
     font-weight: 600;
   }
-  .demo-check > p {
+  .insights-page .demo-check > p {
     margin: 0;
     padding: 12px 0 14px;
   }
 
   /* Adviser banner on the deep-green stage */
-  .adviser-banner {
+  .insights-page .adviser-banner {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -239,80 +237,80 @@
     background: var(--stage-bg);
     color: var(--stage-ink);
   }
-  .adviser-banner h2 {
+  .insights-page .adviser-banner h2 {
     color: var(--stage-ink);
     font-size: 1.3rem;
   }
-  .adviser-banner p,
+  .insights-page .adviser-banner p,
   .insights-page .adviser-banner p {
     margin: 8px 0 0;
     color: var(--stage-muted);
     font-size: 1rem;
   }
-  .adviser-banner .button.primary {
+  .insights-page .adviser-banner .button.primary {
     background: var(--stage-ink);
     color: var(--stage-bg);
   }
-  .adviser-banner .button:focus-visible {
+  .insights-page .adviser-banner .button:focus-visible {
     outline-color: var(--stage-accent);
   }
 
   /* Optional detail disclosures */
-  .insights-more {
+  .insights-page .insights-more {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
     align-items: start;
   }
-  .insights-more > * {
+  .insights-page .insights-more > * {
     min-width: 0;
     margin: 0;
   }
-  .insights-more .disclosure > summary {
+  .insights-page .insights-more .disclosure > summary {
     border-radius: var(--radius-card);
     color: var(--color-ink);
     font-size: 1rem;
   }
-  .insights-more .disclosure > summary:hover {
+  .insights-page .insights-more .disclosure > summary:hover {
     background: var(--color-soft);
   }
-  .insights-more .disclosure > summary:focus-visible {
+  .insights-page .insights-more .disclosure > summary:focus-visible {
     outline: 3px solid var(--color-focus);
     outline-offset: -3px;
   }
-  .insights-more .disclosure[open] > summary {
+  .insights-page .insights-more .disclosure[open] > summary {
     border-bottom: 0;
   }
-  .insights-more .disclosure > :not(summary, dialog) {
+  .insights-page .insights-more .disclosure > :not(summary, dialog) {
     padding: 0;
   }
-  .insights-more .disclosure .checks-card,
-  .insights-more .disclosure .tradeoffs-card,
-  .insights-more .disclosure .form-card {
+  .insights-page .insights-more .disclosure .checks-card,
+  .insights-page .insights-more .disclosure .tradeoffs-card,
+  .insights-page .insights-more .disclosure .form-card {
     padding: 0;
     border-radius: 0;
     background: transparent;
     box-shadow: none;
   }
-  .insights-more .disclosure h2 {
+  .insights-page .insights-more .disclosure h2 {
     font-size: 1.3rem;
   }
-  .insights-more .disclosure .missing-card > h2 {
+  .insights-page .insights-more .disclosure .missing-card > h2 {
     margin: 0 0 12px;
   }
-  .insights-more .insight-calendar {
+  .insights-page .insights-more .insight-calendar {
     margin-top: 0;
   }
-  .insights-more .disclosure[open]:has(.insight-calendar) {
+  .insights-page .insights-more .disclosure[open]:has(.insight-calendar) {
     grid-column: 1 / -1;
   }
-  .tradeoff-grid {
+  .insights-page .tradeoff-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 10px;
     margin-top: 14px;
   }
-  .tradeoff-grid > div {
+  .insights-page .tradeoff-grid > div {
     display: grid;
     gap: 4px;
     padding: 12px 14px;
@@ -320,41 +318,38 @@
     border-radius: var(--radius-control);
     background: var(--color-soft);
   }
-  .tradeoff-grid > div:first-child {
-    padding: 12px 14px;
-  }
-  .tradeoff-grid small,
-  .tradeoff-grid span {
+  .insights-page .tradeoff-grid small,
+  .insights-page .tradeoff-grid span {
     color: var(--color-ink-muted);
     font-size: 0.8rem;
     line-height: 1.5;
   }
-  .tradeoff-grid strong {
+  .insights-page .tradeoff-grid strong {
     margin: 0;
     color: var(--color-ink);
     font-family: var(--font-display);
     font-size: 1.3rem;
     font-weight: 500;
   }
-  .evidence-list {
+  .insights-page .evidence-list {
     display: grid;
     gap: 14px;
     margin: 0 0 14px;
     padding-left: 22px;
     color: var(--color-ink);
   }
-  .evidence-list p {
+  .insights-page .evidence-list p {
     margin-top: 4px;
     font-size: 1rem;
   }
-  .model-references {
+  .insights-page .model-references {
     display: grid;
     gap: 10px;
     margin: 12px 0 0;
     padding-left: 22px;
     color: var(--color-ink);
   }
-  .model-references a {
+  .insights-page .model-references a {
     display: block;
     width: fit-content;
     max-width: 100%;
@@ -364,7 +359,7 @@
     text-decoration: underline;
     text-underline-offset: 3px;
   }
-  .choice-confirmation,
+  .insights-page .choice-confirmation,
   .insights-page > .choice-confirmation {
     margin: 0;
     padding: 14px 16px;
@@ -377,21 +372,35 @@
     justify-self: start;
   }
 
+  /* Seven planner checks in a compact two-column grid */
+  @media (min-width: 1024px) {
+    .insights-page .demo-reasons {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+      column-gap: 20px;
+    }
+    .insights-page .demo-reasons > * {
+      grid-column: 1 / -1;
+    }
+    .insights-page .demo-reasons > .demo-check {
+      grid-column: auto;
+    }
+  }
   @media (max-width: 1023px) {
-    .insights-grid,
-    .insights-more {
+    .insights-page .insights-grid,
+    .insights-page .insights-more {
       grid-template-columns: 1fr;
     }
-    .insights-grid > .checks-card {
+    .insights-page .insights-grid > .checks-card {
       grid-column: 1;
       grid-row: auto;
     }
   }
   @media (max-width: 767px) {
-    .demo-metrics {
+    .insights-page .demo-metrics {
       grid-template-columns: 1fr;
     }
-    .adviser-banner .button {
+    .insights-page .adviser-banner .button {
       width: 100%;
     }
   }

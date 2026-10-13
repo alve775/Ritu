@@ -196,6 +196,10 @@
   .nav-text {
     min-width: 0;
   }
+  .nav-text strong {
+    display: block;
+    line-height: 1.45;
+  }
   .tab-bar {
     display: none;
   }

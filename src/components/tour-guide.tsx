@@ -602,7 +602,7 @@ function TourOverlay({
             aria-valuemin={1}
             aria-valuemax={steps.length}
           >
-            <span style={{ width: `${((index + 1) / steps.length) * 100}%` }} />
+            <span style={{ transform: `scaleX(${(index + 1) / steps.length})` }} />
           </div>
           <p className="tour-step-number">
             {t(`Step ${index + 1} of ${steps.length}`, `ধাপ ${index + 1} / ${steps.length}`)}

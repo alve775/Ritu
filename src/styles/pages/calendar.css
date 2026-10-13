@@ -717,37 +717,117 @@
     margin: 0;
   }
 
-  /* Scenario simulator (legacy markup, themed here) */
-  .calendar-page .demo-simulator .demo-section-heading h2 {
+  /* Scenario simulator: the existing disclosure, restyled with tokens (Ruling 23). */
+  .demo-simulator {
+    scroll-margin-top: calc(var(--header-h) + 16px);
+  }
+  .demo-simulator > summary {
+    font-size: 1rem;
+  }
+  .demo-simulator[open] > summary {
+    padding-bottom: 12px;
+  }
+  .demo-simulator .demo-section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .demo-simulator .demo-section-heading h2 {
     font-family: var(--font-display);
     font-size: 1.3rem;
   }
-  .calendar-page .demo-simulator .demo-label {
+  .demo-simulator .demo-section-heading .icon-button {
+    flex-shrink: 0;
+  }
+  .demo-simulator .demo-label {
+    margin-block: 16px;
+    padding: 10px 14px;
     border-left: 3px solid var(--color-primary);
     border-radius: 0 var(--radius-control) var(--radius-control) 0;
     background: var(--color-soft);
     color: var(--color-ink-muted);
     font-size: 0.9rem;
+    font-weight: 600;
   }
-  .calendar-page .demo-simulator .demo-controls label {
+  .demo-simulator .demo-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    align-items: end;
+    gap: 20px;
+    margin-block: 20px;
+  }
+  .demo-simulator .demo-controls label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     color: var(--color-ink);
     font-size: 0.9rem;
     font-weight: 600;
   }
-  .calendar-page .scenario-comparison > section {
+  .scenario-comparison {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin-block: 24px;
+  }
+  .scenario-comparison > section {
+    padding: 20px;
     border: 0;
     border-radius: var(--radius-control);
     background: var(--color-bg);
     box-shadow: inset 0 0 0 1px var(--color-line);
   }
-  .calendar-page .scenario-comparison h3 {
+  .scenario-comparison h3 {
     font-size: 1.1rem;
   }
-  .calendar-page .scenario-comparison p {
-    font-size: 0.9rem;
+  .scenario-comparison ol {
+    margin: 0;
+    padding-left: 24px;
   }
-  .calendar-page .demo-simulator .button-row {
+  .scenario-comparison li {
+    margin-block: 16px;
+    overflow-wrap: anywhere;
+  }
+  .scenario-comparison p {
+    font-size: 0.9rem;
+    color: var(--color-ink-muted);
+  }
+  .demo-simulator .button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
     justify-content: flex-start;
+  }
+  @media (max-width: 700px) {
+    .scenario-comparison {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Tables that scroll sideways on their own, so the document never overflows (320px). */
+  .demo-table-scroll {
+    overflow-x: auto;
+    border-radius: var(--radius-control);
+  }
+  .demo-table-scroll table {
+    width: 100%;
+    min-width: 500px;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  .demo-table-scroll caption {
+    padding-block: 16px;
+    text-align: left;
+    color: var(--color-ink-muted);
+  }
+  .demo-table-scroll th,
+  .demo-table-scroll td {
+    padding: 12px;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .demo-table-scroll thead {
+    background: var(--color-soft);
   }
 
   /* Dialogs rendered inside this page */

@@ -261,6 +261,7 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 4px 8px;
+    margin-bottom: 4px;
   }
   .rotation-label > span:first-child {
     color: var(--color-ink-muted);
@@ -721,6 +722,9 @@
   .demo-simulator {
     scroll-margin-top: calc(var(--header-h) + 16px);
   }
+  .demo-simulator p {
+    margin-block: 16px;
+  }
   .demo-simulator > summary {
     font-size: 1rem;
   }
@@ -803,31 +807,6 @@
     .scenario-comparison {
       grid-template-columns: 1fr;
     }
-  }
-
-  /* Tables that scroll sideways on their own, so the document never overflows (320px). */
-  .demo-table-scroll {
-    overflow-x: auto;
-    border-radius: var(--radius-control);
-  }
-  .demo-table-scroll table {
-    width: 100%;
-    min-width: 500px;
-    border-collapse: collapse;
-    text-align: left;
-  }
-  .demo-table-scroll caption {
-    padding-block: 16px;
-    text-align: left;
-    color: var(--color-ink-muted);
-  }
-  .demo-table-scroll th,
-  .demo-table-scroll td {
-    padding: 12px;
-    border-bottom: 1px solid var(--color-line);
-  }
-  .demo-table-scroll thead {
-    background: var(--color-soft);
   }
 
   /* Dialogs rendered inside this page */
@@ -1127,6 +1106,17 @@
     font-size: 0.9rem;
     text-align: center;
   }
+  .field-stage .field-canvas,
+  .field-stage .field-fallback {
+    transition: opacity var(--dur-enter) var(--ease-out);
+  }
+  .field-viewport[data-renderer='loading'] .field-canvas {
+    opacity: 0;
+  }
+  .field-viewport[data-renderer='ready'] .field-fallback {
+    opacity: 0;
+    pointer-events: none;
+  }
   .field-stage .field-fallback > svg {
     width: 100%;
     max-height: 240px;
@@ -1251,6 +1241,13 @@
     color: var(--stage-ink);
     font-size: 0.9rem;
   }
+  .field-stage .month-water strong {
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+  .field-stage .field-model-note strong {
+    font-size: 0.9375rem;
+  }
   .field-stage .month-water p,
   .field-stage .month-water.block p {
     margin: 2px 0 0;
@@ -1363,5 +1360,24 @@
     .field-stage .explorer-months {
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
+  }
+
+  /* Content that settles in when the field explorer changes month. */
+  #field-explorer-body {
+    animation: content-reveal var(--dur-enter) var(--ease-out);
+  }
+  .month-detail h3,
+  .month-activity {
+    animation: panel-reveal var(--dur-enter) var(--ease-out);
+  }
+
+  /* Inspect-this-month dialog */
+  .inspected-crop {
+    margin-top: 17px;
+    padding-top: 17px;
+    border-top: 1px solid var(--color-line);
+  }
+  .inspected-crop p {
+    margin-top: 9px;
   }
 }

@@ -87,6 +87,7 @@
     transform: translateY(-1px);
   }
   .water-options label strong {
+    display: block;
     color: var(--color-ink);
     font-size: 0.9rem;
     font-weight: 600;
@@ -268,6 +269,7 @@
   }
   .priority-control strong {
     display: block;
+    font-size: 0.9375rem;
     font-weight: 600;
   }
   .priority-control small {
@@ -324,6 +326,10 @@
   .household-control label.chosen {
     background: var(--color-primary);
     color: var(--color-on-primary);
+  }
+  .household-control strong {
+    font-size: 0.9375rem;
+    font-weight: 500;
   }
   .household-control label.chosen strong {
     color: var(--color-on-primary);
@@ -389,10 +395,29 @@
   .farm-page .demo-metrics dt {
     color: var(--color-ink-muted);
   }
-  .farm-page .demo-monthly,
+  .farm-page .demo-monthly {
+    border-color: var(--color-line);
+  }
+  /* The twelve-month table scrolls sideways on its own, so the document never overflows (320px). */
+  .farm-page .demo-table-scroll {
+    overflow-x: auto;
+    border-radius: var(--radius-control);
+  }
+  .farm-page .demo-table-scroll table {
+    width: 100%;
+    min-width: 500px;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  .farm-page .demo-table-scroll caption {
+    padding-block: 16px;
+    text-align: left;
+    color: var(--color-ink-muted);
+  }
   .farm-page .demo-table-scroll th,
   .farm-page .demo-table-scroll td {
-    border-color: var(--color-line);
+    padding: 12px;
+    border-bottom: 1px solid var(--color-line);
   }
   .farm-page .demo-table-scroll thead {
     background: var(--color-soft);

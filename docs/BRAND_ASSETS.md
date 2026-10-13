@@ -4,7 +4,7 @@ Updated October 5, 2026. The supplied `public/website_logo.jpg` and `public/icon
 
 | Placement                                  | Asset                                                             |
 | ------------------------------------------ | ----------------------------------------------------------------- |
-| Navigation logo                            | Header logo chip (`.brand-chip`, white in light theme, ivory in dark), `public/website_logo.jpg` unchanged. |
+| Navigation logo                            | `public/website_logo.jpg` on the header logo chip (`.brand-chip`), imported by `src/components/shell.tsx` |
 | Browser tabs, bookmarks, desktop shortcuts | `public/favicon.ico` (32px and 48px), `public/icons/ritu-48.png`  |
 | Apple home-screen shortcuts                | `public/icons/ritu-180.png`                                       |
 | Manifest shortcut icons                    | `public/icons/ritu-192.png`, `public/icons/ritu-512.png`          |

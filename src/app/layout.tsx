@@ -7,7 +7,6 @@ import '@fontsource/noto-sans-bengali/400.css';
 import '@fontsource/noto-sans-bengali/600.css';
 // Stylesheet order is cascade order: the layer list first, then each layer's file.
 import './globals.css';
-import '../styles/legacy.css';
 import '../styles/tokens.css';
 import '../styles/base.css';
 import '../styles/layout.css';

@@ -1,2 +1,2 @@
 /* Cascade order for the whole app. Later layers win; unlayered CSS (only @font-face) is unaffected. */
-@layer tokens, base, legacy, layout, components, pages;
+@layer tokens, base, layout, components, pages;

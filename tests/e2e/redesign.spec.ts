@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { chooseDefaultCrops, seedPlan } from './fixtures';
 
@@ -243,3 +244,59 @@ for (const theme of ['light', 'dark'] as const)
         expect(clipped, route).toEqual([]);
       }
     });
+
+for (const theme of ['light', 'dark'] as const)
+  test(`axe finds no WCAG A/AA violations on any page · ${theme} theme`, async ({ page }) => {
+    await seedPlan(page);
+    await page.addInitScript((theme) => {
+      localStorage.setItem(
+        'ritu-display-v1',
+        JSON.stringify({ text: 'comfortable', motion: false, sound: false, theme }),
+      );
+    }, theme);
+    const scan = async (route: string) => {
+      await page.evaluate(() => document.fonts.ready);
+      const result = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+        .analyze();
+      expect(
+        result.violations.map(
+          (v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(' | ')}`,
+        ),
+        `${route} · ${theme}`,
+      ).toEqual([]);
+    };
+    for (const route of ['/farm', '/crops', '/plan']) {
+      await page.goto(route);
+      await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      if (route === '/plan') {
+        await page.getByRole('button', { name: 'Open field view', exact: true }).click();
+        await expect(page.getByRole('region', { name: 'Seasonal field explorer' })).toBeVisible();
+      }
+      await scan(route);
+    }
+    await page.goto('/plan');
+    await page.getByRole('button', { name: 'Save calendar & track', exact: true }).click();
+    await expect(page).toHaveURL('/track');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await scan('/track');
+    await page.goto('/insights');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await scan('/insights');
+  });
+
+test('Bangla headings use weight 600 on the calendar page', async ({ page }) => {
+  await seedPlan(page);
+  await page.addInitScript(() => {
+    const saved = JSON.parse(localStorage.getItem('ritu-preview-v1') ?? '{}');
+    localStorage.setItem('ritu-preview-v1', JSON.stringify({ ...saved, language: 'bn' }));
+  });
+  await page.goto('/plan');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'bn');
+  const weights = await page
+    .locator('main h1, main h2, main h3')
+    .evaluateAll((els) => els.map((el) => getComputedStyle(el).fontWeight));
+  expect(weights.length).toBeGreaterThan(2);
+  expect([...new Set(weights)]).toEqual(['600']);
+});

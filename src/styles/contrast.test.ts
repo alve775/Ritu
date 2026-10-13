@@ -1,4 +1,6 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 type RGB = [number, number, number];
@@ -106,4 +108,38 @@ describe.each([
 
 it('defines the dark theme identically for Auto and manual Dark', () => {
   expect(darkAuto).toEqual(darkManual);
+});
+
+// --color-accent is 3.4:1 on the light surface, so it is only for large text (>= 24px, or >= 18.66px bold).
+// Every use outside tokens.css must be one of these selectors.
+const largeTextAccentSelectors = ['h1 em, h2 em'];
+
+function sourceFiles(dir: string): string[] {
+  return readdirSync(dir).flatMap((name) => {
+    const path = join(dir, name);
+    if (statSync(path).isDirectory()) return sourceFiles(path);
+    return /\.(css|tsx?)$/.test(name) && !name.endsWith('.test.ts') ? [path] : [];
+  });
+}
+
+it('uses --color-accent only for large text', () => {
+  const srcRoot = fileURLToPath(new URL('..', import.meta.url));
+  const used: string[] = [];
+  for (const file of sourceFiles(srcRoot)) {
+    if (file.endsWith('tokens.css')) continue;
+    const source = readFileSync(file, 'utf8');
+    if (!file.endsWith('.css')) {
+      expect(source, `${file} references --color-accent`).not.toContain('--color-accent');
+      continue;
+    }
+    for (const [, selector, body] of source.matchAll(
+      /([^{}]+)\{([^{}]*var\(--color-accent\)[^{}]*)\}/g,
+    )) {
+      expect(body, `${file} uses --color-accent outside a text colour`).toMatch(
+        /(^|[;\s])color:\s*var\(--color-accent\)/,
+      );
+      used.push(selector.replace(/\s+/g, ' ').trim());
+    }
+  }
+  expect(used.sort()).toEqual(largeTextAccentSelectors);
 });

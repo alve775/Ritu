@@ -97,7 +97,7 @@
     pointer-events: none;
   }
   .wheel-month {
-    color: var(--color-accent);
+    color: var(--season-pre-text);
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0.12em;

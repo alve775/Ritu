@@ -42,7 +42,7 @@
   .crops-page .notice-amber p {
     color: inherit;
   }
-  /* The crop dialog renders inside the catalogue but in the top layer; legacy paints its text slate. */
+  /* The crop dialog renders inside the catalogue but in the top layer, so it keeps its own muted text. */
   .crops-page .crop-catalogue .dialog p {
     color: var(--color-ink-muted);
   }

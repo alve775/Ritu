@@ -3,7 +3,7 @@
     min-width: 0;
     margin-block: 0;
   }
-  /* Legacy paints bare paragraphs slate; keep them readable in both themes. */
+  /* Bare paragraphs stay muted in both themes. */
   .track-page p,
   .track-page > p {
     color: var(--color-ink-muted);

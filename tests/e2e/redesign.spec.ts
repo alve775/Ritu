@@ -220,6 +220,10 @@ for (const theme of ['light', 'dark'] as const)
       await page.setViewportSize({ width: 320, height: 800 });
       for (const route of ['/farm', '/crops', '/plan', '/insights']) {
         await page.goto(route);
+        const html = page.locator('html');
+        await expect(html).toHaveAttribute('lang', language);
+        await expect(html).toHaveAttribute('data-text-size', 'larger');
+        await expect(html).toHaveAttribute('data-theme', theme);
         await page.evaluate(() => document.fonts.ready);
         await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
         expect(
@@ -227,7 +231,9 @@ for (const theme of ['light', 'dark'] as const)
           route,
         ).toBe(true);
         const clipped = await page
-          .locator('.nav-text strong, .button, .tool-button, .season-chip, .tracker-slot')
+          .locator(
+            '.nav-text strong, .button, .tool-button, .season-chip, .tracker-slot, .language-switch button',
+          )
           .evaluateAll((els) =>
             els
               .filter((el) => el.getBoundingClientRect().width > 0)

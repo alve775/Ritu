@@ -300,9 +300,11 @@ Before/after screenshots of all five pages at 1440, 390 and 320px, in English an
 | 3 | Pages: Farm · Crops · Calendar and 3D stage · Track · Insights | Parallel (one worker each) |
 | 4 | Tour, dialogs, 404/error restyle; selector and test updates; screenshot review | Sequential |
 
-Roles for this session: **Sonnet 5.5 (high effort)** workers implement each task from a written brief; **Opus 5.5** plans, reviews every diff and runs the verification in Section 10 before the next phase starts. The work happens on a feature branch, and nothing is merged to `main` without the team's review.
+The work happens on a feature branch, and nothing is merged to `main` without the team's review.
 
-## 13. Amendments during planning and implementation
+## 12. Amendments during planning and implementation
+
+Where these amendments conflict with earlier sections, the amendments win.
 
 - No Wheel/Months switch: the YearWheel is shown alongside the months grid on Calendar and Track (tests require the grid visible).
 - Crops action panel stays in normal flow (not sticky).
@@ -325,3 +327,6 @@ Roles for this session: **Sonnet 5.5 (high effort)** workers implement each task
 - New string beyond §9: "Season" (মৌসুম), the crops filter group label.
 - Theme preference lives in the existing Reading & sound dialog (ThemeSwitch); `themeColor` follows the system scheme only (a manual theme does not change the browser chrome colour).
 - Bangla headings use weight 600 (Noto Sans Bengali is loaded at 400 and 600).
+- The contrast audit lives in `src/styles/contrast.test.ts` (run by `npm test`), not in a `contrast.py` script.
+- §9's "Wheel / Months" strings were dropped; "Year wheel" (বছরের চক্র) was added instead.
+- §10.3's overflow matrix is implemented at 320px with the larger text size in both languages and both themes; wider widths are covered by the focus and frame tests.

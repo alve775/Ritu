@@ -336,7 +336,8 @@
       display: none;
     }
   }
-  html[data-tour-layout='active'] .tool-button {
+  html[data-tour-layout='active'] .tool-button,
+  html[data-text-size='larger'] .tool-button {
     width: 44px;
     min-height: 44px;
     padding: 0;
@@ -690,5 +691,19 @@
     .demo-reasons {
       padding: 20px;
     }
+  }
+
+  /* Gate shown on /crops, /plan and /insights until the farm has been reviewed */
+  .journey-gate {
+    display: grid;
+    gap: 16px;
+    justify-items: start;
+    animation: page-enter var(--dur-enter) var(--ease-out);
+  }
+  .journey-gate p {
+    max-width: 65ch;
+  }
+  .dialog .notice p {
+    margin-top: 8px;
   }
 }

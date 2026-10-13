@@ -300,6 +300,9 @@
   .insights-page .insights-more .insight-calendar {
     margin-top: 0;
   }
+  .insights-page .insights-more .insight-calendar > h2 {
+    margin-bottom: 18px;
+  }
   .insights-page .insights-more .disclosure[open]:has(.insight-calendar) {
     grid-column: 1 / -1;
   }

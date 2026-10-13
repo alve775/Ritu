@@ -76,6 +76,11 @@
     letter-spacing: 0;
     line-height: 1.4;
   }
+  :lang(bn) h1,
+  :lang(bn) h2,
+  :lang(bn) h3 {
+    font-weight: 600;
+  }
   :lang(bn) body,
   :lang(bn) p {
     line-height: 1.75;

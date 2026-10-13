@@ -69,7 +69,12 @@
   .year-wheel .month-hit:focus-visible {
     fill: color-mix(in srgb, var(--color-focus) 14%, transparent);
     stroke: var(--color-focus);
-    stroke-width: 2;
+    stroke-width: 3;
+    /* The wedge sits over coloured arcs, so a light halo keeps the ring above 3:1 against both. */
+    filter: drop-shadow(1.5px 0 0 var(--color-surface-raised))
+      drop-shadow(-1.5px 0 0 var(--color-surface-raised))
+      drop-shadow(0 1.5px 0 var(--color-surface-raised))
+      drop-shadow(0 -1.5px 0 var(--color-surface-raised));
   }
   .year-wheel .month-marker {
     fill: var(--color-surface-raised);

@@ -12,6 +12,9 @@
   .track-page .notice-amber p {
     color: var(--color-warn-ink);
   }
+  .track-page .planner-heading h1 {
+    margin-top: 8px;
+  }
   .track-page .planner-heading {
     align-items: flex-end;
     margin-bottom: 0;

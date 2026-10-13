@@ -327,6 +327,14 @@
     background: var(--color-primary);
     color: var(--color-on-primary);
   }
+  /* The ring is the chosen fill colour, so draw it on the label with an offset, not on the checkbox. */
+  .household-control label:has(input:focus-visible) {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+  .household-control label:has(input:focus-visible) input {
+    outline: none;
+  }
   .household-control strong {
     font-size: 0.9375rem;
     font-weight: 500;

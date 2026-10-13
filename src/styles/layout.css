@@ -205,8 +205,20 @@
   }
   /* Phones and tablets: the steps move to a bottom tab bar, because the header cannot hold them. */
   @media (max-width: 1023px) {
+    /* Measured tab bar heights: labels wrap to two lines on 320px phones, in Bangla and at Extra large. */
     :root {
-      --tabbar-h: 68px;
+      --tabbar-h: 69px;
+    }
+    @media (max-width: 359px) {
+      html:lang(bn) {
+        --tabbar-h: 84px;
+      }
+      html[data-text-size='larger'] {
+        --tabbar-h: 93px;
+      }
+    }
+    html[data-text-size='larger']:lang(bn) {
+      --tabbar-h: 93px;
     }
     .step-progress {
       display: none;
@@ -232,7 +244,6 @@
       justify-content: flex-start;
       gap: 2px;
       min-height: 56px;
-      padding-top: 6px;
       color: var(--color-ink-muted);
       text-decoration: none;
     }
@@ -345,7 +356,9 @@
     }
   }
   /* While the tour rail is open the header has less room, so the tools go icon-only. */
-  html[data-tour-layout='active'] .tool-label {
+  /* At Extra large text the labels no longer fit one row beside the steps, so the tools go icon-only. */
+  html[data-tour-layout='active'] .tool-label,
+  html[data-text-size='larger'] .tool-label {
     display: none;
   }
 }

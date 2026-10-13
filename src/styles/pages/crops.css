@@ -36,6 +36,9 @@
     gap: 14px;
   }
   .crops-page > p,
+  .crops-page .planner-heading h1 {
+    margin-top: 8px;
+  }
   .crops-page :where(.page-header, .suggested-crop, .choice-panel, .catalogue-browser) p {
     color: var(--color-ink-muted);
   }

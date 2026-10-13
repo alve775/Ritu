@@ -282,7 +282,7 @@ for (const theme of ['light', 'dark'] as const)
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await scan('/track');
     await page.goto('/insights');
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Know the why.' })).toBeVisible();
     await scan('/insights');
   });
 

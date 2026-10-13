@@ -38,7 +38,7 @@ Every task's requirements include all of these:
 - **Motion:** only `transform` and `opacity` are animated, using `--dur-enter: 240ms`, `--dur-exit: 160ms`, `--dur-micro: 150ms` and `--ease-out`. Nothing animates when `prefers-reduced-motion: reduce` or `html[data-motion='off']`.
 - **Selectors:** every selector listed in spec §10.2 keeps resolving to an equivalent element. That covers test selectors, tour selectors, `data-tour` values and accessible names.
 - **Icons:** `lucide-react` only, with `strokeWidth` left at its default of 2. No emoji in the interface.
-- **Commits:** author is the local git user. **No** `Co-Authored-By` trailer, **no** generated-by line, no AI co-author trailers or generated-by lines (only Alve, Abid and Mahia are credited). Conventional, imperative subject lines.
+- **Commits:** author is the local git user. **No** `Co-Authored-By` trailer, **no** generated-by line (only Alve, Abid and Mahia are credited). Conventional, imperative subject lines.
 - **Verification per task:** `npm run format` then `npm run lint`, `npm run typecheck`, `npm test` and `npm run build` must pass. Run `npm run test:browser` wherever the task says so. Playwright starts its own dev server on port 3000, so stop any other server on 3000 first, or let it reuse one started with `npm run dev`.
 
 ## Review Focus
@@ -97,7 +97,7 @@ The five input classes most likely to hurt a real user that no single feature te
 |---|---|---|
 | 1 Foundation | 1 → 2 → 3 | Sequential, one implementer |
 | 2 Shared pieces | 4 → 5; 6 | 4→5 sequential; 6 can run alongside 4/5 |
-| 3 Pages | 7 (Farm) · 8→9 (Crops then Track, same worker, both in `journey-views.tsx`) · 10 (Calendar) · 11 (Insights) | Can be done in parallel on separate branches. Each touches only its listed files and its own `src/styles/pages/*.css`. **No JSX edits in `demo-planning.tsx`, `farm-controls.tsx` or `calendar.tsx`**: style them through CSS from the owning page file. |
+| 3 Pages | 7 (Farm) · 8→9 (Crops then Track, one after the other, both in `journey-views.tsx`) · 10 (Calendar) · 11 (Insights) | Can be done in parallel on separate branches. Each touches only its listed files and its own `src/styles/pages/*.css`. **No JSX edits in `demo-planning.tsx`, `farm-controls.tsx` or `calendar.tsx`**: style them through CSS from the owning page file. |
 | 4 Finish | 12 → 13 → 14 | Sequential |
 
 Each task's diff is reviewed and that task's verification rerun before merging, plus the full suite at the end of each phase.

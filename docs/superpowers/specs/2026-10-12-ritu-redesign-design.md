@@ -100,7 +100,7 @@ The audit lives in `src/styles/contrast.test.ts` (run by `npm test`). With the t
 - Light: body text 14.9, muted 5.8, button 7.7, season text 5.6 to 6.0, arcs 3.0 to 3.8.
 - Dark: body text 13.4, button 11.3, season text 5.8 or higher, arcs 4.7 or higher.
 
-Every new token pair gets added to the script before use.
+Every new token pair gets added to the contrast test before use.
 
 ### 5.5 Shape, spacing, elevation, layers
 
@@ -291,7 +291,7 @@ Existing strings are reused wherever possible.
 
 Before/after screenshots of all five pages at 1440, 390 and 320px, in English and Bangla, in light and dark, reviewed by the team. The contrast test passes.
 
-## 11. Delivery plan (summary; the detailed plan follows in writing-plans)
+## 11. Delivery plan (summary; the detailed plan is in `docs/superpowers/plans/2026-10-12-ritu-redesign.md`)
 
 | Phase | Work | Parallel? |
 |---|---|---|

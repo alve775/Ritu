@@ -346,6 +346,7 @@
   }
   .crop-detail-icon.crop-fallow {
     --bar: var(--color-ink-muted);
+    --bar-text: var(--color-ink-muted);
     background: var(--color-soft);
   }
   .detail-grid {

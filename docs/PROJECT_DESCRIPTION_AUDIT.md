@@ -17,7 +17,7 @@ Updated October 4, 2026. Abid supplied the intended real-product description, th
 | Priorities include drought resilience and soil health | Water/diversity/familiar saved only | Adds resilience and soil priorities; mock soil priority uses pulse inclusion, with no predicted soil improvement | Reviewed priorities/tradeoffs and interpretable real soil indicators |
 | Guided game-like onboarding and individual help | Tours implemented | 28 full-tour steps plus six section replays, Mati, streaming text; local help for environment, reasons and scenarios | Farmer usability, Bangla and assistive-technology review |
 | Visual calendar and crop progression | Calendar plus source-informed 3D | Preserved; prominent Explore 3D crops button and independent crop-study selector work even in rest months | Measured cultivar geometry and validated growth progression if claimed |
-| White main theme / dark green left and top | Green-tinted surfaces | A single light River Clay theme (dark mode removed); top step bar on desktop and bottom tab bar up to 1023px; warm silt surfaces, burnt-clay actions and a dark-earth 3D stage | User comfort on actual devices; no eye-health benefit is claimed |
+| White main theme / dark green left and top | Green-tinted surfaces | A single light Rice Leaf theme (dark mode removed); top step bar on desktop and bottom tab bar up to 1023px; warm paper surfaces, rice-leaf green actions and a dark-olive 3D stage | User comfort on actual devices; no eye-health benefit is claimed |
 
 ## Mock rules are not scientific crop data
 

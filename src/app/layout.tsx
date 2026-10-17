@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   colorScheme: 'light',
   // Mirrors --color-bg in src/styles/tokens.css (viewport metadata cannot read CSS variables).
-  themeColor: '#f3ede3',
+  themeColor: '#f6f5ee',
 };
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

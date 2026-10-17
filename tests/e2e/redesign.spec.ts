@@ -252,7 +252,7 @@ test('a system dark mode and an old saved Dark choice still show the light theme
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(page.locator('html')).not.toHaveAttribute('data-theme');
   expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe(
-    'rgb(243, 237, 227)',
+    'rgb(246, 245, 238)',
   );
 });
 

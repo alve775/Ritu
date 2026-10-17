@@ -102,7 +102,7 @@ it('defines a single light theme', () => {
   expect(css).not.toMatch(/prefers-color-scheme|data-theme/);
 });
 
-// --color-accent is 4.1:1 on the surface, so it is only for large text (>= 24px, or >= 18.66px bold).
+// --color-accent is 3.8:1 on the surface, so it is only for large text (>= 24px, or >= 18.66px bold).
 // Every use outside tokens.css must be one of these selectors.
 const largeTextAccentSelectors = ['h1 em, h2 em'];
 

@@ -36,12 +36,9 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, title: 'RITU', statusBarStyle: 'default' },
 };
 export const viewport: Viewport = {
-  colorScheme: 'light dark',
-  // These hex values mirror --color-bg in src/styles/tokens.css (viewport metadata cannot read CSS variables).
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f4f5ef' },
-    { media: '(prefers-color-scheme: dark)', color: '#0f1d17' },
-  ],
+  colorScheme: 'light',
+  // Mirrors --color-bg in src/styles/tokens.css (viewport metadata cannot read CSS variables).
+  themeColor: '#f3ede3',
 };
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

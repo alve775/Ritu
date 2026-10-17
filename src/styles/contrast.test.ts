@@ -15,8 +15,6 @@ function block(selector: RegExp): Record<string, string> {
   return tokens;
 }
 const light = block(/:root \{([^}]*)\}/);
-const darkAuto = block(/:root:not\(\[data-theme='light'\]\) \{([^}]*)\}/);
-const darkManual = block(/:root\[data-theme='dark'\] \{([^}]*)\}/);
 
 function parse(value: string): { rgb: RGB; alpha: number } {
   const hex = value.match(/^#([0-9a-f]{6})$/i);
@@ -73,12 +71,9 @@ const pairs: [string, string, number][] = [
   ['stage-muted', 'stage-bg', 4.5],
 ];
 
-describe.each([
-  ['light', light],
-  ['dark', { ...light, ...darkManual }],
-])('%s theme contrast', (_, tokens) => {
+describe('token contrast', () => {
   it.each(pairs)('--%s on --%s ≥ %s:1', (fg, bg, min) => {
-    expect(ratio(resolve(tokens, fg), resolve(tokens, bg))).toBeGreaterThanOrEqual(min);
+    expect(ratio(resolve(light, fg), resolve(light, bg))).toBeGreaterThanOrEqual(min);
   });
 });
 
@@ -95,22 +90,19 @@ const tinted: [string, string, number][] = [
   ['color-danger', 'color-danger', 0.12],
 ];
 
-describe.each([
-  ['light', light],
-  ['dark', { ...light, ...darkManual }],
-])('%s theme tinted chip contrast', (_, tokens) => {
+describe('tinted chip contrast', () => {
   it.each(tinted)('--%s on %s tint (%s) ≥ 4.5:1', (fg, tint, share) => {
-    const surface = resolve(tokens, 'color-surface');
-    const background = mix(resolve(tokens, tint), share, surface);
-    expect(ratio(resolve(tokens, fg), background)).toBeGreaterThanOrEqual(4.5);
+    const surface = resolve(light, 'color-surface');
+    const background = mix(resolve(light, tint), share, surface);
+    expect(ratio(resolve(light, fg), background)).toBeGreaterThanOrEqual(4.5);
   });
 });
 
-it('defines the dark theme identically for Auto and manual Dark', () => {
-  expect(darkAuto).toEqual(darkManual);
+it('defines a single light theme', () => {
+  expect(css).not.toMatch(/prefers-color-scheme|data-theme/);
 });
 
-// --color-accent is 3.4:1 on the light surface, so it is only for large text (>= 24px, or >= 18.66px bold).
+// --color-accent is 4.1:1 on the surface, so it is only for large text (>= 24px, or >= 18.66px bold).
 // Every use outside tokens.css must be one of these selectors.
 const largeTextAccentSelectors = ['h1 em, h2 em'];
 

@@ -8,10 +8,14 @@ import { SeasonExplorer } from './season-explorer';
 import { CalendarLegend, CalendarScrollHint, MonthHeader, RotationRow, Status } from './calendar';
 import { ScenarioSimulator } from './demo-planning';
 import { assessDemo, planFingerprint } from '../domain/demo-planner';
-import { JourneyGate } from './journey-views';
+import { previewData } from '../data/preview';
+import { seasonOfMonth } from '../domain/year-wheel';
+import { JourneyGate, periodLabel } from './journey-views';
 import { activityKey } from '../lib/journey-store';
 import { Dialog } from './dialog';
 import { prefersReducedMotion } from '../lib/motion';
+import { ActionBar } from './ui/action-bar';
+import { YearWheel } from './ui/year-wheel';
 
 export function CompareView() {
   const {
@@ -24,6 +28,8 @@ export function CompareView() {
     demo,
     priority,
     setFieldOpen,
+    month,
+    setMonth,
     reviewed,
     planReady,
     tourPreview,
@@ -62,18 +68,24 @@ export function CompareView() {
   if ((!planReady || !evaluations.length) && !tourPreview)
     return <JourneyGate step={reviewed ? 'crops' : 'farm'} />;
   const options = onlySelected ? [selected] : evaluations;
+  const seasons = [t('Pre-monsoon', 'প্রাক্‌বর্ষা'), t('Monsoon', 'বর্ষা'), t('Winter', 'শীত')];
   return (
-    <div className="page-enter calm-page">
-      <header className="planner-heading">
+    <div className="page calendar-page">
+      <header className="page-header planner-heading">
         <div>
-          <span className="eyebrow">
-            {t('STEP 3 OF 4 · YOUR CALENDAR', 'ধাপ ৩ / ৪ · আপনার ক্যালেন্ডার')}
-          </span>
-          <h1>{t('Choose your automatic calendar', 'স্বয়ংক্রিয় ক্যালেন্ডার বাছুন')}</h1>
+          <h1>
+            {language === 'en' ? (
+              <>
+                Choose your <em>automatic calendar</em>
+              </>
+            ) : (
+              t('Choose your automatic calendar', 'স্বয়ংক্রিয় ক্যালেন্ডার বাছুন')
+            )}
+          </h1>
         </div>
         <div className="planner-actions">
           <button
-            className="button secondary"
+            className="button secondary explore-3d"
             onClick={() => {
               setFieldOpen(true);
               requestAnimationFrame(() =>
@@ -109,6 +121,11 @@ export function CompareView() {
               aria-label={`${t('Select', 'বাছুন')} ${evaluation.rotation.name[language]}`}
               onClick={() => select(evaluation.rotation.id)}
             >
+              <YearWheel
+                size="mini"
+                periods={evaluation.rotation.periods}
+                label={evaluation.rotation.name[language]}
+              />
               <span className="option-selection-mark" aria-hidden="true">
                 {evaluation.rotation.id === selected.rotation.id && <Check size={20} />}
               </span>
@@ -130,6 +147,39 @@ export function CompareView() {
           </section>
         ))}
       </section>
+      <section className="understand">
+        <div className="card wheel-card">
+          <YearWheel
+            periods={selected.rotation.periods}
+            label={selected.rotation.name[language]}
+            month={month}
+            onSelectMonth={setMonth}
+          />
+        </div>
+        <div className="season-breakdown">
+          {selected.rotation.periods.map((p) =>
+            p.crop === 'fallow' ? (
+              <p key={p.start} className="rest-row">
+                <i aria-hidden="true" />
+                {periodLabel(p, language)} · {t('Planned rest / fallow', 'পরিকল্পিত বিরতি / পতিত')}
+              </p>
+            ) : (
+              <div key={p.start} className={`season-row card season-${seasonOfMonth(p.start)}`}>
+                <div>
+                  <span className="season-row-label">{seasons[seasonOfMonth(p.start)]}</span>
+                  <strong>{previewData.crops[p.crop].name[language]}</strong>
+                </div>
+                <span className="season-row-range">
+                  {periodLabel(p, language)}
+                  <small>
+                    {p.duration} {t('months', 'মাস')}
+                  </small>
+                </span>
+              </div>
+            ),
+          )}
+        </div>
+      </section>
       <div className="choice-panel choice-summary">
         <div>
           <span>{t('Your selection', 'আপনার পছন্দ')}</span>
@@ -141,7 +191,7 @@ export function CompareView() {
             )}
           </p>
         </div>
-        <Link href="/insights" className="button primary">
+        <Link href="/insights" className="button secondary">
           {t('Understand this choice', 'পছন্দের ব্যাখ্যা দেখুন')}
           <ArrowRight size={20} />
         </Link>
@@ -199,10 +249,20 @@ export function CompareView() {
           </p>
         </section>
       </details>
-      <section className="choice-panel" data-tour="save-calendar">
-        <div>
-          <h2>{t('Save this calendar & keep track', 'এই ক্যালেন্ডার রাখুন ও কাজের হিসাব করুন')}</h2>
-          <label className="form-field">
+      <ScenarioSimulator />
+      <SeasonExplorer />
+      <p className="save-help" id="save-year-help">
+        {t(
+          'The year labels the saved cycle; it does not change the climate or assigned planting windows.',
+          'বছর চক্রের নাম; জলবায়ু বা সময় বদলায় না।',
+        )}
+      </p>
+      <ActionBar
+        sticky
+        tour="save-calendar"
+        className="save-bar"
+        status={
+          <label className="form-field year-field">
             {t('Cycle starts in March of', 'চক্র শুরু হবে মার্চে, বছর')}
             <input
               type="number"
@@ -210,16 +270,12 @@ export function CompareView() {
               max={2100}
               value={year}
               aria-invalid={!validYear}
+              aria-describedby="save-year-help"
               onChange={(e) => setYear(e.target.value)}
             />
           </label>
-          <p>
-            {t(
-              'The year labels the saved cycle; it does not change the climate or assigned planting windows.',
-              'বছর চক্রের নাম; জলবায়ু বা সময় বদলায় না।',
-            )}
-          </p>
-        </div>
+        }
+      >
         <button
           className="button primary"
           disabled={!validYear}
@@ -238,7 +294,7 @@ export function CompareView() {
           {t('Save calendar & track', 'ক্যালেন্ডার রাখুন ও হিসাব করুন')}
           <ArrowRight size={20} />
         </button>
-      </section>
+      </ActionBar>
       {confirmSave && (
         <Dialog
           title={t('Replace your saved calendar?', 'রাখা ক্যালেন্ডার বদলাবেন?')}
@@ -258,8 +314,6 @@ export function CompareView() {
           </button>
         </Dialog>
       )}
-      <ScenarioSimulator />
-      <SeasonExplorer />
     </div>
   );
 }

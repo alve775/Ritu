@@ -111,11 +111,14 @@ export function TourGuide() {
   return (
     <>
       <button
-        className="button secondary tour-launch"
+        className="button secondary tool-button tour-launch"
         data-tour-launch
+        aria-label={t('Take a tour', 'পরিচিতি দেখুন')}
+        title={t('Take a tour', 'পরিচিতি দেখুন')}
         onClick={() => setChooser(true)}
       >
-        <Compass size={18} /> {t('Take a tour', 'পরিচিতি দেখুন')}
+        <Compass size={20} aria-hidden="true" />
+        <span className="tool-label">{t('Take a tour', 'পরিচিতি দেখুন')}</span>
       </button>
       {chooser && (
         <Dialog
@@ -599,7 +602,7 @@ function TourOverlay({
             aria-valuemin={1}
             aria-valuemax={steps.length}
           >
-            <span style={{ width: `${((index + 1) / steps.length) * 100}%` }} />
+            <span style={{ transform: `scaleX(${(index + 1) / steps.length})` }} />
           </div>
           <p className="tour-step-number">
             {t(`Step ${index + 1} of ${steps.length}`, `ধাপ ${index + 1} / ${steps.length}`)}

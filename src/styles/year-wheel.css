@@ -1,0 +1,129 @@
+@layer components {
+  .year-wheel.full {
+    position: relative;
+    width: 100%;
+    max-width: 380px;
+    margin: 0 auto;
+  }
+  .year-wheel svg,
+  svg.year-wheel {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  svg.year-wheel.mini {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+  }
+  .year-wheel .track {
+    fill: none;
+    stroke: var(--wheel-track);
+  }
+  .year-wheel .arc.season-0 {
+    fill: var(--season-pre);
+  }
+  .year-wheel .arc.season-1 {
+    fill: var(--season-mon);
+  }
+  .year-wheel .arc.season-2 {
+    fill: var(--season-win);
+  }
+  .year-wheel .rest-stripe {
+    fill: var(--color-ink-muted);
+    opacity: 0.45;
+  }
+  .year-wheel .arc.pending {
+    opacity: 0.28;
+  }
+  .year-wheel .arc-label {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .year-wheel .arc-label.season-0 {
+    fill: var(--season-pre-text);
+  }
+  .year-wheel .arc-label.season-1 {
+    fill: var(--season-mon-text);
+  }
+  .year-wheel .arc-label.season-2 {
+    fill: var(--season-win-text);
+  }
+  .year-wheel .month-label {
+    fill: var(--color-ink-muted);
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .year-wheel .month-label.selected {
+    fill: var(--color-ink);
+    font-weight: 800;
+  }
+  .year-wheel .month-hit {
+    fill: transparent;
+    cursor: pointer;
+    outline: none;
+  }
+  /* Second ring under the focus stroke, so the focus ring contrasts with the arc it overlaps and with the card. */
+  .year-wheel .month-hit-halo {
+    fill: none;
+    stroke: none;
+    pointer-events: none;
+  }
+  .year-wheel .month-hit-halo:has(+ .month-hit:focus-visible) {
+    stroke: var(--color-surface-raised);
+    stroke-width: 8;
+  }
+  .year-wheel .month-hit:focus-visible {
+    fill: transparent;
+    stroke: var(--color-focus);
+    stroke-width: 3;
+  }
+  .year-wheel .month-marker {
+    fill: var(--color-surface-raised);
+    stroke: var(--color-ink);
+    stroke-width: 3;
+    pointer-events: none;
+  }
+  .wheel-center {
+    position: absolute;
+    inset: 34% 24%;
+    display: grid;
+    place-content: center;
+    gap: 2px;
+    text-align: center;
+    pointer-events: none;
+  }
+  .wheel-month {
+    color: var(--season-pre-text);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .wheel-center strong {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 500;
+    line-height: 1.1;
+  }
+  .wheel-range {
+    color: var(--color-ink-muted);
+    font-size: 0.8rem;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html:not([data-motion='off']) .year-wheel.full .arc {
+      transform-origin: center;
+      transform-box: view-box;
+      animation: wheel-in calc(var(--dur-enter) * 2) var(--ease-out) both;
+    }
+  }
+  @keyframes wheel-in {
+    from {
+      opacity: 0;
+      transform: scale(0.94);
+    }
+  }
+}

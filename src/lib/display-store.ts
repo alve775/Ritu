@@ -1,9 +1,14 @@
+export type Theme = 'auto' | 'light' | 'dark';
+export function parseTheme(value: unknown): Theme {
+  return value === 'light' || value === 'dark' || value === 'auto' ? value : 'auto';
+}
 export interface DisplayPreferences {
   text: 'comfortable' | 'larger';
   motion: boolean;
   sound: boolean;
   volume: number;
   ambience: 'morning' | 'evening';
+  theme: Theme;
 }
 const defaults: DisplayPreferences = {
   text: 'comfortable',
@@ -11,6 +16,7 @@ const defaults: DisplayPreferences = {
   sound: false,
   volume: 35,
   ambience: 'morning',
+  theme: 'auto',
 };
 const server = { preferences: defaults, saved: true };
 let snapshot = server;
@@ -20,6 +26,9 @@ const key = 'ritu-display-v1';
 function apply() {
   document.documentElement.dataset.textSize = snapshot.preferences.text;
   document.documentElement.dataset.motion = snapshot.preferences.motion ? 'on' : 'off';
+  const { theme } = snapshot.preferences;
+  if (theme === 'auto') delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = theme;
   document.dispatchEvent(new Event('ritu-motion-change'));
 }
 export const displayStore = {
@@ -54,6 +63,7 @@ export const displayStore = {
                   : defaults.volume,
               ambience:
                 'ambience' in parsed && parsed.ambience === 'evening' ? 'evening' : 'morning',
+              theme: parseTheme('theme' in parsed ? parsed.theme : undefined),
             },
             saved: true,
           };

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { ArrowRight, ArrowUpRight, Check, CircleAlert, CircleHelp } from 'lucide-react';
 import { months, previewData } from '../data/preview';
 import { coveredMonths, segments } from '../domain/evaluate';
+import { seasonOfMonth } from '../domain/year-wheel';
 import type { CropPeriod, Evaluation } from '../domain/types';
 import { usePlanner } from './planner-provider';
 import { CropGlyph } from './crop-glyph';
@@ -89,7 +90,7 @@ export function Timeline({ periods, name }: { periods: CropPeriod[]; name: strin
           segments(p).map((segment, part) => (
             <button
               key={`${index}-${part}`}
-              className={`crop-bar crop-${previewData.crops[p.crop].color}`}
+              className={`crop-bar crop-${previewData.crops[p.crop].color} season-${seasonOfMonth(p.start)}`}
               style={{
                 gridColumn: `${segment.start + 1} / span ${segment.length}`,
                 gridRow: positions[index],
@@ -119,7 +120,9 @@ export function Timeline({ periods, name }: { periods: CropPeriod[]; name: strin
           title={previewData.crops[active.crop].name[language]}
           onClose={() => setActive(null)}
         >
-          <div className={`crop-detail-icon crop-${previewData.crops[active.crop].color}`}>
+          <div
+            className={`crop-detail-icon crop-${previewData.crops[active.crop].color} season-${seasonOfMonth(active.start)}`}
+          >
             <CropGlyph crop={active.crop} size={38} />
           </div>
           <div className="detail-grid">

@@ -1,0 +1,425 @@
+@layer pages {
+  /* Guided missions use the native modal top layer; the highlighted page stays inert.
+     Every size, position and breakpoint is kept because tour-layout.spec.ts measures them. */
+  @keyframes tour-fade {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes guide-hello {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    30%,
+    70% {
+      transform: rotate(-18deg);
+    }
+    50% {
+      transform: rotate(-5deg);
+    }
+  }
+
+  /* ---------- Tour chooser (a normal dialog) ---------- */
+  .tour-choices {
+    display: grid;
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .tour-choice {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    min-height: 56px;
+    padding: 14px 16px;
+    border: 0;
+    border-radius: var(--radius-control);
+    box-shadow: inset 0 0 0 1.5px var(--color-line);
+    background: var(--color-surface);
+    color: var(--color-ink);
+    text-align: left;
+    cursor: pointer;
+    transition:
+      transform var(--dur-micro) var(--ease-out),
+      opacity var(--dur-micro) var(--ease-out);
+  }
+  .tour-choice:hover {
+    box-shadow: inset 0 0 0 1.5px var(--color-primary);
+    background: var(--color-soft);
+  }
+  .tour-choice:active {
+    transform: scale(0.99);
+  }
+  .tour-choice > span {
+    display: grid;
+    gap: 6px;
+  }
+  .tour-choice strong {
+    font-size: 1rem;
+  }
+  .tour-choice strong small {
+    display: block;
+    margin-top: 4px;
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 0.8rem;
+  }
+  .tour-choice span span {
+    font-size: 0.9rem;
+    color: var(--color-ink-muted);
+  }
+  .tour-choice svg {
+    flex-shrink: 0;
+  }
+
+  /* ---------- Tour overlay ---------- */
+  .tour-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-tour);
+    box-sizing: border-box;
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-ink);
+    overflow: hidden;
+  }
+  .tour-dialog::backdrop {
+    background: transparent;
+  }
+  .tour-shade {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-tour);
+    background: color-mix(in srgb, var(--color-bg) 30%, rgba(0, 0, 0, 0.55));
+    animation: tour-fade var(--dur-enter) var(--ease-out);
+  }
+  .tour-spotlight {
+    position: fixed;
+    z-index: var(--z-tour);
+    box-sizing: border-box;
+    border-radius: var(--radius-control);
+    box-shadow:
+      0 0 0 4px var(--season-pre),
+      0 0 0 9999px color-mix(in srgb, var(--color-bg) 30%, rgba(0, 0, 0, 0.55));
+    pointer-events: none;
+    transform-origin: top left;
+  }
+  .tour-card {
+    position: fixed;
+    z-index: calc(var(--z-tour) + 1);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    width: min(480px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    overflow: hidden;
+    padding: 26px;
+    background: var(--color-surface-raised);
+    color: var(--color-ink);
+    border: 0;
+    border-top: 4px solid var(--season-pre);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-2);
+    animation: tour-fade var(--dur-enter) var(--ease-out);
+  }
+  .tour-welcome .tour-card {
+    width: min(580px, calc(100vw - 32px));
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    padding: 30px;
+  }
+  .tour-copy {
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+  }
+  .tour-card-top,
+  .tour-card-actions,
+  .tour-keyboard-hint {
+    flex-shrink: 0;
+  }
+  .tour-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 15px;
+  }
+  .tour-card-top > span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+  .tour-card-top .icon-button {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+  }
+  .tour-progress {
+    height: 5px;
+    border-radius: var(--radius-pill);
+    background: var(--color-soft);
+    overflow: hidden;
+  }
+  .tour-progress > span {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius-pill);
+    background: var(--season-pre);
+    transform-origin: left center;
+    transition: transform calc(var(--dur-enter) * 3) var(--ease-out);
+  }
+  .tour-card .tour-step-number {
+    margin: 13px 0 8px;
+    font-size: 0.8rem;
+    color: var(--color-ink-muted);
+  }
+  .tour-card h2 {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    line-height: 1.35;
+    outline: none;
+  }
+  :lang(bn) .tour-card h2 {
+    line-height: 1.5;
+  }
+  .tour-card #tour-description {
+    margin-block: 18px;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--color-ink);
+  }
+  .tour-languages {
+    width: fit-content;
+    margin: 0 0 8px;
+  }
+  .instant-text {
+    margin-bottom: 6px;
+    font-size: 0.8rem;
+  }
+  .tour-mission-list {
+    display: grid;
+    gap: 10px;
+    margin: 0 0 22px;
+    padding: 18px 18px 18px 38px;
+    border-radius: var(--radius-control);
+    background: var(--color-soft);
+    font-size: 1rem;
+  }
+  .tour-mission-list li::marker {
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+  .tour-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .tour-card-actions > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tour-card-actions .button {
+    min-height: 48px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+  }
+  .tour-keyboard-hint {
+    display: block;
+    margin-top: 17px;
+    font-size: 0.8rem;
+    color: var(--color-ink-muted);
+  }
+  .tour-section-navigation {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .tour-section-navigation button {
+    min-width: 44px;
+    min-height: 44px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-soft);
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+  .tour-section-navigation button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .tour-section-navigation span {
+    font-size: 0.8rem;
+    color: var(--color-ink-muted);
+  }
+  .stream-word {
+    display: inline;
+  }
+  html[data-motion='off'] .stream-word {
+    opacity: 1 !important;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stream-word {
+      opacity: 1 !important;
+    }
+  }
+
+  /* ---------- Mati, the farm guide ---------- */
+  .farm-guide {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 0 0 64px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-ink);
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+  .farm-guide svg {
+    width: 64px;
+    height: 64px;
+  }
+  .farm-guide svg ellipse:first-child {
+    fill: var(--color-soft);
+  }
+  .guide-wing {
+    transform-origin: 35px 63px;
+    animation: guide-hello calc(var(--dur-enter) * 3) var(--ease-out) 1;
+  }
+
+  /* ---------- Breakpoints, widest first ---------- */
+  @media (max-width: 800px) {
+    .tour-card,
+    .tour-welcome .tour-card {
+      padding: 22px;
+    }
+    .tour-card h2 {
+      font-size: 1.3rem;
+    }
+    .tour-keyboard-hint {
+      display: none;
+    }
+    .tour-card-actions {
+      gap: 10px;
+    }
+    .tour-card-actions > div {
+      gap: 8px;
+    }
+    .tour-card-actions .button {
+      padding: 10px 12px;
+      font-size: 0.85rem;
+    }
+    .tour-dialog:not(.tour-welcome) .tour-card {
+      max-height: 50dvh;
+    }
+  }
+  /* Phones and tablets: the card is a 50dvh sheet pinned by the placement style, below the highlighted section. */
+  @media (max-width: 1199px) {
+    .tour-dialog:not(.tour-welcome) .tour-card {
+      width: calc(100vw - 16px);
+      height: 50dvh;
+      max-height: 50dvh;
+      padding: 12px 16px;
+    }
+    .tour-dialog:not(.tour-welcome) .tour-card-top {
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .tour-dialog:not(.tour-welcome) .farm-guide {
+      flex-basis: 44px;
+    }
+    .tour-dialog:not(.tour-welcome) .farm-guide svg {
+      width: 44px;
+      height: 44px;
+    }
+    .tour-dialog:not(.tour-welcome) .farm-guide > span {
+      display: none;
+    }
+    .tour-dialog:not(.tour-welcome) .tour-card h2 {
+      font-size: 1.1rem;
+      margin-block: 8px;
+    }
+    .tour-dialog:not(.tour-welcome) #tour-description {
+      margin-block: 10px;
+      line-height: 1.5;
+    }
+    .tour-dialog:not(.tour-welcome) .tour-step-number {
+      margin-block: 8px;
+    }
+    .tour-dialog:not(.tour-welcome) .tour-card-actions {
+      margin-top: 10px;
+    }
+    .tour-dialog:not(.tour-welcome) .tour-keyboard-hint {
+      display: none;
+    }
+    .tour-dialog:not(.tour-welcome) .tour-card-actions > .text-button {
+      display: none;
+    }
+    .tour-dialog:not(.tour-welcome) .tour-card-actions > div {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      width: 100%;
+    }
+    .tour-dialog:not(.tour-welcome) .tour-card-actions .button {
+      padding: 8px;
+    }
+    .tour-dialog:not(.tour-welcome) .tour-card-actions svg {
+      display: none;
+    }
+    .tour-dialog:not(.tour-welcome) .tour-section-navigation span {
+      display: none;
+    }
+  }
+  /* Desktop: a reserved rail on the right (layout.css) holds a 404px card. */
+  @media (min-width: 1200px) {
+    .tour-dialog:not(.tour-welcome) .tour-card {
+      width: 404px;
+      max-height: calc(100dvh - 32px);
+      padding: 22px;
+    }
+  }
+
+  /* ---------- 404 and error pages ---------- */
+  .not-found {
+    display: grid;
+    justify-items: start;
+    gap: 14px;
+    max-width: 640px;
+    margin: 8vh auto 0;
+    padding: 32px;
+    border-top: 4px solid var(--season-pre);
+    background: var(--color-surface-raised);
+  }
+  .not-found h1 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 500;
+  }
+  .not-found p {
+    max-width: 52ch;
+    color: var(--color-ink-muted);
+  }
+  .not-found .button {
+    margin-top: 6px;
+  }
+}

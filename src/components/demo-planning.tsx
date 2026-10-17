@@ -72,7 +72,11 @@ export function DemoEnvironment() {
   return (
     <details ref={disclosure} className="disclosure demo-environment" id="demo-environment">
       <summary>
-        <MapPin size={20} /> {t('Location & environment', 'স্থান ও পরিবেশ')}
+        <MapPin size={20} aria-hidden="true" />
+        <span className="demo-summary-label">{t('Location & environment', 'স্থান ও পরিবেশ')}</span>
+        <span className="chip demo-summary-chip">
+          {demoLocations[demo.location][language]} · {weatherLabels[demo.weather][language]}
+        </span>
       </summary>
       <section>
         <div className="demo-section-heading">

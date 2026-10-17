@@ -1,0 +1,559 @@
+@layer pages {
+  .farm-page {
+    max-width: none;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .farm-page > * {
+    min-width: 0;
+  }
+  .farm-page p {
+    color: var(--color-ink-muted);
+  }
+  .farm-page .planner-heading {
+    margin: 0;
+  }
+  .farm-page .planner-heading h1 {
+    margin: 0;
+  }
+  .farm-page > .form-card {
+    margin-block: 0;
+  }
+  .farm-page .form-card {
+    display: grid;
+    gap: 16px;
+    border: 0;
+    padding: 20px 22px;
+    background: var(--color-surface);
+  }
+  .farm-page .form-card > h2 {
+    font-size: 1.3rem;
+  }
+  .farm-page .form-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: 14px;
+  }
+  .farm-page .soil-fields {
+    grid-template-columns: 1fr 1fr;
+    margin-top: 0;
+  }
+  .farm-page .form-field {
+    color: var(--color-ink);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .farm-page .field-help {
+    margin-top: 0;
+    color: var(--color-ink-muted);
+  }
+
+  /* Irrigation tiles */
+  .water-control {
+    display: grid;
+    gap: 8px;
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .water-control legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .water-options {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 0;
+  }
+  .water-options label {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: 2px;
+    min-height: 72px;
+    padding: 12px 30px 12px 14px;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: var(--color-soft);
+    color: var(--color-ink-muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: transform var(--dur-micro) var(--ease-out);
+  }
+  .water-options label:hover {
+    transform: translateY(-1px);
+  }
+  .water-options label strong {
+    display: block;
+    color: var(--color-ink);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .water-options label small {
+    display: block;
+    margin-top: 2px;
+    color: var(--color-ink-muted);
+    font-size: 0.8rem;
+    font-weight: 400;
+    line-height: 1.4;
+  }
+  .water-options label svg {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    margin: 0;
+    color: var(--color-on-primary);
+  }
+  .water-options input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .water-options label.chosen {
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+  .water-options label.chosen strong {
+    color: var(--color-on-primary);
+  }
+  .water-options label.chosen small {
+    color: color-mix(in srgb, var(--color-on-primary) 84%, transparent);
+  }
+  .water-options label:has(input:focus-visible) {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  /* Optional disclosures */
+  .farm-optional {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+  }
+  .farm-page .disclosure {
+    padding: 0;
+    background: transparent;
+  }
+  .farm-page .disclosure[open] {
+    background: var(--color-surface);
+  }
+  .farm-page .disclosure > summary {
+    border-radius: var(--radius-card);
+    color: var(--color-ink);
+    font-size: 1rem;
+  }
+  .farm-page .disclosure > summary:hover {
+    background: var(--color-soft);
+  }
+  .farm-page .disclosure > summary:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: -3px;
+  }
+  .farm-page .disclosure[open] > summary {
+    border-bottom: 0;
+  }
+  .farm-page .disclosure > :not(summary, dialog) {
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .farm-page .disclosure .form-card {
+    padding: 0;
+  }
+  .farm-page .disclosure p {
+    margin-block: 0;
+  }
+  .farm-page .disclosure fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .farm-page .disclosure legend {
+    padding: 0;
+    font-weight: 600;
+  }
+
+  .farm-page .demo-environment > summary {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 6px 10px;
+    padding-block: 10px;
+  }
+  .farm-page .demo-environment > summary > svg {
+    flex-shrink: 0;
+  }
+  .farm-page .demo-summary-label {
+    order: 1;
+    min-width: 0;
+  }
+  .farm-page .demo-summary-chip {
+    order: 2;
+    min-width: 0;
+    max-width: 100%;
+    background: var(--color-soft);
+    color: var(--color-ink-muted);
+    font-weight: 600;
+  }
+  .farm-page .demo-environment > summary::after {
+    order: 3;
+    margin-left: auto;
+  }
+
+  /* Priorities */
+  .priority-control {
+    display: grid;
+    gap: 6px;
+  }
+  .priority-control legend {
+    font-family: var(--font-ui);
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+  .priority-control > p {
+    margin: 0 0 6px;
+    color: var(--color-ink-muted);
+    font-size: 0.9rem;
+  }
+  .priority-control > label {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 0;
+    cursor: pointer;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: var(--color-ink);
+  }
+  .priority-control > label:hover {
+    background: var(--color-soft);
+  }
+  .priority-control > label.chosen,
+  .priority-control label.chosen {
+    background: var(--color-soft);
+    box-shadow: inset 0 0 0 1.5px var(--color-primary);
+  }
+  .priority-control > label > input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .priority-control > label:has(input:focus-visible) {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+  .priority-control .priority-icon {
+    display: flex;
+    color: var(--color-primary);
+  }
+  .priority-control strong {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+  .priority-control small {
+    display: block;
+    margin-top: 2px;
+    color: var(--color-ink-muted);
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+  .priority-control .priority-radio {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin-left: auto;
+    border: 1.5px solid var(--color-primary);
+    border-radius: 50%;
+  }
+  .priority-control .priority-radio > span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-primary);
+  }
+
+  /* Household */
+  .household-control > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .household-control label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    min-height: 44px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-soft);
+    color: var(--color-ink);
+  }
+  .household-control label:has(input:disabled) {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+  .household-control input {
+    margin: 0;
+  }
+  .household-control label.chosen {
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+  /* The ring is the chosen fill colour, so draw it on the label with an offset, not on the checkbox. */
+  .household-control label:has(input:focus-visible) {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+  .household-control label:has(input:focus-visible) input {
+    outline: none;
+  }
+  .household-control strong {
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+  .household-control label.chosen strong {
+    color: var(--color-on-primary);
+  }
+  .household-control label.unfit {
+    box-shadow: inset 0 0 0 1.5px var(--color-warn-ink);
+  }
+  .household-control .household-warning {
+    color: var(--color-warn-ink);
+  }
+  .household-control .field-help {
+    margin-top: 4px;
+    color: var(--color-ink-muted);
+  }
+
+  /* Labour months */
+  .labor-months {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 0;
+  }
+  .labor-months label {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 4px 6px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-soft);
+    color: var(--color-ink);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .labor-months label > input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .labor-months label.chosen {
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+  .labor-months label:has(input:focus-visible) {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  /* Content inside the Location & environment and Previous crops rows */
+  .farm-page .demo-metrics > div {
+    border: 0;
+    border-radius: var(--radius-control);
+    background: var(--color-soft);
+  }
+  .farm-page .demo-metrics dt {
+    color: var(--color-ink-muted);
+  }
+  .farm-page .demo-monthly {
+    border-color: var(--color-line);
+  }
+  /* The twelve-month table scrolls sideways on its own, so the document never overflows (320px). */
+  .farm-page .demo-table-scroll {
+    overflow-x: auto;
+    border-radius: var(--radius-control);
+  }
+  .farm-page .demo-table-scroll table {
+    width: 100%;
+    min-width: 500px;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  .farm-page .demo-table-scroll caption {
+    padding-block: 16px;
+    text-align: left;
+    color: var(--color-ink-muted);
+  }
+  .farm-page .demo-table-scroll th,
+  .farm-page .demo-table-scroll td {
+    padding: 12px;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .farm-page .demo-table-scroll thead {
+    background: var(--color-soft);
+  }
+  .farm-page .demo-preferences {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .farm-page .demo-preferences li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 100%;
+    padding: 4px 4px 4px 16px;
+    min-height: 44px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-soft);
+  }
+  .farm-page .demo-preferences li > span {
+    overflow-wrap: anywhere;
+  }
+  .farm-page .previous-crop-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--color-ink-muted);
+  }
+  .farm-page .previous-crop-remove:hover {
+    background: var(--color-line);
+    color: var(--color-ink);
+  }
+  .farm-page .previous-crop-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 0;
+  }
+  .farm-page .disclosure > section > label {
+    display: grid;
+    gap: 6px;
+    font-weight: 600;
+  }
+
+  /* Action bar */
+  .farm-bottom-cta {
+    margin-top: 0;
+  }
+  .farm-bottom-cta .button {
+    margin-top: 0;
+  }
+  .farm-bottom-cta .action-bar-status p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+  .required-meter {
+    display: inline-flex;
+    gap: 6px;
+  }
+  .required-meter i {
+    width: 22px;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--color-line);
+  }
+  .required-meter i.done {
+    background: var(--color-primary);
+  }
+  @media (max-width: 1023px) {
+    .water-options {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .farm-optional {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 767px) {
+    .farm-page .form-grid,
+    .farm-page .soil-fields {
+      grid-template-columns: 1fr;
+    }
+    .water-options {
+      grid-template-columns: 1fr 1fr;
+    }
+    .labor-months {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .farm-page .form-card {
+      padding: 18px;
+    }
+    .farm-page .farm-bottom-cta {
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      padding: 10px 14px;
+    }
+    .farm-page .farm-bottom-cta .action-bar-status {
+      flex: 0 0 auto;
+    }
+    .farm-page .farm-bottom-cta .action-bar-status:has(p) {
+      flex: 1 1 100%;
+    }
+    .farm-page .farm-bottom-cta .action-bar-actions {
+      flex: 1 1 200px;
+      width: auto;
+    }
+    .farm-page .farm-bottom-cta .action-bar-actions > * {
+      flex: 1 1 auto;
+      width: auto;
+    }
+    /* The long "confirm soil, drainage…" message would hide the fields above it; let it sit in the flow. */
+    .farm-page .farm-bottom-cta.sticky:has(.action-bar-status p) {
+      position: static;
+    }
+  }
+  @media (max-width: 359px) {
+    .water-options {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}

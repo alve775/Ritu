@@ -9,6 +9,7 @@ import type { CropId, Farm } from '../domain/types';
 import { DemoEnvironment } from './demo-planning';
 import { Dialog } from './dialog';
 import { ResetDataControl } from './reset-data-control';
+import { ActionBar } from './ui/action-bar';
 
 function AreaInput() {
   const { t, farm, setFarm } = usePlanner();
@@ -74,16 +75,17 @@ function FarmForm() {
         : [{ crop: 'fallow', start: 0, duration: 12 }],
     });
   return (
-    <div className="page-enter calm-page farm-page">
-      <header className="planner-heading">
+    <div className="page farm-page">
+      <header className="page-header planner-heading">
         <div>
-          <span className="eyebrow">{t('STEP 1 OF 4 · YOUR FARM', 'ধাপ ১ / ৪ · আপনার জমি')}</span>
           <h1>{t('Start with your farm', 'আপনার জমি দিয়ে শুরু করুন')}</h1>
           <p>{t('Tell us about soil and water.', 'মাটি ও পানির তথ্য দিন।')}</p>
         </div>
-        <ResetDataControl />
+        <div className="page-header-actions">
+          <ResetDataControl />
+        </div>
       </header>
-      <section className="form-card" data-tour="farm-basics">
+      <section className="card form-card" data-tour="farm-basics">
         <h2>{t('Your field', 'আপনার জমি')}</h2>
         <div className="form-grid">
           <label className="form-field">
@@ -98,7 +100,7 @@ function FarmForm() {
         </div>
       </section>
       <DemoEnvironment />
-      <section className="form-card" data-tour="farm-water-soil">
+      <section className="card form-card" data-tour="farm-water-soil">
         <h2>{t('Water & soil', 'পানি ও মাটি')}</h2>
         <WaterControl />
         <div className="form-grid soil-fields" data-tour="farm-soil">
@@ -127,112 +129,124 @@ function FarmForm() {
           </label>
         </div>
       </section>
-      <details className="disclosure">
-        <summary>{t('Your priorities, household & help', 'অগ্রাধিকার, পরিবার ও শ্রম')}</summary>
-        <section className="form-card">
-          <PriorityControl />
-          <HouseholdControl />
-          <fieldset className="labor-control">
-            <legend>
-              {t('Months without planting or harvest help', 'রোপণ বা কাটার শ্রম না থাকার মাস')}
-            </legend>
+      <div className="farm-optional">
+        <details className="disclosure">
+          <summary>{t('Your priorities, household & help', 'অগ্রাধিকার, পরিবার ও শ্রম')}</summary>
+          <section className="form-card">
+            <PriorityControl />
+            <HouseholdControl />
+            <fieldset className="labor-control">
+              <legend>
+                {t('Months without planting or harvest help', 'রোপণ বা কাটার শ্রম না থাকার মাস')}
+              </legend>
+              <p>
+                {t(
+                  'Optional. Leave empty when there is no restriction.',
+                  'ঐচ্ছিক। শর্ত না থাকলে ফাঁকা রাখুন।',
+                )}
+              </p>
+              <div className="labor-months">
+                {months[language].map((m, i) => (
+                  <label key={m} className={farm.unavailableMonths.includes(i) ? 'chosen' : ''}>
+                    <input
+                      type="checkbox"
+                      checked={farm.unavailableMonths.includes(i)}
+                      onChange={() => toggleMonth(i)}
+                    />
+                    <span>{m}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          </section>
+        </details>
+        <details className="disclosure" data-tour="farm-history">
+          <summary>{t('Previous crops · optional', 'আগের ফসল · ঐচ্ছিক')}</summary>
+          <section>
             <p>
               {t(
-                'Optional. Leave empty when there is no restriction.',
-                'ঐচ্ছিক। শর্ত না থাকলে ফাঁকা রাখুন।',
+                'Choose crops you have grown before. This records familiarity, not a planting calendar.',
+                'আগে চাষ করা ফসল বাছুন। এটি পরিচিতির তথ্য; রোপণের ক্যালেন্ডার নয়।',
               )}
             </p>
-            <div className="labor-months">
-              {months[language].map((m, i) => (
-                <label key={m} className={farm.unavailableMonths.includes(i) ? 'chosen' : ''}>
-                  <input
-                    type="checkbox"
-                    checked={farm.unavailableMonths.includes(i)}
-                    onChange={() => toggleMonth(i)}
-                  />
-                  <span>{m}</span>
-                </label>
+            <ul className="demo-preferences">
+              {previous.map((id) => (
+                <li key={id}>
+                  <span>{previewData.crops[id].name[language]}</span>
+                  <button
+                    type="button"
+                    className="previous-crop-remove"
+                    aria-label={`${t('Remove previous crop', 'আগের ফসল বাদ দিন')}: ${previewData.crops[id].name[language]}`}
+                    title={`${t('Remove previous crop', 'আগের ফসল বাদ দিন')}: ${previewData.crops[id].name[language]}`}
+                    onClick={() => changePrevious(previous.filter((p) => p !== id))}
+                  >
+                    <X size={20} aria-hidden="true" />
+                  </button>
+                </li>
               ))}
-            </div>
-          </fieldset>
-        </section>
-      </details>
-      <details className="disclosure" data-tour="farm-history">
-        <summary>{t('Previous crops · optional', 'আগের ফসল · ঐচ্ছিক')}</summary>
-        <section>
-          <p>
-            {t(
-              'Choose crops you have grown before. This records familiarity, not a planting calendar.',
-              'আগে চাষ করা ফসল বাছুন। এটি পরিচিতির তথ্য; রোপণের ক্যালেন্ডার নয়।',
+            </ul>
+            {!previous.length && (
+              <p role="status">{t('No previous crops recorded.', 'আগের কোনো ফসল লেখা নেই।')}</p>
             )}
-          </p>
-          <ul className="demo-preferences">
-            {previous.map((id) => (
-              <li key={id}>
-                <span>{previewData.crops[id].name[language]}</span>
-                <button
-                  type="button"
-                  className="previous-crop-remove"
-                  aria-label={`${t('Remove previous crop', 'আগের ফসল বাদ দিন')}: ${previewData.crops[id].name[language]}`}
-                  title={`${t('Remove previous crop', 'আগের ফসল বাদ দিন')}: ${previewData.crops[id].name[language]}`}
-                  onClick={() => changePrevious(previous.filter((p) => p !== id))}
-                >
-                  <X size={20} aria-hidden="true" />
-                </button>
-              </li>
-            ))}
-          </ul>
-          {!previous.length && (
-            <p role="status">{t('No previous crops recorded.', 'আগের কোনো ফসল লেখা নেই।')}</p>
-          )}
-          <label>
-            {t('Previous crop to add', 'আগের ফসল যোগ করুন')}
-            <select
-              value={previousCrop}
-              onChange={(e) => setPreviousCrop(e.target.value as CropId)}
-            >
-              {Object.values(previewData.crops)
-                .filter((c) => c.id !== 'fallow')
-                .map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name[language]}
-                  </option>
-                ))}
-            </select>
-          </label>
-          <div className="previous-crop-actions">
-            <button
-              ref={addPreviousRef}
-              type="button"
-              className="button secondary previous-crop-add"
-              disabled={previous.includes(previousCrop) || previous.length >= 12}
-              onClick={() => changePrevious([...previous, previousCrop])}
-            >
-              {t('Add previous crop', 'আগের ফসল যোগ করুন')}
-            </button>
-            <button
-              type="button"
-              className="button secondary"
-              disabled={!previous.length}
-              onClick={() => setClearHistory(true)}
-            >
-              <RotateCcw size={18} aria-hidden="true" />
-              {t('Reset previous crops', 'আগের ফসল রিসেট করুন')}
-            </button>
-          </div>
-        </section>
-      </details>
-      <div className="farm-bottom-cta" data-tour="farm-continue">
-        <div>
-          {missing && (
+            <label>
+              {t('Previous crop to add', 'আগের ফসল যোগ করুন')}
+              <select
+                value={previousCrop}
+                onChange={(e) => setPreviousCrop(e.target.value as CropId)}
+              >
+                {Object.values(previewData.crops)
+                  .filter((c) => c.id !== 'fallow')
+                  .map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name[language]}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            <div className="previous-crop-actions">
+              <button
+                ref={addPreviousRef}
+                type="button"
+                className="button secondary previous-crop-add"
+                disabled={previous.includes(previousCrop) || previous.length >= 12}
+                onClick={() => changePrevious([...previous, previousCrop])}
+              >
+                {t('Add previous crop', 'আগের ফসল যোগ করুন')}
+              </button>
+              <button
+                type="button"
+                className="button secondary"
+                disabled={!previous.length}
+                onClick={() => setClearHistory(true)}
+              >
+                <RotateCcw size={18} aria-hidden="true" />
+                {t('Reset previous crops', 'আগের ফসল রিসেট করুন')}
+              </button>
+            </div>
+          </section>
+        </details>
+      </div>
+      <ActionBar
+        sticky
+        tour="farm-continue"
+        className="farm-bottom-cta"
+        status={
+          missing ? (
             <p>
               {t(
                 'Confirm soil, drainage and irrigation to receive suggestions. Unknown values are never guessed.',
                 'ফসলের প্রস্তাব পেতে মাটি, নিষ্কাশন ও সেচ নিশ্চিত করুন। অজানা তথ্য অনুমান করা হয় না।',
               )}
             </p>
-          )}
-        </div>
+          ) : (
+            <span className="required-meter" aria-hidden="true">
+              <i className={farm.soil !== 'unknown' ? 'done' : ''} />
+              <i className={farm.drainage !== 'unknown' ? 'done' : ''} />
+              <i className={farm.irrigation !== 'unknown' ? 'done' : ''} />
+            </span>
+          )
+        }
+      >
         <button
           className="button primary"
           disabled={missing}
@@ -250,7 +264,7 @@ function FarmForm() {
           {t('See suggested crops', 'প্রস্তাবিত ফসল দেখুন')}
           <ArrowRight size={20} />
         </button>
-      </div>
+      </ActionBar>
       {clearHistory && (
         <Dialog
           title={t('Clear all previous crops?', 'আগের সব ফসল মুছবেন?')}

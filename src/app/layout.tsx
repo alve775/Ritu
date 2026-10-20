@@ -1,16 +1,17 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
-import '@fontsource-variable/newsreader/opsz.css';
-import '@fontsource-variable/newsreader/opsz-italic.css';
-import '@fontsource-variable/geist/wght.css';
+import { Anek_Bangla, Hind_Siliguri } from 'next/font/google';
+// Noto Sans Bengali stays only as the fallback named in the font tokens.
 import '@fontsource/noto-sans-bengali/400.css';
 import '@fontsource/noto-sans-bengali/600.css';
 // Stylesheet order is cascade order: the layer list first, then each layer's file.
 import './globals.css';
 import '../styles/tokens.css';
+import '../styles/ritu-tokens.css';
 import '../styles/base.css';
 import '../styles/layout.css';
 import '../styles/components.css';
+import '../styles/season-ribbon.css';
 import '../styles/year-wheel.css';
 import '../styles/pages/farm.css';
 import '../styles/pages/crops.css';
@@ -19,7 +20,17 @@ import '../styles/pages/track.css';
 import '../styles/pages/insights.css';
 import '../styles/pages/tour.css';
 import { PlannerProvider } from '../components/planner-provider';
-import { Shell } from '../components/shell';
+
+const display = Anek_Bangla({
+  subsets: ['bengali', 'latin'],
+  weight: ['600', '700', '800'],
+  variable: '--font-display',
+});
+const body = Hind_Siliguri({
+  subsets: ['bengali', 'latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-body',
+});
 
 export const metadata: Metadata = {
   title: 'Ritu — Grow with the seasons',
@@ -42,11 +53,9 @@ export const viewport: Viewport = {
 };
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${display.variable} ${body.variable}`}>
       <body>
-        <PlannerProvider>
-          <Shell>{children}</Shell>
-        </PlannerProvider>
+        <PlannerProvider>{children}</PlannerProvider>
       </body>
     </html>
   );

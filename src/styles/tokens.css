@@ -1,8 +1,8 @@
 @layer tokens {
   :root {
     color-scheme: light;
-    --font-display: 'Newsreader Variable', 'Noto Sans Bengali', Georgia, serif;
-    --font-ui: 'Geist Variable', 'Noto Sans Bengali', system-ui, sans-serif;
+    /* --font-display (Anek Bangla) and --font-body (Hind Siliguri) are set by next/font in src/app/layout.tsx. */
+    --font-ui: var(--font-body), 'Noto Sans Bengali', system-ui, sans-serif;
     --color-bg: #f6f5ee;
     --color-surface: #fdfcf7;
     --color-surface-raised: #ffffff;

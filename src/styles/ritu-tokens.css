@@ -1,0 +1,67 @@
+/* Ritu "daylight" design tokens.
+   Prefixed --ritu-* so they never collide with the existing --color-* tokens in tokens.css.
+   Import once, in src/app/layout.tsx. */
+/* Layered so the body rule below sits under the base layer and never restyles the planner. */
+@layer tokens {
+  :root {
+    /* Base */
+    --ritu-ground: #f5f2eb; /* page background */
+    --ritu-surface: #fffdf9; /* cards, header */
+    --ritu-surface-2: #efe9de; /* segmented controls, subtle fills */
+    --ritu-ink: #231c15; /* primary text */
+    --ritu-ink-2: #5a4f43; /* secondary text, still 4.5:1 on ground */
+    --ritu-line: #e3dacb; /* borders */
+    --ritu-line-strong: #cfc3af; /* input borders, dashed "not sure" tiles */
+
+    /* Action and state */
+    --ritu-action: #1e5b3a; /* the one primary button colour */
+    --ritu-action-hover: #123d26;
+    --ritu-on-action: #ffffff;
+    --ritu-selected: #e3efe6; /* selected tile fill (pair with 2px action border) */
+    --ritu-danger: #9a3412; /* destructive links only */
+    --ritu-badge-bg: #faf0cc; /* "Prototype", "ask an advisor" */
+    --ritu-badge-ink: #6b5000;
+
+    /* Seasons: the only semantic colour system. Bar = filled segment, tint = card header, ink = text on tint, on = text on bar */
+    --ritu-k1: #c8571b;
+    --ritu-k1-tint: #fbe4d3;
+    --ritu-k1-ink: #6e2d08;
+    --ritu-k1-on: #ffffff;
+    --ritu-k2: #2c64a3;
+    --ritu-k2-tint: #dee8f5;
+    --ritu-k2-ink: #143a63;
+    --ritu-k2-on: #ffffff;
+    --ritu-rabi: #d9a514;
+    --ritu-rabi-tint: #faf0cc;
+    --ritu-rabi-ink: #4a3700;
+    --ritu-rabi-on: #2b2000;
+    --ritu-rest: repeating-linear-gradient(
+      135deg,
+      #e3dacb 0 6px,
+      #f5f2eb 6px 12px
+    ); /* fallow is a texture, never a colour */
+
+    /* Shape and size */
+    --ritu-radius-sm: 10px;
+    --ritu-radius: 16px;
+    --ritu-radius-lg: 28px;
+    --ritu-pill: 999px;
+    --ritu-tap: 44px; /* minimum touch target */
+    --ritu-cta: 56px; /* primary button height */
+
+    /* Type: --font-display / --font-body come from next/font in app/layout.tsx */
+    --ritu-font-display: var(--font-display), 'Noto Sans Bengali', system-ui, sans-serif;
+    --ritu-font-body: var(--font-body), 'Noto Sans Bengali', system-ui, sans-serif;
+  }
+
+  body {
+    background: var(--ritu-ground);
+    color: var(--ritu-ink);
+    font-family: var(--ritu-font-body);
+  }
+
+  /* Bangla matras need room; never go below 1.5 for body text */
+  :lang(bn) {
+    line-height: 1.55;
+  }
+}

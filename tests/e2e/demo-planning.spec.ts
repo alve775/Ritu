@@ -86,7 +86,7 @@ test('farm first, passing suggestions, locked windows, calendar and task trackin
   page.on('request', (r) => {
     if (!['127.0.0.1', 'localhost'].includes(new URL(r.url()).hostname)) external.push(r.url());
   });
-  await page.goto('/');
+  await page.goto('/farm');
   await expect(page).toHaveURL('/farm');
   await expect(
     page.getByRole('heading', { name: 'Start with your farm', exact: true }),

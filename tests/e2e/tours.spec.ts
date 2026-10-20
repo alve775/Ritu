@@ -5,7 +5,7 @@ import { tourSteps } from '../../src/data/tours';
 test('first visit offers a tour; skipping preserves the plan and does not repeat on reload', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/farm');
   const tour = page.getByRole('dialog');
   await expect(
     tour.getByRole('heading', { name: 'Your mission: plan, then keep track' }),
@@ -25,7 +25,7 @@ test('full mission visits every control with visible spotlights and preserves in
   page,
 }) => {
   test.setTimeout(90000);
-  await page.goto('/');
+  await page.goto('/farm');
   const tour = page.getByRole('dialog');
   await expect(tour).toBeVisible();
   const saved = await page.evaluate(() => localStorage.getItem('ritu-preview-v1'));
@@ -56,7 +56,7 @@ test('full mission visits every control with visible spotlights and preserves in
 
 test('top tour chooser replays every section and reopens a collapsed field', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('ritu-tour-v1', 'seen'));
-  await page.goto('/');
+  await page.goto('/farm');
   const cases = [
     { choice: 'Interactive field', title: 'Inspect one rotation and month', route: '/plan' },
     { choice: 'Suggested crops', title: 'See only matching suggestions', route: '/crops' },
@@ -84,7 +84,7 @@ test('top tour chooser replays every section and reopens a collapsed field', asy
 });
 
 test('tour is accessible, keyboard-contained and supports Bangla at 320px', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/farm');
   const tour = page.getByRole('dialog');
   await expect(tour).toBeVisible();
   let result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
@@ -125,7 +125,7 @@ test('first-visit tour can be dismissed when storage is unavailable', async ({ p
       throw new DOMException('Unavailable', 'SecurityError');
     };
   });
-  await page.goto('/');
+  await page.goto('/farm');
   await page.getByRole('dialog').getByRole('button', { name: 'Skip tour' }).click();
   await expect(page.getByText('Storage unavailable — keep this tab open')).toBeVisible();
   await page.goto('/farm');

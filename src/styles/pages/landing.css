@@ -1,0 +1,239 @@
+/* Landing page. Desktop: header + copy on the left, field art on the right.
+   Phone (<= 760px): header, art, copy, button pinned low. */
+/* Imported by src/app/(marketing)/page.tsx only. */
+@layer pages {
+  .landing {
+    box-sizing: border-box;
+    min-height: 100dvh;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 20px;
+    display: grid;
+    gap: 20px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      'header art'
+      'copy   art';
+    background: var(--ritu-ground);
+    color: var(--ritu-ink);
+    font-family: var(--ritu-font-body);
+  }
+
+  .landing__header {
+    grid-area: header;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 24px 0 20px;
+  }
+
+  .landing__copy {
+    grid-area: copy;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 26px;
+    padding: 56px 24px 56px 20px;
+  }
+
+  .landing__eyebrow {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ritu-ink-2);
+  }
+  .landing__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ritu-action);
+    flex: none;
+  }
+
+  .landing__title {
+    margin: 0;
+    font-family: var(--ritu-font-display);
+    font-weight: 600;
+    font-size: clamp(38px, 5.6vw, 72px);
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+  }
+  .landing__title span {
+    color: var(--ritu-action);
+  }
+  .landing:lang(bn) .landing__title {
+    letter-spacing: -0.01em;
+    line-height: 1.14;
+  }
+
+  .landing__lede {
+    margin: 0;
+    max-width: 26em;
+    font-size: 19px;
+    line-height: 1.55;
+    color: var(--ritu-ink-2);
+  }
+
+  .landing__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 22px;
+    padding-top: 4px;
+  }
+
+  .landing__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: var(--ritu-cta);
+    padding: 0 26px;
+    border-radius: var(--ritu-pill);
+    background: var(--ritu-action);
+    color: var(--ritu-on-action);
+    font-weight: 700;
+    font-size: 17px;
+    text-decoration: none;
+    transition: background-color 150ms ease;
+  }
+  .landing__cta:hover {
+    background: var(--ritu-action-hover);
+  }
+
+  .landing__secondary {
+    padding: 12px 0;
+    color: var(--ritu-ink);
+    font-weight: 600;
+    font-size: 16px;
+    text-underline-offset: 4px;
+  }
+
+  .landing a:focus-visible {
+    outline: 3px solid var(--ritu-action);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  .landing__art {
+    grid-area: art;
+    position: relative;
+    min-height: 640px;
+    border-radius: var(--ritu-radius-lg);
+    overflow: hidden;
+    background: #d6c9ae;
+  }
+  .landing__art > svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .landing__place {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 6px 12px;
+    border-radius: var(--ritu-pill);
+    background: rgb(255 253 249 / 0.9);
+    font-size: 13px;
+    font-weight: 600;
+    color: #3d3127;
+  }
+
+  .landing__plan-card {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    box-sizing: border-box;
+    width: 300px;
+    max-width: calc(100% - 40px);
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: var(--ritu-surface);
+    box-shadow: 0 16px 40px -16px rgb(35 28 21 / 0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .landing__plan-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .landing__plan-head span + span {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--ritu-ink-2);
+  }
+  .landing__plan-rotation {
+    font-size: 14px;
+    color: #3d3127;
+  }
+
+  @media (max-width: 760px) {
+    .landing {
+      padding: 14px 16px 22px;
+      gap: 18px;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto auto 1fr;
+      grid-template-areas: 'header' 'art' 'copy';
+    }
+    .landing__header {
+      padding: 0;
+    }
+    .landing__art {
+      min-height: 0;
+      height: 390px;
+      border-radius: 24px;
+    }
+    .landing__place {
+      top: 14px;
+      left: 14px;
+      font-size: 12px;
+      padding: 4px 10px;
+    }
+    .landing__plan-card {
+      left: 14px;
+      right: 14px;
+      bottom: 14px;
+      width: auto;
+      max-width: none;
+      padding: 12px 14px;
+      gap: 8px;
+    }
+    .landing__copy {
+      padding: 0;
+      gap: 10px;
+      justify-content: flex-start;
+    }
+    .landing__eyebrow {
+      display: none;
+    }
+    .landing__lede {
+      font-size: 17px;
+    }
+    .landing__actions {
+      margin-top: auto;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 4px;
+      padding-top: 16px;
+    }
+    .landing__cta {
+      font-size: 18px;
+    }
+    .landing__secondary {
+      align-self: center;
+    }
+  }
+}

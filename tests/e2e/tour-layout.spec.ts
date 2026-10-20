@@ -30,7 +30,7 @@ for (const language of ['en', 'bn'] as const) {
       },
       { language },
     );
-    await page.goto('/');
+    await page.goto('/farm');
     await expect(page.getByText('Saved on this device')).toBeVisible();
     if (language === 'bn') await page.getByRole('button', { name: 'বাংলা', exact: true }).click();
     const errors: string[] = [];

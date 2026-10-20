@@ -6,7 +6,7 @@ test.use({ reducedMotion: 'no-preference' });
 test('tour moves continuously, reveals its instructions and guards repeated navigation', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/farm');
   const tour = page.locator('.tour-dialog');
   await expect(tour.getByRole('button', { name: 'Start the tour' })).toBeEnabled();
   await tour.getByRole('button', { name: 'Start the tour' }).click();
@@ -75,7 +75,7 @@ test('tour moves continuously, reveals its instructions and guards repeated navi
 test('Escape during travel cancels motion, restores focus and preserves the farm', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/farm');
   const tour = page.locator('.tour-dialog');
   await expect(tour.getByRole('button', { name: 'Start the tour' })).toBeEnabled();
   const saved = await page.evaluate(() => localStorage.getItem('ritu-preview-v1'));
@@ -101,7 +101,7 @@ test('Escape during travel cancels motion, restores focus and preserves the farm
 test('switching to reduced motion settles a moving tour and keeps navigation usable', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/farm');
   const tour = page.locator('.tour-dialog');
   await tour.getByRole('button', { name: 'Start the tour' }).click();
   await expect(page).toHaveURL('/farm');

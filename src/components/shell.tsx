@@ -20,21 +20,14 @@ import { Dialog } from './dialog';
 import { TourGuide } from './tour-guide';
 import { ReadingControls } from './reading-controls';
 import { ResetDataControl } from './reset-data-control';
+import { LanguageSwitch } from './language-switch';
 import { StepProgress } from './ui/step-progress';
 import { BottomTabBar } from './ui/bottom-tab-bar';
 import { evidenceSources } from '../data/evidence';
 
 export function Shell({ children }: { children: ReactNode }) {
   const path = usePathname();
-  const {
-    t,
-    language,
-    setLanguage,
-    saved: farmSaved,
-    demoSaved,
-    journeySaved,
-    ready,
-  } = usePlanner();
+  const { t, language, saved: farmSaved, demoSaved, journeySaved, ready } = usePlanner();
   const saved = farmSaved && demoSaved && journeySaved;
   const [modal, setModal] = useState<'about' | null>(null);
   const stepPath = path === '/insights' ? '/plan' : path;
@@ -82,14 +75,7 @@ export function Shell({ children }: { children: ReactNode }) {
           <div className="header-tools">
             <TourGuide />
             <ReadingControls />
-            <div className="language-switch" role="group" aria-label={t('Language', 'ভাষা')}>
-              <button onClick={() => setLanguage('en')} aria-pressed={language === 'en'}>
-                EN
-              </button>
-              <button onClick={() => setLanguage('bn')} aria-pressed={language === 'bn'} lang="bn">
-                বাংলা
-              </button>
-            </div>
+            <LanguageSwitch />
             <button
               className="icon-button help-button"
               aria-label={t('About the data', 'তথ্য সম্পর্কে')}

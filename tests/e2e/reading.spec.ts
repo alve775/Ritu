@@ -4,7 +4,7 @@ import { seedPlan } from './fixtures';
 
 const start = async (page: Page) => {
   await page.addInitScript(() => localStorage.setItem('ritu-tour-v1', 'seen'));
-  await page.goto('/');
+  await page.goto('/farm');
   await expect(page.getByText('Saved on this device')).toBeVisible();
 };
 

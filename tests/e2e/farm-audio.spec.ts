@@ -49,7 +49,7 @@ test('farm soundscape plays only on request; volume, scenes, hiding, stop and mu
       }
     };
   });
-  await page.goto('/');
+  await page.goto('/farm');
   await page.getByRole('button', { name: 'Reading & sound' }).click();
   const state = () =>
     page.evaluate(() => {
@@ -125,7 +125,7 @@ test('denied audio reports a useful error and leaves the planner usable', async 
       }
     };
   });
-  await page.goto('/');
+  await page.goto('/farm');
   await page.getByRole('button', { name: 'Reading & sound' }).click();
   await page.getByRole('button', { name: 'Play farm sounds' }).click();
   await expect(page.getByText('Audio unavailable. Try again or use Ritu silently.')).toBeVisible();

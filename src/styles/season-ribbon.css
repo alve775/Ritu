@@ -1,0 +1,71 @@
+/* One plan visual, reused on Landing, Crops (live preview), Calendar and Track. */
+/* Same cascade layer as the other shared components. */
+@layer components {
+  .season-ribbon {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr)); /* Mar .. Feb */
+    gap: 3px;
+  }
+
+  .season-ribbon__seg {
+    height: 10px;
+    border-radius: 3px;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .season-ribbon__seg--k1 {
+    background: var(--ritu-k1);
+    color: var(--ritu-k1-on);
+  }
+  .season-ribbon__seg--k2 {
+    background: var(--ritu-k2);
+    color: var(--ritu-k2-on);
+  }
+  .season-ribbon__seg--rabi {
+    background: var(--ritu-rabi);
+    color: var(--ritu-rabi-on);
+  }
+  .season-ribbon__seg--rest {
+    background: var(--ritu-rest);
+    color: var(--ritu-ink-2);
+  }
+
+  /* md: Crops page preview */
+  .season-ribbon--md {
+    gap: 4px;
+  }
+  .season-ribbon--md .season-ribbon__seg {
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  /* lg: Calendar and Track */
+  .season-ribbon--lg {
+    gap: 6px;
+  }
+  .season-ribbon--lg .season-ribbon__seg {
+    height: 76px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px 12px;
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .season-ribbon--md .season-ribbon__seg--rest,
+  .season-ribbon--lg .season-ribbon__seg--rest {
+    border: 1px dashed var(--ritu-line-strong);
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+  }
+}

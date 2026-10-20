@@ -24,7 +24,7 @@ Do not edit the preserved `docs/PROJECT_PLAN.md`. Record subsequent decisions in
 - Keep known blockers visible. Unknown input must never become a successful check by default.
 - Do not label example categories as measured savings, confidence, crop performance or forecasts. See `docs/DATA_INTEGRATION.md` before changing evidence-related labels.
 - Add both English and Bangla for user-facing copy. Do not translate user-entered farm names.
-- Use the semantic tokens in `src/styles/tokens.css`; never raw colours in components or page CSS (Three.js scene colours in `field-scene.ts` excepted). `npm test` checks token contrast in both themes.
+- Use the semantic tokens in `src/styles/tokens.css`; never raw colours in components or page CSS (Three.js scene colours in `field-scene.ts` excepted). `npm test` checks token contrast. There is one light theme; do not add a dark theme without a design for it.
 - Use semantic inputs, visible labels, focus styles and keyboard interactions. Calendars scroll within their panel on small screens; the document must not overflow.
 - Preserve the 20px body baseline, optional 24px setting and readable supporting labels. The Three.js canvas supplements the month details; keep an equivalent keyboard-accessible inspection button and a usable WebGL fallback. Render only on changes, dispose GPU resources, and keep drag rotation opt-in so normal page scrolling works.
 - Keep tours separate from planner inputs. Route steps must resolve visible controls at desktop/phone widths, trap and restore keyboard focus, allow skipping and support both languages. New inputs should receive corresponding mission explanations. A manual plant example must never become a month-specific growth prediction without reviewed evidence.

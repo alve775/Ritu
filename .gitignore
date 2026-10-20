@@ -19,3 +19,5 @@ coverage/
 /video/output/
 /video/**/__pycache__/
 /.agent-browser/
+
+.superpowers/

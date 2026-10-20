@@ -80,7 +80,6 @@ for (const size of [
             sound: false,
             volume: 35,
             ambience: 'morning',
-            theme: 'light',
           }),
         );
       }, text);
@@ -201,90 +200,100 @@ test('track wheel renders at zero and full progress without broken paths', async
   expect((await paths()).some((d) => /NaN|Infinity/.test(d))).toBe(false);
 });
 
-for (const theme of ['light', 'dark'] as const)
-  for (const language of ['en', 'bn'] as const)
-    test(`no overflow or clipping at 320px · ${language} · ${theme} · extra large`, async ({
-      page,
-    }) => {
-      await seedPlan(page);
-      await page.addInitScript(
-        ({ theme, language }) => {
-          localStorage.setItem(
-            'ritu-display-v1',
-            JSON.stringify({ text: 'larger', motion: false, sound: false, theme }),
-          );
-          const saved = JSON.parse(localStorage.getItem('ritu-preview-v1') ?? '{}');
-          localStorage.setItem('ritu-preview-v1', JSON.stringify({ ...saved, language }));
-        },
-        { theme, language },
-      );
-      await page.setViewportSize({ width: 320, height: 800 });
-      for (const route of ['/farm', '/crops', '/plan', '/insights']) {
-        await page.goto(route);
-        const html = page.locator('html');
-        await expect(html).toHaveAttribute('lang', language);
-        await expect(html).toHaveAttribute('data-text-size', 'larger');
-        await expect(html).toHaveAttribute('data-theme', theme);
-        await page.evaluate(() => document.fonts.ready);
-        await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-        expect(
-          await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-          route,
-        ).toBe(true);
-        const clipped = await page
-          .locator(
-            '.nav-text strong, .button, .tool-button, .season-chip, .tracker-slot, .language-switch button',
-          )
-          .evaluateAll((els) =>
-            els
-              .filter((el) => el.getBoundingClientRect().width > 0)
-              .filter((el) => el.scrollWidth > el.clientWidth + 1)
-              .map((el) => el.textContent),
-          );
-        expect(clipped, route).toEqual([]);
-      }
-    });
-
-for (const theme of ['light', 'dark'] as const)
-  test(`axe finds no WCAG A/AA violations on any page · ${theme} theme`, async ({ page }) => {
+for (const language of ['en', 'bn'] as const)
+  test(`no overflow or clipping at 320px · ${language} · extra large`, async ({ page }) => {
     await seedPlan(page);
-    await page.addInitScript((theme) => {
+    await page.addInitScript((language) => {
       localStorage.setItem(
         'ritu-display-v1',
-        JSON.stringify({ text: 'comfortable', motion: false, sound: false, theme }),
+        JSON.stringify({ text: 'larger', motion: false, sound: false }),
       );
-    }, theme);
-    const scan = async (route: string) => {
-      await page.evaluate(() => document.fonts.ready);
-      const result = await new AxeBuilder({ page })
-        .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
-        .analyze();
-      expect(
-        result.violations.map(
-          (v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(' | ')}`,
-        ),
-        `${route} · ${theme}`,
-      ).toEqual([]);
-    };
-    for (const route of ['/farm', '/crops', '/plan']) {
+      const saved = JSON.parse(localStorage.getItem('ritu-preview-v1') ?? '{}');
+      localStorage.setItem('ritu-preview-v1', JSON.stringify({ ...saved, language }));
+    }, language);
+    await page.setViewportSize({ width: 320, height: 800 });
+    for (const route of ['/farm', '/crops', '/plan', '/insights']) {
       await page.goto(route);
-      await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+      const html = page.locator('html');
+      await expect(html).toHaveAttribute('lang', language);
+      await expect(html).toHaveAttribute('data-text-size', 'larger');
+      await page.evaluate(() => document.fonts.ready);
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-      if (route === '/plan') {
-        await page.getByRole('button', { name: 'Open field view', exact: true }).click();
-        await expect(page.getByRole('region', { name: 'Seasonal field explorer' })).toBeVisible();
-      }
-      await scan(route);
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+        route,
+      ).toBe(true);
+      const clipped = await page
+        .locator(
+          '.nav-text strong, .button, .tool-button, .season-chip, .tracker-slot, .language-switch button',
+        )
+        .evaluateAll((els) =>
+          els
+            .filter((el) => el.getBoundingClientRect().width > 0)
+            .filter((el) => el.scrollWidth > el.clientWidth + 1)
+            .map((el) => el.textContent),
+        );
+      expect(clipped, route).toEqual([]);
     }
-    await page.goto('/plan');
-    await page.getByRole('button', { name: 'Save calendar & track', exact: true }).click();
-    await expect(page).toHaveURL('/track');
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await scan('/track');
-    await page.goto('/insights');
-    await expect(page.getByRole('heading', { level: 1, name: 'Know the why.' })).toBeVisible();
-    await scan('/insights');
   });
+
+test('a system dark mode and an old saved Dark choice still show the light theme', async ({
+  page,
+}) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.addInitScript(() => {
+    localStorage.setItem('ritu-tour-v1', 'seen');
+    localStorage.setItem(
+      'ritu-display-v1',
+      JSON.stringify({ text: 'comfortable', motion: false, sound: false, theme: 'dark' }),
+    );
+  });
+  await page.goto('/farm');
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await expect(page.locator('html')).not.toHaveAttribute('data-theme');
+  expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe(
+    'rgb(246, 245, 238)',
+  );
+});
+
+test('axe finds no WCAG A/AA violations on any page', async ({ page }) => {
+  await seedPlan(page);
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'ritu-display-v1',
+      JSON.stringify({ text: 'comfortable', motion: false, sound: false }),
+    );
+  });
+  const scan = async (route: string) => {
+    await page.evaluate(() => document.fonts.ready);
+    const result = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+      .analyze();
+    expect(
+      result.violations.map(
+        (v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(' | ')}`,
+      ),
+      route,
+    ).toEqual([]);
+  };
+  for (const route of ['/farm', '/crops', '/plan']) {
+    await page.goto(route);
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    if (route === '/plan') {
+      await page.getByRole('button', { name: 'Open field view', exact: true }).click();
+      await expect(page.getByRole('region', { name: 'Seasonal field explorer' })).toBeVisible();
+    }
+    await scan(route);
+  }
+  await page.goto('/plan');
+  await page.getByRole('button', { name: 'Save calendar & track', exact: true }).click();
+  await expect(page).toHaveURL('/track');
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await scan('/track');
+  await page.goto('/insights');
+  await expect(page.getByRole('heading', { level: 1, name: 'Know the why.' })).toBeVisible();
+  await scan('/insights');
+});
 
 test('Bangla headings use weight 600 on the calendar page', async ({ page }) => {
   await seedPlan(page);

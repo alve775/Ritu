@@ -120,11 +120,9 @@
     background: var(--color-primary);
     color: var(--color-on-primary);
   }
-  .water-options label.chosen strong {
-    color: var(--color-on-primary);
-  }
+  .water-options label.chosen strong,
   .water-options label.chosen small {
-    color: color-mix(in srgb, var(--color-on-primary) 84%, transparent);
+    color: var(--color-on-primary);
   }
   .water-options label:has(input:focus-visible) {
     outline: 3px solid var(--color-focus);

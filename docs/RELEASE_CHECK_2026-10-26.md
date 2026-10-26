@@ -2,11 +2,17 @@
 
 The user requested committing and pushing the accumulated project work and refining the square green junction at the top of the white workspace. The checked-out branch is main and origin is https://github.com/alve775/Ritu.git. A fresh fetch confirmed the local and remote heads matched before staging; no history rewrite is authorized or needed.
 
-## Latest revision: square corner and lotapata divider
+## Latest revision: move the original stitch only
 
-The next user clarification is exact: the stitch must touch the workspace corner, not float beside it. The initial vine in b1b9237 left that point green. A small connecting branch (public/ornaments/vine-corner.svg) now joins the repeating stem to the actual junction. Both background layers are flush to the right edge, and their phase is aligned to the header-height token plus its 1px border. The branch endpoint is the workspace's upper-left corner. Do not reintroduce a right-hand gap or remove this connector while retaining only the repeating motif.
+The user explicitly rejected the added branch in d48412e: preserve the original stitch and move it right until its line or leaf intersects the square workspace corner. The extra vine-corner.svg asset is removed. Only the unchanged original public/ornaments/vine-stitch.svg is used, still at 14 × 120px with the same vertical phase. Its horizontal background position moves 7.5px right. The sidebar clips the ornament at its boundary; no branch, extension, resizing or new artwork is added. Logo and control geometry are unchanged.
 
-A new browser regression reads the screenshot pixel immediately beside the actual measured corner. Before the repair that pixel was the unadorned green [32, 75, 59]; afterward it is stitch-colored [194, 193, 155] on the standard-density capture. The check also passes on the high-density browser project, which measured [196, 194, 157]. All ten density/logo/reading cases, scoped lint, formatting, TypeScript and the production build passed after this change. Native scrollbars still retain their original drawing and input behavior. Build-generated next-env imports were restored before publication.
+All ten focused density/logo/reading browser cases passed for this revision. The screenshot-pixel check confirms the unchanged stitch reaches the actual corner on standard and high-density captures, and now also rejects additional artwork or changed motif dimensions. Visual review covers the close-up, full desktop workspace and deliberately visible native scrollbar. Native scrollbars still paint over the decoration. Scoped ESLint, formatting, whitespace checks and the production build including TypeScript passed. Build-generated next-env imports were restored. No app behavior, field data or crop method changes belong to this narrow revision. Evidence: research/audit-2026-10-26/vine-shift-only/, vine-shift-only.log and vine-shift-build.log. The earlier complete unit/browser counts below belong to their original commits.
+
+![Current: original stitch moved right to the corner](audit-assets/2026-10-26/corner-stitch-shifted.png)
+
+## Superseded: added connecting branch
+
+The initial vine in b1b9237 left the exact corner green. Commit d48412e added a connecting branch and verified corner paint, but the user rejected that design. The images below are historical comparisons, not the current artwork. Do not restore the connector.
 
 Before and after close-ups, captured at the same CSS size and pixel density:
 

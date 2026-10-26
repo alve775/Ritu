@@ -38,9 +38,13 @@ test('vine stitch reaches the exact workspace corner', async ({ page }, info) =>
       y: main.top,
       dpr: devicePixelRatio,
       scrolling: side.scrollHeight > side.clientHeight,
+      artwork: backgrounds.map((match) => new URL(match[1], location.href).pathname),
+      artworkSize: getComputedStyle(side).backgroundSize,
     };
   });
   expect(corner.scrolling).toBe(false);
+  expect(corner.artwork).toEqual(['/ornaments/vine-stitch.svg']);
+  expect(corner.artworkSize).toBe('14px 120px');
   const screenshot = await page.screenshot({ path: info.outputPath('corner-full.png') });
   const paint = await page.evaluate(
     async ({ base64, corner }) => {

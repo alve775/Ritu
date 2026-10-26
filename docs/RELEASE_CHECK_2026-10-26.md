@@ -2,13 +2,23 @@
 
 The user requested committing and pushing the accumulated project work and refining the square green junction at the top of the white workspace. The checked-out branch is main and origin is https://github.com/alve775/Ritu.git. A fresh fetch confirmed the local and remote heads matched before staging; no history rewrite is authorized or needed.
 
-## Latest revision: preserve the whole wavy stitch
+## Latest revision: stronger stitch color on white
+
+The user reported that the pale stitch was barely visible on the white workspace. Only the SVG paint changes: use fully opaque olive #82965f for the stem, leaf fill and leaf outline, replacing the pale translucent paints. Paths, stroke widths, dash lengths, 14 × 120px dimensions, position and layering are unchanged. The specified solid color has calculated sRGB contrast of approximately 3.24:1 against white and 3.04:1 against the #204b3b sidebar. These ratios describe the specified paint, not every antialiased edge pixel or a claim of whole-app accessibility.
+
+Primary reference: [W3C non-text contrast guidance](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html) explains contrast and warns that thin antialiased graphics can appear fainter than their nominal color. This vine is decoration rather than an information-bearing control; the color is chosen for visibility on both backgrounds. No size or stroke-width change is included.
+
+All four focused corner/density browser cases passed, including standard and high-density corner captures. The close-up and full desktop workspace were visually inspected. Evidence: research/audit-2026-10-26/vine-contrast/ and vine-contrast.log. The earlier build and broader test results below belong to their own revisions; this SVG-paint-only update does not rerun them.
+
+![Current: opaque olive stitch visible on white and green](audit-assets/2026-10-26/corner-stitch-contrast.png)
+
+## Earlier revision: preserve the whole wavy stitch
 
 The user reported that the wavy stem disappeared after 211e6f5. Moving a background beyond the sidebar's edge clipped its right-hand waves and leaves. The corner-only pixel check passed but did not establish that the full ornament remained visible. Keep the unchanged original 14 × 120px SVG at the same horizontal position and vertical phase, rendered on a fixed decorative sidebar pseudo-element that can paint across the boundary. Do not add a branch, resize or redraw the motif. The layer has pointer-events: none, takes no layout space and disappears with the sidebar on phones and during desktop tours. The square workspace corner and original logo stay unchanged.
 
 All ten focused density/logo/reading browser cases passed. The corrected regression verifies paint on both sides of the corner over a full 120px repeat, not just a single corner pixel. Standard-density capture: 99 left-side and 139 right-side painted pixels; high-density capture: approximately 96 and 117 CSS-pixel equivalents. Close-up, full-shell, native-scrollbar and tour captures were visually reviewed. The narrow ornament now also paints over the outer edge of the scrollbar when present; pointer events pass through to the scrollbar. Both complete desktop tour cases, scoped ESLint, formatting, whitespace checks and the production build including TypeScript passed. Build-generated next-env imports were restored. Evidence: research/audit-2026-10-26/vine-unclipped/, vine-unclipped.log, vine-unclipped-tours.log and vine-unclipped-build.log. These are twelve focused browser cases; the historical complete-suite results below were not rerun for this decorative change.
 
-![Current: complete original wave and leaves across the corner](audit-assets/2026-10-26/corner-stitch-complete.png)
+![Earlier: complete original wave with pale paint](audit-assets/2026-10-26/corner-stitch-complete.png)
 
 ## Superseded: shifted background clipped the wave
 

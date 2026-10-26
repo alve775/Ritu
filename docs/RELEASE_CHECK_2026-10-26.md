@@ -4,6 +4,15 @@ The user requested committing and pushing the accumulated project work and refin
 
 ## Latest revision: square corner and lotapata divider
 
+The next user clarification is exact: the stitch must touch the workspace corner, not float beside it. The initial vine in b1b9237 left that point green. A small connecting branch (public/ornaments/vine-corner.svg) now joins the repeating stem to the actual junction. Both background layers are flush to the right edge, and their phase is aligned to the header-height token plus its 1px border. The branch endpoint is the workspace's upper-left corner. Do not reintroduce a right-hand gap or remove this connector while retaining only the repeating motif.
+
+A new browser regression reads the screenshot pixel immediately beside the actual measured corner. Before the repair that pixel was the unadorned green [32, 75, 59]; afterward it is stitch-colored [194, 193, 155] on the standard-density capture. The check also passes on the high-density browser project, which measured [196, 194, 157]. All ten density/logo/reading cases, scoped lint, formatting, TypeScript and the production build passed after this change. Native scrollbars still retain their original drawing and input behavior. Build-generated next-env imports were restored before publication.
+
+Before and after close-ups, captured at the same CSS size and pixel density:
+
+![Before: green gap at the corner](audit-assets/2026-10-26/corner-stitch-before.png)
+![After: branch reaches the corner](audit-assets/2026-10-26/corner-stitch-after.png)
+
 After the first publication (70b08a2), the user rejected the rounded corner and asked for an agricultural stitch or lotapata motif in the narrow divider instead. The main workspace is square again. A repeating 14 × 120px native SVG vine decorates only the desktop sidebar's right-hand gutter; its dashed stem and alternating leaves use muted sage and straw tones. It replaces the plain inset line.
 
 The pattern is a decorative CSS background: it has no focus target, pointer handler, motion or agronomic meaning. It does not change any control or logo dimensions. Native scrollbars paint over it when scrolling is necessary; the ornament is visible in the otherwise empty gutter. The sidebar and ornament remain hidden in phone navigation and active desktop tours.

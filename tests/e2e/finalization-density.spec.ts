@@ -7,6 +7,84 @@ test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('ritu-tour-v1', 'seen'));
 });
 
+test('vine stitch reaches the exact workspace corner', async ({ page }, info) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/farm');
+  await expect(
+    page.getByRole('heading', { name: 'Start with your farm', exact: true }),
+  ).toBeVisible();
+  const corner = await page.evaluate(async () => {
+    const side = document.querySelector<HTMLElement>('.planner-sidebar')!;
+    const backgrounds = [
+      ...getComputedStyle(side).backgroundImage.matchAll(/url\(["']?([^"')]+)["']?\)/g),
+    ];
+    await Promise.all(
+      backgrounds.map(
+        (match) =>
+          new Promise<void>((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve();
+            img.onerror = () => reject(new Error('Divider asset could not load'));
+            img.src = match[1];
+          }),
+      ),
+    );
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+    );
+    const main = document.querySelector('.main-content')!.getBoundingClientRect();
+    return {
+      x: main.left,
+      y: main.top,
+      dpr: devicePixelRatio,
+      scrolling: side.scrollHeight > side.clientHeight,
+    };
+  });
+  expect(corner.scrolling).toBe(false);
+  const screenshot = await page.screenshot({ path: info.outputPath('corner-full.png') });
+  const paint = await page.evaluate(
+    async ({ base64, corner }) => {
+      const bitmap = await createImageBitmap(
+        await (await fetch('data:image/png;base64,' + base64)).blob(),
+      );
+      const canvas = document.createElement('canvas');
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(bitmap, 0, 0);
+      const pixel = [
+        ...ctx.getImageData(
+          Math.floor((corner.x - 0.5) * corner.dpr),
+          Math.floor((corner.y - 0.5) * corner.dpr),
+          1,
+          1,
+        ).data,
+      ];
+      return {
+        pixel,
+        differenceFromGreen: Math.max(
+          Math.abs(pixel[0] - 32),
+          Math.abs(pixel[1] - 75),
+          Math.abs(pixel[2] - 59),
+        ),
+      };
+    },
+    { base64: screenshot.toString('base64'), corner },
+  );
+  fs.writeFileSync(
+    info.outputPath('corner-paint.json'),
+    JSON.stringify({ corner, paint }, null, 2),
+  );
+  await page.screenshot({
+    path: info.outputPath('corner-detail.png'),
+    clip: { x: corner.x - 36, y: corner.y - 40, width: 92, height: 88 },
+  });
+  expect(
+    paint.differenceFromGreen,
+    'The last painted point beside the actual white corner must contain the stitch, rather than an empty green gap',
+  ).toBeGreaterThan(10);
+});
+
 test('capture the farm density and branding for visual review', async ({ page }, info) => {
   await page.goto('/farm');
   await expect(

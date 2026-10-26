@@ -421,10 +421,15 @@
       overflow-y: auto;
       scrollbar-gutter: stable;
       background: #204b3b;
-      background-image: url('/ornaments/vine-stitch.svg');
-      background-repeat: repeat-y;
-      background-position: right 1px top;
-      background-size: 14px 120px;
+      background-image: url('/ornaments/vine-corner.svg'), url('/ornaments/vine-stitch.svg');
+      background-repeat: no-repeat, repeat-y;
+      /* The branch's (14, 28) endpoint meets the real 74px header boundary. */
+      background-position:
+        right 0 top calc(var(--header-h) + 1px - 28px),
+        right 0 top calc(var(--header-h) + 1px - 28px);
+      background-size:
+        14px 28px,
+        14px 120px;
       background-origin: border-box;
       color: #fff;
       z-index: var(--z-header);

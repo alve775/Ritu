@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('ritu-tour-v1', 'seen'));
 });
 
-test('vine stitch reaches the exact workspace corner', async ({ page }, info) => {
+test('original wavy stitch stays visible across the workspace corner', async ({ page }, info) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/farm');
   await expect(
@@ -15,9 +15,8 @@ test('vine stitch reaches the exact workspace corner', async ({ page }, info) =>
   ).toBeVisible();
   const corner = await page.evaluate(async () => {
     const side = document.querySelector<HTMLElement>('.planner-sidebar')!;
-    const backgrounds = [
-      ...getComputedStyle(side).backgroundImage.matchAll(/url\(["']?([^"')]+)["']?\)/g),
-    ];
+    const ornament = getComputedStyle(side, '::after');
+    const backgrounds = [...ornament.backgroundImage.matchAll(/url\(["']?([^"')]+)["']?\)/g)];
     await Promise.all(
       backgrounds.map(
         (match) =>
@@ -39,12 +38,14 @@ test('vine stitch reaches the exact workspace corner', async ({ page }, info) =>
       dpr: devicePixelRatio,
       scrolling: side.scrollHeight > side.clientHeight,
       artwork: backgrounds.map((match) => new URL(match[1], location.href).pathname),
-      artworkSize: getComputedStyle(side).backgroundSize,
+      artworkSize: ornament.backgroundSize,
+      pointerEvents: ornament.pointerEvents,
     };
   });
   expect(corner.scrolling).toBe(false);
   expect(corner.artwork).toEqual(['/ornaments/vine-stitch.svg']);
   expect(corner.artworkSize).toBe('14px 120px');
+  expect(corner.pointerEvents).toBe('none');
   const screenshot = await page.screenshot({ path: info.outputPath('corner-full.png') });
   const paint = await page.evaluate(
     async ({ base64, corner }) => {
@@ -64,8 +65,25 @@ test('vine stitch reaches the exact workspace corner', async ({ page }, info) =>
           1,
         ).data,
       ];
+      // Both halves must paint: the old clipped background passed the corner-only check.
+      const changedPixels = (left: number, right: number, background: number[]) => {
+        let count = 0;
+        for (
+          let y = Math.ceil((corner.y + 2) * corner.dpr);
+          y < (corner.y + 122) * corner.dpr;
+          y++
+        ) {
+          for (let x = Math.ceil(left * corner.dpr); x < right * corner.dpr; x++) {
+            const color = ctx.getImageData(x, y, 1, 1).data;
+            if (background.some((channel, i) => Math.abs(channel - color[i]) > 8)) count++;
+          }
+        }
+        return count / (corner.dpr * corner.dpr);
+      };
       return {
         pixel,
+        leftPaint: changedPixels(corner.x - 7, corner.x - 1, [32, 75, 59]),
+        rightPaint: changedPixels(corner.x + 1, corner.x + 8, [255, 255, 255]),
         differenceFromGreen: Math.max(
           Math.abs(pixel[0] - 32),
           Math.abs(pixel[1] - 75),
@@ -81,12 +99,16 @@ test('vine stitch reaches the exact workspace corner', async ({ page }, info) =>
   );
   await page.screenshot({
     path: info.outputPath('corner-detail.png'),
-    clip: { x: corner.x - 36, y: corner.y - 40, width: 92, height: 88 },
+    clip: { x: corner.x - 36, y: corner.y - 40, width: 92, height: 200 },
   });
   expect(
     paint.differenceFromGreen,
     'The last painted point beside the actual white corner must contain the stitch, rather than an empty green gap',
   ).toBeGreaterThan(10);
+  expect(paint.leftPaint, 'The left-hand waves and leaves must remain visible').toBeGreaterThan(30);
+  expect(paint.rightPaint, 'The right-hand waves and leaves must not be clipped').toBeGreaterThan(
+    30,
+  );
 });
 
 test('capture the farm density and branding for visual review', async ({ page }, info) => {

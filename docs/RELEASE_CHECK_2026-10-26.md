@@ -2,13 +2,21 @@
 
 The user requested committing and pushing the accumulated project work and refining the square green junction at the top of the white workspace. The checked-out branch is main and origin is https://github.com/alve775/Ritu.git. A fresh fetch confirmed the local and remote heads matched before staging; no history rewrite is authorized or needed.
 
-## Latest revision: move the original stitch only
+## Latest revision: preserve the whole wavy stitch
+
+The user reported that the wavy stem disappeared after 211e6f5. Moving a background beyond the sidebar's edge clipped its right-hand waves and leaves. The corner-only pixel check passed but did not establish that the full ornament remained visible. Keep the unchanged original 14 × 120px SVG at the same horizontal position and vertical phase, rendered on a fixed decorative sidebar pseudo-element that can paint across the boundary. Do not add a branch, resize or redraw the motif. The layer has pointer-events: none, takes no layout space and disappears with the sidebar on phones and during desktop tours. The square workspace corner and original logo stay unchanged.
+
+All ten focused density/logo/reading browser cases passed. The corrected regression verifies paint on both sides of the corner over a full 120px repeat, not just a single corner pixel. Standard-density capture: 99 left-side and 139 right-side painted pixels; high-density capture: approximately 96 and 117 CSS-pixel equivalents. Close-up, full-shell, native-scrollbar and tour captures were visually reviewed. The narrow ornament now also paints over the outer edge of the scrollbar when present; pointer events pass through to the scrollbar. Both complete desktop tour cases, scoped ESLint, formatting, whitespace checks and the production build including TypeScript passed. Build-generated next-env imports were restored. Evidence: research/audit-2026-10-26/vine-unclipped/, vine-unclipped.log, vine-unclipped-tours.log and vine-unclipped-build.log. These are twelve focused browser cases; the historical complete-suite results below were not rerun for this decorative change.
+
+![Current: complete original wave and leaves across the corner](audit-assets/2026-10-26/corner-stitch-complete.png)
+
+## Superseded: shifted background clipped the wave
 
 The user explicitly rejected the added branch in d48412e: preserve the original stitch and move it right until its line or leaf intersects the square workspace corner. The extra vine-corner.svg asset is removed. Only the unchanged original public/ornaments/vine-stitch.svg is used, still at 14 × 120px with the same vertical phase. Its horizontal background position moves 7.5px right. The sidebar clips the ornament at its boundary; no branch, extension, resizing or new artwork is added. Logo and control geometry are unchanged.
 
 All ten focused density/logo/reading browser cases passed for this revision. The screenshot-pixel check confirms the unchanged stitch reaches the actual corner on standard and high-density captures, and now also rejects additional artwork or changed motif dimensions. Visual review covers the close-up, full desktop workspace and deliberately visible native scrollbar. Native scrollbars still paint over the decoration. Scoped ESLint, formatting, whitespace checks and the production build including TypeScript passed. Build-generated next-env imports were restored. No app behavior, field data or crop method changes belong to this narrow revision. Evidence: research/audit-2026-10-26/vine-shift-only/, vine-shift-only.log and vine-shift-build.log. The earlier complete unit/browser counts below belong to their original commits.
 
-![Current: original stitch moved right to the corner](audit-assets/2026-10-26/corner-stitch-shifted.png)
+![Historical: shifted background reached the corner but clipped the wave](audit-assets/2026-10-26/corner-stitch-shifted.png)
 
 ## Superseded: added connecting branch
 

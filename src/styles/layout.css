@@ -421,14 +421,21 @@
       overflow-y: auto;
       scrollbar-gutter: stable;
       background: #204b3b;
-      background-image: url('/ornaments/vine-stitch.svg');
-      background-repeat: repeat-y;
-      /* Move the original vine right; its stem meets the square workspace corner. */
-      background-position: right -7.5px top calc(var(--header-h) + 1px - 28px);
-      background-size: 14px 120px;
-      background-origin: border-box;
       color: #fff;
       z-index: var(--z-header);
+    }
+    .planner-sidebar::after {
+      content: '';
+      position: fixed;
+      inset-block: 0;
+      left: calc(var(--sidebar-w) - 6.5px);
+      width: 14px;
+      /* Keep the complete original wave visible on both sides of the corner. */
+      background-image: url('/ornaments/vine-stitch.svg');
+      background-repeat: repeat-y;
+      background-position: left top calc(var(--header-h) + 1px - 28px);
+      background-size: 14px 120px;
+      pointer-events: none;
     }
     .sidebar-brand {
       align-self: center;

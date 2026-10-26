@@ -25,8 +25,8 @@ export function ResetDataControl({ compact = false }: { compact?: boolean }) {
         >
           <p>
             {t(
-              'All farm fields, including name, area, soil, water and location, will return to the defaults. Crop choices, saved calendar, progress and notes on this device will be cleared. Language and reading/sound settings will stay.',
-              'জমির সব তথ্য মূল মানে ফিরবে। এই ডিভাইসের বাছা ফসল, ক্যালেন্ডার, অগ্রগতি ও নোট মুছে যাবে। ভাষা, পড়া ও শব্দের পছন্দ থাকবে।',
+              'This clears your farm fields, location, crop choices, saved calendar, observations and notes, including previous-version records on this device. The form will be empty. Language and reading/sound settings stay. Export your records first if you need them.',
+              'এতে এই ডিভাইসের জমির তথ্য, স্থান, ফসল, ক্যালেন্ডার, পর্যবেক্ষণ, নোট ও আগের সংস্করণের হিসাব মুছবে। ফরম ফাঁকা হবে। ভাষা, পড়া ও শব্দের পছন্দ থাকবে। দরকার হলে আগে হিসাব ডাউনলোড করুন।',
             )}
           </p>
           <div className="button-row previous-crop-actions">

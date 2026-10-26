@@ -1,4 +1,105 @@
 @layer pages {
+  html[data-tour-layout='active'] .farm-bottom-cta.sticky {
+    position: static;
+  }
+  .farm-page .nasa-environment p {
+    margin: 0;
+  }
+  .farm-page .nasa-environment .demo-controls {
+    margin: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .farm-page .nasa-environment .button-row {
+    justify-content: flex-start;
+    margin: 0;
+  }
+  .farm-page .nasa-environment .demo-monthly {
+    margin: 0;
+    padding-block: 8px;
+  }
+  @media (max-width: 599px) {
+    .farm-page .nasa-environment .demo-controls {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  .farm-page .visible-farm-section {
+    padding: 24px;
+    border: 1px solid var(--color-line);
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .farm-page .visible-farm-section > h2 {
+    font-size: 1.3rem;
+  }
+  .farm-page .visible-farm-section > section {
+    display: grid;
+    gap: 24px;
+    padding: 0;
+  }
+  .farm-page .visible-farm-section > section > label {
+    display: grid;
+    gap: 10px;
+  }
+  .farm-page .visible-farm-section .previous-crop-actions {
+    margin-top: 4px;
+    gap: 16px;
+  }
+  .farm-page .nasa-environment {
+    border: 1px solid var(--color-line);
+  }
+  .source-badge {
+    color: #25533f;
+    background: #eef5f1;
+    border: 1px solid #b9cebf;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+  }
+  .climate-location-controls {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .climate-location-controls label {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+  }
+  .climate-active-record {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    padding: 16px;
+    background: #f2f5f7;
+    border-radius: 10px;
+  }
+  .climate-boundary {
+    font-size: 0.9rem;
+    max-width: 78ch;
+  }
+  .climate-load-status {
+    font-size: 0.9rem;
+  }
+  .farm-page .nasa-environment .demo-metrics {
+    margin: 0;
+  }
+  .farm-page .nasa-environment .demo-monthly {
+    display: grid;
+    gap: 16px;
+  }
+  @media (max-width: 1199px) {
+    .climate-location-controls {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 599px) {
+    .climate-location-controls {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .farm-page .visible-farm-section {
+      padding: 18px;
+    }
+  }
   .farm-page {
     max-width: none;
     grid-template-columns: minmax(0, 1fr);

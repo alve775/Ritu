@@ -2,9 +2,9 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { ArrowRight, Box, Check, SlidersHorizontal } from 'lucide-react';
-import { usePlanner } from './planner-provider';
-import { SeasonExplorer } from './season-explorer';
+import { ArrowRight, Earth, Check, SlidersHorizontal } from 'lucide-react';
+import { usePlanner } from './legacy-planner-provider';
+import { NasaExplorer } from './nasa-explorer';
 import { CalendarLegend, CalendarScrollHint, MonthHeader, RotationRow, Status } from './calendar';
 import { ScenarioSimulator } from './demo-planning';
 import { assessDemo, planFingerprint } from '../domain/demo-planner';
@@ -16,6 +16,7 @@ import { Dialog } from './dialog';
 import { prefersReducedMotion } from '../lib/motion';
 import { ActionBar } from './ui/action-bar';
 import { YearWheel } from './ui/year-wheel';
+import { siteFor } from '../data/demo-environment';
 
 export function CompareView() {
   const {
@@ -49,6 +50,7 @@ export function CompareView() {
     };
     setJourney({
       tracked: {
+        site: siteFor(demo),
         rotation,
         fingerprint: planFingerprint(farm, demo, priority),
         year: Number(year),
@@ -96,8 +98,8 @@ export function CompareView() {
               );
             }}
           >
-            <Box size={20} />
-            {t('Explore 3D crops', 'থ্রিডি ফসল দেখুন')}
+            <Earth size={20} />
+            {t('Explore crops & weather', 'ফসল ও আবহাওয়া দেখুন')}
           </button>
           <Link href="/farm" className="button secondary">
             <SlidersHorizontal size={20} />
@@ -250,7 +252,7 @@ export function CompareView() {
         </section>
       </details>
       <ScenarioSimulator />
-      <SeasonExplorer />
+      <NasaExplorer />
       <p className="save-help" id="save-year-help">
         {t(
           'The year labels the saved cycle; it does not change the climate or assigned planting windows.',
@@ -285,9 +287,10 @@ export function CompareView() {
               existing?.rotation.id === selected.rotation.id &&
               existing.year === Number(year) &&
               existing.fingerprint === planFingerprint(farm, demo, priority)
-            )
+            ) {
+              if (!existing.site) setJourney({ tracked: { ...existing, site: siteFor(demo) } });
               router.push('/track');
-            else if (existing) setConfirmSave(true);
+            } else if (existing) setConfirmSave(true);
             else saveCalendar();
           }}
         >

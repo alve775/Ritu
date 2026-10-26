@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, test } from './browser-test';
 import { chooseDefaultCrops, seedPlan } from './fixtures';
 
 test.beforeEach(async ({ page }) => {
@@ -87,7 +87,7 @@ for (const size of [
       await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.goto('/farm');
       await chooseDefaultCrops(page);
-      await page.getByRole('button', { name: 'Open field view', exact: true }).click();
+      await page.getByRole('button', { name: 'Open crop explorer', exact: true }).click();
       await expect(page.getByRole('region', { name: 'Seasonal field explorer' })).toBeVisible();
       await page.evaluate(() => {
         (document.activeElement as HTMLElement | null)?.blur();
@@ -174,9 +174,9 @@ test('season filters with no matching crops are disabled in the blocker state', 
   const build = page.getByRole('button', { name: 'Build my calendar', exact: true });
   const describedBy = await build.getAttribute('aria-describedby');
   await expect(page.locator(`#${describedBy}`)).toContainText(
-    'No matching crop windows for: Pre-monsoon, Winter.',
+    'No matching crop windows for: Winter.',
   );
-  await expect(page.getByRole('button', { name: 'Pre-monsoon', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Pre-monsoon', exact: true })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Winter', exact: true })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'All', exact: true })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Monsoon', exact: true })).toBeEnabled();
@@ -252,7 +252,7 @@ test('a system dark mode and an old saved Dark choice still show the light theme
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(page.locator('html')).not.toHaveAttribute('data-theme');
   expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe(
-    'rgb(246, 245, 238)',
+    'rgb(255, 255, 255)',
   );
 });
 
@@ -280,7 +280,7 @@ test('axe finds no WCAG A/AA violations on any page', async ({ page }) => {
     await page.goto(route);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     if (route === '/plan') {
-      await page.getByRole('button', { name: 'Open field view', exact: true }).click();
+      await page.getByRole('button', { name: 'Open crop explorer', exact: true }).click();
       await expect(page.getByRole('region', { name: 'Seasonal field explorer' })).toBeVisible();
     }
     await scan(route);

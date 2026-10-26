@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { SuggestedCropsView } from '../../../components/journey-views';
-export const metadata: Metadata = { title: 'Step 2: Suggested crops — RITU' };
+import { EvidenceCropsView } from '../../../components/evidence-views';
+export const metadata: Metadata = { title: 'Step 2 of 4: Crop choices — RITU' };
 export default function Page() {
-  return <SuggestedCropsView />;
+  return <EvidenceCropsView />;
 }

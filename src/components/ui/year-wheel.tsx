@@ -14,7 +14,7 @@ import {
 import type { CropPeriod } from '../../domain/types';
 import { activityKey } from '../../lib/journey-store';
 import { periodLabel } from '../../lib/period-label';
-import { usePlanner } from '../planner-provider';
+import { usePlanner } from '../legacy-planner-provider';
 
 export interface YearWheelProps {
   periods: CropPeriod[];

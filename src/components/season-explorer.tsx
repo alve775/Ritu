@@ -12,7 +12,7 @@ import {
   Box,
   Eye,
 } from 'lucide-react';
-import { usePlanner } from './planner-provider';
+import { usePlanner } from './legacy-planner-provider';
 import { activitiesForMonth } from '../domain/season';
 import type { WindowPhase } from '../domain/season';
 import { months, previewData } from '../data/preview';

@@ -1,11 +1,11 @@
 'use client';
 import { useState } from 'react';
 import { Search, Sprout } from 'lucide-react';
-import { usePlanner } from './planner-provider';
+import { usePlanner } from './legacy-planner-provider';
 import { Dialog } from './dialog';
 import { previewData } from '../data/preview';
 import { cropCategories } from '../data/crop-catalogue';
-import { cropModelNotes } from '../data/crop-models';
+import { CropPhoto, photoFor } from './crop-photo';
 import type { Crop, CropCategory } from '../domain/types';
 
 const allCrops = Object.values(previewData.crops)
@@ -102,18 +102,19 @@ export function CropCatalogue() {
       {active && (
         <Dialog title={active.name[language]} onClose={() => setActive(null)}>
           <p>{active.description[language]}</p>
+          <CropPhoto crop={active.id} />
           <p>
             {t('Botanical family', 'উদ্ভিদ পরিবার')}: {active.family[language]}
           </p>
           <p>
-            {cropModelNotes[active.id]
+            {photoFor(active.id)
               ? t(
-                  'An original schematic anatomy model is available in the field explorer.',
-                  'জমির দৃশ্যে নিজেদের তৈরি প্রতীকী গঠনের মডেল আছে।',
+                  'A credited crop reference photograph is available. The photo does not establish local suitability or planting dates.',
+                  'উৎসসহ ফসলের উদাহরণ ছবি আছে। ছবি স্থানীয় উপযোগিতা বা রোপণের সময় নিশ্চিত করে না।',
                 )
               : t(
-                  'Anatomy model not available yet. This reference does not establish a planting window.',
-                  'গঠনের মডেল এখনো নেই। এই উৎস রোপণের সময় নিশ্চিত করে না।',
+                  'No verified photograph is included for this entry yet. This reference does not establish a planting window.',
+                  'এই ফসলের যাচাইকৃত ছবি এখনো যোগ হয়নি। এই উৎস রোপণের সময় নিশ্চিত করে না।',
                 )}
           </p>
           {active.reference && (

@@ -3,14 +3,14 @@
     color-scheme: light;
     /* --font-display (Anek Bangla) and --font-body (Hind Siliguri) are set by next/font in src/app/layout.tsx. */
     --font-ui: var(--font-body), 'Noto Sans Bengali', system-ui, sans-serif;
-    --color-bg: #f6f5ee;
-    --color-surface: #fdfcf7;
+    --color-bg: #ffffff;
+    --color-surface: #ffffff;
     --color-surface-raised: #ffffff;
-    --color-ink: #1f2a17;
-    --color-ink-muted: #59614f;
-    --color-line: #e4e3d5;
-    --color-soft: #ecebdf;
-    --color-primary: #4a6d1f;
+    --color-ink: #20313c;
+    --color-ink-muted: #4f606d;
+    --color-line: #d7e0e6;
+    --color-soft: #f2f5f7;
+    --color-primary: #285843;
     --color-on-primary: #fbfbf4;
     --color-accent: #6f8a22;
     --color-warn-bg: #f8e8cb;
@@ -35,7 +35,7 @@
     --logo-chip: #ffffff;
     --shadow-1: 0 1px 2px rgba(31, 42, 23, 0.05), 0 10px 26px rgba(31, 42, 23, 0.07);
     --shadow-2: 0 18px 48px rgba(31, 42, 23, 0.18);
-    --grain-opacity: 0.05;
+    --grain-opacity: 0;
     --radius-pill: 999px;
     --radius-card: 18px;
     --radius-control: 12px;
@@ -50,9 +50,10 @@
     --z-dialog: 50;
     --z-tour: 60;
     --z-grain: 70;
-    --header-h: 64px;
+    --header-h: 73px;
+    --sidebar-w: 264px;
     --tabbar-h: 0px;
-    --page-max: 1180px;
+    --page-max: 1680px;
     --gutter: 28px;
   }
 }

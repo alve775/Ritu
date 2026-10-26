@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './browser-test';
 import AxeBuilder from '@axe-core/playwright';
 import { seedPlan } from './fixtures';
 
@@ -20,7 +20,7 @@ test('first screen keeps optional detail closed and does not load a 3D canvas', 
   await page.goto('/plan');
   await expect(page.locator('.calendar-board .rotation-row')).toHaveCount(1);
   await page.getByRole('button', { name: 'All options', exact: true }).click();
-  await expect(page.locator('.calendar-board .rotation-row')).toHaveCount(3);
+  await expect(page.locator('.calendar-board .rotation-row')).toHaveCount(2);
 });
 
 test('reading settings persist separately from the farm and honor reduced motion', async ({
@@ -201,10 +201,10 @@ test('tour streams whole words without layout shifts and can show all text immed
       return samples;
     });
   expect(samples.some((sample) => sample.first > 0.5 && sample.last < 0.5)).toBe(true);
-  await expect(page.getByRole('heading', { name: 'Tell Ritu about water access' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Make this farm yours' })).toBeVisible();
   // Full text is exposed once to assistive technology, visual word spans are hidden.
   await expect(page.locator('#tour-description .sr-only')).toHaveText(
-    'Choose reliable, limited, rainfed, severe shortage or Not sure. Unknown water is never silently assumed; suggestions wait for confirmation.',
+    'Give your field a name and area. Area does not predict yield. Invalid entries keep the previous value and stop Continue until corrected.',
   );
   await page.getByRole('button', { name: 'Show text instantly' }).click();
   await page.getByRole('button', { name: 'Next', exact: true }).click();

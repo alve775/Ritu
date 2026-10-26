@@ -26,6 +26,13 @@
     gap: 10px;
     margin-top: 6px;
   }
+  .tour-extra-help {
+    margin-top: 16px;
+  }
+  .tour-extra-help > summary {
+    min-height: 44px;
+    padding-block: 10px;
+  }
   .tour-choice {
     display: flex;
     justify-content: space-between;

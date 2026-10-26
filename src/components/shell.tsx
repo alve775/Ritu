@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import rituLogo from '../../public/website_logo.jpg';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import {
   Check,
@@ -23,36 +23,72 @@ import { ResetDataControl } from './reset-data-control';
 import { LanguageSwitch } from './language-switch';
 import { StepProgress } from './ui/step-progress';
 import { BottomTabBar } from './ui/bottom-tab-bar';
-import { evidenceSources } from '../data/evidence';
+import { EvidenceSourcesView } from './evidence-views';
+import { evidencePlans } from '../domain/evidence-planner';
+import { profileKey } from '../lib/evidence-store';
 
 export function Shell({ children }: { children: ReactNode }) {
   const path = usePathname();
-  const { t, language, saved: farmSaved, demoSaved, journeySaved, ready } = usePlanner();
+  const planner = usePlanner();
+  const {
+    t,
+    language,
+    saved: farmSaved,
+    demoSaved,
+    journeySaved,
+    ready,
+    reviewed,
+    tracked,
+  } = planner;
   const saved = farmSaved && demoSaved && journeySaved;
   const [modal, setModal] = useState<'about' | null>(null);
-  const stepPath = path === '/insights' ? '/plan' : path;
+  const stepPath = path;
+  const cropReady =
+    reviewed &&
+    evidencePlans(
+      planner.from,
+      planner.preferred,
+      planner.farm,
+      planner.priority,
+      planner.unplanted,
+    ).length > 0;
   const nav = [
     {
       href: '/farm',
+      completed: reviewed,
       label: t('Your farm', 'আপনার জমি'),
       icon: House,
+      description: t('Soil, water & location', 'মাটি, সেচ ও স্থান'),
     },
     {
       href: '/crops',
+      completed: cropReady,
       label: t('Crops', 'ফসল'),
       icon: Sprout,
+      description: t('Published regional references', 'প্রকাশিত আঞ্চলিক তথ্য'),
     },
     {
       href: '/plan',
+      completed: !!tracked && tracked.profileKey === profileKey(planner),
       label: t('Calendar', 'ক্যালেন্ডার'),
       icon: Layers3,
+      description: t('Compare & save a plan', 'তুলনা ও পরিকল্পনা রাখুন'),
     },
     {
       href: '/track',
       label: t('Track', 'হিসাব'),
       icon: ClipboardCheck,
+      description: t('Weather, actual dates & notes', 'আবহাওয়া, আসল দিন ও নোট'),
     },
   ];
+  const stepIndex = nav.findIndex((item) => item.href === stepPath);
+  const pageTitle =
+    stepIndex >= 0
+      ? `${t('Step', 'ধাপ')} ${stepIndex + 1} ${t('of 4', '/ ৪')} · ${nav[stepIndex].label} — RITU`
+      : t('Data sources & methods — RITU', 'তথ্যের উৎস ও পদ্ধতি — ঋতু');
+  useEffect(() => {
+    document.title = pageTitle;
+  }, [pageTitle]);
   return (
     <div className={`app ${language === 'bn' ? 'bangla' : ''}`}>
       <a className="skip-link" href="#main">
@@ -60,18 +96,20 @@ export function Shell({ children }: { children: ReactNode }) {
       </a>
       <header className="app-header">
         <div className="app-header-inner">
-          <Link className="brand" href="/" aria-label={t('Ritu home', 'ঋতু হোম')}>
-            <span className="brand-chip">
-              <Image
-                className="brand-logo"
-                src={rituLogo}
-                alt="RITU · ঋতু"
-                sizes="120px"
-                loading="eager"
-              />
-            </span>
+          <Link className="brand header-brand" href="/" aria-label={t('Ritu home', 'ঋতু হোম')}>
+            <Image
+              className="brand-logo"
+              src={rituLogo}
+              alt="RITU · ঋতু"
+              sizes="180px"
+              loading="eager"
+            />
           </Link>
-          <StepProgress items={nav} path={stepPath} label={t('Main navigation', 'মূল নেভিগেশন')} />
+          <p className="header-context">
+            {stepIndex >= 0
+              ? `${t('Step', 'ধাপ')} ${stepIndex + 1} ${t('of 4', '/ ৪')} · ${nav[stepIndex].label}`
+              : t('Sources & methods', 'উৎস ও পদ্ধতি')}
+          </p>
           <div className="header-tools">
             <TourGuide />
             <ReadingControls />
@@ -86,7 +124,31 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
+      <aside className="planner-sidebar">
+        <Link className="brand sidebar-brand" href="/" aria-label={t('Ritu home', 'ঋতু হোম')}>
+          <Image
+            className="brand-logo"
+            src={rituLogo}
+            alt="RITU · ঋতু"
+            sizes="180px"
+            loading="eager"
+          />
+        </Link>
+        <p className="sidebar-heading">{t('YOUR SEASON PLAN', 'আপনার মৌসুমের পরিকল্পনা')}</p>
+        <StepProgress items={nav} path={stepPath} label={t('Main navigation', 'মূল নেভিগেশন')} />
+        <div className="sidebar-source">
+          <button className="text-button" onClick={() => setModal('about')}>
+            <Earth size={18} /> {t('Sources & limits', 'উৎস ও সীমা')}
+          </button>
+          <small>NASA POWER · Open-Meteo · DAE</small>
+        </div>
+      </aside>
       <main id="main" className="main-content" tabIndex={-1}>
+        {stepIndex >= 0 && (
+          <p className="workflow-step">
+            {t('Step', 'ধাপ')} {stepIndex + 1} {t('of 4', '/ ৪')} · {nav[stepIndex].label}
+          </p>
+        )}
         {ready ? children : <p role="status">{t('Loading your farm…', 'জমির তথ্য লোড হচ্ছে…')}</p>}
       </main>
       <footer className="footer">
@@ -107,71 +169,14 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
           <button className="preview-badge" onClick={() => setModal('about')}>
             <CircleAlert size={16} aria-hidden="true" />
-            {t('Illustrative preview', 'উদাহরণভিত্তিক প্রিভিউ')}
+            {t('NASA · weather · DAE sources', 'নাসা · আবহাওয়া · কৃষি অধিদপ্তরের উৎস')}
           </button>
         </div>
       </footer>
       <BottomTabBar items={nav} path={stepPath} label={t('Main navigation', 'মূল নেভিগেশন')} />
       {modal === 'about' && (
-        <Dialog
-          title={t('A preview with a purpose.', 'উদ্দেশ্যপূর্ণ এক প্রিভিউ।')}
-          onClose={() => setModal(null)}
-        >
-          <span className="eyebrow">{t('TRANSPARENCY FIRST', 'স্বচ্ছতা সবার আগে')}</span>
-          <p>
-            {t(
-              'Ritu helps you explore crop rotations around water access, seasonal timing and the food your household wants to keep.',
-              'ঋতু আপনাকে সেচ, মৌসুমি সময় ও পরিবারের প্রয়োজনের ভিত্তিতে ফসলক্রম দেখতে সাহায্য করে।',
-            )}
-          </p>
-          <div className="notice">
-            <Earth size={23} />
-            <div>
-              <strong>{t('All examples are illustrative.', 'সব উদাহরণ প্রতীকী।')}</strong>
-              <p>
-                {t(
-                  'This is an example farm. Crop matching and dates use authored rules. Dates are assigned automatically and checked for overlap. No NASA observations or verified farming recommendations are included.',
-                  'এটি একটি উদাহরণ জমি। ফসলের মিল ও সময় হাতে তৈরি নিয়মে তৈরি। সময় স্বয়ংক্রিয়ভাবে ঠিক হয় এবং সংঘাত যাচাই হয়। নাসার পর্যবেক্ষণ বা যাচাইকৃত কৃষি পরামর্শ নেই।',
-                )}
-              </p>
-            </div>
-          </div>
-          <h3>{t('What is ready', 'যা প্রস্তুত')}</h3>
-          <p>
-            {t(
-              'Enter farm conditions, choose suggested crops, compare automatic calendars, try scenarios and track planting, harvest and notes. Your input is stored in this browser only.',
-              'জমির শর্ত দিন, প্রস্তাবিত ফসল বাছুন, স্বয়ংক্রিয় ক্যালেন্ডার তুলনা করুন, পরিস্থিতি বদলান এবং রোপণ, ফসল কাটা ও নোট রাখুন। তথ্য শুধু এই ব্রাউজারে থাকে।',
-            )}
-          </p>
-          <h3>{t('Sources & challenge status', 'উৎস ও চ্যালেঞ্জের অবস্থা')}</h3>
-          <p>
-            {t(
-              'The published Field Shift summary calls for NASA Earth observations, local soil information, crop characteristics and farmer priorities. NASA data and local suitability rules are not yet integrated.',
-              'প্রকাশিত Field Shift সারাংশে নাসার পৃথিবী পর্যবেক্ষণ, স্থানীয় মাটির তথ্য, ফসলের বৈশিষ্ট্য ও কৃষকের অগ্রাধিকার চাওয়া হয়েছে। নাসার তথ্য ও স্থানীয় উপযোগিতার শর্ত এখনো যুক্ত হয়নি।',
-            )}
-          </p>
-          <ul className="model-references">
-            {evidenceSources.slice(0, 4).map((source) => (
-              <li key={source.url}>
-                <a href={source.url} target="_blank" rel="noopener noreferrer">
-                  {source.name}
-                </a>
-              </li>
-            ))}
-          </ul>
-          <h3>{t('What comes next', 'এরপর যা যোগ হবে')}</h3>
-          <p>
-            {t(
-              'Reviewed local crop calendars and soil rules; NASA rainfall and temperature histories; and feedback from farmers or agricultural advisers. No live NASA data, forecasts, yield estimates or measured water savings are included today.',
-              'যাচাইকৃত স্থানীয় ফসলের সময় ও মাটির শর্ত, নাসার বৃষ্টি ও তাপমাত্রার ইতিহাস এবং কৃষক বা কৃষি পরামর্শকের মতামত যোগ হবে। এখন সরাসরি নাসার তথ্য, পূর্বাভাস, ফলনের হিসাব বা পরিমাপ করা পানি সাশ্রয় নেই।',
-            )}
-          </p>
-          <div className="dialog-footer">
-            {t(
-              'Built by the Ritu team for the 2026 Space Apps project.',
-              '২০২৬ স্পেস অ্যাপস প্রকল্পের জন্য ঋতু দলের তৈরি।',
-            )}
-          </div>
+        <Dialog title={t('Sources & methods', 'উৎস ও পদ্ধতি')} onClose={() => setModal(null)}>
+          <EvidenceSourcesView embedded onNavigate={() => setModal(null)} />
         </Dialog>
       )}
     </div>

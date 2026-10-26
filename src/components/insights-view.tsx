@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
-import { usePlanner } from './planner-provider';
+import { usePlanner } from './legacy-planner-provider';
 import { JourneyGate } from './journey-views';
 import { CalendarLegend, CalendarScrollHint, MonthHeader, Status, Timeline } from './calendar';
 import { PriorityControl } from './farm-controls';
@@ -155,8 +155,8 @@ export function InsightsView() {
                 <strong>{t('Rainfall & dry spells', 'বৃষ্টি ও বৃষ্টিহীন সময়')}</strong>
                 <p>
                   {t(
-                    'NASA precipitation data is not connected. No dry-spell result is shown.',
-                    'নাসার বৃষ্টির তথ্য যুক্ত হয়নি। বৃষ্টিহীন সময়ের ফলাফল দেখানো হচ্ছে না।',
+                    'NASA POWER daily precipitation is connected and aggregated by month. No crop-stage dry-spell risk model has been validated.',
+                    'নাসা POWER-এর দিনের বৃষ্টি যুক্ত এবং মাস অনুযায়ী যোগ করা হয়েছে। ফসলের পর্যায়ে বৃষ্টিহীন সময়ের ঝুঁকি মডেল যাচাই হয়নি।',
                   )}
                 </p>
               </li>
@@ -164,8 +164,8 @@ export function InsightsView() {
                 <strong>{t('Crop-stage heat exposure', 'ফসলের পর্যায়ে তাপের প্রভাব')}</strong>
                 <p>
                   {t(
-                    'Temperature histories, crop stages and thresholds need reviewed evidence.',
-                    'তাপমাত্রার ইতিহাস, ফসলের পর্যায় ও সীমার জন্য যাচাইকৃত প্রমাণ দরকার।',
+                    'NASA temperature history is available. Cultivar-specific crop stages and stress thresholds still need reviewed evidence.',
+                    'নাসার তাপমাত্রার ইতিহাস আছে। জাতভিত্তিক পর্যায় ও তাপের ক্ষতির সীমা যাচাই বাকি।',
                   )}
                 </p>
               </li>
@@ -183,8 +183,8 @@ export function InsightsView() {
             </ul>
             <p>
               {t(
-                'The concept follows the published Field Shift summary; NASA-data integration and local validation are still required.',
-                'ধারণাটি প্রকাশিত Field Shift সারাংশ অনুসরণ করে; নাসার তথ্য যোগ করা ও স্থানীয় যাচাই বাকি।',
+                'NASA POWER history is integrated; crop photographs have separate public-domain/CC0 sources. The remaining gap is validated local agronomy and field/user testing. IMERG and SMAP are not ingested.',
+                'নাসা POWER ইতিহাস যুক্ত; ফসলের ছবি পাবলিক ডোমেইন/CC0 উৎস থেকে আসে। স্থানীয় কৃষি নিয়ম এবং মাঠে/ব্যবহারকারীর পরীক্ষা বাকি। IMERG ও SMAP যুক্ত নয়।',
               )}
             </p>
             <ul className="model-references">

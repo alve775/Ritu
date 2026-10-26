@@ -80,7 +80,7 @@ export function ReadingControls() {
                   checked={preferences.text === size}
                   onChange={() => displayStore.update({ text: size })}
                 />
-                {size === 'comfortable' ? t('Large', 'বড়') : t('Extra large', 'আরও বড়')}
+                {size === 'comfortable' ? t('Standard', 'সাধারণ') : t('Extra large', 'আরও বড়')}
               </label>
             ))}
           </fieldset>

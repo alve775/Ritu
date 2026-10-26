@@ -19,6 +19,8 @@ import '../styles/pages/calendar.css';
 import '../styles/pages/track.css';
 import '../styles/pages/insights.css';
 import '../styles/pages/tour.css';
+import '../styles/pages/live-farm.css';
+import '../styles/pages/evidence.css';
 import { PlannerProvider } from '../components/planner-provider';
 
 const display = Anek_Bangla({
@@ -35,7 +37,7 @@ const body = Hind_Siliguri({
 export const metadata: Metadata = {
   title: 'Ritu — Grow with the seasons',
   description:
-    'A thoughtful crop-rotation planner for Bangladesh. Explore three seasons with your farm, water access and household needs in mind. Illustrative concept preview.',
+    'Plan crop rotations with dated NASA POWER history, current weather forecasts and official DAE regional crop calendars. Find your field, compare source-based sequences and keep actual planting records.',
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '32x32 48x48', type: 'image/x-icon' },
@@ -49,7 +51,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   colorScheme: 'light',
   // Mirrors --color-bg in src/styles/tokens.css (viewport metadata cannot read CSS variables).
-  themeColor: '#f6f5ee',
+  themeColor: '#ffffff',
 };
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

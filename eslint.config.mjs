@@ -18,5 +18,11 @@ export default defineConfig([
     files: ['video/**/*.cjs'],
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
-  globalIgnores(['.next/**', 'research/**', 'test-results/**', 'next-env.d.ts']),
+  globalIgnores([
+    '.next/**',
+    'research/**',
+    'test-results/**',
+    'next-env.d.ts',
+    'public/vendor/leaflet/**',
+  ]),
 ]);

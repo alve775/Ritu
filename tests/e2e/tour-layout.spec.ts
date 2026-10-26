@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './browser-test';
 import { stepsForTour, type TourScope } from '../../src/data/tours';
 
 for (const language of ['en', 'bn'] as const) {
@@ -58,7 +58,7 @@ for (const language of ['en', 'bn'] as const) {
           await expect(card).toHaveAttribute('aria-busy', 'false');
           await expect(page.locator('#tour-title')).toHaveAccessibleName(step.title[language]);
           if (step.id === 'field-controls') {
-            await expect(page.locator('.field-viewport')).toHaveAttribute('data-renderer', 'ready');
+            await expect(page.locator('.crop-reference-panel .crop-photo img')).toBeVisible();
             await expect(page.locator('.field-model-title')).toContainText(
               language === 'en' ? 'Mung bean' : 'মুগ ডাল',
             );

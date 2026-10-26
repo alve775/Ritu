@@ -8,7 +8,6 @@ import {
   hasSafeTiming,
   blockingHousehold,
   householdBlockers,
-  settleHousehold,
   repairSelection,
   selectionStatus,
   suggestDemoWindows,
@@ -172,17 +171,16 @@ describe('explicitly fictional planning engine', () => {
     // Unknown soil blocks every crop, so dropping household needs would not help.
     expect(blockingHousehold({ ...farm, soil: 'unknown' }, defaultDemo, 'water')).toEqual([]);
   });
-  it('unticks household groups that a farm condition change makes impossible', () => {
+  it('reports impossible household groups without changing the farmer requirements', () => {
     const watered = {
       ...defaultFarm,
       irrigation: 'reliable' as const,
       required: ['rice', 'potato'],
     };
-    expect(settleHousehold(watered as Farm, defaultDemo, 'water').dropped).toEqual([]);
+    expect(blockingHousehold(watered as Farm, defaultDemo, 'water')).toEqual([]);
     const limited = { ...watered, irrigation: 'limited' } as Farm;
-    const settled = settleHousehold(limited, defaultDemo, 'water');
-    expect(settled.dropped).toEqual(['potato']);
-    expect(settled.farm.required).toEqual(['rice']);
+    expect(blockingHousehold(limited, defaultDemo, 'water')).toEqual(['potato']);
+    expect(generateDemoPlans(limited, defaultDemo, 'water')).toEqual([]);
     expect(limited.required).toEqual(['rice', 'potato']);
   });
   it('explains why a household group is unavailable and what would unlock it', () => {
@@ -247,14 +245,14 @@ describe('explicitly fictional planning engine', () => {
       }),
     ).toBe(false);
   });
-  it('responds to weather and location fixtures and guards malformed stored demo settings', () => {
+  it('separates hypothetical weather from source history and guards malformed saved settings', () => {
     expect(demoEnvironment({ ...defaultDemo, weather: 'dry' })[0].rain).toBeLessThan(
       demoEnvironment(defaultDemo)[0].rain,
     );
     expect(demoEnvironment({ ...defaultDemo, weather: 'hot' })[0].temperature).toBeGreaterThan(
       demoEnvironment(defaultDemo)[0].temperature,
     );
-    expect(demoEnvironment({ ...defaultDemo, location: 'other' })[0].rain).toBeGreaterThan(
+    expect(demoEnvironment({ ...defaultDemo, location: 'other' })[0].rain).toBe(
       demoEnvironment(defaultDemo)[0].rain,
     );
     expect(validDemo(defaultDemo)).toBe(true);

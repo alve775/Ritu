@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './browser-test';
 import AxeBuilder from '@axe-core/playwright';
 import { tourSteps } from '../../src/data/tours';
 
@@ -30,7 +30,7 @@ test('full mission visits every control with visible spotlights and preserves in
   await expect(tour).toBeVisible();
   const saved = await page.evaluate(() => localStorage.getItem('ritu-preview-v1'));
   await tour.getByRole('button', { name: 'Start the tour' }).click();
-  await expect(tour.getByRole('heading', { name: 'Make this farm yours' })).toBeVisible();
+  await expect(tour.getByRole('heading', { name: 'Find and pinpoint your farm' })).toBeVisible();
   await expect(page).toHaveURL('/farm');
   await tour.getByRole('button', { name: 'Back', exact: true }).click();
   await expect(
@@ -61,7 +61,7 @@ test('top tour chooser replays every section and reopens a collapsed field', asy
     { choice: 'Interactive field', title: 'Inspect one rotation and month', route: '/plan' },
     { choice: 'Suggested crops', title: 'See only matching suggestions', route: '/crops' },
     { choice: 'Track your plan', title: 'Keep your saved calendar', route: '/track' },
-    { choice: 'Your farm', title: 'Make this farm yours', route: '/farm' },
+    { choice: 'Your farm', title: 'Find and pinpoint your farm', route: '/farm' },
     { choice: 'Compare rotations', title: 'Compare the same twelve months', route: '/plan' },
     {
       choice: 'Your choice, explained',
@@ -98,9 +98,9 @@ test('tour is accessible, keyboard-contained and supports Bangla at 320px', asyn
   ).toBeVisible();
   await tour.getByRole('button', { name: 'পরিচিতি শুরু করুন' }).click();
   await expect(page).toHaveURL('/farm');
-  await expect(tour.getByRole('heading', { name: 'নিজের জমির তথ্য দিন' })).toBeVisible();
+  await expect(tour.getByRole('heading', { name: 'জমি খুঁজে পিনে বাছুন' })).toBeVisible();
   await tour.getByRole('button', { name: 'পরের ধাপ' }).click();
-  await expect(tour.getByRole('heading', { name: 'সেচের সুযোগ জানান' })).toBeVisible();
+  await expect(tour.getByRole('heading', { name: 'নিজের জমির তথ্য দিন' })).toBeVisible();
   for (let i = 0; i < 10; i++) {
     await page.keyboard.press('Tab');
     expect(await tour.evaluate((element) => element.contains(document.activeElement))).toBe(true);
@@ -128,6 +128,7 @@ test('first-visit tour can be dismissed when storage is unavailable', async ({ p
   await page.goto('/farm');
   await page.getByRole('dialog').getByRole('button', { name: 'Skip tour' }).click();
   await expect(page.getByText('Storage unavailable — keep this tab open')).toBeVisible();
+  expect(await page.evaluate(() => document.cookie)).toContain('ritu-tour-seen=1');
   await page.goto('/farm');
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByLabel('Farm name', { exact: true })).toBeVisible();

@@ -5,7 +5,7 @@ import { months, previewData } from '../data/preview';
 import { coveredMonths, segments } from '../domain/evaluate';
 import { seasonOfMonth } from '../domain/year-wheel';
 import type { CropPeriod, Evaluation } from '../domain/types';
-import { usePlanner } from './planner-provider';
+import { usePlanner } from './legacy-planner-provider';
 import { CropGlyph } from './crop-glyph';
 import { Dialog } from './dialog';
 

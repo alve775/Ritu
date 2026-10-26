@@ -1,4 +1,10 @@
 @layer components {
+  .sidebar-source .text-button {
+    color: #ffffff;
+  }
+  .app-header .help-button {
+    color: var(--color-ink);
+  }
   .segmented {
     display: inline-flex;
     flex-wrap: wrap;

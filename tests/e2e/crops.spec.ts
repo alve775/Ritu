@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './browser-test';
 import AxeBuilder from '@axe-core/playwright';
 import { cropIds } from '../../src/domain/types';
 import { previewData } from '../../src/data/preview';
@@ -71,19 +71,4 @@ test('all 42 crop references open and close without injecting calendar entries',
     await page.keyboard.press('Escape');
   }
   expect(errors).toEqual([]);
-});
-
-test('unsupported anatomy stays labelled and the calendar and month inspection remain usable', async ({
-  page,
-}) => {
-  await page.goto('/plan');
-  await page.getByRole('button', { name: 'Open field view', exact: true }).click();
-  const explorer = page.getByRole('region', { name: 'Seasonal field explorer' });
-  await explorer.getByRole('button', { name: 'Nov', exact: true }).click();
-  await expect(explorer.locator('.field-model-title')).toContainText('Mustard');
-  await expect(page.getByText(/An anatomy model is not available for this crop yet/)).toBeVisible();
-  await expect(page.getByRole('combobox', { name: 'Plant structure', exact: true })).toBeDisabled();
-  await page.getByRole('button', { name: 'Soil cutaway', exact: true }).click();
-  await page.getByRole('button', { name: 'Inspect this month', exact: true }).click();
-  await expect(page.getByRole('dialog')).toContainText('Mustard');
 });

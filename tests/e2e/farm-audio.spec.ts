@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './browser-test';
 
 test('farm soundscape plays only on request; volume, scenes, hiding, stop and mute control the audio graph', async ({
   page,

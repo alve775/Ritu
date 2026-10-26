@@ -2,6 +2,8 @@ import { defaultDemo } from '../data/demo-environment';
 import type { DemoSettings } from '../data/demo-environment';
 import { cropIds } from '../domain/types';
 import { migrateRetiredCrop } from './retired-crop-migration';
+import { validPowerClimate } from '../domain/nasa-power';
+import { validSite } from '../domain/farm-site';
 const key = 'ritu-demo-v1';
 const server = { settings: defaultDemo, saved: true };
 let snapshot = server;
@@ -14,6 +16,8 @@ export function validDemo(value: unknown): value is DemoSettings {
     ['barind', 'other'].includes(s.location) &&
     ['seasonal', 'dry', 'hot'].includes(s.weather) &&
     typeof s.enabled === 'boolean' &&
+    (s.climate === undefined || validPowerClimate(s.climate)) &&
+    (s.site === undefined || validSite(s.site)) &&
     Array.isArray(s.preferred) &&
     s.preferred.length <= cropIds.length &&
     new Set(s.preferred).size === s.preferred.length &&

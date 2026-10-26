@@ -1,11 +1,11 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { CircleHelp, MapPin } from 'lucide-react';
-import { usePlanner } from './planner-provider';
+import { CircleHelp } from 'lucide-react';
+import { usePlanner } from './legacy-planner-provider';
 import { Dialog } from './dialog';
-import { demoEnvironment, demoLocations } from '../data/demo-environment';
+import { climateFor, demoEnvironment } from '../data/demo-environment';
 import type { DemoSettings } from '../data/demo-environment';
-import { months } from '../data/preview';
+import { months, previewData } from '../data/preview';
 import {
   assessDemo,
   generateDemoPlans,
@@ -15,9 +15,9 @@ import {
 import type { Irrigation, Priority, Rotation } from '../domain/types';
 
 const weatherLabels = {
-  seasonal: { en: 'Seasonal example', bn: 'মৌসুমি' },
-  dry: { en: 'Drier example', bn: 'শুষ্ক' },
-  hot: { en: 'Hotter example', bn: 'উষ্ণ' },
+  seasonal: { en: 'Historical NASA year', bn: 'নাসার ইতিহাসের বছর' },
+  dry: { en: 'What if: 55% less rain', bn: 'ধরুন: ৫৫% কম বৃষ্টি' },
+  hot: { en: 'What if: +5 °C', bn: 'ধরুন: ৫ °C বেশি' },
 };
 const priorityLabels: Record<Priority, { en: string; bn: string }> = {
   water: { en: 'Lower water demand', bn: 'কম পানির চাহিদা' },
@@ -65,125 +65,11 @@ function Help({ title, text }: { title: string; text: string }) {
     </>
   );
 }
-export function DemoEnvironment() {
-  const { t, language, demo, setDemo, demoSaved } = usePlanner();
-  const disclosure = useHashDisclosure('demo-environment');
-  const data = demoEnvironment(demo);
-  return (
-    <details ref={disclosure} className="disclosure demo-environment" id="demo-environment">
-      <summary>
-        <MapPin size={20} aria-hidden="true" />
-        <span className="demo-summary-label">{t('Location & environment', 'স্থান ও পরিবেশ')}</span>
-        <span className="chip demo-summary-chip">
-          {demoLocations[demo.location][language]} · {weatherLabels[demo.weather][language]}
-        </span>
-      </summary>
-      <section>
-        <div className="demo-section-heading">
-          <h2>{t('Start with a location', 'স্থান দিয়ে শুরু করুন')}</h2>
-          <Help
-            title={t('Environment', 'পরিবেশ')}
-            text={t(
-              'Location selects an authored example, not measurements for that place. Rainfall (mm), mean air temperature (°C) and relative wetness (0–1) illustrate the future data contract. No NASA API, observations, forecast, or soil-moisture measurement is used.',
-              'স্থান অনুযায়ী হাতে তৈরি তথ্য বাছা হয়; ওই স্থানের পরিমাপ নয়। বৃষ্টি (মিমি), গড় তাপ (°C) ও আপেক্ষিক ভেজাভাব (০–১) ভবিষ্যৎ তথ্যের গঠন দেখায়। কোনো নাসা API, বাস্তব তথ্য বা পূর্বাভাস নেই।',
-            )}
-          />
-        </div>
-        <div className="demo-controls">
-          <label>
-            {t('Pilot location', 'পাইলট স্থান')}
-            <select
-              value={demo.location}
-              onChange={(e) => setDemo({ location: e.target.value as DemoSettings['location'] })}
-            >
-              {Object.entries(demoLocations).map(([id, name]) => (
-                <option key={id} value={id}>
-                  {name[language]}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            {t('Environment', 'পরিবেশ')}
-            <select
-              value={demo.weather}
-              onChange={(e) => setDemo({ weather: e.target.value as DemoSettings['weather'] })}
-            >
-              {Object.entries(weatherLabels).map(([id, name]) => (
-                <option key={id} value={id}>
-                  {name[language]}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-        <dl className="demo-metrics">
-          <div>
-            <dt>{t('Example annual rainfall', 'বার্ষিক বৃষ্টি')}</dt>
-            <dd>{data.reduce((n, m) => n + m.rain, 0)} mm</dd>
-          </div>
-          <div>
-            <dt>{t('Example monthly temperatures', 'মাসিক তাপমাত্রা')}</dt>
-            <dd>
-              {Math.min(...data.map((m) => m.temperature))}–
-              {Math.max(...data.map((m) => m.temperature))} °C
-            </dd>
-          </div>
-          <div>
-            <dt>{t('Mean relative wetness', 'গড় আপেক্ষিক ভেজাভাব')}</dt>
-            <dd>{(data.reduce((n, m) => n + m.wetness, 0) / 12).toFixed(2)} / 1</dd>
-          </div>
-        </dl>
-        <details className="demo-monthly">
-          <summary>{t('Explore the twelve months', 'বারো মাসের তথ্য দেখুন')}</summary>
-          <div
-            className="demo-table-scroll"
-            tabIndex={0}
-            aria-label={t('Monthly climate table', 'মাসিক জলবায়ুর সারণি')}
-          >
-            <table>
-              <caption>
-                {t(
-                  'March–February environment. No observation years or NASA provenance.',
-                  'মার্চ–ফেব্রুয়ারির পরিবেশ। বাস্তব বছর বা নাসার উৎস নেই।',
-                )}
-              </caption>
-              <thead>
-                <tr>
-                  <th scope="col">{t('Month', 'মাস')}</th>
-                  <th scope="col">{t('Rain · mm', 'বৃষ্টি · মিমি')}</th>
-                  <th scope="col">{t('Air · °C', 'তাপ · °C')}</th>
-                  <th scope="col">{t('Wetness · 0–1', 'ভেজাভাব · ০–১')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((m) => (
-                  <tr key={m.month}>
-                    <th scope="row">{months[language][m.month]}</th>
-                    <td>{m.rain}</td>
-                    <td>{m.temperature}</td>
-                    <td>{m.wetness}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </details>
-        {!demoSaved && (
-          <p role="status">
-            {t(
-              'Settings could not be saved; you can continue in this tab.',
-              'তথ্য রাখা যায়নি; এই ট্যাবে চালিয়ে যেতে পারেন।',
-            )}
-          </p>
-        )}
-      </section>
-    </details>
-  );
-}
 export function DemoPlanReasons({ rotation }: { rotation: Rotation }) {
   const { t, language, farm, demo } = usePlanner();
   const result = assessDemo(rotation, farm, demo);
+  const climate = climateFor(demo);
+  const environment = demoEnvironment(demo);
   return (
     <section className="demo-reasons" data-tour="demo-reasons">
       <div className="demo-section-heading">
@@ -196,7 +82,59 @@ export function DemoPlanReasons({ rotation }: { rotation: Rotation }) {
           )}
         />
       </div>
-      <p className="demo-label">{t('RULES · not farming advice', 'নিয়ম · চাষের পরামর্শ নয়')}</p>
+      <p className="demo-label">
+        {t(
+          'NASA HISTORY + EXPERIMENTAL RULES · local review required',
+          'নাসার ইতিহাস + পরীক্ষামূলক নিয়ম · স্থানীয় যাচাই দরকার',
+        )}
+      </p>
+      <p>
+        {t(
+          `NASA POWER ${climate.year} · ${climate.latitude.toFixed(2)}° N, ${climate.longitude.toFixed(2)}° E. These historical conditions feed the comparison below.`,
+          `নাসা POWER ${climate.year} · ${climate.latitude.toFixed(2)}° উত্তর, ${climate.longitude.toFixed(2)}° পূর্ব। নিচের তুলনায় এই ইতিহাস ব্যবহৃত।`,
+        )}
+      </p>
+      <div className="climate-plan-evidence">
+        {rotation.periods
+          .filter((p) => p.crop !== 'fallow')
+          .map((p, i) => {
+            const values = Array.from(
+              { length: p.duration },
+              (_, n) => environment[(p.start + n) % 12],
+            );
+            return (
+              <section key={i}>
+                <h3>{previewData.crops[p.crop].name[language]}</h3>
+                <p>
+                  {months[language][p.start]}–{months[language][(p.start + p.duration - 1) % 12]} ·{' '}
+                  {demo.weather === 'seasonal'
+                    ? t('historical rain', 'অতীতের বৃষ্টি')
+                    : t('scenario rain', 'কাল্পনিক বৃষ্টি')}
+                  : {values.reduce((sum, m) => sum + m.rain, 0).toFixed(1)} mm ·{' '}
+                  {demo.weather === 'seasonal'
+                    ? t('mean monthly temperature', 'মাসিক তাপের গড়')
+                    : t('scenario mean temperature', 'কাল্পনিক গড় তাপ')}
+                  : {(values.reduce((sum, m) => sum + m.temperature, 0) / values.length).toFixed(1)}{' '}
+                  °C
+                </p>
+              </section>
+            );
+          })}
+      </div>
+      {demo.weather !== 'seasonal' && (
+        <p className="notice">
+          {t(
+            'The figures above include the explicitly selected hypothetical rainfall/temperature scenario. They are not unchanged NASA observations.',
+            'ওপরের হিসাবে বাছা কাল্পনিক বৃষ্টি/তাপের পরিবর্তন আছে। এগুলো নাসার অপরিবর্তিত পর্যবেক্ষণ নয়।',
+          )}
+        </p>
+      )}
+      <p>
+        {t(
+          'March–February uses the corresponding months of this one historical year, including January/February of that same year. This is seasonal context, not a continuous next-year forecast. Crop thresholds, water credits and dates are experimental assumptions, not NASA recommendations.',
+          'মার্চ–ফেব্রুয়ারিতে একই ইতিহাসের বছরের মাস ব্যবহৃত, জানুয়ারি/ফেব্রুয়ারিও সেই বছরের। এটি পরের বছরের পূর্বাভাস নয়। ফসলের সীমা, পানির ছাড় ও সময় পরীক্ষামূলক ধারণা; নাসার পরামর্শ নয়।',
+        )}
+      </p>
       <dl className="demo-metrics">
         <div>
           <dt>{t('Demand index', 'চাহিদা সূচক')}</dt>

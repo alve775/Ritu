@@ -1,4 +1,12 @@
+> **Superseded workflow:** The real-only finalization and sequential 2D storyboard replace the prototype rules/screens described below. Start with [FINALIZATION_2026-10-26.md](FINALIZATION_2026-10-26.md) and [FARM_ANIMATION_STORYBOARD.md](FARM_ANIMATION_STORYBOARD.md). Earlier passing counts are historical, not verification of the current source state.
+
 # Concept preview verification — October 4, 2026
+
+Current live-workflow QA: **164 unit/API/asset tests**, **136 distinct browser cases across full/focused runs**, including **220 all-scope tour focus visits**. All originally failing cases were corrected and rerun. See [the detailed current log](LIVE_FARM_WORKFLOW.md) for exact run accounting, real-provider captures and remaining farmer/agronomy validation. Earlier verification paragraphs below belong to earlier source states.
+
+> Live workflow update (26 October 2026): the normal farm form starts with worldwide location search and a farm-pin map. Current model estimates and seven-day forecasts load automatically from Open-Meteo. NASA POWER history remains separate, dated seasonal context and follows a changed pin automatically; there is no normal year selector or Load history button. Saved calendars retain their farm location, weather view and explainable observation reminders. Crop dates/rules are still experimental Rajshahi templates, not validated global recommendations. See [LIVE_FARM_WORKFLOW.md](LIVE_FARM_WORKFLOW.md) for current scope, sources and verification; earlier results below are historical.
+
+> Current status (26 October 2026): NASA POWER historical meteorology is integrated, with a verified local snapshot and live validated refresh. Clear crop photos are independently sourced public-domain/CC0 assets, not NASA images. Crop suitability rules and dates remain experimental. See [the current implementation and verification record](FARMER_WORKFLOW_AND_NASA.md); mock-only statements below describe the earlier prototype.
 
 Verified locally on Windows with Node 22.13.1, Next.js 16.3.8, React 19.3.0 and TypeScript 6.0.3. Versions are pinned in the lockfile. These results establish tested software behavior, not validated agricultural advice or universal bug freedom.
 

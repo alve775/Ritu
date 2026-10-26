@@ -1,0 +1,304 @@
+@layer pages {
+  .farm-location {
+    display: grid;
+    gap: 18px;
+    padding: 20px;
+    min-width: 0;
+    border: 1px solid var(--color-line);
+  }
+  .farm-location header {
+    display: grid;
+    gap: 10px;
+  }
+  .farm-location p {
+    max-width: 85ch;
+  }
+  .farm-location .location-map-grid {
+    display: grid;
+    grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
+    gap: 20px;
+    align-items: start;
+    margin: 0;
+  }
+  .location-search-panel {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+  }
+  .location-search-panel > label {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+  }
+  .place-combobox {
+    position: relative;
+  }
+  .place-combobox ul {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 25;
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    border: 1px solid var(--color-line);
+    border-radius: 10px;
+    background: white;
+    box-shadow: var(--shadow-2);
+    max-height: 340px;
+    overflow: auto;
+  }
+  .place-combobox ul[hidden] {
+    display: none;
+  }
+  .place-combobox li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    min-height: 52px;
+    cursor: pointer;
+    line-height: 1.5;
+  }
+  .place-combobox li[aria-selected='true'],
+  .place-combobox li:hover {
+    background: #edf4f0;
+    color: #204b3b;
+    border-radius: 6px;
+  }
+  .place-combobox li svg {
+    flex-shrink: 0;
+  }
+  .selected-location {
+    padding: 16px;
+    background: var(--color-soft);
+    border-radius: 10px;
+    display: grid;
+    gap: 4px;
+  }
+  .selected-location span,
+  .weather-source {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--color-ink-muted);
+  }
+  .weather-source a,
+  .nasa-background a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .coordinate-fields {
+    display: grid;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .farm-map-wrap {
+    position: relative;
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+  }
+  .farm-map {
+    height: 380px;
+    background: #edf1f2;
+    border: 1px solid #b7c3cb;
+    border-radius: 12px;
+    z-index: 0;
+  }
+  .farm-map.leaflet-container {
+    font-family: var(--font-ui);
+    font-size: 16px;
+  }
+  .farm-map .leaflet-control-attribution {
+    font-size: 14px;
+    max-width: 100%;
+  }
+  .farm-map .leaflet-control-zoom a {
+    width: 44px !important;
+    height: 44px !important;
+    line-height: 44px !important;
+    color: #20313c;
+  }
+  .farm-map .leaflet-control-attribution a {
+    text-decoration: underline;
+  }
+  .weather-panel {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-line);
+  }
+  .weather-panel > *,
+  .farm-monitor > * {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .live-weather-heading {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .live-weather-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0;
+  }
+  .live-weather-metrics > div {
+    padding: 16px;
+    background: var(--color-soft);
+    border-radius: 10px;
+  }
+  .live-weather-metrics dt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+  }
+  .live-weather-metrics dd {
+    font-weight: 600;
+    font-size: 1.4rem;
+    margin: 6px 0 0;
+  }
+  .forecast-scroll {
+    overflow: auto;
+    min-width: 0;
+    border: 1px solid var(--color-line);
+    border-radius: 10px;
+  }
+  .forecast-scroll table {
+    width: 100%;
+    min-width: 540px;
+    text-align: left;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  .forecast-scroll caption {
+    text-align: left;
+    padding: 12px;
+    color: var(--color-ink-muted);
+  }
+  .forecast-scroll th,
+  .forecast-scroll td {
+    padding: 10px 14px;
+    border-top: 1px solid var(--color-line);
+  }
+  .forecast-scroll thead {
+    background: var(--color-soft);
+  }
+  .nasa-background {
+    border-top: 1px solid var(--color-line);
+    padding-top: 12px;
+  }
+  .nasa-background p {
+    margin-top: 12px;
+  }
+  .farm-monitor {
+    display: grid;
+    gap: 18px;
+    padding: 24px;
+    background: white;
+    border: 1px solid var(--color-line);
+    border-radius: 18px;
+  }
+  .next-checks {
+    display: grid;
+    gap: 14px;
+  }
+  .next-checks ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: 16px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .next-checks li {
+    padding: 18px;
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    display: grid;
+    gap: 10px;
+    align-content: start;
+  }
+  .next-checks h4 {
+    font-size: 1.05rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+  .farm-optional {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 1200px) {
+    .farm-optional > .visible-farm-section > .form-card {
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+    }
+    .farm-optional .priority-control {
+      grid-row: 1 / 3;
+    }
+  }
+  @media (max-width: 1100px) {
+    .farm-location .location-map-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .live-weather-metrics {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 599px) {
+    .farm-location,
+    .farm-monitor {
+      padding: 18px;
+    }
+    .farm-map {
+      height: 320px;
+    }
+    .live-weather-heading {
+      flex-wrap: wrap;
+    }
+    .live-weather-metrics dt {
+      display: block;
+      font-size: 0.85rem;
+    }
+    .live-weather-metrics dt svg {
+      display: none;
+    }
+  }
+}
+.forecast-preview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+.forecast-preview > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px;
+  background: #f5f7f9;
+  border: 1px solid #d6dfe5;
+  border-radius: 12px;
+}
+.forecast-details {
+  margin: 20px 0;
+}
+.forecast-details > summary {
+  min-height: 48px;
+  cursor: pointer;
+  font-weight: 650;
+  padding: 12px 0;
+}
+@media (max-width: 480px) {
+  .forecast-preview {
+    grid-template-columns: 1fr;
+  }
+}

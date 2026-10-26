@@ -1,7 +1,13 @@
 /* Landing page. Desktop: header + copy on the left, field art on the right.
-   Phone (<= 760px): header, art, copy, button pinned low. */
+   Narrow screens and tall viewports use one column so the activity is not clipped. */
 /* Imported by src/app/(marketing)/page.tsx only. */
 @layer pages {
+  .landing__evidence {
+    font-size: 0.9rem;
+    max-width: 48ch;
+    border-left: 3px solid var(--color-primary);
+    padding-left: 16px;
+  }
   .landing {
     box-sizing: border-box;
     min-height: 100dvh;
@@ -43,7 +49,7 @@
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    font-size: 14px;
+    font-size: 0.85rem;
     font-weight: 600;
     color: var(--ritu-ink-2);
   }
@@ -74,7 +80,7 @@
   .landing__lede {
     margin: 0;
     max-width: 26em;
-    font-size: 19px;
+    font-size: 1rem;
     line-height: 1.55;
     color: var(--ritu-ink-2);
   }
@@ -98,7 +104,7 @@
     background: var(--ritu-action);
     color: var(--ritu-on-action);
     font-weight: 700;
-    font-size: 17px;
+    font-size: 0.95rem;
     text-decoration: none;
     transition: background-color 150ms ease;
   }
@@ -110,7 +116,7 @@
     padding: 12px 0;
     color: var(--ritu-ink);
     font-weight: 600;
-    font-size: 16px;
+    font-size: 0.9rem;
     text-underline-offset: 4px;
   }
 
@@ -180,7 +186,7 @@
     color: #3d3127;
   }
 
-  @media (max-width: 760px) {
+  @media (max-width: 900px), (max-aspect-ratio: 4/3) {
     .landing {
       padding: 14px 16px 22px;
       gap: 18px;
@@ -234,6 +240,271 @@
     }
     .landing__secondary {
       align-self: center;
+    }
+  }
+  .landing {
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    min-height: 100svh;
+    padding: 0;
+    gap: 0;
+    background: #fff;
+  }
+  .landing__header {
+    padding: 24px clamp(24px, 3vw, 64px);
+  }
+  .landing__copy {
+    padding: 40px clamp(24px, 3vw, 64px);
+  }
+  .landing__art {
+    min-height: 100svh;
+    border-radius: 0;
+    background: #e6eee8;
+  }
+  .growing-scene {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .growing-scene > svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .scene-caption {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    background: #fffffff0;
+    border-radius: 14px;
+    padding: 18px;
+    display: grid;
+    gap: 4px;
+  }
+  .scene-caption span {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #204b3b;
+  }
+  .scene-caption small {
+    font-size: 0.8rem;
+    color: #4f606d;
+  }
+  .scene-pause {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    background: #fff !important;
+  }
+  .scene-cloud {
+    animation: cloud-crossing 32s ease-in-out infinite alternate;
+  }
+  .sowing-stage {
+    animation: sowing-stage 28s ease-in-out infinite;
+  }
+  .watering-stage {
+    animation: watering-stage 28s ease-in-out infinite;
+  }
+  .harvest-stage {
+    animation: harvest-stage 28s ease-in-out infinite;
+  }
+  .growing-plant {
+    transform-origin: 0 8px;
+    animation: plant-cycle 28s ease-in-out infinite;
+  }
+  .grain-head {
+    animation: grain-cycle 28s ease-in-out infinite;
+  }
+  .farmer-arm {
+    transform-origin: 12px 7px;
+    animation: arm-work 1.6s ease-in-out infinite alternate;
+  }
+  .farmer-leg {
+    transform-origin: 0 35px;
+    animation: farmer-step 1.4s ease-in-out infinite alternate;
+  }
+  .farmer-leg.right {
+    animation-delay: -0.7s;
+  }
+  .watering-drop {
+    animation: drop-fall 1s linear infinite;
+  }
+  .drop-1,
+  .seed-1 {
+    animation-delay: -0.25s;
+  }
+  .drop-2,
+  .seed-2 {
+    animation-delay: -0.5s;
+  }
+  .drop-3,
+  .seed-3 {
+    animation-delay: -0.75s;
+  }
+  .seed {
+    animation: seed-fall 1.3s ease-in infinite;
+  }
+  @keyframes cloud-crossing {
+    to {
+      transform: translateX(70px);
+    }
+  }
+  @keyframes sowing-stage {
+    0%,
+    24% {
+      opacity: 1;
+    }
+    30%,
+    94% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  @keyframes watering-stage {
+    0%,
+    24% {
+      opacity: 0;
+    }
+    30%,
+    55% {
+      opacity: 1;
+    }
+    61%,
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes harvest-stage {
+    0%,
+    73% {
+      opacity: 0;
+    }
+    80%,
+    94% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes plant-cycle {
+    0%,
+    20% {
+      transform: scaleY(0.06);
+    }
+    35% {
+      transform: scaleY(0.3);
+    }
+    65%,
+    84% {
+      transform: scaleY(1);
+    }
+    96%,
+    100% {
+      transform: scaleY(0.06);
+    }
+  }
+  @keyframes grain-cycle {
+    0%,
+    48%,
+    100% {
+      opacity: 0;
+    }
+    65%,
+    88% {
+      opacity: 1;
+    }
+  }
+  @keyframes arm-work {
+    to {
+      transform: rotate(-14deg);
+    }
+  }
+  @keyframes farmer-step {
+    to {
+      transform: rotate(8deg);
+    }
+  }
+  @keyframes drop-fall {
+    0% {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    30% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(28px);
+    }
+  }
+  @keyframes seed-fall {
+    0% {
+      opacity: 0;
+      transform: translate(-12px, -10px);
+    }
+    25% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(16px, 35px) rotate(45deg);
+    }
+  }
+  .growing-scene.is-paused * {
+    animation-play-state: paused !important;
+  }
+  html[data-motion='off'] .growing-scene * {
+    animation: none !important;
+  }
+  html[data-motion='off'] .growing-scene .sowing-stage,
+  html[data-motion='off'] .growing-scene .harvest-stage {
+    opacity: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .growing-scene * {
+      animation: none !important;
+    }
+    .growing-scene .sowing-stage,
+    .growing-scene .harvest-stage {
+      opacity: 0;
+    }
+  }
+  @media (max-width: 900px), (max-aspect-ratio: 4/3) {
+    .landing {
+      padding: 0;
+      grid-template-areas: 'header' 'copy' 'art';
+      grid-template-rows: auto auto minmax(520px, 1fr);
+    }
+    .landing__header {
+      padding: 16px;
+    }
+    .landing__art {
+      height: 420px;
+      min-height: 0;
+    }
+    .landing__copy {
+      padding: 12px 16px 24px;
+    }
+    .landing__actions {
+      margin-top: 0;
+    }
+    .scene-caption {
+      padding: 12px;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+    }
+    .scene-caption span {
+      font-size: 1rem;
+    }
+    .scene-pause {
+      right: 12px;
+      top: 12px;
     }
   }
 }

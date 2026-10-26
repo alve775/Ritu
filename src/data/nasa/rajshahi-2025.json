@@ -1,0 +1,121 @@
+{
+  "id": "POWER:24.37,88.60:2025:v2.10.1:2026-10-25T17:28:36.315Z",
+  "source": "NASA POWER",
+  "latitude": 24.37,
+  "longitude": 88.6,
+  "year": 2025,
+  "retrievedAt": "2026-10-25T17:28:36.315Z",
+  "requestUrl": "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M,T2M_MAX,T2M_MIN,PRECTOTCORR,GWETTOP&community=AG&latitude=24.37&longitude=88.60&start=20250101&end=20251231&format=JSON",
+  "apiVersion": "v2.10.1",
+  "sources": ["MERRA2", "POWER"],
+  "months": [
+    {
+      "month": 1,
+      "days": 31,
+      "temperature": 17.190645161290327,
+      "maximum": 23.621290322580645,
+      "minimum": 11.031290322580647,
+      "rain": 1.94,
+      "wetness": 0.6493548387096776
+    },
+    {
+      "month": 2,
+      "days": 28,
+      "temperature": 20.720000000000002,
+      "maximum": 28.726785714285718,
+      "minimum": 13.647142857142857,
+      "rain": 10.18,
+      "wetness": 0.5160714285714288
+    },
+    {
+      "month": 3,
+      "days": 31,
+      "temperature": 26.52322580645161,
+      "maximum": 35.1483870967742,
+      "minimum": 18.872580645161285,
+      "rain": 6.05,
+      "wetness": 0.3961290322580645
+    },
+    {
+      "month": 4,
+      "days": 30,
+      "temperature": 29.805,
+      "maximum": 36.88866666666665,
+      "minimum": 23.685666666666666,
+      "rain": 92.92999999999999,
+      "wetness": 0.40900000000000003
+    },
+    {
+      "month": 5,
+      "days": 31,
+      "temperature": 30.64064516129033,
+      "maximum": 35.94741935483871,
+      "minimum": 25.772903225806452,
+      "rain": 276.19,
+      "wetness": 0.542258064516129
+    },
+    {
+      "month": 6,
+      "days": 30,
+      "temperature": 29.50299999999999,
+      "maximum": 33.417666666666655,
+      "minimum": 26.216999999999995,
+      "rain": 217.93999999999994,
+      "wetness": 0.7196666666666666
+    },
+    {
+      "month": 7,
+      "days": 31,
+      "temperature": 28.89774193548387,
+      "maximum": 32.05838709677419,
+      "minimum": 26.349999999999998,
+      "rain": 416.53,
+      "wetness": 0.8306451612903227
+    },
+    {
+      "month": 8,
+      "days": 31,
+      "temperature": 28.182580645161277,
+      "maximum": 31.06645161290323,
+      "minimum": 25.76645161290323,
+      "rain": 351.4,
+      "wetness": 0.9122580645161288
+    },
+    {
+      "month": 9,
+      "days": 30,
+      "temperature": 28.233,
+      "maximum": 31.253,
+      "minimum": 25.65733333333334,
+      "rain": 247.77,
+      "wetness": 0.9016666666666668
+    },
+    {
+      "month": 10,
+      "days": 31,
+      "temperature": 26.30225806451613,
+      "maximum": 30.08,
+      "minimum": 22.81193548387096,
+      "rain": 158.8,
+      "wetness": 0.8864516129032259
+    },
+    {
+      "month": 11,
+      "days": 30,
+      "temperature": 20.754333333333342,
+      "maximum": 26.350666666666665,
+      "minimum": 15.49766666666667,
+      "rain": 46.99,
+      "wetness": 0.8200000000000001
+    },
+    {
+      "month": 12,
+      "days": 31,
+      "temperature": 16.03,
+      "maximum": 22.555806451612906,
+      "minimum": 10.274516129032255,
+      "rain": 0.2,
+      "wetness": 0.7258064516129035
+    }
+  ]
+}

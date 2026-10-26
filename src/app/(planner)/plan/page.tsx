@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { CompareView } from '../../../components/compare-view';
-export const metadata: Metadata = { title: 'Step 3: Your calendar — RITU' };
+import { EvidenceCalendarView } from '../../../components/evidence-views';
+export const metadata: Metadata = { title: 'Step 3 of 4: Your calendar — RITU' };
 export default function Page() {
-  return <CompareView />;
+  return <EvidenceCalendarView />;
 }

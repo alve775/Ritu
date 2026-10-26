@@ -1,4 +1,10 @@
+> **Superseded workflow:** The real-only finalization and sequential 2D storyboard replace the prototype rules/screens described below. Start with [FINALIZATION_2026-10-26.md](FINALIZATION_2026-10-26.md) and [FARM_ANIMATION_STORYBOARD.md](FARM_ANIMATION_STORYBOARD.md). Earlier passing counts are historical, not verification of the current source state.
+
 # QA coverage and manual review matrix
+
+> Live workflow update (26 October 2026): the normal farm form starts with worldwide location search and a farm-pin map. Current model estimates and seven-day forecasts load automatically from Open-Meteo. NASA POWER history remains separate, dated seasonal context and follows a changed pin automatically; there is no normal year selector or Load history button. Saved calendars retain their farm location, weather view and explainable observation reminders. Crop dates/rules are still experimental Rajshahi templates, not validated global recommendations. See [LIVE_FARM_WORKFLOW.md](LIVE_FARM_WORKFLOW.md) for current scope, sources and verification; earlier results below are historical.
+
+> October 26 implementation: 144 unit/API/asset checks and 118 browser cases passed across full/focused runs. NASA POWER daily history and clear public-domain/CC0 crop photographs replace the older mock-environment/3D-first workflow below. Essential farm choices are visible, navigation is a desktop left sidebar, and source/scenario labels are tested. See [current checks and remaining limitations](FARMER_WORKFLOW_AND_NASA.md). Older rows below are historical coverage, not current integration status.
 
 Updated October 4, 2026. This records what the reproducible checks exercise. Final outcomes are in [PREVIEW_VERIFICATION.md](PREVIEW_VERIFICATION.md); continuation requirements are in [WORK_TRACKER.md](WORK_TRACKER.md). Passing an automated check is not a claim of universal bug freedom or agronomic validation.
 

@@ -22,6 +22,7 @@ function cardOffset(previous: DOMRect, next: DOMRect) {
 interface Run {
   scope: TourScope;
   index: number;
+  intro?: boolean;
 }
 
 export function TourGuide() {
@@ -35,15 +36,18 @@ export function TourGuide() {
     return () => setTourPreview(false);
   }, [touring, setTourPreview]);
   useEffect(() => {
-    if (!ready || path === '/' || autoPrompted) return;
+    if (!ready || path !== '/farm' || autoPrompted) return;
     try {
       if (localStorage.getItem(TOUR_STORAGE_KEY) === 'seen') return;
     } catch {
       /* A tour is still available without storage. */
     }
+    // A one-bit session fallback prevents repeated onboarding after a full
+    // navigation when localStorage is unavailable. It contains no farm data.
+    if (document.cookie.split(';').some((value) => value.trim() === 'ritu-tour-seen=1')) return;
     const timer = window.setTimeout(() => {
       autoPrompted = true;
-      setRun({ scope: 'full', index: 0 });
+      setRun({ scope: 'farm', index: 0, intro: true });
     }, 200);
     return () => clearTimeout(timer);
   }, [ready, path]);
@@ -51,7 +55,11 @@ export function TourGuide() {
     try {
       localStorage.setItem(TOUR_STORAGE_KEY, 'seen');
     } catch {
-      /* Remembered for this tab by autoPrompted. */
+      try {
+        document.cookie = 'ritu-tour-seen=1; Path=/; SameSite=Lax';
+      } catch {
+        /* In-memory fallback still works for this document. */
+      }
     }
     setRun(null);
   };
@@ -71,23 +79,26 @@ export function TourGuide() {
     },
     {
       scope: 'crops',
-      title: t('Suggested crops', 'প্রস্তাবিত ফসল'),
-      description: t('Passing windows and your crop choices', 'মেলা সময় ও ফসলের পছন্দ'),
+      title: t('Crop choices', 'ফসল বাছাই'),
+      description: t('Published calendars and field checks', 'প্রকাশিত পঞ্জিকা ও জমির শর্ত'),
     },
     {
       scope: 'compare',
-      title: t('Compare rotations', 'ফসলক্রম তুলনা'),
+      title: t('Calendar', 'ক্যালেন্ডার'),
       description: t('Calendars, priorities and selection', 'ক্যালেন্ডার, অগ্রাধিকার ও পছন্দ'),
     },
     {
       scope: 'field',
-      title: t('Interactive field', 'জমির ইন্টারঅ্যাকটিভ দৃশ্য'),
-      description: t('Months, camera and crop structures', 'মাস, ক্যামেরা ও ফসলের গঠন'),
+      title: t('Practical crop tools', 'ফসলের ব্যবহারিক সরঞ্জাম'),
+      description: t(
+        'Published seed rates and germination checks',
+        'প্রকাশিত বীজের হার ও অঙ্কুর পরীক্ষা',
+      ),
     },
     {
       scope: 'insights',
-      title: t('Your choice, explained', 'আপনার সিদ্ধান্তের ব্যাখ্যা'),
-      description: t('Checks, tradeoffs and missing evidence', 'শর্ত, সুবিধা-সীমা ও বাকি তথ্য'),
+      title: t('Sources & methods', 'উৎস ও পদ্ধতি'),
+      description: t('Original data links and limits', 'মূল তথ্যের লিংক ও সীমা'),
     },
     {
       scope: 'track',
@@ -105,9 +116,36 @@ export function TourGuide() {
         ? 'crops'
         : path === '/track'
           ? 'track'
-          : path === '/insights'
+          : path === '/insights' || path === '/sources' || path === '/sample'
             ? 'insights'
             : 'compare';
+  const optionalScopes: TourScope[] = ['field', 'insights'];
+  const choiceButton = (choice: (typeof choices)[number]) => (
+    <button
+      className="tour-choice"
+      key={choice.scope}
+      data-tour-scope={choice.scope}
+      onClick={() => {
+        setChooser(false);
+        setRun({ scope: choice.scope, index: 0 });
+      }}
+    >
+      <span>
+        <strong>
+          {choice.title}
+          {choice.scope === currentScope && <small>{t('Current section', 'বর্তমান অংশ')}</small>}
+        </strong>
+        <span>
+          {choice.description} ·{' '}
+          {t(
+            `${stepsForTour(choice.scope).length} ${stepsForTour(choice.scope).length === 1 ? 'step' : 'steps'}`,
+            `${stepsForTour(choice.scope).length} ধাপ`,
+          )}
+        </span>
+      </span>
+      <ArrowRight size={20} />
+    </button>
+  );
   return (
     <>
       <button
@@ -127,38 +165,33 @@ export function TourGuide() {
         >
           <p>
             {t(
-              'Follow one mission at a time. Your farm inputs will stay as you left them.',
-              'একবারে একটি কাজ জানুন। জমির তথ্য আগের মতো থাকবে।',
+              'Choose a section or the full tour. Your saved data will stay unchanged.',
+              'একটি অংশ বা পুরো পরিচিতি বাছুন। সংরক্ষিত তথ্য বদলাবে না।',
             )}
           </p>
           <div className="tour-choices">
-            {choices.map((choice) => (
-              <button
-                className="tour-choice"
-                key={choice.scope}
-                onClick={() => {
-                  setChooser(false);
-                  setRun({ scope: choice.scope, index: 0 });
-                }}
-              >
-                <span>
-                  <strong>
-                    {choice.title}
-                    {choice.scope === currentScope && (
-                      <small>{t('Current section', 'বর্তমান অংশ')}</small>
-                    )}
-                  </strong>
-                  <span>{choice.description}</span>
-                </span>
-                <ArrowRight size={20} />
-              </button>
-            ))}
+            {choices
+              .filter((choice) => !optionalScopes.includes(choice.scope))
+              .sort((a, b) => Number(b.scope === currentScope) - Number(a.scope === currentScope))
+              .map(choiceButton)}
           </div>
+          <details className="tour-extra-help" open={optionalScopes.includes(currentScope)}>
+            <summary>{t('Crop tools & source guides', 'ফসলের সরঞ্জাম ও উৎসের পরিচিতি')}</summary>
+            <div className="tour-choices">
+              {choices.filter((choice) => optionalScopes.includes(choice.scope)).map(choiceButton)}
+            </div>
+          </details>
         </Dialog>
       )}
       {run && (
         <TourOverlay
-          steps={stepsForTour(run.scope)}
+          steps={
+            run.intro
+              ? stepsForTour('full').filter(
+                  (step) => step.scope === 'welcome' || step.scope === 'farm',
+                )
+              : stepsForTour(run.scope)
+          }
           index={run.index}
           onMove={(index) => setRun({ ...run, index })}
           onClose={finish}
@@ -351,7 +384,10 @@ function TourOverlay({
     };
     const measure = () => {
       if (started || cancelled) return;
-      const target = step.target ? document.querySelector<HTMLElement>(step.target) : null;
+      const target = step.target
+        ? (document.querySelector<HTMLElement>(step.target) ??
+          document.querySelector<HTMLElement>('.evidence-gate, .page-header, #main'))
+        : null;
       let ancestor = target?.parentElement;
       while (ancestor) {
         if (ancestor instanceof HTMLDetailsElement && !ancestor.open) {
@@ -360,7 +396,13 @@ function TourOverlay({
         }
         ancestor = ancestor.parentElement;
       }
-      if (step.target && (!target || !target.offsetHeight)) return;
+      if (step.target && (!target || !target.offsetHeight)) {
+        travelDone = true;
+        started = true;
+        setRect(null);
+        reveal();
+        return;
+      }
       started = true;
       const original = target?.getBoundingClientRect();
       const pad = 7;

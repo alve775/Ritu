@@ -1,7 +1,7 @@
 'use client';
 import { Droplets, Check, Sprout, Leaf, Wheat, CircleDot } from 'lucide-react';
 import { useMemo } from 'react';
-import { usePlanner } from './planner-provider';
+import { usePlanner } from './legacy-planner-provider';
 import { blockingHousehold, householdBlockers, viableCropSets } from '../domain/demo-planner';
 import type { HouseholdCrop, Irrigation, Priority } from '../domain/types';
 
@@ -140,7 +140,7 @@ export function PriorityControl() {
   );
 }
 export function HouseholdControl() {
-  const { t, farm, setFarm, demo, priority, householdDropped } = usePlanner();
+  const { t, farm, setFarm, demo, priority } = usePlanner();
   // A group is offered only if some calendar can still include it on this farm.
   const { blocked, unfit } = useMemo(() => {
     const possible = viableCropSets(farm, demo, priority).length > 0;
@@ -218,23 +218,18 @@ export function HouseholdControl() {
         <p
           key={id}
           id={`household-why-${id}`}
-          className={`field-help ${unfit.includes(id) || householdDropped.includes(id) ? 'household-warning' : ''}`}
-          role={unfit.includes(id) || householdDropped.includes(id) ? 'status' : undefined}
+          className={`field-help ${unfit.includes(id) ? 'household-warning' : ''}`}
+          role={unfit.includes(id) ? 'status' : undefined}
         >
           {unfit.includes(id)
             ? t(
-                `Untick ${label(id)} to get a calendar: ${reason(id)}.`,
-                `ক্যালেন্ডার পেতে ${label(id)} বাদ দিন: ${reason(id)}।`,
+                `Your ${label(id)} requirement is kept. The experimental rules cannot meet it: ${reason(id)}. Review conditions or change this requirement yourself.`,
+                `${label(id)} রাখার শর্ত আছে। পরীক্ষামূলক নিয়মে মিলছে না: ${reason(id)}। শর্ত দেখুন বা নিজে এই প্রয়োজন বদলান।`,
               )
-            : householdDropped.includes(id)
-              ? t(
-                  `${label(id)} was unticked: ${reason(id)}. Change the farm details back to add it again.`,
-                  `${label(id)} বাদ দেওয়া হয়েছে: ${reason(id)}। আবার যোগ করতে জমির তথ্য আগের মতো করুন।`,
-                )
-              : t(
-                  `${label(id)} is not available on this farm: ${reason(id)}. Change the farm details to add it.`,
-                  `এই জমিতে ${label(id)} পাওয়া যাচ্ছে না: ${reason(id)}। যোগ করতে জমির তথ্য বদলান।`,
-                )}
+            : t(
+                `${label(id)} is not available on this farm: ${reason(id)}. Change the farm details to add it.`,
+                `এই জমিতে ${label(id)} পাওয়া যাচ্ছে না: ${reason(id)}। যোগ করতে জমির তথ্য বদলান।`,
+              )}
         </p>
       ))}
     </fieldset>

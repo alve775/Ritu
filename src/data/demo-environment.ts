@@ -1,12 +1,34 @@
 import type { CropId, CropPeriod, Farm, Localized } from '../domain/types';
+import baseline from './nasa/rajshahi-2025.json' with { type: 'json' };
+import type { PowerClimate } from '../domain/nasa-power';
+import { defaultSite } from '../domain/farm-site';
+import type { FarmSite } from '../domain/farm-site';
 
-/** Authored fixtures. NOT NASA observations, weather forecasts, or local agronomic rules. */
+/** Real historical climate; crop rules below remain experimental, not validated agronomy. */
 export interface DemoSettings {
   location: 'barind' | 'other';
   weather: 'seasonal' | 'dry' | 'hot';
   preferred: CropId[];
   enabled: boolean;
+  climate?: PowerClimate;
+  site?: FarmSite;
 }
+export const baselineClimate: PowerClimate = { ...baseline, source: 'NASA POWER' };
+export const climateFor = (settings: DemoSettings): PowerClimate =>
+  settings.climate ?? baselineClimate;
+export const siteFor = (settings: DemoSettings): FarmSite =>
+  settings.site ??
+  (settings.climate
+    ? {
+        latitude: settings.climate.latitude,
+        longitude: settings.climate.longitude,
+        name: 'Selected farm',
+      }
+    : defaultSite);
+export const climateMatchesSite = (settings: DemoSettings) =>
+  !settings.site ||
+  (Number(settings.site.latitude.toFixed(2)) === climateFor(settings).latitude &&
+    Number(settings.site.longitude.toFixed(2)) === climateFor(settings).longitude);
 export const defaultDemo: DemoSettings = {
   location: 'barind',
   weather: 'seasonal',
@@ -23,18 +45,17 @@ export interface DemoMonth {
   temperature: number;
   wetness: number;
 }
-const rainfall = [18, 38, 92, 185, 270, 240, 185, 88, 12, 5, 8, 14];
-const temperature = [27, 31, 32, 31, 30, 30, 29, 28, 24, 20, 18, 22];
 export function demoEnvironment(settings: DemoSettings): DemoMonth[] {
-  return rainfall.map((rain, month) => {
-    const adjusted = Math.round(
-      rain * (settings.location === 'other' ? 1.3 : 1) * (settings.weather === 'dry' ? 0.45 : 1),
-    );
+  const climate = climateFor(settings);
+  return Array.from({ length: 12 }, (_, month) => {
+    const historical = climate.months[(month + 2) % 12];
+    // Explicit what-if perturbations, never relabelled as observed weather.
     return {
       month,
-      rain: adjusted,
-      temperature: temperature[month] + (settings.weather === 'hot' ? 5 : 0),
-      wetness: Number(Math.min(0.9, Math.max(0.1, 0.2 + adjusted / 400)).toFixed(2)),
+      rain: historical.rain * (settings.weather === 'dry' ? 0.45 : 1),
+      temperature: historical.temperature + (settings.weather === 'hot' ? 5 : 0),
+      // No invented soil-moisture response to hypothetical rainfall.
+      wetness: historical.wetness,
     };
   });
 }

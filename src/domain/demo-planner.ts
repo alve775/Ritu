@@ -3,9 +3,13 @@ import {
   demoEnvironment,
   demoWindows,
   demoDrainage,
+  climateFor,
+  siteFor,
+  climateMatchesSite,
 } from '../data/demo-environment';
 import type { DemoSettings } from '../data/demo-environment';
 import { previewData } from '../data/preview';
+import { inPilotRegion } from './farm-site';
 import { coveredMonths, evaluate } from './evaluate';
 import type {
   CropId,
@@ -83,8 +87,8 @@ export function assessDemo(rotation: Rotation, farm: Farm, settings: DemoSetting
       state: !supported ? 'unknown' : climateConflicts ? 'conflict' : 'fit',
       label: { en: 'Climate / season fit', bn: 'জলবায়ু / মৌসুমের মিল' },
       detail: {
-        en: 'Rainfall and temperature are matched against season and temperature limits. No crop-stage or parcel prediction.',
-        bn: 'বৃষ্টি ও তাপমাত্রার সঙ্গে মৌসুম ও তাপের সীমা মেলানো হয়। বাস্তব জমি বা গাছের পর্যায়ের পূর্বাভাস নয়।',
+        en: `NASA POWER ${climateFor(settings).year} history supplies rainfall and temperature. The season/temperature thresholds are experimental crop rules, not NASA prescriptions or a forecast.${settings.weather !== 'seasonal' ? ' A hypothetical climate change is applied.' : ''}`,
+        bn: `নাসা POWER ${climateFor(settings).year}-এর ইতিহাস থেকে বৃষ্টি ও তাপ আসে। ফসলের মৌসুম ও তাপের সীমা পরীক্ষামূলক; নাসার চাষের পরামর্শ বা পূর্বাভাস নয়।${settings.weather !== 'seasonal' ? ' কাল্পনিক পরিবর্তন প্রয়োগ করা হয়েছে।' : ''}`,
       },
     },
     {
@@ -319,6 +323,8 @@ export function suggestDemoWindows(
   settings: DemoSettings,
   priority: Priority,
 ): DemoSuggestion[] {
+  if (settings.site && (!inPilotRegion(siteFor(settings)) || !climateMatchesSite(settings)))
+    return [];
   const suggestions: DemoSuggestion[] = [];
   for (const [id, windows] of Object.entries(demoWindows)) {
     for (const window of windows) {
@@ -380,20 +386,6 @@ export function blockingHousehold(
   );
 }
 /**
- * Farm facts outrank household wishes: drops the household groups that these conditions make
- * impossible, so a condition change never leaves an unreachable group ticked.
- */
-export function settleHousehold(
-  farm: Farm,
-  settings: DemoSettings,
-  priority: Priority,
-): { farm: Farm; dropped: HouseholdCrop[] } {
-  const dropped = blockingHousehold(farm, settings, priority);
-  return dropped.length
-    ? { farm: { ...farm, required: farm.required.filter((g) => !dropped.includes(g)) }, dropped }
-    : { farm, dropped };
-}
-/**
  * Mock checks failed by the household group's closest-to-passing crop window. Empty when some
  * window passes on its own, so only the mix with other household needs can be the problem.
  */
@@ -421,7 +413,21 @@ export function householdBlockers(
   return best ?? [];
 }
 export function farmFingerprint(farm: Farm, settings: DemoSettings, priority: Priority): string {
-  return JSON.stringify([farm, settings.location, settings.weather, priority]);
+  if (settings.site)
+    return JSON.stringify([
+      farm,
+      settings.weather,
+      settings.site.latitude,
+      settings.site.longitude,
+      priority,
+    ]);
+  return JSON.stringify([
+    farm,
+    settings.location,
+    settings.weather,
+    climateFor(settings).id,
+    priority,
+  ]);
 }
 export function planFingerprint(farm: Farm, settings: DemoSettings, priority: Priority): string {
   return JSON.stringify([

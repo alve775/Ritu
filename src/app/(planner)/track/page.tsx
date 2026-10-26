@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { TrackingView } from '../../../components/journey-views';
-export const metadata: Metadata = { title: 'Step 4: Track your plan — RITU' };
+import { EvidenceTrackingView } from '../../../components/evidence-views';
+export const metadata: Metadata = { title: 'Step 4 of 4: Field records — RITU' };
 export default function Page() {
-  return <TrackingView />;
+  return <EvidenceTrackingView />;
 }

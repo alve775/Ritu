@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
-import { usePlanner } from './planner-provider';
+import { usePlanner } from './legacy-planner-provider';
 import {
   suggestDemoWindows,
   generateDemoPlans,
@@ -16,7 +16,9 @@ import {
 } from '../domain/demo-planner';
 import { previewData } from '../data/preview';
 import { defaultFarm } from '../data/preview';
-import { defaultDemo } from '../data/demo-environment';
+import { defaultDemo, climateMatchesSite, siteFor } from '../data/demo-environment';
+import { inPilotRegion } from '../domain/farm-site';
+import { FarmMonitor } from './farm-monitor';
 import type { CropId } from '../domain/types';
 import { activityKey } from '../lib/journey-store';
 import { CalendarLegend, CalendarScrollHint, MonthHeader, Timeline } from './calendar';
@@ -27,6 +29,7 @@ import { seasonOfMonth } from '../domain/year-wheel';
 import type { SeasonIndex } from '../domain/year-wheel';
 import { YearWheel } from './ui/year-wheel';
 import { periodLabel } from '../lib/period-label';
+import { CropPhoto } from './crop-photo';
 
 export { periodLabel };
 export function JourneyGate({ step = 'farm' }: { step?: 'farm' | 'crops' }) {
@@ -97,6 +100,26 @@ export function SuggestedCropsView() {
   const added = preferred.filter((crop) => !settings.preferred.includes(crop));
   const choices = [...new Set(offered.map((s) => s.period.crop))];
   if (!reviewed && !tourPreview) return <JourneyGate />;
+  if (!tourPreview && (!inPilotRegion(siteFor(settings)) || !climateMatchesSite(settings)))
+    return (
+      <section className="journey-gate">
+        <h1>{t('Local crop evidence is needed', 'স্থানীয় ফসলের প্রমাণ দরকার')}</h1>
+        <p>
+          {inPilotRegion(siteFor(settings))
+            ? t(
+                'NASA seasonal context for this field is still loading or unavailable. Return to your farm; RITU will not use another location’s climate to suggest crops.',
+                'এই জমির নাসার মৌসুমি তথ্য আসছে বা পাওয়া যাচ্ছে না। জমির পাতায় ফিরুন; অন্য স্থানের জলবায়ু দিয়ে ফসল বাছা হবে না।',
+              )
+            : t(
+                'Location search and weather work worldwide. Crop calendars currently use experimental Rajshahi-region templates. This region needs reviewed local crops, varieties and planting windows.',
+                'বিশ্বের স্থান ও আবহাওয়া দেখা যায়। ক্যালেন্ডারে এখন পরীক্ষামূলক রাজশাহী অঞ্চলের সময় ব্যবহৃত। এই অঞ্চলের স্থানীয় ফসল, জাত ও সময় যাচাই দরকার।',
+              )}
+        </p>
+        <Link className="button primary" href="/farm">
+          {t('Back to farm & weather', 'জমি ও আবহাওয়ায় ফিরুন')}
+        </Link>
+      </section>
+    );
   const seasons = [t('Pre-monsoon', 'প্রাক্‌বর্ষা'), t('Monsoon', 'বর্ষা'), t('Winter', 'শীত')];
   const coverage = seasonCoverage(suggestions, offered, preferred);
   const unavailable = [0, 1, 2].filter((season) => coverage[season] === 'unavailable');
@@ -166,15 +189,15 @@ export function SuggestedCropsView() {
       <section className="suggestion-intro notice-amber" data-tour="suggestion-summary">
         <p>
           {t(
-            'No real data API or verified farming recommendation.',
-            'বাস্তব API বা চাষের যাচাইকৃত পরামর্শ নয়।',
+            'Real NASA weather history + experimental crop rules. Confirm locally before planting.',
+            'বাস্তব নাসার আবহাওয়ার ইতিহাস + পরীক্ষামূলক ফসলের নিয়ম। চাষের আগে স্থানীয়ভাবে নিশ্চিত করুন।',
           )}
         </p>
         <h2>{t('Matched to your conditions', 'আপনার শর্তের সঙ্গে মেলে')}</h2>
         <p>
           {t(
-            'Every selectable window passes the soil, water, drainage, climate and available-help checks. Missing or conflicting windows are excluded.',
-            'বাছার প্রতিটি সময় মাটি, পানি, নিষ্কাশন, জলবায়ু ও শ্রমের শর্তে মেলে। অজানা বা সংঘাতের সময় বাদ যায়।',
+            'Every selectable window passes the experimental soil, water, drainage, climate and available-help checks. These checks do not establish real-world suitability. Missing or conflicting windows are excluded.',
+            'বাছার প্রতিটি সময় পরীক্ষামূলক মাটি, পানি, নিষ্কাশন, জলবায়ু ও শ্রমের শর্তে মেলে। বাস্তব উপযোগিতা এতে নিশ্চিত হয় না। অজানা বা সংঘাতের সময় বাদ যায়।',
           )}
         </p>
         <p>
@@ -228,6 +251,7 @@ export function SuggestedCropsView() {
                 />
                 <strong>{previewData.crops[id].name[language]}</strong>
               </label>
+              <CropPhoto crop={id} compact />
               {reason && (
                 <p className="suggested-crop-lock" id={`crop-lock-${id}`}>
                   {reason}
@@ -470,6 +494,7 @@ export function TrackingView() {
           )}
         </p>
       )}
+      {!tourPreview && <FarmMonitor tracked={tracked} />}
       <section className="card track-summary" data-tour="tracking-progress">
         <YearWheel
           periods={tracked.rotation.periods}
@@ -532,7 +557,12 @@ export function TrackingView() {
                     type="checkbox"
                     checked={record.planted}
                     disabled={record.harvested}
-                    onChange={(e) => update({ planted: e.target.checked })}
+                    onChange={(e) =>
+                      update({
+                        planted: e.target.checked,
+                        ...(!e.target.checked ? { plantedDate: undefined } : {}),
+                      })
+                    }
                   />
                   {t('Planted', 'রোপণ হয়েছে')}
                 </label>
@@ -552,6 +582,16 @@ export function TrackingView() {
                   'আগে রোপণ চিহ্নিত করুন। রোপণ সরানোর আগে কাটা সরান।',
                 )}
               </p>
+              {record.planted && (
+                <label className="form-field">
+                  {t('Actual planting date · optional', 'আসল রোপণের দিন · ঐচ্ছিক')}
+                  <input
+                    type="date"
+                    value={record.plantedDate ?? ''}
+                    onChange={(e) => update({ plantedDate: e.target.value || undefined })}
+                  />
+                </label>
+              )}
               <label className="form-field">
                 {t('Notes', 'নোট')}
                 <textarea

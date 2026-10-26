@@ -1,5 +1,4 @@
-import { expect, test } from '@playwright/test';
-import { seedPlan } from './fixtures';
+import { expect, test } from './browser-test';
 
 test.use({ reducedMotion: 'no-preference' });
 
@@ -50,7 +49,7 @@ test('tour moves continuously, reveals its instructions and guards repeated navi
     });
     return records;
   });
-  await expect(tour.getByRole('heading', { name: 'Tell Ritu about water access' })).toBeVisible();
+  await expect(tour.getByRole('heading', { name: 'Make this farm yours' })).toBeVisible();
   await expect(tour.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '3');
   expect(samples.at(-1)!.time).toBeGreaterThan(1000);
   expect(samples.some((s) => s.moving)).toBe(true);
@@ -109,7 +108,7 @@ test('switching to reduced motion settles a moving tour and keeps navigation usa
   const next = tour.getByRole('button', { name: 'Next', exact: true });
   await expect(next).toBeEnabled();
   await next.click();
-  await expect(tour.getByRole('heading', { name: 'Tell Ritu about water access' })).toBeVisible();
+  await expect(tour.getByRole('heading', { name: 'Make this farm yours' })).toBeVisible();
   await expect(next).toBeEnabled();
   expect(
     await tour.evaluate(
@@ -117,61 +116,4 @@ test('switching to reduced motion settles a moving tour and keeps navigation usa
         element.getAnimations({ subtree: true }).filter((a) => a.playState === 'running').length,
     ),
   ).toBe(0);
-});
-
-test('3D camera renders intermediate views and stops rendering when settled', async ({ page }) => {
-  await seedPlan(page);
-  await page.addInitScript(() => {
-    localStorage.setItem('ritu-tour-v1', 'seen');
-    const state = window as Window & { rituDrawTimes?: number[] };
-    state.rituDrawTimes = [];
-    const original = WebGL2RenderingContext.prototype.drawElementsInstanced;
-    WebGL2RenderingContext.prototype.drawElementsInstanced = function (...args) {
-      state.rituDrawTimes!.push(performance.now());
-      return original.apply(this, args);
-    };
-  });
-  await page.goto('/plan');
-  await page.getByRole('button', { name: 'Open field view', exact: true }).click();
-  await expect(page.locator('.field-viewport')).toHaveAttribute('data-renderer', 'ready');
-  await page.locator('.field-viewport').scrollIntoViewIfNeeded();
-  await page.waitForTimeout(350);
-  await page.evaluate(() => {
-    (window as Window & { rituDrawTimes: number[] }).rituDrawTimes = [];
-  });
-  await page.getByRole('button', { name: 'View field from above' }).click();
-  await expect
-    .poll(async () =>
-      page.evaluate(
-        () =>
-          new Set(
-            (window as Window & { rituDrawTimes: number[] }).rituDrawTimes.map((time) =>
-              Math.floor(time / 40),
-            ),
-          ).size,
-      ),
-    )
-    .toBeGreaterThan(2);
-  await page.waitForTimeout(700);
-  const count = await page.evaluate(
-    () => (window as Window & { rituDrawTimes: number[] }).rituDrawTimes.length,
-  );
-  await page.waitForTimeout(250);
-  expect(
-    await page.evaluate(
-      () => (window as Window & { rituDrawTimes: number[] }).rituDrawTimes.length,
-    ),
-  ).toBe(count);
-  await page.getByRole('button', { name: 'Reset field camera' }).click();
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.waitForTimeout(100);
-  const settled = await page.evaluate(
-    () => (window as Window & { rituDrawTimes: number[] }).rituDrawTimes.length,
-  );
-  await page.waitForTimeout(200);
-  expect(
-    await page.evaluate(
-      () => (window as Window & { rituDrawTimes: number[] }).rituDrawTimes.length,
-    ),
-  ).toBe(settled);
 });

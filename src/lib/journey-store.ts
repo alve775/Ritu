@@ -1,16 +1,20 @@
 import type { Rotation } from '../domain/types';
 import { cropIds } from '../domain/types';
 import { hasSafeTiming } from '../domain/demo-planner';
+import { validSite } from '../domain/farm-site';
+import type { FarmSite } from '../domain/farm-site';
 export interface ActivityRecord {
   planted: boolean;
   harvested: boolean;
   note: string;
+  plantedDate?: string;
 }
 export interface TrackedPlan {
   rotation: Rotation;
   fingerprint: string;
   year: number;
   records: Record<string, ActivityRecord>;
+  site?: FarmSite;
 }
 export interface Journey {
   reviewed: string | null;
@@ -38,6 +42,7 @@ export function validJourney(value: unknown): value is Journey {
     !Number.isInteger(p.year) ||
     p.year < 2000 ||
     p.year > 2100 ||
+    (p.site !== undefined && !validSite(p.site)) ||
     !p.rotation ||
     typeof p.rotation.id !== 'string' ||
     !/^demo-[a-z0-9-]{1,100}$/.test(p.rotation.id)
@@ -76,7 +81,11 @@ export function validJourney(value: unknown): value is Journey {
         typeof record.harvested === 'boolean' &&
         (!record.harvested || record.planted) &&
         typeof record.note === 'string' &&
-        record.note.length <= 500
+        record.note.length <= 500 &&
+        (record.plantedDate === undefined ||
+          (/^\d{4}-\d{2}-\d{2}$/.test(record.plantedDate) &&
+            Number.isFinite(Date.parse(record.plantedDate)) &&
+            new Date(record.plantedDate).toISOString().slice(0, 10) === record.plantedDate))
       );
     })
   );

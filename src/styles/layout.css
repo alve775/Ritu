@@ -421,9 +421,13 @@
       overflow-y: auto;
       scrollbar-gutter: stable;
       background: #204b3b;
+      background-image: url('/ornaments/vine-stitch.svg');
+      background-repeat: repeat-y;
+      background-position: right 1px top;
+      background-size: 14px 120px;
+      background-origin: border-box;
       color: #fff;
       z-index: var(--z-header);
-      box-shadow: inset -1px 0 0 #ffffff24;
     }
     .sidebar-brand {
       align-self: center;
@@ -520,7 +524,6 @@
       max-width: none;
       margin: 0;
       padding-inline: clamp(24px, 2vw, 36px);
-      border-top-left-radius: 24px;
       background: var(--color-surface);
     }
     .footer {
@@ -535,7 +538,6 @@
     }
     html[data-tour-layout='active'] .main-content {
       padding-inline: 20px;
-      border-top-left-radius: 0;
     }
     html[data-tour-layout='active'] .app {
       padding-left: 0;

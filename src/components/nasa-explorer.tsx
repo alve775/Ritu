@@ -190,15 +190,15 @@ export function NasaExplorer() {
               ) : (
                 <p>
                   {t(
-                    'No crop is assigned to this month. Choose a crop above to see a clear reference photograph; the calendar will stay unchanged.',
-                    'এই মাসে কোনো ফসল নেই। ওপরে ফসল বেছে উদাহরণ ছবি দেখুন; ক্যালেন্ডার বদলাবে না।',
+                    'Choose a crop with a linked botanical identity above to request an API photograph. This does not change your calendar.',
+                    'ওপরে উৎসে পরিচয় থাকা ফসল বেছে API থেকে ছবি আনুন। এতে ক্যালেন্ডার বদলাবে না।',
                   )}
                 </p>
               )}
               <p data-tour="nasa-image-limits">
                 {t(
-                  'These are public-domain or CC0 reference photographs with source credits, not NASA observations. A photograph cannot establish local suitability, sowing spacing or how your crop will look in a particular month.',
-                  'এগুলো উৎসসহ পাবলিক ডোমেইন বা CC0 উদাহরণ ছবি, নাসার পর্যবেক্ষণ নয়। ছবি দিয়ে স্থানীয় উপযোগিতা, বোনার দূরত্ব বা নির্দিষ্ট মাসে গাছের চেহারা বলা যায় না।',
+                  'These are API-sourced Wikimedia reference photographs with author and license credits, not NASA observations. A photograph cannot establish local suitability, sowing spacing or how your crop will look in a particular month.',
+                  'এগুলো API থেকে আনা উইকিমিডিয়ার উদাহরণ ছবি, আলোকচিত্রী ও লাইসেন্সের তথ্যসহ; নাসার পর্যবেক্ষণ নয়। ছবি দিয়ে স্থানীয় উপযোগিতা, বোনার দূরত্ব বা নির্দিষ্ট মাসে গাছের চেহারা বলা যায় না।',
                 )}
               </p>
             </section>

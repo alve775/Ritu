@@ -1,0 +1,12 @@
+{
+  "checkedAt": "2026-11-02T11:31:15.114379+00:00",
+  "passed": true,
+  "catalogueRows": 2562,
+  "exportedRows": 2562,
+  "availablePhotosRehashedAndDecoded": 1752,
+  "unavailablePhotos": 810,
+  "pdfPages": 10,
+  "pdfSha256": "a675f0d8bd22cf9d604ef8141790bd87e6535d28c7fe540899f7d3bc309c0d32",
+  "csvSha256": "4f30215cdd514f1a1f7202643bb43bb0137ee2b022654761bfcea835ad0de28a",
+  "scope": "Evidence consistency and file integrity; not agronomic or botanical certification"
+}

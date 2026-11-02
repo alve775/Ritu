@@ -1468,6 +1468,60 @@ export function EvidenceSourcesView({
         </header>
       )}
       <section className="card">
+        <h2>{t('Worldwide, one-season crop matching', 'বিশ্বজুড়ে এক মৌসুমের ফসল মেলানো')}</h2>
+        <p>
+          {t(
+            'The current farm workflow uses NASA POWER 1991–2020 monthly climate normals with FAO ECOCROP species temperature and soil/drainage categories. Water access changes rainfall-related prioritization and checks; annual rainfall does not establish water in a crop’s root zone. The result is a broad, explainable screen, not a field-validated yield or optimum crop prediction.',
+            'বর্তমান খামার ব্যবস্থায় নাসা পাওয়ারের ১৯৯১–২০২০ মাসিক জলবায়ু FAO ECOCROP-এর তাপ ও মাটি/নিষ্কাশনের সঙ্গে মেলে। পানির সুযোগে বৃষ্টিভিত্তিক অগ্রাধিকার ও যাচাই বদলায়; বার্ষিক বৃষ্টি শিকড়ের ব্যবহারযোগ্য পানি নয়। এটি ব্যাখ্যাযোগ্য প্রাথমিক যাচাই, পরীক্ষিত ফলন বা সেরা ফসলের ভবিষ্যদ্বাণী নয়।',
+          )}
+        </p>
+        <p>
+          <SourceLink href="https://power.larc.nasa.gov/docs/services/api/temporal/climatology/">
+            NASA POWER climatology
+          </SourceLink>{' '}
+          · <SourceLink href="https://gaez.fao.org/pages/ecocrop">FAO ECOCROP</SourceLink> ·{' '}
+          <SourceLink href="https://github.com/OpenCLIM/ecocrop/blob/f13577f4237604b15d85d8e43741714a2d1eb2d4/EcoCrop_DB.csv">
+            ECOCROP numeric data distributed by OpenCLIM
+          </SourceLink>{' '}
+          ·{' '}
+          <SourceLink href="https://zenodo.org/records/10843625">
+            Distribution / OGL-UK-3.0
+          </SourceLink>
+        </p>
+      </section>
+      <section className="card">
+        <h2>{t('Global historical crop calendars', 'বিশ্বের পুরোনো ফসল পঞ্জিকা')}</h2>
+        <p>
+          {t(
+            'Sacks et al. (2010), University of Wisconsin–Madison SAGE: unfilled, unextrapolated 0.5° grids of regional planting/harvest observations. Fourteen crop/season grids are integrated. Dates can be old and coarse and do not certify that a crop is currently grown at a farm. Where there is no local record, RITU labels the option climate-based and uses the broad ECOCROP growing-time range; it does not copy a calendar from the nearest country.',
+            'Sacks ও সহকর্মীদের (২০১০), উইসকনসিন–ম্যাডিসন SAGE-এর অপ্রসারিত ০.৫° আঞ্চলিক রোপণ/কাটার তথ্য। ১৪টি ফসল/মৌসুমের গ্রিড যুক্ত। দিন পুরোনো ও মোটা মাপের হতে পারে; আজ জমিতে ওই ফসল আছে তার প্রমাণ নয়। স্থানীয় পঞ্জিকা না থাকলে জলবায়ুভিত্তিক বলে ECOCROP-এর বিস্তৃত সময় দেখায়; পাশের দেশের দিন নকল করে না।',
+          )}
+        </p>
+        <SourceLink href="https://sage.nelson.wisc.edu/data-and-models/datasets/crop-calendar-dataset/">
+          Original SAGE dataset and paper
+        </SourceLink>{' '}
+        ·{' '}
+        <SourceLink href="https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/crop-readme.txt">
+          Original data documentation
+        </SourceLink>
+      </section>
+      <section className="card">
+        <h2>{t('Daily guidance & automation', 'দৈনিক সহায়তা ও স্বয়ংক্রিয় কাজ')}</h2>
+        <p>
+          {t(
+            'Live weather refreshes while the app is open and retries when it reconnects. Field checks use the actual recorded planting date, observed crop stage and dated forecast. They are not sensor readings, pest diagnoses or automatic irrigation/fertilizer/pesticide control. Farm records are saved on this browser, separately for every field; use export for backups. Previous rotation records are preserved.',
+            'অ্যাপ খোলা থাকলে আবহাওয়া আপডেট হয় ও সংযোগ ফিরলে চেষ্টা করে। আসল রোপণ, দেখা পর্যায় ও তারিখের পূর্বাভাস দিয়ে জমি যাচাইয়ের কাজ আসে। এগুলো সেন্সরের মাপ, রোগ নির্ণয় বা স্বয়ংক্রিয় সেচ/সার/বালাইনাশক নিয়ন্ত্রণ নয়। প্রতি জমির হিসাব আলাদা এই ব্রাউজারে থাকে; ব্যাকআপে নামান। আগের ফসলক্রমের হিসাব থাকে।',
+          )}
+        </p>
+        <SourceLink href="https://www.fao.org/4/s2022e/s2022e02.htm">
+          FAO crop water needs
+        </SourceLink>{' '}
+        ·{' '}
+        <SourceLink href="https://www.fao.org/agriculture/crops/thematic-sitemap/theme/spi/scpi-home/managing-ecosystems/integrated-pest-management/ipm-how/en/">
+          FAO integrated pest management
+        </SourceLink>
+      </section>
+      <section className="card">
         <h2>NASA POWER</h2>
         <p>
           {t(
@@ -1489,7 +1543,7 @@ export function EvidenceSourcesView({
         <SourceLink href="https://www.openstreetmap.org/copyright">OpenStreetMap</SourceLink>
       </section>
       <section className="card">
-        <h2>DAE / BAMIS</h2>
+        <h2>{t('Previous rotation records: DAE / BAMIS', 'আগের ফসলক্রমের হিসাব: DAE / BAMIS')}</h2>
         <p>
           {t(
             'Regional crop-weather calendars supply published duration ranges and annual reference weeks. Dates are computed calendar displays, not claims of optimal field timing. Full durations and year/leap-day overlap checks are enforced. No invented water, drought or soil-fit score is used.',

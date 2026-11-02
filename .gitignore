@@ -18,6 +18,7 @@ coverage/
 /playwright-report/
 /video/output/
 /video/**/__pycache__/
+__pycache__/
 /.agent-browser/
 
 .superpowers/

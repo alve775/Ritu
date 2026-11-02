@@ -1,0 +1,22 @@
+{
+  "at": "2026-11-02T11:59:08.540Z",
+  "unitApi": {
+    "total": 499,
+    "passed": 499,
+    "success": true
+  },
+  "browser": {
+    "startTime": "2026-11-02T11:49:21.203Z",
+    "duration": 84684.60800000001,
+    "expected": 20,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "scope": "Display labels and six-location workflows; scientific screening and source imports unchanged",
+  "sourceRecords": 2562,
+  "earlierWorldwideAudit": "docs/GLOBAL_AUDIT_2026-11-01.md",
+  "build": "Passed",
+  "types": "Passed",
+  "lint": "Passed"
+}

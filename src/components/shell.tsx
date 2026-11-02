@@ -24,61 +24,43 @@ import { LanguageSwitch } from './language-switch';
 import { StepProgress } from './ui/step-progress';
 import { BottomTabBar } from './ui/bottom-tab-bar';
 import { EvidenceSourcesView } from './evidence-views';
-import { evidencePlans } from '../domain/evidence-planner';
-import { profileKey } from '../lib/evidence-store';
+import { useSeasonFarms } from '../lib/season-store';
 
 export function Shell({ children }: { children: ReactNode }) {
   const path = usePathname();
   const planner = usePlanner();
-  const {
-    t,
-    language,
-    saved: farmSaved,
-    demoSaved,
-    journeySaved,
-    ready,
-    reviewed,
-    tracked,
-  } = planner;
-  const saved = farmSaved && demoSaved && journeySaved;
+  const { t, language, saved: farmSaved, demoSaved, journeySaved, ready } = planner;
+  const season = useSeasonFarms();
+  const saved = farmSaved && demoSaved && journeySaved && season.saved;
   const [modal, setModal] = useState<'about' | null>(null);
-  const stepPath = path;
-  const cropReady =
-    reviewed &&
-    evidencePlans(
-      planner.from,
-      planner.preferred,
-      planner.farm,
-      planner.priority,
-      planner.unplanted,
-    ).length > 0;
+  const stepPath = path === '/track' ? '/plan' : path;
   const nav = [
     {
       href: '/farm',
-      completed: reviewed,
-      label: t('Your farm', 'আপনার জমি'),
+      completed: !!season.state.confirmedKey,
+      label: t('Land details', 'জমির তথ্য'),
       icon: House,
       description: t('Soil, water & location', 'মাটি, সেচ ও স্থান'),
     },
     {
       href: '/crops',
-      completed: cropReady,
-      label: t('Crops', 'ফসল'),
+      completed: season.state.farms.length > 0,
+      label: t('Suggested crops', 'প্রস্তাবিত ফসল'),
       icon: Sprout,
-      description: t('Published regional references', 'প্রকাশিত আঞ্চলিক তথ্য'),
+      description: t('Choose one crop for a season', 'এক মৌসুমের একটি ফসল বাছুন'),
     },
     {
       href: '/plan',
-      completed: !!tracked && tracked.profileKey === profileKey(planner),
-      label: t('Calendar', 'ক্যালেন্ডার'),
+      completed: season.state.farms.length > 0,
+      label: t('Farm calendar', 'খামারের ক্যালেন্ডার'),
       icon: Layers3,
-      description: t('Compare & save a plan', 'তুলনা ও পরিকল্পনা রাখুন'),
+      description: t('Daily checks & weather', 'দৈনিক যাচাই ও আবহাওয়া'),
     },
     {
-      href: '/track',
-      label: t('Track', 'হিসাব'),
+      href: '/farms',
+      label: t('My farms', 'আমার খামার'),
       icon: ClipboardCheck,
-      description: t('Weather, actual dates & notes', 'আবহাওয়া, আসল দিন ও নোট'),
+      description: t('Manage fields & seasons', 'জমি ও মৌসুম পরিচালনা'),
     },
   ];
   const stepIndex = nav.findIndex((item) => item.href === stepPath);
@@ -140,7 +122,7 @@ export function Shell({ children }: { children: ReactNode }) {
           <button className="text-button" onClick={() => setModal('about')}>
             <Earth size={18} /> {t('Sources & limits', 'উৎস ও সীমা')}
           </button>
-          <small>NASA POWER · Open-Meteo · DAE</small>
+          <small>NASA POWER · FAO ECOCROP · SAGE · Open-Meteo</small>
         </div>
       </aside>
       <main id="main" className="main-content" tabIndex={-1}>
@@ -169,7 +151,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
           <button className="preview-badge" onClick={() => setModal('about')}>
             <CircleAlert size={16} aria-hidden="true" />
-            {t('NASA · weather · DAE sources', 'নাসা · আবহাওয়া · কৃষি অধিদপ্তরের উৎস')}
+            {t('Climate · crop · weather sources', 'জলবায়ু · ফসল · আবহাওয়ার উৎস')}
           </button>
         </div>
       </footer>

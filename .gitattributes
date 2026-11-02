@@ -1,0 +1,3 @@
+# Preserve exported PDFs and audit CSV hashes across platform line endings.
+*.pdf binary
+output/audit/*.csv -text

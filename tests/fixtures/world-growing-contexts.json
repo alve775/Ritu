@@ -1,0 +1,1306 @@
+[
+  {
+    "name": "Manikganj",
+    "context": {
+      "site": {
+        "latitude": 23.86186,
+        "longitude": 90.00273,
+        "name": "Manikganj",
+        "timezone": "Asia/Dhaka"
+      },
+      "normal": {
+        "latitude": 23.86,
+        "longitude": 90,
+        "period": "1991–2020",
+        "sourceUrl": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M%2CPRECTOTCORR&community=AG&latitude=23.86&longitude=90.00&start=1991&end=2020&format=JSON",
+        "retrievedAt": "2026-10-31T14:03:54.582Z",
+        "months": [
+          {
+            "month": 1,
+            "temperature": 17.84,
+            "rain": 8.370000000000001
+          },
+          {
+            "month": 2,
+            "temperature": 21.93,
+            "rain": 16.6675
+          },
+          {
+            "month": 3,
+            "temperature": 27.14,
+            "rain": 37.51
+          },
+          {
+            "month": 4,
+            "temperature": 30.47,
+            "rain": 112.5
+          },
+          {
+            "month": 5,
+            "temperature": 30.56,
+            "rain": 224.13000000000002
+          },
+          {
+            "month": 6,
+            "temperature": 29.48,
+            "rain": 264.6
+          },
+          {
+            "month": 7,
+            "temperature": 28.75,
+            "rain": 315.27
+          },
+          {
+            "month": 8,
+            "temperature": 28.49,
+            "rain": 267.21999999999997
+          },
+          {
+            "month": 9,
+            "temperature": 27.94,
+            "rain": 223.5
+          },
+          {
+            "month": 10,
+            "temperature": 26.51,
+            "rain": 143.84
+          },
+          {
+            "month": 11,
+            "temperature": 22.87,
+            "rain": 21
+          },
+          {
+            "month": 12,
+            "temperature": 18.91,
+            "rain": 10.540000000000001
+          }
+        ],
+        "annualRain": 1645.1474999999998
+      },
+      "calendars": [
+        {
+          "crop": "rice",
+          "season": "Rice",
+          "planting": 186.5,
+          "first": 151,
+          "last": 222,
+          "harvest": 331.5,
+          "duration": 145,
+          "observation": 672,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Rice.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": 23.75,
+            "longitude": 90.25
+          }
+        },
+        {
+          "crop": "rice",
+          "season": "Rice.2",
+          "planting": 353,
+          "first": 311,
+          "last": 30,
+          "harvest": 127.5,
+          "duration": 139.5,
+          "observation": 673,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Rice.2.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": 23.75,
+            "longitude": 90.25
+          }
+        },
+        {
+          "crop": "wheat",
+          "season": "Wheat.Winter",
+          "planting": 345.5,
+          "first": 315,
+          "last": 11,
+          "harvest": 100.5,
+          "duration": 120,
+          "observation": 41,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Wheat.Winter.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": 23.75,
+            "longitude": 90.25
+          }
+        },
+        {
+          "crop": "potato",
+          "season": "Potatoes",
+          "planting": 319.5,
+          "first": 274,
+          "last": 365,
+          "harvest": 110.5,
+          "duration": 156,
+          "observation": 43,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Potatoes.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": 23.75,
+            "longitude": 90.25
+          }
+        }
+      ],
+      "calendarSource": "https://sage.nelson.wisc.edu/data-and-models/datasets/crop-calendar-dataset/",
+      "retrievedAt": "2026-10-31T14:10:49.012Z"
+    }
+  },
+  {
+    "name": "Washington",
+    "context": {
+      "site": {
+        "latitude": 38.9072,
+        "longitude": -77.0369,
+        "name": "Washington",
+        "timezone": "America/New_York"
+      },
+      "normal": {
+        "latitude": 38.91,
+        "longitude": -77.04,
+        "period": "1991–2020",
+        "sourceUrl": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M%2CPRECTOTCORR&community=AG&latitude=38.91&longitude=-77.04&start=1991&end=2020&format=JSON",
+        "retrievedAt": "2026-10-31T14:10:50.173Z",
+        "months": [
+          {
+            "month": 1,
+            "temperature": 0.07,
+            "rain": 78.74
+          },
+          {
+            "month": 2,
+            "temperature": 1.25,
+            "rain": 71.755
+          },
+          {
+            "month": 3,
+            "temperature": 5.58,
+            "rain": 99.82000000000001
+          },
+          {
+            "month": 4,
+            "temperature": 11.78,
+            "rain": 88.2
+          },
+          {
+            "month": 5,
+            "temperature": 17.28,
+            "rain": 101.05999999999999
+          },
+          {
+            "month": 6,
+            "temperature": 22.55,
+            "rain": 108.60000000000001
+          },
+          {
+            "month": 7,
+            "temperature": 25.68,
+            "rain": 110.98
+          },
+          {
+            "month": 8,
+            "temperature": 24.87,
+            "rain": 104.16
+          },
+          {
+            "month": 9,
+            "temperature": 20.95,
+            "rain": 112.2
+          },
+          {
+            "month": 10,
+            "temperature": 14.02,
+            "rain": 93.30999999999999
+          },
+          {
+            "month": 11,
+            "temperature": 7.54,
+            "rain": 81
+          },
+          {
+            "month": 12,
+            "temperature": 2.48,
+            "rain": 91.76
+          }
+        ],
+        "annualRain": 1141.5849999999998
+      },
+      "calendars": [
+        {
+          "crop": "wheat",
+          "season": "Wheat.Winter",
+          "planting": 301,
+          "first": 268,
+          "last": 334,
+          "harvest": 181,
+          "duration": 245,
+          "observation": 1291,
+          "level": 2,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Wheat.Winter.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": 38.75,
+            "longitude": -77.25
+          }
+        },
+        {
+          "crop": "maize",
+          "season": "Maize",
+          "planting": 125.5,
+          "first": 95,
+          "last": 156,
+          "harvest": 280.5,
+          "duration": 155,
+          "observation": 1057,
+          "level": 2,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Maize.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": 38.75,
+            "longitude": -77.25
+          }
+        },
+        {
+          "crop": "barley",
+          "season": "Barley.Winter",
+          "planting": 291,
+          "first": 253,
+          "last": 329,
+          "harvest": 173,
+          "duration": 247,
+          "observation": 1006,
+          "level": 2,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Barley.Winter.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": 38.75,
+            "longitude": -77.25
+          }
+        },
+        {
+          "crop": "soybean",
+          "season": "Soybeans",
+          "planting": 155.5,
+          "first": 120,
+          "last": 191,
+          "harvest": 311,
+          "duration": 155.5,
+          "observation": 1216,
+          "level": 2,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Soybeans.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": 38.75,
+            "longitude": -77.25
+          }
+        },
+        {
+          "crop": "groundnut",
+          "season": "Groundnuts",
+          "planting": 127.5,
+          "first": 110,
+          "last": 145,
+          "harvest": 283.5,
+          "duration": 156,
+          "observation": 1119,
+          "level": 2,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Groundnuts.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": 38.75,
+            "longitude": -77.25
+          }
+        },
+        {
+          "crop": "cotton",
+          "season": "Cotton",
+          "planting": 120,
+          "first": 100,
+          "last": 140,
+          "harvest": 308.5,
+          "duration": 188.5,
+          "observation": 1077,
+          "level": 2,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Cotton.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": 38.75,
+            "longitude": -77.25
+          }
+        }
+      ],
+      "calendarSource": "https://sage.nelson.wisc.edu/data-and-models/datasets/crop-calendar-dataset/",
+      "retrievedAt": "2026-10-31T14:10:50.173Z"
+    }
+  },
+  {
+    "name": "Sydney",
+    "context": {
+      "site": {
+        "latitude": -33.8688,
+        "longitude": 151.2093,
+        "name": "Sydney",
+        "timezone": "Australia/Sydney"
+      },
+      "normal": {
+        "latitude": -33.87,
+        "longitude": 151.21,
+        "period": "1991–2020",
+        "sourceUrl": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M%2CPRECTOTCORR&community=AG&latitude=-33.87&longitude=151.21&start=1991&end=2020&format=JSON",
+        "retrievedAt": "2026-10-31T14:10:51.233Z",
+        "months": [
+          {
+            "month": 1,
+            "temperature": 22.69,
+            "rain": 86.49
+          },
+          {
+            "month": 2,
+            "temperature": 22.65,
+            "rain": 123.17000000000002
+          },
+          {
+            "month": 3,
+            "temperature": 21.6,
+            "rain": 97.03
+          },
+          {
+            "month": 4,
+            "temperature": 19.55,
+            "rain": 68.39999999999999
+          },
+          {
+            "month": 5,
+            "temperature": 17.05,
+            "rain": 63.24
+          },
+          {
+            "month": 6,
+            "temperature": 14.86,
+            "rain": 89.10000000000001
+          },
+          {
+            "month": 7,
+            "temperature": 13.83,
+            "rain": 49.6
+          },
+          {
+            "month": 8,
+            "temperature": 14.36,
+            "rain": 54.25
+          },
+          {
+            "month": 9,
+            "temperature": 16.26,
+            "rain": 50.4
+          },
+          {
+            "month": 10,
+            "temperature": 18.1,
+            "rain": 63.24
+          },
+          {
+            "month": 11,
+            "temperature": 19.57,
+            "rain": 82.5
+          },
+          {
+            "month": 12,
+            "temperature": 21.22,
+            "rain": 75.33
+          }
+        ],
+        "annualRain": 902.7500000000001
+      },
+      "calendars": [
+        {
+          "crop": "rice",
+          "season": "Rice",
+          "planting": 289,
+          "first": 274,
+          "last": 304,
+          "harvest": 105.5,
+          "duration": 181.5,
+          "observation": 1547,
+          "level": 2,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Rice.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -33.75,
+            "longitude": 151.25
+          }
+        },
+        {
+          "crop": "wheat",
+          "season": "Wheat",
+          "planting": 136,
+          "first": 91,
+          "last": 181,
+          "harvest": 353.5,
+          "duration": 217.5,
+          "observation": 1542,
+          "level": 2,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Wheat.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -33.75,
+            "longitude": 151.25
+          }
+        },
+        {
+          "crop": "maize",
+          "season": "Maize",
+          "planting": 320,
+          "first": 244,
+          "last": 31,
+          "harvest": 106.5,
+          "duration": 151.5,
+          "observation": 1544,
+          "level": 2,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Maize.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -33.75,
+            "longitude": 151.25
+          }
+        },
+        {
+          "crop": "barley",
+          "season": "Barley.Winter",
+          "planting": 136,
+          "first": 121,
+          "last": 151,
+          "harvest": 319.5,
+          "duration": 183.5,
+          "observation": 1543,
+          "level": 2,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Barley.Winter.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -33.75,
+            "longitude": 151.25
+          }
+        },
+        {
+          "crop": "cotton",
+          "season": "Cotton",
+          "planting": 304,
+          "first": 274,
+          "last": 334,
+          "harvest": 105.5,
+          "duration": 166.5,
+          "observation": 1548,
+          "level": 2,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Cotton.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -33.75,
+            "longitude": 151.25
+          }
+        }
+      ],
+      "calendarSource": "https://sage.nelson.wisc.edu/data-and-models/datasets/crop-calendar-dataset/",
+      "retrievedAt": "2026-10-31T14:10:51.233Z"
+    }
+  },
+  {
+    "name": "Nairobi",
+    "context": {
+      "site": {
+        "latitude": -1.2864,
+        "longitude": 36.8172,
+        "name": "Nairobi",
+        "timezone": "Africa/Nairobi"
+      },
+      "normal": {
+        "latitude": -1.29,
+        "longitude": 36.82,
+        "period": "1991–2020",
+        "sourceUrl": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M%2CPRECTOTCORR&community=AG&latitude=-1.29&longitude=36.82&start=1991&end=2020&format=JSON",
+        "retrievedAt": "2026-10-31T14:10:52.249Z",
+        "months": [
+          {
+            "month": 1,
+            "temperature": 20.27,
+            "rain": 44.019999999999996
+          },
+          {
+            "month": 2,
+            "temperature": 21.27,
+            "rain": 29.6625
+          },
+          {
+            "month": 3,
+            "temperature": 21.47,
+            "rain": 62.92999999999999
+          },
+          {
+            "month": 4,
+            "temperature": 20.47,
+            "rain": 108
+          },
+          {
+            "month": 5,
+            "temperature": 19.21,
+            "rain": 78.74
+          },
+          {
+            "month": 6,
+            "temperature": 18.6,
+            "rain": 24.599999999999998
+          },
+          {
+            "month": 7,
+            "temperature": 18.49,
+            "rain": 17.05
+          },
+          {
+            "month": 8,
+            "temperature": 19.06,
+            "rain": 20.77
+          },
+          {
+            "month": 9,
+            "temperature": 20.16,
+            "rain": 18.3
+          },
+          {
+            "month": 10,
+            "temperature": 20.65,
+            "rain": 51.15
+          },
+          {
+            "month": 11,
+            "temperature": 19.95,
+            "rain": 89.10000000000001
+          },
+          {
+            "month": 12,
+            "temperature": 19.72,
+            "rain": 63.86
+          }
+        ],
+        "annualRain": 608.1825
+      },
+      "calendars": [
+        {
+          "crop": "rice",
+          "season": "Rice",
+          "planting": 121,
+          "first": 91,
+          "last": 151,
+          "harvest": 304,
+          "duration": 183,
+          "observation": 1710,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Rice.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -1.25,
+            "longitude": 36.75
+          }
+        },
+        {
+          "crop": "wheat",
+          "season": "Wheat",
+          "planting": 156.5,
+          "first": 132,
+          "last": 181,
+          "harvest": 304,
+          "duration": 147.5,
+          "observation": 332,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Wheat.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -1.25,
+            "longitude": 36.75
+          }
+        },
+        {
+          "crop": "maize",
+          "season": "Maize",
+          "planting": 90,
+          "first": 60,
+          "last": 120,
+          "harvest": 304,
+          "duration": 214,
+          "observation": 333,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Maize.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -1.25,
+            "longitude": 36.75
+          }
+        },
+        {
+          "crop": "maize",
+          "season": "Maize.2",
+          "planting": 304,
+          "first": 274,
+          "last": 334,
+          "harvest": 90,
+          "duration": 151,
+          "observation": 334,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Maize.2.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -1.25,
+            "longitude": 36.75
+          }
+        },
+        {
+          "crop": "barley",
+          "season": "Barley",
+          "planting": 80.5,
+          "first": 51,
+          "last": 110,
+          "harvest": 289,
+          "duration": 208.5,
+          "observation": 339,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Barley.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -1.25,
+            "longitude": 36.75
+          }
+        },
+        {
+          "crop": "potato",
+          "season": "Potatoes",
+          "planting": 121,
+          "first": 91,
+          "last": 151,
+          "harvest": 304,
+          "duration": 183,
+          "observation": 1717,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Potatoes.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -1.25,
+            "longitude": 36.75
+          }
+        },
+        {
+          "crop": "sunflower",
+          "season": "Sunflower",
+          "planting": 121,
+          "first": 91,
+          "last": 151,
+          "harvest": 304,
+          "duration": 183,
+          "observation": 1715,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Sunflower.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -1.25,
+            "longitude": 36.75
+          }
+        },
+        {
+          "crop": "groundnut",
+          "season": "Groundnuts",
+          "planting": 121,
+          "first": 91,
+          "last": 151,
+          "harvest": 304,
+          "duration": 183,
+          "observation": 1713,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Groundnuts.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -1.25,
+            "longitude": 36.75
+          }
+        },
+        {
+          "crop": "sweetpotato",
+          "season": "Sweet.Potatoes",
+          "planting": 121,
+          "first": 91,
+          "last": 151,
+          "harvest": 304,
+          "duration": 183,
+          "observation": 1718,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Sweet.Potatoes.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -1.25,
+            "longitude": 36.75
+          }
+        }
+      ],
+      "calendarSource": "https://sage.nelson.wisc.edu/data-and-models/datasets/crop-calendar-dataset/",
+      "retrievedAt": "2026-10-31T14:10:52.249Z"
+    }
+  },
+  {
+    "name": "London",
+    "context": {
+      "site": {
+        "latitude": 51.5074,
+        "longitude": -0.1278,
+        "name": "London",
+        "timezone": "Europe/London"
+      },
+      "normal": {
+        "latitude": 51.51,
+        "longitude": -0.13,
+        "period": "1991–2020",
+        "sourceUrl": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M%2CPRECTOTCORR&community=AG&latitude=51.51&longitude=-0.13&start=1991&end=2020&format=JSON",
+        "retrievedAt": "2026-10-31T14:10:52.789Z",
+        "months": [
+          {
+            "month": 1,
+            "temperature": 4.06,
+            "rain": 64.17
+          },
+          {
+            "month": 2,
+            "temperature": 4.22,
+            "rain": 50.285000000000004
+          },
+          {
+            "month": 3,
+            "temperature": 6.23,
+            "rain": 46.5
+          },
+          {
+            "month": 4,
+            "temperature": 8.79,
+            "rain": 48
+          },
+          {
+            "month": 5,
+            "temperature": 12.12,
+            "rain": 53.01
+          },
+          {
+            "month": 6,
+            "temperature": 15.23,
+            "rain": 57.599999999999994
+          },
+          {
+            "month": 7,
+            "temperature": 17.5,
+            "rain": 55.18
+          },
+          {
+            "month": 8,
+            "temperature": 17.3,
+            "rain": 62.62
+          },
+          {
+            "month": 9,
+            "temperature": 14.52,
+            "rain": 54.900000000000006
+          },
+          {
+            "month": 10,
+            "temperature": 10.89,
+            "rain": 75.02
+          },
+          {
+            "month": 11,
+            "temperature": 7.11,
+            "rain": 74.10000000000001
+          },
+          {
+            "month": 12,
+            "temperature": 4.62,
+            "rain": 72.53999999999999
+          }
+        ],
+        "annualRain": 713.9250000000001
+      },
+      "calendars": [
+        {
+          "crop": "wheat",
+          "season": "Wheat.Winter",
+          "planting": 304,
+          "first": 276,
+          "last": 332,
+          "harvest": 208,
+          "duration": 269,
+          "observation": 785,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Wheat.Winter.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": 51.75,
+            "longitude": -0.25
+          }
+        },
+        {
+          "crop": "barley",
+          "season": "Barley",
+          "planting": 87.5,
+          "first": 59,
+          "last": 116,
+          "harvest": 208,
+          "duration": 120.5,
+          "observation": 786,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Barley.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": 51.75,
+            "longitude": -0.25
+          }
+        },
+        {
+          "crop": "barley",
+          "season": "Barley.Winter",
+          "planting": 284,
+          "first": 260,
+          "last": 308,
+          "harvest": 180,
+          "duration": 261,
+          "observation": 787,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Barley.Winter.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": 51.75,
+            "longitude": -0.25
+          }
+        }
+      ],
+      "calendarSource": "https://sage.nelson.wisc.edu/data-and-models/datasets/crop-calendar-dataset/",
+      "retrievedAt": "2026-10-31T14:10:52.789Z"
+    }
+  },
+  {
+    "name": "Delhi",
+    "context": {
+      "site": {
+        "latitude": 28.6139,
+        "longitude": 77.209,
+        "name": "Delhi",
+        "timezone": "Asia/Kolkata"
+      },
+      "normal": {
+        "latitude": 28.61,
+        "longitude": 77.21,
+        "period": "1991–2020",
+        "sourceUrl": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M%2CPRECTOTCORR&community=AG&latitude=28.61&longitude=77.21&start=1991&end=2020&format=JSON",
+        "retrievedAt": "2026-10-31T14:10:53.764Z",
+        "months": [
+          {
+            "month": 1,
+            "temperature": 13.83,
+            "rain": 17.05
+          },
+          {
+            "month": 2,
+            "temperature": 17.37,
+            "rain": 22.035
+          },
+          {
+            "month": 3,
+            "temperature": 23.48,
+            "rain": 15.19
+          },
+          {
+            "month": 4,
+            "temperature": 30.28,
+            "rain": 12.299999999999999
+          },
+          {
+            "month": 5,
+            "temperature": 35.12,
+            "rain": 27.59
+          },
+          {
+            "month": 6,
+            "temperature": 35.95,
+            "rain": 83.7
+          },
+          {
+            "month": 7,
+            "temperature": 32.53,
+            "rain": 202.11999999999998
+          },
+          {
+            "month": 8,
+            "temperature": 29.93,
+            "rain": 212.04
+          },
+          {
+            "month": 9,
+            "temperature": 28.29,
+            "rain": 119.4
+          },
+          {
+            "month": 10,
+            "temperature": 25.08,
+            "rain": 14.879999999999999
+          },
+          {
+            "month": 11,
+            "temperature": 20.15,
+            "rain": 4.2
+          },
+          {
+            "month": 12,
+            "temperature": 15.47,
+            "rain": 7.75
+          }
+        ],
+        "annualRain": 738.255
+      },
+      "calendars": [
+        {
+          "crop": "soybean",
+          "season": "Soybeans",
+          "planting": 182,
+          "first": 152,
+          "last": 212,
+          "harvest": 308.5,
+          "duration": 126.5,
+          "observation": 826,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Soybeans.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": 28.75,
+            "longitude": 77.25
+          }
+        },
+        {
+          "crop": "cotton",
+          "season": "Cotton",
+          "planting": 116.5,
+          "first": 67,
+          "last": 166,
+          "harvest": 312,
+          "duration": 195.5,
+          "observation": 828,
+          "level": 2,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Cotton.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": 28.75,
+            "longitude": 77.25
+          }
+        }
+      ],
+      "calendarSource": "https://sage.nelson.wisc.edu/data-and-models/datasets/crop-calendar-dataset/",
+      "retrievedAt": "2026-10-31T14:10:53.764Z"
+    }
+  },
+  {
+    "name": "Sao Paulo",
+    "context": {
+      "site": {
+        "latitude": -23.5505,
+        "longitude": -46.6333,
+        "name": "Sao Paulo",
+        "timezone": "America/Sao_Paulo"
+      },
+      "normal": {
+        "latitude": -23.55,
+        "longitude": -46.63,
+        "period": "1991–2020",
+        "sourceUrl": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M%2CPRECTOTCORR&community=AG&latitude=-23.55&longitude=-46.63&start=1991&end=2020&format=JSON",
+        "retrievedAt": "2026-10-31T14:10:54.711Z",
+        "months": [
+          {
+            "month": 1,
+            "temperature": 22.25,
+            "rain": 239.63000000000002
+          },
+          {
+            "month": 2,
+            "temperature": 22.29,
+            "rain": 198.0325
+          },
+          {
+            "month": 3,
+            "temperature": 21.37,
+            "rain": 166.16
+          },
+          {
+            "month": 4,
+            "temperature": 19.74,
+            "rain": 82.2
+          },
+          {
+            "month": 5,
+            "temperature": 17,
+            "rain": 68.82000000000001
+          },
+          {
+            "month": 6,
+            "temperature": 15.99,
+            "rain": 58.199999999999996
+          },
+          {
+            "month": 7,
+            "temperature": 15.64,
+            "rain": 53.94
+          },
+          {
+            "month": 8,
+            "temperature": 16.9,
+            "rain": 37.82
+          },
+          {
+            "month": 9,
+            "temperature": 18.66,
+            "rain": 118.8
+          },
+          {
+            "month": 10,
+            "temperature": 20.34,
+            "rain": 115.32000000000001
+          },
+          {
+            "month": 11,
+            "temperature": 20.73,
+            "rain": 141
+          },
+          {
+            "month": 12,
+            "temperature": 21.94,
+            "rain": 183.82999999999998
+          }
+        ],
+        "annualRain": 1463.7525
+      },
+      "calendars": [
+        {
+          "crop": "rice",
+          "season": "Rice",
+          "planting": 325.5,
+          "first": 286,
+          "last": 365,
+          "harvest": 88,
+          "duration": 127.5,
+          "observation": 810,
+          "level": 2,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Rice.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -23.75,
+            "longitude": -46.75
+          }
+        },
+        {
+          "crop": "wheat",
+          "season": "Wheat.Winter",
+          "planting": 117,
+          "first": 87,
+          "last": 147,
+          "harvest": 287.5,
+          "duration": 170.5,
+          "observation": 676,
+          "level": 2,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Wheat.Winter.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -23.75,
+            "longitude": -46.75
+          }
+        },
+        {
+          "crop": "maize",
+          "season": "Maize",
+          "planting": 328,
+          "first": 291,
+          "last": 365,
+          "harvest": 99.5,
+          "duration": 136.5,
+          "observation": 674,
+          "level": 2,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Maize.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -23.75,
+            "longitude": -46.75
+          }
+        },
+        {
+          "crop": "maize",
+          "season": "Maize.2",
+          "planting": 29.5,
+          "first": 1,
+          "last": 58,
+          "harvest": 205,
+          "duration": 175.5,
+          "observation": 859,
+          "level": 2,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Maize.2.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -23.75,
+            "longitude": -46.75
+          }
+        },
+        {
+          "crop": "barley",
+          "season": "Barley.Winter",
+          "planting": 166.5,
+          "first": 131,
+          "last": 202,
+          "harvest": 319.5,
+          "duration": 153,
+          "observation": 73,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Barley.Winter.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -23.75,
+            "longitude": -46.75
+          }
+        },
+        {
+          "crop": "soybean",
+          "season": "Soybeans",
+          "planting": 328,
+          "first": 291,
+          "last": 365,
+          "harvest": 105.5,
+          "duration": 142.5,
+          "observation": 678,
+          "level": 2,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Soybeans.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -23.75,
+            "longitude": -46.75
+          }
+        },
+        {
+          "crop": "cotton",
+          "season": "Cotton",
+          "planting": 285,
+          "first": 243,
+          "last": 327,
+          "harvest": 88.5,
+          "duration": 168.5,
+          "observation": 679,
+          "level": 2,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Cotton.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": -23.75,
+            "longitude": -46.75
+          }
+        }
+      ],
+      "calendarSource": "https://sage.nelson.wisc.edu/data-and-models/datasets/crop-calendar-dataset/",
+      "retrievedAt": "2026-10-31T14:10:54.711Z"
+    }
+  },
+  {
+    "name": "Tokyo",
+    "context": {
+      "site": {
+        "latitude": 35.6762,
+        "longitude": 139.6503,
+        "name": "Tokyo",
+        "timezone": "Asia/Tokyo"
+      },
+      "normal": {
+        "latitude": 35.68,
+        "longitude": 139.65,
+        "period": "1991–2020",
+        "sourceUrl": "https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M%2CPRECTOTCORR&community=AG&latitude=35.68&longitude=139.65&start=1991&end=2020&format=JSON",
+        "retrievedAt": "2026-10-31T14:10:55.275Z",
+        "months": [
+          {
+            "month": 1,
+            "temperature": 2.33,
+            "rain": 62.62
+          },
+          {
+            "month": 2,
+            "temperature": 3.21,
+            "rain": 61.8675
+          },
+          {
+            "month": 3,
+            "temperature": 6.75,
+            "rain": 118.73
+          },
+          {
+            "month": 4,
+            "temperature": 12.01,
+            "rain": 127.8
+          },
+          {
+            "month": 5,
+            "temperature": 16.93,
+            "rain": 137.95000000000002
+          },
+          {
+            "month": 6,
+            "temperature": 20.66,
+            "rain": 180.29999999999998
+          },
+          {
+            "month": 7,
+            "temperature": 24.57,
+            "rain": 182.59
+          },
+          {
+            "month": 8,
+            "temperature": 25.64,
+            "rain": 146.63000000000002
+          },
+          {
+            "month": 9,
+            "temperature": 22,
+            "rain": 214.5
+          },
+          {
+            "month": 10,
+            "temperature": 16.07,
+            "rain": 201.81
+          },
+          {
+            "month": 11,
+            "temperature": 10.41,
+            "rain": 92.1
+          },
+          {
+            "month": 12,
+            "temperature": 4.9,
+            "rain": 57.970000000000006
+          }
+        ],
+        "annualRain": 1584.8674999999998
+      },
+      "calendars": [
+        {
+          "crop": "rice",
+          "season": "Rice",
+          "planting": 167,
+          "first": 132,
+          "last": 202,
+          "harvest": 291,
+          "duration": 124,
+          "observation": 321,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Rice.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": 35.75,
+            "longitude": 139.75
+          }
+        },
+        {
+          "crop": "wheat",
+          "season": "Wheat.Winter",
+          "planting": 298.5,
+          "first": 263,
+          "last": 334,
+          "harvest": 177,
+          "duration": 243.5,
+          "observation": 322,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Wheat.Winter.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": 35.75,
+            "longitude": 139.75
+          }
+        },
+        {
+          "crop": "potato",
+          "season": "Potatoes",
+          "planting": 105.5,
+          "first": 60,
+          "last": 151,
+          "harvest": 217,
+          "duration": 111.5,
+          "observation": 323,
+          "level": 1,
+          "sourceUrl": "https://sage-public-files.s3.amazonaws.com/crop-calendar-dataset/netcdf0.5deg/Potatoes.crop.calendar.nc.gz",
+          "grid": {
+            "latitude": 35.75,
+            "longitude": 139.75
+          }
+        }
+      ],
+      "calendarSource": "https://sage.nelson.wisc.edu/data-and-models/datasets/crop-calendar-dataset/",
+      "retrievedAt": "2026-10-31T14:10:55.275Z"
+    }
+  }
+]

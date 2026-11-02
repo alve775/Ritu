@@ -68,31 +68,37 @@ export function TourGuide() {
       scope: 'full',
       title: t('Full mission tour', 'সম্পূর্ণ পরিচিতি'),
       description: t(
-        'Farm → suggested crops → calendar → tracking',
-        'জমি → প্রস্তাবিত ফসল → ক্যালেন্ডার → হিসাব',
+        'Land → choose one crop → farm calendar → my farms',
+        'জমি → একটি ফসল → খামারের ক্যালেন্ডার → সব খামার',
       ),
     },
     {
       scope: 'farm',
       title: t('Your farm', 'আপনার জমি'),
-      description: t('Inputs, requirements and previous crops', 'তথ্য, প্রয়োজন ও আগের ফসল'),
+      description: t('Location, area, soil and water', 'স্থান, আয়তন, মাটি ও পানি'),
     },
     {
       scope: 'crops',
       title: t('Crop choices', 'ফসল বাছাই'),
-      description: t('Published calendars and field checks', 'প্রকাশিত পঞ্জিকা ও জমির শর্ত'),
+      description: t(
+        'Location-based suggestions for one season',
+        'এক মৌসুমের স্থানভিত্তিক প্রস্তাব',
+      ),
     },
     {
       scope: 'compare',
       title: t('Calendar', 'ক্যালেন্ডার'),
-      description: t('Calendars, priorities and selection', 'ক্যালেন্ডার, অগ্রাধিকার ও পছন্দ'),
+      description: t(
+        'Daily checks, actual planting and forecast',
+        'প্রতিদিনের যাচাই, আসল রোপণ ও পূর্বাভাস',
+      ),
     },
     {
       scope: 'field',
-      title: t('Practical crop tools', 'ফসলের ব্যবহারিক সরঞ্জাম'),
+      title: t('Crop matching methods', 'ফসল মেলানোর পদ্ধতি'),
       description: t(
-        'Published seed rates and germination checks',
-        'প্রকাশিত বীজের হার ও অঙ্কুর পরীক্ষা',
+        'Climate, regional evidence and field checks',
+        'জলবায়ু, আঞ্চলিক তথ্য ও জমির যাচাই',
       ),
     },
     {
@@ -102,10 +108,10 @@ export function TourGuide() {
     },
     {
       scope: 'track',
-      title: t('Track your plan', 'পরিকল্পনার হিসাব'),
+      title: t('My farms', 'আমার খামার'),
       description: t(
-        'Saved calendar, planting, harvest and notes',
-        'রাখা ক্যালেন্ডার, রোপণ, কাটা ও নোট',
+        'Separate fields, seasons and exported records',
+        'আলাদা জমি, মৌসুম ও হিসাব ডাউনলোড',
       ),
     },
   ];
@@ -114,7 +120,7 @@ export function TourGuide() {
       ? 'farm'
       : path === '/crops'
         ? 'crops'
-        : path === '/track'
+        : path === '/farms'
           ? 'track'
           : path === '/insights' || path === '/sources' || path === '/sample'
             ? 'insights'

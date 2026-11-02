@@ -8,19 +8,19 @@ import type { Language } from '../../domain/types';
 
 const COPY = {
   en: {
-    eyebrow: "Crop planning for Bangladesh's three seasons",
+    eyebrow: 'Your land. Your crop. Your next growing season.',
     titleA: 'Explore what to plant,',
     titleB: 'every season.',
-    lede: 'Start with your soil and water. Explore crops, compare complete seasonal calendars and keep track of your work.',
+    lede: 'Find your field anywhere in the world. Choose one crop for a season, then follow your own farm calendar, daily field checks and weather forecast.',
     cta: 'Plan my season',
     secondary: 'Explore data & methods',
     home: 'Ritu home',
   },
   bn: {
-    eyebrow: 'বাংলাদেশের তিন মৌসুমের ফসল পরিকল্পনা',
+    eyebrow: 'আপনার জমি। আপনার ফসল। পরের চাষের মৌসুম।',
     titleA: 'প্রতি মৌসুমে দেখুন,',
     titleB: 'কী লাগাবেন।',
-    lede: 'মাটি ও পানি দিয়ে শুরু করুন। ফসল বাছুন, সম্পূর্ণ মৌসুমের ক্যালেন্ডার তুলনা করুন এবং কাজের হিসাব রাখুন।',
+    lede: 'বিশ্বের যেকোনো স্থানে জমি খুঁজুন। এক মৌসুমের একটি ফসল বেছে নিজস্ব ক্যালেন্ডার, প্রতিদিনের যাচাই ও আবহাওয়ার পূর্বাভাস দেখুন।',
     cta: 'পরিকল্পনা শুরু করুন',
     secondary: 'তথ্য ও পদ্ধতি দেখুন',
     home: 'ঋতু প্রথম পাতা',
@@ -69,8 +69,8 @@ export function LandingView({ lang, languageSwitch, sourceHref = '/sources' }: P
         <p className="landing__lede">{t.lede}</p>
         <p className="landing__evidence">
           {lang === 'en'
-            ? 'Plan with NASA weather history, current forecasts and published DAE crop calendars. Start with your own field; every planning reference has a source.'
-            : 'নাসার ইতিহাস, বর্তমান পূর্বাভাস ও সরকারি পঞ্জিকা দিয়ে পরিকল্পনা করুন। নিজের জমি থেকে শুরু; প্রতিটি তথ্যের উৎস আছে।'}
+            ? 'NASA climate, published crop requirements and regional calendar records help screen your options. Manage separate farms for different fields and crops.'
+            : 'নাসার জলবায়ু, প্রকাশিত ফসলের চাহিদা ও আঞ্চলিক পঞ্জিকা দিয়ে বিকল্প যাচাই করুন। আলাদা জমি ও ফসলের জন্য আলাদা খামার রাখুন।'}
         </p>
         <div className="landing__actions">
           <Link href="/farm" className="landing__cta">
@@ -79,6 +79,9 @@ export function LandingView({ lang, languageSwitch, sourceHref = '/sources' }: P
           </Link>
           <Link href={sourceHref} className="landing__secondary">
             {t.secondary}
+          </Link>
+          <Link href="/farms" className="landing__secondary">
+            {lang === 'en' ? 'My farms' : 'আমার খামার'}
           </Link>
         </div>
       </section>

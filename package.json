@@ -12,7 +12,8 @@
     "typecheck": "next typegen && tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write src tests *.ts *.json *.mjs",
-    "format:check": "prettier --check src tests *.ts *.json *.mjs"
+    "format:check": "prettier --check src tests *.ts *.json *.mjs",
+    "audit:images": "node scripts/audit-plant-images.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "5.3.0",

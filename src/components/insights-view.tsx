@@ -183,8 +183,8 @@ export function InsightsView() {
             </ul>
             <p>
               {t(
-                'NASA POWER history is integrated; crop photographs have separate public-domain/CC0 sources. The remaining gap is validated local agronomy and field/user testing. IMERG and SMAP are not ingested.',
-                'নাসা POWER ইতিহাস যুক্ত; ফসলের ছবি পাবলিক ডোমেইন/CC0 উৎস থেকে আসে। স্থানীয় কৃষি নিয়ম এবং মাঠে/ব্যবহারকারীর পরীক্ষা বাকি। IMERG ও SMAP যুক্ত নয়।',
+                'NASA POWER history is integrated; crop photographs are fetched through the Wikimedia APIs with separate author/license credits. The remaining gap is validated local agronomy and field/user testing. IMERG and SMAP are not ingested.',
+                'নাসা POWER ইতিহাস যুক্ত; ফসলের ছবি উইকিমিডিয়ার API থেকে আলোকচিত্রী ও লাইসেন্সের তথ্যসহ আসে। স্থানীয় কৃষি নিয়ম এবং মাঠে/ব্যবহারকারীর পরীক্ষা বাকি। IMERG ও SMAP যুক্ত নয়।',
               )}
             </p>
             <ul className="model-references">

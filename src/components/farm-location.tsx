@@ -13,11 +13,20 @@ import { useLiveWeather } from '../lib/use-live-weather';
 interface Place extends FarmSite {
   id: number;
 }
-export function FarmLocation() {
+export function FarmLocation({ worldwide = false }: { worldwide?: boolean }) {
   const { t, language, environment, setEnvironment } = usePlanner();
   const site = siteFor(environment),
     climate = climateFor(environment);
-  const weather = useLiveWeather(site);
+  const weather = useLiveWeather(site, !!environment.site);
+  useEffect(() => {
+    if (
+      worldwide &&
+      environment.site &&
+      weather.data &&
+      environment.site.timezone !== weather.data.timezone
+    )
+      setEnvironment({ site: { ...environment.site, timezone: weather.data.timezone } });
+  }, [worldwide, environment.site, weather.data, setEnvironment]);
   const [query, setQuery] = useState(''),
     [places, setPlaces] = useState<Place[]>([]),
     [searchState, setSearchState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle'),
@@ -87,6 +96,7 @@ export function FarmLocation() {
   useEffect(() => {
     const abort = new AbortController();
     let stopped = false;
+    if (worldwide) return;
     if (
       climate.latitude === Number(site.latitude.toFixed(2)) &&
       climate.longitude === Number(site.longitude.toFixed(2)) &&
@@ -125,7 +135,7 @@ export function FarmLocation() {
       abort.abort();
       clearTimeout(timer);
     };
-  }, [site.latitude, site.longitude, climate, contextRetry]);
+  }, [site.latitude, site.longitude, climate, contextRetry, worldwide]);
   const pick = (place: Place) => {
     chooseSite(place);
     setQuery(place.name);
@@ -361,7 +371,7 @@ export function FarmLocation() {
         </summary>
         <WeatherContent site={site} result={weather} compact />
       </details>
-      {!inPilotRegion(site) && (
+      {!worldwide && !inPilotRegion(site) && (
         <p className="notice-amber">
           {t(
             'Worldwide location and weather work here. The verified regional crop calendars cover Rajshahi, Chapainawabganj, Naogaon and Natore; RITU does not apply these calendars elsewhere.',
@@ -369,41 +379,43 @@ export function FarmLocation() {
           )}
         </p>
       )}
-      <details className="nasa-background">
-        <summary>{t('NASA seasonal context & sources', 'নাসার মৌসুমি তথ্য ও উৎস')}</summary>
-        {climateMatchesSite(environment) ? (
-          <p>
-            {t('NASA POWER historical year', 'নাসা POWER-এর ইতিহাসের বছর')} {climate.year} ·{' '}
-            {climate.latitude.toFixed(2)}°, {climate.longitude.toFixed(2)}°.{' '}
-            <a href={climate.requestUrl} target="_blank" rel="noopener noreferrer">
-              {t('Original NASA record', 'নাসার মূল তথ্য')}
-            </a>
-          </p>
-        ) : (
-          <p role="status">
-            {!environment.site
-              ? t(
-                  'Select your farm pin to load its NASA context.',
-                  'জমির নাসার তথ্য আনতে নিজের পিন বাছুন।',
-                )
-              : historyError === historyKey
+      {!worldwide && (
+        <details className="nasa-background">
+          <summary>{t('NASA seasonal context & sources', 'নাসার মৌসুমি তথ্য ও উৎস')}</summary>
+          {climateMatchesSite(environment) ? (
+            <p>
+              {t('NASA POWER historical year', 'নাসা POWER-এর ইতিহাসের বছর')} {climate.year} ·{' '}
+              {climate.latitude.toFixed(2)}°, {climate.longitude.toFixed(2)}°.{' '}
+              <a href={climate.requestUrl} target="_blank" rel="noopener noreferrer">
+                {t('Original NASA record', 'নাসার মূল তথ্য')}
+              </a>
+            </p>
+          ) : (
+            <p role="status">
+              {!environment.site
                 ? t(
-                    'NASA context is unavailable for this pin. Weather remains available, but no other location’s NASA data is used for crop matching.',
-                    'এই পিনের নাসার তথ্য পাওয়া যায়নি। আবহাওয়া দেখা যাবে, কিন্তু অন্য স্থানের নাসার তথ্য দিয়ে ফসল মেলানো হবে না।',
+                    'Select your farm pin to load its NASA context.',
+                    'জমির নাসার তথ্য আনতে নিজের পিন বাছুন।',
                   )
-                : t(
-                    'NASA context is updating automatically for this pin…',
-                    'এই পিনের নাসার তথ্য নিজে থেকে আনা হচ্ছে…',
-                  )}
-          </p>
-        )}
-        <p>
-          {t(
-            'NASA history provides seasonal context and has a publication delay. Current weather and forecasts above come separately from Open-Meteo. Neither source measures your field’s soil texture or irrigation supply.',
-            'নাসার ইতিহাস মৌসুম বোঝায় এবং প্রকাশে দেরি থাকে। ওপরের বর্তমান আবহাওয়া ও পূর্বাভাস আলাদা Open-Meteo থেকে আসে। কোনো উৎসই জমির মাটির গঠন বা সেচের সরবরাহ মাপে না।',
+                : historyError === historyKey
+                  ? t(
+                      'NASA context is unavailable for this pin. Weather remains available, but no other location’s NASA data is used for crop matching.',
+                      'এই পিনের নাসার তথ্য পাওয়া যায়নি। আবহাওয়া দেখা যাবে, কিন্তু অন্য স্থানের নাসার তথ্য দিয়ে ফসল মেলানো হবে না।',
+                    )
+                  : t(
+                      'NASA context is updating automatically for this pin…',
+                      'এই পিনের নাসার তথ্য নিজে থেকে আনা হচ্ছে…',
+                    )}
+            </p>
           )}
-        </p>
-      </details>
+          <p>
+            {t(
+              'NASA history provides seasonal context and has a publication delay. Current weather and forecasts above come separately from Open-Meteo. Neither source measures your field’s soil texture or irrigation supply.',
+              'নাসার ইতিহাস মৌসুম বোঝায় এবং প্রকাশে দেরি থাকে। ওপরের বর্তমান আবহাওয়া ও পূর্বাভাস আলাদা Open-Meteo থেকে আসে। কোনো উৎসই জমির মাটির গঠন বা সেচের সরবরাহ মাপে না।',
+            )}
+          </p>
+        </details>
+      )}
     </section>
   );
 }

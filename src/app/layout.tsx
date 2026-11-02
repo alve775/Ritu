@@ -21,6 +21,7 @@ import '../styles/pages/insights.css';
 import '../styles/pages/tour.css';
 import '../styles/pages/live-farm.css';
 import '../styles/pages/evidence.css';
+import '../styles/pages/season-farms.css';
 import { PlannerProvider } from '../components/planner-provider';
 
 const display = Anek_Bangla({
@@ -37,7 +38,7 @@ const body = Hind_Siliguri({
 export const metadata: Metadata = {
   title: 'Ritu — Grow with the seasons',
   description:
-    'Plan crop rotations with dated NASA POWER history, current weather forecasts and official DAE regional crop calendars. Find your field, compare source-based sequences and keep actual planting records.',
+    'Manage farms worldwide, screen crops using NASA climate and published crop requirements, choose one crop per season, and follow a farm calendar with current weather forecasts and actual field records.',
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '32x32 48x48', type: 'image/x-icon' },

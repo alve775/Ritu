@@ -11,9 +11,11 @@ export function FarmAreaField() {
       <label htmlFor="farm-area">
         {unit === 'hectares'
           ? t('Field area (hectares)', 'জমির আয়তন (হেক্টর)')
-          : unit === 'decimal'
-            ? t('Field area (decimal / shotok)', 'জমির আয়তন (শতক)')
-            : t('Field area (square metres)', 'জমির আয়তন (বর্গমিটার)')}
+          : unit === 'acres'
+            ? t('Field area (acres)', 'জমির আয়তন (একর)')
+            : unit === 'decimal'
+              ? t('Field area (decimal / shotok)', 'জমির আয়তন (শতক)')
+              : t('Field area (square metres)', 'জমির আয়তন (বর্গমিটার)')}
       </label>
       <div className="area-entry-inputs">
         <input
@@ -39,6 +41,7 @@ export function FarmAreaField() {
           onChange={(e) => setUnit(e.target.value as AreaUnit)}
         >
           <option value="hectares">{t('Hectares', 'হেক্টর')}</option>
+          <option value="acres">{t('Acres', 'একর')}</option>
           <option value="decimal">{t('Decimal / shotok', 'শতক')}</option>
           <option value="square-metres">{t('Square metres', 'বর্গমিটার')}</option>
         </select>

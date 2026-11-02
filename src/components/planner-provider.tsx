@@ -6,6 +6,7 @@ import { displayStore } from '../lib/display-store';
 import { evidenceStore, useEvidence, profileKey } from '../lib/evidence-store';
 import type { RegionEnvironment } from '../data/region-environment';
 import { tr } from '../lib/translate';
+import { seasonStore } from '../lib/season-store';
 function usePlannerState() {
   useSyncExternalStore(
     displayStore.subscribe,
@@ -25,6 +26,7 @@ function usePlannerState() {
   const setEnvironment = (change: Partial<RegionEnvironment>) => evidenceStore.update(change);
   const reset = () => {
     evidenceStore.reset();
+    seasonStore.reset();
     setResetEpoch((n) => n + 1);
     setMonth(0);
     setFieldOpen(false);

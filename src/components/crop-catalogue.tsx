@@ -109,8 +109,8 @@ export function CropCatalogue() {
           <p>
             {photoFor(active.id)
               ? t(
-                  'A credited crop reference photograph is available. The photo does not establish local suitability or planting dates.',
-                  'উৎসসহ ফসলের উদাহরণ ছবি আছে। ছবি স্থানীয় উপযোগিতা বা রোপণের সময় নিশ্চিত করে না।',
+                  'A reference photo is requested automatically from the plant image API. Source availability varies; a photo does not establish local suitability or planting dates.',
+                  'গাছের ছবি API থেকে স্বয়ংক্রিয়ভাবে চাওয়া হয়। উৎসে ছবি নাও থাকতে পারে; ছবি স্থানীয় উপযোগিতা বা রোপণের সময় নিশ্চিত করে না।',
                 )
               : t(
                   'No verified photograph is included for this entry yet. This reference does not establish a planting window.',

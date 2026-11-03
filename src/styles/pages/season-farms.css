@@ -254,6 +254,28 @@
     border: 2px solid #285843;
     box-shadow: 0 4px 18px #28584315;
   }
+  .water-budget-panel > form,
+  .soil-evidence-form form {
+    display: grid;
+    gap: 18px;
+    margin-top: 18px;
+  }
+  .soil-reference + .soil-evidence-form {
+    margin-top: 22px;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-line);
+  }
+  .water-budget-result {
+    margin-top: 22px;
+    padding: 18px;
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    background: #fafcfc;
+  }
+  .water-budget-result dd {
+    font-weight: 650;
+    margin: 4px 0 0;
+  }
   .season-crop-card .crop-photo {
     margin: 0;
   }
@@ -284,12 +306,13 @@
     justify-content: flex-start;
   }
   .season-crop-card {
-    height: 100%;
+    height: auto;
     display: flex;
     flex-direction: column;
   }
   .season-crop-body {
     flex: 1;
+    align-content: start;
   }
   .season-crop-body > .button {
     align-self: end;
@@ -499,6 +522,10 @@
     gap: 20px;
     align-items: start;
   }
+  #farm-daily-update,
+  [data-tour='daily-actions'] {
+    scroll-margin-top: calc(var(--header-h) + 16px);
+  }
   .season-section-heading {
     display: flex;
     align-items: center;
@@ -649,6 +676,120 @@
   .season-observations {
     display: grid;
     gap: 18px;
+  }
+  .season-progress-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
+    margin: 0;
+  }
+  .season-progress-facts div {
+    min-width: 0;
+  }
+  .season-progress-facts dt {
+    color: var(--color-ink-muted);
+    font-size: 0.86rem;
+  }
+  .season-progress-facts dd {
+    margin: 6px 0 0;
+    font-weight: 650;
+  }
+  .season-model-status {
+    margin-top: 16px;
+    padding: 16px;
+    border: 1px solid var(--color-line);
+    border-left: 4px solid #476e59;
+    background: #fafbfc;
+    border-radius: 8px;
+  }
+  .season-model-status p:last-child {
+    margin-bottom: 0;
+  }
+  .season-check-in {
+    border-top: 1px solid var(--color-line);
+    padding-top: 20px;
+  }
+  .season-check-in form,
+  .season-thermal-settings form {
+    display: grid;
+    gap: 16px;
+  }
+  .season-check-in fieldset {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+    border: 0;
+    padding: 0;
+    margin: 0;
+  }
+  .season-check-in fieldset:disabled {
+    opacity: 0.7;
+  }
+  .season-check-in .season-form-grid {
+    margin: 0;
+  }
+  .season-check-in details .season-form-grid {
+    margin-top: 15px;
+  }
+  .season-check-in li {
+    margin-block: 8px;
+    overflow-wrap: anywhere;
+  }
+  .season-check-in button,
+  .season-thermal-settings button {
+    justify-self: start;
+  }
+  .season-thermal-settings > summary {
+    font-weight: 650;
+    cursor: pointer;
+  }
+  .season-thermal-settings[open] > summary {
+    margin-bottom: 16px;
+  }
+  .season-model-consent {
+    display: flex !important;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .season-model-consent input {
+    width: 22px !important;
+    height: 22px;
+    flex: 0 0 22px;
+    margin-top: 2px;
+  }
+  .season-calendar-grid > button.growing-day {
+    background: #eff5f1;
+  }
+  .season-calendar-grid > button.reference-day {
+    border: 2px dotted #697986;
+  }
+  .season-calendar-grid > button.extended-day {
+    background: #fff2d8;
+  }
+  .season-calendar-grid > button.harvested-day {
+    box-shadow: inset 0 0 0 2px #265943;
+  }
+  .season-calendar-grid > button.projected-day {
+    border: 2px dashed #355f91;
+  }
+  .season-calendar-grid > button.selected {
+    background: var(--color-primary, #285843);
+    color: white;
+  }
+  .season-calendar-grid > button.selected svg {
+    color: currentColor;
+  }
+  .season-calendar-event {
+    font-weight: 700;
+    line-height: 1;
+  }
+  .season-calendar-legend .reference-key {
+    border: 2px dotted #697986;
+    background: transparent;
+  }
+  .season-calendar-legend .extended-key {
+    background: #fff2d8;
+    border: 1px solid #a17a30;
   }
   .season-observations .season-section-heading {
     margin-bottom: 0;

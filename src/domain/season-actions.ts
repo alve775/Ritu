@@ -1,7 +1,11 @@
 import type { SeasonFarm } from './global-season';
 import type { LiveWeather } from './live-weather';
 import { weatherIsRecent } from './live-weather';
+import { calculateWaterDay, waterBalanceSource } from './water-balance';
 import { daysBetween } from './global-season';
+import { cycleStatus, latestFieldUpdate, referenceWindow } from './season-lifecycle';
+import { addDays } from './evidence-planner';
+import { thermalMethodSource, type ThermalEstimate } from './crop-thermal';
 export interface FarmAction {
   id: string;
   title: string;
@@ -17,6 +21,7 @@ export function actionsForDay(
   farm: SeasonFarm,
   date: string,
   weather: LiveWeather | null,
+  thermal?: ThermalEstimate,
 ): FarmAction[] {
   if (
     farm.selection.planKind !== 'perennial-review' &&
@@ -81,10 +86,44 @@ export function actionsForDay(
       source:
         'https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-apples',
     });
-  const observed = farm.observations
-    .filter((o) => o.date <= date)
-    .sort((a, b) => b.date.localeCompare(a.date))[0];
-  if (!planning && observed?.stage === 'Establishing')
+  const observed = latestFieldUpdate(farm, date);
+  if (!planning && farm.selection.crop === 'maize' && thermal) {
+    if (
+      (thermal.status === 'projected' && thermal.projectedDate === date) ||
+      thermal.status === 'threshold-reached' ||
+      thermal.status === 'observed-maturity'
+    )
+      result.push({
+        id: 'thermal-maturity-check',
+        kind: 'field',
+        title: 'Check physical grain maturity and moisture',
+        detail:
+          'The documented heat target or a reported black-layer milestone calls for a field check. Inspect physical maturity and grain moisture using the hybrid and local harvest/storage protocol. A heat projection is not a harvest order.',
+        source: thermalMethodSource,
+      });
+    if (thermal.status === 'stage-conflict')
+      result.push({
+        id: 'thermal-conflict',
+        kind: 'planning',
+        title: 'Resolve the heat-model and field-stage disagreement',
+        detail:
+          'Review the recorded stage, exact grain hybrid, planting date and documented heat convention. Do not harvest from a model that conflicts with the field.',
+        source: thermalMethodSource,
+      });
+  }
+  const stage = observed?.confidence === 'sure' ? observed.stage : null;
+  const waterRecord = farm.waterRecords?.find((r) => r.date === date && r.mode === 'reported');
+  const waterResult = waterRecord ? calculateWaterDay(waterRecord) : null;
+  if (!planning && waterResult?.status === 'calculated' && waterResult.thresholdExceeded)
+    result.push({
+      id: 'water-budget-check',
+      kind: 'field',
+      title: 'Recheck the root-zone water calculation',
+      detail:
+        'Your reported-input water calculation exceeds its supplied RAW threshold. Check actual root-zone water, coefficient evidence and the local irrigation protocol. A calculated deficit is not a gross irrigation dose.',
+      source: waterBalanceSource,
+    });
+  if (!planning && stage === 'Establishing')
     result.push({
       id: 'establishment',
       kind: 'field',
@@ -93,7 +132,7 @@ export function actionsForDay(
         'Your last observed stage was establishing. Inspect emergence or transplant survival and weeds. Record uneven patches before deciding on any replanting or treatment.',
       source: ipm,
     });
-  if (!planning && observed?.stage === 'Flowering')
+  if (!planning && stage === 'Flowering')
     result.push({
       id: 'flowering-water',
       kind: 'field',
@@ -102,7 +141,7 @@ export function actionsForDay(
         'You recorded flowering. A fully developed canopy can have high water demand; inspect actual root-zone water and the crop-specific local protocol. Do not turn reference evaporation into an irrigation dose.',
       source: water,
     });
-  if (!planning && observed?.stage === 'Maturing')
+  if (!planning && stage === 'Maturing')
     result.push({
       id: 'observed-maturity',
       kind: 'field',
@@ -110,6 +149,71 @@ export function actionsForDay(
       detail:
         'You recorded maturing. Check actual maturity, expected weather and local harvest/post-harvest guidance. Record harvesting only after it happens.',
       source: ipm,
+    });
+  if (!planning && stage === 'Leaf growth')
+    result.push({
+      id: 'leaf-growth',
+      kind: 'field',
+      title: 'Inspect leaf growth and weeds',
+      detail:
+        'You recorded leaf growth. Compare several plants, look for uneven growth and record weeds or visible damage. Follow crop-specific local management guidance.',
+      source: ipm,
+    });
+  if (!planning && stage === 'Fruit / grain filling')
+    result.push({
+      id: 'filling',
+      kind: 'field',
+      title: 'Inspect developing fruit or grain',
+      detail:
+        'You recorded fruit or grain filling. Check actual crop condition and root-zone water; this observation does not establish a harvest date or an irrigation dose.',
+      source: water,
+    });
+  if (!planning && observed && observed.date >= addDays(date, -1)) {
+    if (observed.water === 'dry')
+      result.push({
+        id: 'reported-dry',
+        kind: 'field',
+        title: 'Recheck the reported dry soil',
+        detail:
+          'Your field update reported dry soil. Inspect moisture in the active root zone and confirm usable water before deciding on crop-specific irrigation. No quantity is inferred from this answer.',
+        source: water,
+      });
+    if (observed.water === 'waterlogged')
+      result.push({
+        id: 'reported-waterlogging',
+        kind: 'field',
+        title: 'Inspect the reported standing water',
+        detail:
+          'Check whether standing water is intended for this crop and field. Inspect drainage and crop condition; do not apply a universal drainage rule to flooded rice or other water-adapted crops.',
+        source: water,
+      });
+    if (observed.damage === 'seen')
+      result.push({
+        id: 'reported-damage',
+        kind: 'field',
+        title: 'Inspect and document the reported damage',
+        detail:
+          'Record where damage or symptoms occur and inspect affected plants. Seek crop-specific diagnosis before treatment; a check-in is not a pest diagnosis or pesticide prescription.',
+        source: ipm,
+      });
+  }
+  if (!planning && cycleStatus(farm, date) === 'harvesting')
+    result.push({
+      id: 'harvest-underway',
+      kind: 'field',
+      title: 'Record each picking; finish only after the final harvest',
+      detail:
+        'Partial harvesting does not finish this planting. Record actual pickings and confirm final harvest only when this crop cycle is over. Perennial plantings continue after harvest.',
+      source: ipm,
+    });
+  if (!planning && cycleStatus(farm, date) === 'extended')
+    result.push({
+      id: 'extended-growth',
+      kind: 'planning',
+      title: 'Keep tracking beyond the reference window',
+      detail:
+        'The original reference window has passed but final harvest is not recorded. Check the actual stage, variety and field conditions. No replacement maturity date is invented.',
+      source: farm.selection.calendar?.sourceUrl ?? 'https://gaez.fao.org/pages/ecocrop',
     });
   if (
     weather &&
@@ -138,7 +242,7 @@ export function actionsForDay(
   if (
     !planning &&
     farm.selection.planKind !== 'perennial-review' &&
-    age >= farm.selection.durationMin - 1
+    date >= referenceWindow(farm).early
   )
     result.push({
       id: 'maturity-check',
@@ -146,7 +250,10 @@ export function actionsForDay(
       title: 'Check actual maturity before harvest',
       detail:
         'The source’s indicative duration has been reached. Inspect cultivar-specific maturity and local harvest guidance. The calendar cannot confirm that this crop is ready.',
-      source: farm.selection.calendar?.sourceUrl ?? 'https://gaez.fao.org/pages/ecocrop',
+      source:
+        referenceWindow(farm).cultivar?.source ??
+        farm.selection.calendar?.sourceUrl ??
+        'https://gaez.fao.org/pages/ecocrop',
     });
   return result;
 }

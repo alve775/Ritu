@@ -3,6 +3,7 @@ import type { Farm } from './types';
 import type { ClimateNormal, CropSuggestion, SeasonContext } from './global-season';
 import { nextCalendarDate } from './global-season';
 import { addDays, validDate } from './evidence-planner';
+import { commonPlantNames } from './plant-names';
 export { requirements };
 /** Weight monthly normals by overlapping days, not thousands of per-day objects. */
 function seasonClimate(normal: ClimateNormal, start: string, duration: number) {
@@ -23,6 +24,8 @@ function seasonClimate(normal: ClimateNormal, start: string, duration: number) {
   return { temperature: total / duration, months: [...months] };
 }
 export function screeningGap(crop: (typeof requirements.crops)[number]): string | null {
+  if (!commonPlantNames(crop).en)
+    return 'No sourced common name is available. This identity remains a reference record, not a selectable planting option.';
   if (crop.planKind === 'unknown') return 'The source does not establish a planting life cycle.';
   const bounds = [crop.TMIN!, crop.TOPMN!, crop.TOPMX!, crop.TMAX!];
   if (
@@ -37,6 +40,106 @@ export function screeningGap(crop: (typeof requirements.crops)[number]): string 
     return 'A usable growing-period record is unavailable; no harvest date is invented.';
   return null;
 }
+
+export function sourceFieldCompatibility(crop: Requirement, farm: Farm) {
+  const textures = `${crop.texture},${crop.toleratedTexture}`
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => s && s.toUpperCase() !== 'NA');
+  const drains = `${crop.drainage},${crop.toleratedDrainage}`
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => s && s.toUpperCase() !== 'NA');
+  const desiredTexture = { loam: 'medium', clay: 'heavy', sandy: 'light' }[
+    farm.soil as 'loam' | 'clay' | 'sandy'
+  ];
+  const soilMismatch =
+    farm.soil !== 'unknown' &&
+    textures.length > 0 &&
+    !textures.includes('wide') &&
+    !textures.includes(desiredTexture);
+  const desiredDrain = farm.drainage === 'good' ? 'well' : 'poorly';
+  const drainageMismatch =
+    farm.drainage !== 'unknown' &&
+    drains.length > 0 &&
+    !drains.some((s) => s.split(' ')[0] === desiredDrain);
+  return {
+    soilMismatch,
+    drainageMismatch,
+    textureRecorded: textures.length > 0,
+    drainageRecorded: drains.length > 0,
+  };
+}
+
+/** A coarse normal-temperature window, not a cultivar growth or frost model. */
+function availableTemperatureDays(
+  normal: ClimateNormal,
+  start: string,
+  limit: number,
+  min: number,
+  max: number,
+) {
+  let cursor = Date.parse(start + 'T00:00:00Z'),
+    days = 0;
+  while (days < limit) {
+    const d = new Date(cursor),
+      m = d.getUTCMonth(),
+      t = normal.months[m].temperature;
+    if (t < min || t > max) break;
+    const part = Math.min(
+      limit - days,
+      (Date.UTC(d.getUTCFullYear(), m + 1, 1) - cursor) / 86400000,
+    );
+    days += part;
+    cursor += part * 86400000;
+  }
+  return days;
+}
+
+function validScreenContext(context: SeasonContext) {
+  const n = context.normal;
+  let source: URL;
+  try {
+    source = new URL(n?.sourceUrl ?? '');
+  } catch {
+    return false;
+  }
+  return (
+    !!n &&
+    n.period === '1991–2020' &&
+    Number.isFinite(n.annualRain) &&
+    n.annualRain >= 0 &&
+    Number.isFinite(context.site.latitude) &&
+    Number.isFinite(context.site.longitude) &&
+    Math.abs(context.site.latitude) <= 85 &&
+    Math.abs(context.site.longitude) <= 180 &&
+    source.origin === 'https://power.larc.nasa.gov' &&
+    source.pathname === '/api/temporal/climatology/point' &&
+    source.searchParams.get('start') === '1991' &&
+    source.searchParams.get('end') === '2020' &&
+    !!source.searchParams.get('latitude')?.trim() &&
+    !!source.searchParams.get('longitude')?.trim() &&
+    Number.isFinite(n.latitude) &&
+    Number.isFinite(n.longitude) &&
+    Math.abs(n.latitude - context.site.latitude) <= 0.006 &&
+    Math.abs(n.longitude - context.site.longitude) <= 0.006 &&
+    Math.abs(Number(source.searchParams.get('latitude')) - n.latitude) <= 0.006 &&
+    Math.abs(Number(source.searchParams.get('longitude')) - n.longitude) <= 0.006 &&
+    Array.isArray(n.months) &&
+    n.months.length === 12 &&
+    n.months.every(
+      (m, i) =>
+        m.month === i + 1 &&
+        Number.isFinite(m.temperature) &&
+        m.temperature >= -100 &&
+        m.temperature <= 70 &&
+        Number.isFinite(m.rain) &&
+        m.rain >= 0,
+    ) &&
+    Math.abs(n.months.reduce((sum, m) => sum + m.rain, 0) - n.annualRain) <= 1e-6 &&
+    Array.isArray(context.calendars)
+  );
+}
 type Requirement = (typeof requirements.crops)[number];
 interface ClimateWindow {
   crop: Requirement;
@@ -47,6 +150,7 @@ interface ClimateWindow {
   temperature: number;
   optimalTemperature: boolean;
   annualRainFit: boolean | null;
+  temperatureWindowDays: number;
 }
 interface ClimateCandidate extends ClimateWindow {
   endEarly: string;
@@ -88,20 +192,19 @@ function climateCandidates(context: SeasonContext, from: string): ClimateCandida
     let best: ClimateWindow | undefined;
     for (const { start, calendar } of starts) {
       if (!start) continue;
-      const min = calendar ? Math.round(calendar.duration) : Math.round(crop.GMIN!);
-      const max = calendar ? min : Math.min(365, Math.round(crop.GMAX!));
+      const review = crop.planKind === 'perennial-review';
+      const min = calendar ? Math.round(calendar.duration) : review ? 365 : Math.round(crop.GMIN!);
+      let max = calendar ? min : review ? 365 : Math.min(365, Math.round(crop.GMAX!));
       if (min < 1 || max < min || max > 365) continue;
-      const { temperature, months } = seasonClimate(normal, start, max);
-      if (temperature < crop.TMIN! || temperature > crop.TMAX!) continue;
-      if (
-        !calendar &&
-        months.some(
-          (month) =>
-            normal.months[month].temperature < crop.TMIN! ||
-            normal.months[month].temperature > crop.TMAX!,
-        )
-      )
-        continue;
+      if (!calendar && !review) {
+        max = availableTemperatureDays(normal, start, max, crop.TMIN!, crop.TMAX!);
+        if (max < min) continue;
+      }
+      const { temperature } = seasonClimate(normal, start, max);
+      // Historical regional records can include dormancy (e.g. winter wheat).
+      // Growing-temperature bounds cannot establish winter survival or refute
+      // a historical record; any such mismatch remains explicitly unresolved.
+      if (!calendar && (temperature < crop.TMIN! || temperature > crop.TMAX!)) continue;
       const optimalTemperature = temperature >= crop.TOPMN! && temperature <= crop.TOPMX!;
       const annualRainFit =
         crop.RMIN !== null && crop.RMAX !== null
@@ -116,6 +219,7 @@ function climateCandidates(context: SeasonContext, from: string): ClimateCandida
         temperature,
         optimalTemperature,
         annualRainFit,
+        temperatureWindowDays: max,
       };
       if (
         !best ||
@@ -132,7 +236,7 @@ function climateCandidates(context: SeasonContext, from: string): ClimateCandida
         ...best,
         endEarly: addDays(best.start, review ? 365 : best.min),
         endLate: addDays(best.start, review ? 365 : best.max),
-        temperatureReason: `${best.temperature.toFixed(1)} °C long-term season-average temperature; ECOCROP species range ${crop.TMIN!}–${crop.TMAX!} °C.`,
+        temperatureReason: `${best.temperature.toFixed(1)} °C long-term ${review ? 'annual' : 'planning-interval'} average temperature; ECOCROP growth-temperature range ${crop.TMIN!}–${crop.TMAX!} °C. This does not test daily extremes or winter survival.`,
       });
     }
   }
@@ -143,8 +247,13 @@ function climateCandidates(context: SeasonContext, from: string): ClimateCandida
 /** Transparent broad species climate/soil screen. No yield, pest or field-suitability model is claimed. */
 export function suggestSeason(context: SeasonContext, farm: Farm, from: string): CropSuggestion[] {
   if (
-    !context.normal ||
+    !validScreenContext(context) ||
     !validDate(from) ||
+    from < '1900-01-01' ||
+    from > '2100-12-31' ||
+    !['loam', 'clay', 'sandy', 'unknown'].includes(farm.soil) ||
+    !['good', 'poor', 'unknown'].includes(farm.drainage) ||
+    !['reliable', 'limited', 'rainfed', 'severe', 'unknown'].includes(farm.irrigation) ||
     !Number.isFinite(farm.area) ||
     farm.area <= 0 ||
     farm.area > 1000
@@ -163,32 +272,22 @@ export function suggestSeason(context: SeasonContext, farm: Farm, from: string):
     endEarly,
     endLate,
     temperatureReason,
+    temperatureWindowDays,
   } of climateCandidates(context, from)) {
     const review = crop.planKind === 'perennial-review';
-    const texture = farm.soil === 'sandy' ? 'light' : farm.soil === 'clay' ? 'heavy' : 'medium';
-    const knownTextures = `${crop.texture}, ${crop.toleratedTexture}`;
-    if (
-      farm.soil !== 'unknown' &&
-      knownTextures.trim().length > 2 &&
-      !knownTextures.includes('wide') &&
-      !knownTextures.includes(texture)
-    )
-      continue;
-    const drainage = `${crop.drainage}, ${crop.toleratedDrainage}`;
-    if (
-      farm.drainage === 'poor' &&
-      (drainage.includes('well') || drainage.includes('excessive')) &&
-      !drainage.includes('poorly')
-    )
-      continue;
+    const field = sourceFieldCompatibility(crop, farm);
+    if (field.soilMismatch || field.drainageMismatch) continue;
+    // Annual rainfall is not a crop-season water budget. Neither use it to
+    // certify water adequacy nor reject a seasonal crop (e.g. winter wheat in
+    // monsoonal Bangladesh) from unrelated wet-season rain. Water stays unknown.
     const cautions: string[] = [
       'Confirm local variety, planting material, soil pH, salinity, pests and legal/invasive-species restrictions before planting. Source use categories do not establish edibility.',
     ];
-    if (knownTextures.trim().length <= 2)
+    if (!field.textureRecorded)
       cautions.push(
         'Source soil texture requirements are unrecorded; the entered soil has not been validated against a species requirement.',
       );
-    if (drainage.trim().length <= 2)
+    if (!field.drainageRecorded)
       cautions.push(
         'Source drainage requirements are unrecorded. Verify drainage tolerance locally.',
       );
@@ -200,6 +299,14 @@ export function suggestSeason(context: SeasonContext, farm: Farm, from: string):
     if (farm.drainage === 'unknown') cautions.push('Check drainage before planting.');
     if (!optimalTemperature)
       cautions.push('Season-average temperature is outside the species preferred range.');
+    if (calendar && (temperature < crop.TMIN! || temperature > crop.TMAX!))
+      cautions.push(
+        'The historical calendar includes temperatures outside the source growth range. Dormancy, local variety and current field suitability are unverified; the record is not a current planting recommendation.',
+      );
+    if (!review && !calendar && max < Math.round(crop.GMAX!))
+      cautions.push(
+        'Only the shorter part of the source duration range fits the monthly-normal temperature window. Confirm a local variety with a compatible duration; the source maximum is not required for every variety.',
+      );
     if (!calendar)
       cautions.push(
         'No local calendar record at this grid point; timing is a broad climate-based planning option.',
@@ -217,13 +324,16 @@ export function suggestSeason(context: SeasonContext, farm: Farm, from: string):
         'Annual rain cannot establish water available during this crop. Confirm stored soil water and seasonal supply.',
       );
     if (farm.irrigation === 'unknown') cautions.push('Water availability has not been confirmed.');
+    cautions.push(
+      'Seasonal water adequacy is unverified: irrigation labels and annual rainfall do not provide a crop-specific water budget.',
+    );
     const reasons = [
       temperatureReason,
       calendar
         ? `Historical ${calendar.season} planting record at the selected 0.5° grid cell.`
         : 'Screened against this location’s 1991–2020 NASA POWER climate.',
     ];
-    if (farm.soil !== 'unknown' && knownTextures.trim().length > 2)
+    if (farm.soil !== 'unknown' && field.textureRecorded)
       reasons.push('Entered texture is included in the source soil categories.');
     suggestions.push({
       crop: crop.id,
@@ -240,16 +350,51 @@ export function suggestSeason(context: SeasonContext, farm: Farm, from: string):
       annualRainFit,
       cautions,
       reasons,
+      sourceDurationMin: crop.GMIN!,
+      sourceDurationMax: crop.GMAX!,
+      temperatureWindowDays,
+      checks: [
+        {
+          factor: 'temperature',
+          state:
+            calendar && (temperature < crop.TMIN! || temperature > crop.TMAX!)
+              ? 'unknown'
+              : 'supported',
+          detail: temperatureReason,
+        },
+        {
+          factor: 'soil',
+          state: farm.soil !== 'unknown' && field.textureRecorded ? 'supported' : 'unknown',
+          detail:
+            farm.soil !== 'unknown' && field.textureRecorded
+              ? 'Entered texture occurs in the source categories.'
+              : 'A confirmed field texture and a recorded species requirement are both needed.',
+        },
+        {
+          factor: 'drainage',
+          state: farm.drainage !== 'unknown' && field.drainageRecorded ? 'supported' : 'unknown',
+          detail:
+            farm.drainage !== 'unknown' && field.drainageRecorded
+              ? 'Entered drainage occurs in the source categories.'
+              : 'A confirmed drainage class and a recorded species requirement are both needed.',
+        },
+        {
+          factor: 'water',
+          state: 'unknown',
+          detail: `Water choice: ${farm.irrigation}. Annual-rainfall range ${annualRainFit === null ? 'unrecorded' : annualRainFit ? 'matches' : 'does not match'}. Seasonal water adequacy has not been established.`,
+        },
+        {
+          factor: 'local',
+          state: 'unknown',
+          detail:
+            'Local variety, soil chemistry, pests, legal restrictions and (for perennials) overwintering/chilling are not verified.',
+        },
+      ],
     });
   }
   const ranked = suggestions.sort(
     (a, b) =>
       Number(b.optimalTemperature) - Number(a.optimalTemperature) ||
-      (farm.irrigation === 'rainfed' ||
-      farm.irrigation === 'severe' ||
-      farm.irrigation === 'limited'
-        ? Number(b.annualRainFit === true) - Number(a.annualRainFit === true)
-        : 0) ||
       Number(b.basis === 'regional-calendar') - Number(a.basis === 'regional-calendar') ||
       a.start.localeCompare(b.start) ||
       a.crop.localeCompare(b.crop),

@@ -63,7 +63,15 @@ export function parseClimateNormal(
     'NOV',
     'DEC',
   ];
-  const lengths = [31, 28.25, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  // The actual 1991–2020 interval has eight leap days, not an assumed 7.5.
+  const lengths = Array.from(
+    { length: 12 },
+    (_, month) =>
+      Array.from(
+        { length: 30 },
+        (_, i) => (Date.UTC(1991 + i, month + 1, 1) - Date.UTC(1991 + i, month, 1)) / 86400000,
+      ).reduce((sum, days) => sum + days, 0) / 30,
+  );
   const months = names.map((key, i) => {
     const temperature = p?.T2M?.[key],
       rate = p?.PRECTOTCORR?.[key];

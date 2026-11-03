@@ -20,6 +20,9 @@ describe('plant search endpoint', () => {
       ['page', '1.5'],
       ['mode', 'invented'],
       ['q', 'a'.repeat(121)],
+      ['area', '0'],
+      ['area', 'NaN'],
+      ['area', '1000.01'],
     ]) {
       const url = new URL(base);
       url.searchParams.set(key, value);
@@ -50,5 +53,21 @@ describe('plant search endpoint', () => {
     const response = await GET(new Request(base));
     expect(response.status).toBe(502);
     expect((await response.json()).error).toContain('No sample suggestions');
+  });
+  it('exposes per-factor evidence without converting access labels into verified water supply', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => Response.json(actual)),
+    );
+    const response = await GET(new Request(base + '&area=30&mode=matches'));
+    expect(response.status).toBe(200);
+    const data = await response.json();
+    expect(data.items.length).toBeGreaterThan(0);
+    expect(
+      data.items.every(
+        (v: { suggestion: { checks: { factor: string; state: string }[] } }) =>
+          v.suggestion.checks.find((c) => c.factor === 'water')?.state === 'unknown',
+      ),
+    ).toBe(true);
   });
 });

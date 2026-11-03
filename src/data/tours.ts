@@ -181,8 +181,8 @@ export const tourSteps: TourStep[] = [
       bn: 'প্রতিদিনের সহায়তা হিসাব অনুসরণ করে',
     },
     description: {
-      en: 'Record actual planting and crop observations to update field checks. Tick only completed work. Forecasts refresh while the app is open; they do not operate irrigation hardware.',
-      bn: 'আসল রোপণ ও পর্যবেক্ষণ দিলে যাচাই বদলায়। শেষ কাজেই টিক দিন। অ্যাপ খোলা থাকলে পূর্বাভাস বদলায়; সেচযন্ত্র চালায় না।',
+      en: 'Record actual planting, then use daily field updates to change the checks. Partial picking keeps the crop active; only final harvest completes a seasonal crop. Tick completed work. Forecasts refresh while the app is open; they do not operate irrigation hardware.',
+      bn: 'আসল রোপণের পরে দিনের খবর দিলে যাচাই বদলায়। আংশিক তোলায় চাষ চলে; শেষ তোলায় মৌসুমি ফসলের চাষ শেষ হয়। করা কাজে টিক দিন। অ্যাপ খোলা থাকলে পূর্বাভাস বদলায়; সেচযন্ত্র চালায় না।',
     },
     mission: {
       en: 'RITU · Your growing season',

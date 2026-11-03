@@ -93,6 +93,26 @@ export function ReadingControls() {
             {t('Animate transitions and tour text', 'পরিবর্তন ও পরিচিতির লেখায় অ্যানিমেশন')}
           </label>
           <fieldset className="farm-sound-controls">
+            <legend>{t('Weather updates', 'আবহাওয়ার আপডেট')}</legend>
+            <label className="setting-check">
+              <input
+                type="checkbox"
+                checked={preferences.autoWeather !== false}
+                onChange={(e) => displayStore.update({ autoWeather: e.target.checked })}
+              />
+              {t(
+                'Automatically refresh weather and crop heat data',
+                'আবহাওয়া ও ফসলের তাপের তথ্য নিজে থেকে আপডেট',
+              )}
+            </label>
+            <p>
+              {t(
+                'When paused, use Update weather now in your farm. Timestamps and stale-data checks remain active.',
+                'বন্ধ থাকলে খামারে এখন আবহাওয়া আপডেট করুন ব্যবহার করুন। সময় ও পুরোনো তথ্যের যাচাই চালু থাকবে।',
+              )}
+            </p>
+          </fieldset>
+          <fieldset className="farm-sound-controls">
             <legend>{t('Farm sounds', 'মাঠের শব্দ')}</legend>
             <p>
               {t(

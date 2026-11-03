@@ -22,6 +22,11 @@ import { FarmLocation } from './farm-location';
 import { FarmAreaField } from './farm-area-field';
 import { PlantBrowser } from './plant-browser';
 import { plantDisplayName } from '../domain/plant-names';
+import { DailyCheckInForm, stageLabel } from './season-check-in';
+import { CycleStatus, SeasonProgress, ThermalModelSettings } from './season-progress';
+import { referenceWindow } from '../domain/season-lifecycle';
+import { estimateMaizeMaturity } from '../domain/crop-thermal';
+import { useThermalWeather } from '../lib/use-thermal-weather';
 import { WeatherContent } from './weather-panel';
 import { Dialog } from './dialog';
 import { ResetDataControl } from './reset-data-control';
@@ -36,9 +41,13 @@ import { actionCopy } from '../lib/action-copy';
 import { addDays, validDate } from '../domain/evidence-planner';
 import { weatherIsRecent } from '../domain/live-weather';
 import type { Farm, Irrigation } from '../domain/types';
+import { fieldConfirmationKey } from '../domain/field-confirmation';
+import { SoilEvidenceForm } from './soil-evidence-form';
+import { WaterBudgetPanel } from './water-budget-panel';
+import { SoilReferencePanel } from './soil-reference-panel';
+import { CultivarReferencePanel } from './cultivar-reference-panel';
 
-export const seasonDraftKey = (farm: Farm, site: unknown, from: string) =>
-  JSON.stringify([farm, site, from]);
+export const seasonDraftKey = fieldConfirmationKey;
 function newField() {
   evidenceStore.update({
     farm: { ...blankFarm },
@@ -270,16 +279,26 @@ export function SeasonFarmView() {
             >
               <option value="unknown">{t('Not sure', 'জানা নেই')}</option>
               <option value="good">{t('Yes · drains well', 'হ্যাঁ · ভালো নিষ্কাশন')}</option>
-              <option value="poor">{t('No · water collects', 'না · পানি জমে')}</option>
+              <option value="poor">
+                {t('Poorly drained · prolonged saturation', 'দুর্বল নিষ্কাশন · দীর্ঘ জলসম্পৃক্ততা')}
+              </option>
             </select>
           </label>
         </div>
         <p>
           {t(
-            'Choose Not sure when needed. Satellite weather does not measure your soil texture or drainage.',
-            'প্রয়োজনে জানা নেই বাছুন। স্যাটেলাইটের আবহাওয়া মাটির গঠন বা নিষ্কাশন মাপে না।',
+            'Choose Not sure when needed. The source’s poorly drained class means soil saturated for over half the year, not a brief puddle after rain. Rapid/excessive drainage needs a separate local check. Satellite weather does not measure your field texture or drainage.',
+            'প্রয়োজনে জানা নেই বাছুন। উৎসে দুর্বল নিষ্কাশন মানে বছরের অর্ধেকের বেশি মাটি পানিতে সম্পৃক্ত থাকা, বৃষ্টির পরে অল্প সময় পানি জমা নয়। খুব দ্রুত নিষ্কাশন আলাদা স্থানীয় যাচাই দরকার। স্যাটেলাইটের আবহাওয়া জমির মাটির গঠন বা নিষ্কাশন মাপে না।',
           )}
         </p>
+      </section>
+      <section className="card">
+        <SoilReferencePanel site={p.site} />
+        <SoilEvidenceForm
+          key={JSON.stringify(farm.soilEvidence)}
+          value={farm.soilEvidence}
+          onSave={(soilEvidence) => setFarm({ soilEvidence })}
+        />
       </section>
       <section className="card" data-tour="farm-water">
         <h2>
@@ -308,6 +327,12 @@ export function SeasonFarmView() {
             </label>
           ))}
         </div>
+        <p className="season-small-note">
+          {t(
+            'This records access, not a measured water budget. These labels cannot establish seasonal water adequacy or a drought-resilience ranking; every option keeps water as unverified.',
+            'এটি পানির সুযোগের তথ্য, মাপা পানির হিসাব নয়। এই নামগুলো দিয়ে মৌসুমের পানির পর্যাপ্ততা বা খরা সহনশীলতার ক্রম নির্ধারণ হয় না; সব বিকল্পে পানি অযাচাইকৃত থাকে।',
+          )}
+        </p>
       </section>
       <section className="season-data-status" aria-live="polite" data-tour="season-context">
         <CloudSun size={23} />
@@ -480,8 +505,8 @@ export function SeasonCropsView() {
               </strong>
               <p>
                 {t(
-                  'Your farm gets a calendar, daily field checks and its own live forecast.',
-                  'খামারে ক্যালেন্ডার, প্রতিদিনের জমি যাচাই ও নিজস্ব পূর্বাভাস থাকবে।',
+                  'Create a planning record with a calendar and forecast. This selection does not verify seasonal water or local crop suitability.',
+                  'ক্যালেন্ডার ও পূর্বাভাসসহ পরিকল্পনার হিসাব তৈরি করুন। এই বাছাই মৌসুমের পানি বা স্থানীয় উপযুক্ততা নিশ্চিত করে না।',
                 )}
               </p>
             </div>
@@ -507,14 +532,14 @@ export function SeasonCropsView() {
             <summary>{t('How suggestions are made', 'প্রস্তাব যেভাবে তৈরি হয়')}</summary>
             <p>
               {t(
-                'NASA POWER 1991–2020 monthly climate is compared with FAO ECOCROP species temperature ranges. Known incompatible texture and drainage categories are excluded. Closer temperature matches appear first, then available regional calendars and nearer dates. No yield or profit score is invented.',
-                'নাসা পাওয়ারের ১৯৯১–২০২০ মাসিক জলবায়ু FAO ECOCROP-এর প্রজাতির তাপমাত্রার সীমার সঙ্গে মেলানো হয়। জানা অমিল মাটি ও নিষ্কাশন বাদ যায়। কাছের তাপমাত্রা, আঞ্চলিক পঞ্জিকা ও পরের তারিখ আগে আসে। ফলন বা লাভের বানানো নম্বর নেই।',
+                'NASA POWER 1991–2020 monthly climate is compared with FAO ECOCROP species requirements. Known incompatible soil and drainage categories are excluded in both directions. Annual rainfall and irrigation labels cannot establish seasonal water adequacy or drought resilience. Average-temperature matches, historical calendars and nearer planning dates determine ordering, not yield or profit.',
+                'নাসা পাওয়ারের ১৯৯১–২০২০ মাসিক জলবায়ু FAO ECOCROP-এর চাহিদার সঙ্গে মেলানো হয়। জানা অমিল মাটি ও নিষ্কাশন দুই দিকেই বাদ যায়। বার্ষিক বৃষ্টি ও সেচের নাম দিয়ে মৌসুমের পানির পর্যাপ্ততা বা খরা সহনশীলতা নিশ্চিত হয় না। গড় তাপমাত্রার মিল, পুরোনো পঞ্জিকা ও পরের তারিখে ক্রম হয়; ফলন বা লাভে নয়।',
               )}
             </p>
             <p>
               {t(
-                'Calendar records are historical regional observations at 0.5°, not today’s measured crop or a cultivar-specific optimum. Where no record exists, the option is marked climate-based and uses the source’s broad growing-time range.',
-                'পঞ্জিকা ০.৫°-এর আঞ্চলিক পুরোনো তথ্য, আজকের মাপা ফসল বা জাতভিত্তিক সেরা দিন নয়। পঞ্জিকা না থাকলে জলবায়ুভিত্তিক বলা হয় ও উৎসের সময়সীমা দেখায়।',
+                'Calendar records are historical regional observations at 0.5°, not a cultivar-specific optimum. Climate-only seasonal options retain the source range and show only a reference interval that fits monthly-normal temperatures. Daily extremes, frost and actual cultivar duration remain unverified.',
+                'পঞ্জিকা ০.৫°-এর আঞ্চলিক পুরোনো তথ্য, জাতভিত্তিক সেরা দিন নয়। শুধু জলবায়ুভিত্তিক মৌসুমি বিকল্পে উৎসের সময়সীমা থাকে এবং মাসিক স্বাভাবিক তাপের মধ্যে মেলা পরিকল্পনার সময় দেখায়। দিনের চরম তাপ, তুষারপাত ও জাতের আসল সময় অযাচাইকৃত।',
               )}
             </p>
             <p>
@@ -601,22 +626,19 @@ export function FarmsView() {
             {state.farms.map((farm) => {
               const crop = globalCrop(farm.selection.crop)!,
                 today = localToday(farm.site.timezone),
-                age = farm.plantedDate ? daysBetween(farm.plantedDate, today) + 1 : null;
+                finished =
+                  farm.selection.planKind !== 'perennial-review' &&
+                  !!farm.harvestedDate &&
+                  farm.harvestedDate <= today,
+                age = farm.plantedDate
+                  ? daysBetween(farm.plantedDate, finished ? farm.harvestedDate : today) + 1
+                  : null;
               return (
                 <article className="season-farm-tile card" key={farm.id}>
                   <FarmLandscape crop={crop.id} small />
                   <div className="season-tile-body">
                     <span className="season-source-pill">
-                      {farm.harvestedDate
-                        ? farm.selection.planKind === 'perennial-review'
-                          ? t(
-                              'Harvest recorded · perennial care continues',
-                              'ফলন নথিভুক্ত · পরিচর্যা চলছে',
-                            )
-                          : t('Harvest recorded', 'ফসল কাটা হয়েছে')
-                        : farm.plantedDate
-                          ? t('Growing', 'চাষ চলছে')
-                          : t('Ready to plan', 'পরিকল্পনা প্রস্তুত')}
+                      <CycleStatus farm={farm} today={today} />
                     </span>
                     <h2>
                       {farm.field.name || plantDisplayName(crop, language) + t(' farm', ' খামার')}
@@ -636,7 +658,11 @@ export function FarmsView() {
                           <ShortDate value={farm.selection.start} />
                         </>
                       ) : age > 0 ? (
-                        `${t('Day', 'দিন')} ${age}`
+                        finished ? (
+                          `${t('Season length', 'মৌসুমের সময়')}: ${age} ${t('days', 'দিন')}`
+                        ) : (
+                          `${t('Day', 'দিন')} ${age}`
+                        )
                       ) : (
                         t('Planting date is ahead', 'রোপণের দিন সামনে')
                       )}
@@ -782,11 +808,17 @@ function FarmWorkspace({
     [activityError, setActivityError] = useState('');
   const day = selectedDay ?? today,
     month = selectedMonth ?? today.slice(0, 7);
-  const [stage, setStage] = useState(''),
-    [observation, setObservation] = useState('');
   const actualStart = farm.plantedDate || farm.selection.start;
   const age = farm.plantedDate ? daysBetween(farm.plantedDate, today) + 1 : null;
-  const actions = actionsForDay(farm, day, weather.error ? null : weather.data);
+  const thermal = useThermalWeather(farm, today);
+  const estimate = estimateMaizeMaturity(farm, today, thermal.series);
+  const actions = actionsForDay(
+    farm,
+    day,
+    weather.error ? null : weather.data,
+    day >= today ? estimate : undefined,
+  );
+  const timing = referenceWindow(farm);
   const first = `${month}-01`,
     weekday = (new Date(first + 'T12:00:00Z').getUTCDay() + 6) % 7;
   const count = new Date(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0).getDate();
@@ -820,7 +852,16 @@ function FarmWorkspace({
       );
       return;
     }
-    seasonStore.update(farm.id, next);
+    try {
+      seasonStore.update(farm.id, next);
+    } catch {
+      setActivityError(
+        t(
+          'This date conflicts with saved check-ins or harvest events. Correct the recorded events before changing planting.',
+          'এই দিন সংরক্ষিত খবর বা তোলার ঘটনার সঙ্গে মেলেনি। রোপণ বদলানোর আগে ঘটনাগুলোর দিন ঠিক করুন।',
+        ),
+      );
+    }
   };
   return (
     <div className="season-page season-workspace">
@@ -869,16 +910,13 @@ function FarmWorkspace({
           </span>
           <h2>{plantDisplayName(crop, language)}</h2>
           <p>
-            {farm.harvestedDate
-              ? farm.selection.planKind === 'perennial-review'
-                ? t('Harvest recorded · perennial care continues', 'ফলন নথিভুক্ত · পরিচর্যা চলছে')
-                : t('Harvest recorded', 'ফসল কাটা হয়েছে')
-              : age === null
-                ? t('Waiting for actual planting', 'আসল রোপণের অপেক্ষায়')
-                : age > 0
-                  ? `${t('Day', 'দিন')} ${age} ${t('since planting', 'রোপণের পরে')}`
-                  : t('Check your planting record', 'রোপণের হিসাব দেখুন')}
+            <CycleStatus farm={farm} today={today} />
           </p>
+          {age !== null &&
+            age > 0 &&
+            (!farm.harvestedDate || farm.selection.planKind === 'perennial-review') && (
+              <p>{`${t('Day', 'দিন')} ${age} ${t('since planting', 'রোপণের পরে')}`}</p>
+            )}
           <div className="season-hero-facts">
             <span>
               <CalendarDays size={18} />
@@ -893,9 +931,11 @@ function FarmWorkspace({
                 ? t('Care review horizon', 'পরিচর্যা পর্যালোচনার সময়')
                 : t('Indicative duration', 'আনুমানিক সময়')}
               <strong>
-                {farm.selection.durationMin === farm.selection.durationMax
-                  ? farm.selection.durationMax
-                  : `${farm.selection.durationMin}–${farm.selection.durationMax}`}{' '}
+                {timing.cultivar
+                  ? `${timing.cultivar.durationMin}–${timing.cultivar.durationMax}`
+                  : farm.selection.durationMin === farm.selection.durationMax
+                    ? farm.selection.durationMax
+                    : `${farm.selection.durationMin}–${farm.selection.durationMax}`}{' '}
                 {t('days', 'দিন')}
               </strong>
             </span>
@@ -910,6 +950,15 @@ function FarmWorkspace({
           )}
         </div>
       </section>
+      <SeasonProgress
+        farm={farm}
+        today={today}
+        estimate={estimate}
+        onCheckIn={() => {
+          setDay(null);
+          setMonth(null);
+        }}
+      />
       <div className="season-work-grid">
         <section className="card season-calendar" data-tour="calendar-dates">
           <div className="season-section-heading">
@@ -957,16 +1006,30 @@ function FarmWorkspace({
                     : weather.data?.days.find((d) => d.date === date);
               const planted = date === farm.plantedDate,
                 planned = date === farm.selection.start;
+              const perennial = farm.selection.planKind === 'perennial-review';
+              const growing =
+                !!farm.plantedDate &&
+                date >= farm.plantedDate &&
+                date <= (!perennial && farm.harvestedDate ? farm.harvestedDate : today);
+              const extended = !perennial && growing && date > timing.late;
+              const reference = date >= timing.early && date <= timing.late;
+              const harvested = date === farm.harvestedDate;
+              const projected = date === estimate.projectedDate;
               return (
                 <button
                   key={date}
-                  className={`${day === date ? 'selected' : ''} ${date === today ? 'today' : ''} ${planted || planned ? 'planting' : ''}`}
+                  className={`${day === date ? 'selected' : ''} ${date === today ? 'today' : ''} ${planted || planned ? 'planting' : ''} ${growing ? 'growing-day' : ''} ${extended ? 'extended-day' : ''} ${reference ? 'reference-day' : ''} ${harvested ? 'harvested-day' : ''} ${projected ? 'projected-day' : ''}`}
                   aria-pressed={day === date}
-                  aria-label={`${date}${date === today ? ' · Today' : ''}${planted ? ' · Actual planting' : planned ? ' · Planned planting' : ''}`}
+                  aria-label={`${date}${date === today ? t(' · Today', ' · আজ') : ''}${planted ? t(' · Actual planting', ' · আসল রোপণ') : planned ? t(' · Planned planting', ' · পরিকল্পিত রোপণ') : ''}${reference ? t(' · Reference window, not confirmed maturity', ' · উৎসের সময়, পরিপক্বতা নিশ্চিত নয়') : ''}${extended ? t(' · Continuing beyond reference', ' · উৎসের সময়ের পরেও চলছে') : ''}${harvested ? t(' · Actual harvest recorded', ' · আসল তোলা লেখা আছে') : ''}${projected ? t(' · Forecast heat-threshold projection', ' · পূর্বাভাসে তাপের সীমার হিসাব') : ''}`}
                   onClick={() => setDay(date)}
                 >
                   <span>{i + 1}</span>
                   {(planted || planned) && <Sprout size={13} />}
+                  {(harvested || projected) && (
+                    <span className="season-calendar-event" aria-hidden="true">
+                      {harvested ? '✓' : '≈'}
+                    </span>
+                  )}
                   <small>
                     {forecast?.rain === null || forecast?.rain === undefined
                       ? ''
@@ -986,6 +1049,17 @@ function FarmWorkspace({
               {t('Planting', 'রোপণ')}
             </span>
             <span>{t('Rain figures = forecast', 'বৃষ্টির সংখ্যা = পূর্বাভাস')}</span>
+            <span>
+              <i className="reference-key" />
+              {t('Dotted outline = reference window', 'বিন্দুর রেখা = উৎসের সময়')}
+            </span>
+            <span>
+              <i className="extended-key" />
+              {t('Amber = continuing beyond reference', 'হলুদ = উৎসের সময় পেরিয়েও চলছে')}
+            </span>
+            <span>
+              {t('✓ Actual harvest · ≈ heat projection', '✓ আসল তোলা · ≈ তাপের পূর্বানুমান')}
+            </span>
           </div>
           <button
             className="text-button"
@@ -1065,7 +1139,29 @@ function FarmWorkspace({
       <section className="card" data-tour="track-weather">
         <WeatherContent site={farm.site} result={weather} />
       </section>
-      <section className="card season-observations" data-tour="track-records">
+      <WaterBudgetPanel
+        key={`${farm.id}:${day}`}
+        farm={farm}
+        date={day}
+        today={today}
+        weather={weather.error ? null : weather.data}
+      />
+      <CultivarReferencePanel key={`cultivar:${farm.id}`} farm={farm} />
+      <section className="card">
+        <SoilReferencePanel site={farm.site} />
+        <SoilEvidenceForm
+          key={`${farm.id}:${JSON.stringify(farm.field.soilEvidence)}`}
+          value={farm.field.soilEvidence}
+          onSave={(soilEvidence) =>
+            seasonStore.update(farm.id, { field: { ...farm.field, soilEvidence } })
+          }
+        />
+      </section>
+      <section
+        id="farm-daily-update"
+        className="card season-observations"
+        data-tour="track-records"
+      >
         <div className="season-section-heading">
           <h2>{t('What actually happened?', 'বাস্তবে কী হয়েছে?')}</h2>
           <span className="season-source-pill">
@@ -1099,6 +1195,17 @@ function FarmWorkspace({
               value={farm.harvestedDate}
               onChange={(e) => setActivity('harvestedDate', e.target.value)}
             />
+            <small>
+              {farm.selection.planKind === 'perennial-review'
+                ? t(
+                    'Records this harvest; perennial care continues.',
+                    'এই দফার তোলা রাখে; বহুবর্ষজীবী পরিচর্যা চলবে।',
+                  )
+                : t(
+                    'Final harvest only: this completes the season. Record partial pickings in the daily field update. Clear an accidental final date to resume tracking.',
+                    'শুধু শেষ তোলা: এতে মৌসুম শেষ হয়। আংশিক তোলা দিনের খবরে লিখুন। ভুল শেষ তারিখ মুছলে আবার হিসাব চলবে।',
+                  )}
+            </small>
           </label>
         </div>
         {activityError && (
@@ -1120,61 +1227,51 @@ function FarmWorkspace({
             )}
           />
         </label>
-        <details>
-          <summary>{t('Record an observed crop stage', 'দেখা ফসলের পর্যায় লিখুন')}</summary>
-          <div className="season-observation-form">
-            <label>
-              {t('Observed stage', 'দেখা পর্যায়')}
-              <select
-                aria-label={t('Observed stage', 'দেখা পর্যায়')}
-                value={stage}
-                onChange={(e) => setStage(e.target.value)}
-              >
-                <option value="">{t('Choose what you see', 'যা দেখছেন বাছুন')}</option>
-                {[
-                  'Establishing',
-                  'Leaf growth',
-                  'Flowering',
-                  'Fruit / grain filling',
-                  'Maturing',
-                  'Harvested',
-                ].map((s) => (
-                  <option key={s}>{s}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              {t('Observation', 'পর্যবেক্ষণ')}
-              <input
-                maxLength={2000}
-                value={observation}
-                onChange={(e) => setObservation(e.target.value)}
-              />
-            </label>
-            <button
-              className="button secondary"
-              disabled={!stage || day > today}
-              onClick={() => {
-                seasonStore.update(farm.id, {
-                  observations: [...farm.observations, { date: day, stage, note: observation }],
-                });
-                setStage('');
-                setObservation('');
-              }}
-            >
-              {t('Save observation', 'পর্যবেক্ষণ রাখুন')}
-            </button>
-          </div>
-          {farm.observations
-            .slice(-5)
-            .reverse()
-            .map((o, i) => (
-              <p key={`${o.date}-${i}`}>
-                <ShortDate value={o.date} /> · {o.stage} · {o.note}
-              </p>
-            ))}
-        </details>
+        <DailyCheckInForm
+          key={`${farm.id}-${day}`}
+          farm={farm}
+          day={day}
+          today={today}
+          onNextDay={() => {
+            const next = addDays(day, 1);
+            setDay(next);
+            setMonth(next.slice(0, 7));
+            document.querySelector('[data-tour="daily-actions"]')?.scrollIntoView({
+              behavior:
+                window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+                document.documentElement.dataset.motion === 'off'
+                  ? 'instant'
+                  : 'smooth',
+              block: 'start',
+            });
+          }}
+        />
+        {!!farm.observations.length && (
+          <details>
+            <summary>{t('Earlier stage observations', 'আগের পর্যায়ের পর্যবেক্ষণ')}</summary>
+            <p>
+              {t(
+                'Use the daily field update above. Earlier observations remain below; a legacy “Harvested” note alone does not confirm final harvest.',
+                'উপরের দিনের খবর ব্যবহার করুন। আগের পর্যবেক্ষণ নিচে আছে; পুরোনো “তোলা হয়েছে” নোট একা শেষ তোলা নিশ্চিত করে না।',
+              )}
+            </p>
+            {farm.observations
+              .slice(-5)
+              .reverse()
+              .map((o, i) => (
+                <p key={`${o.date}-${i}`}>
+                  <ShortDate value={o.date} /> · {stageLabel(o.stage, language)} · {o.note}
+                </p>
+              ))}
+          </details>
+        )}
       </section>
+      <ThermalModelSettings
+        key={farm.id}
+        farm={farm}
+        series={thermal.series}
+        error={thermal.error}
+      />
       <details className="card season-method" data-tour="nasa-seasonal">
         <summary>
           {t('This farm’s climate, source dates & methods', 'এই জমির জলবায়ু, উৎসের দিন ও পদ্ধতি')}

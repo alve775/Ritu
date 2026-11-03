@@ -8,6 +8,7 @@ import type { PowerClimate } from '../domain/nasa-power';
 import { validDate, noOverlap, addDays, referenceWeekStart } from '../domain/evidence-planner';
 import type { Season } from '../domain/evidence-planner';
 import { calendarByCrop } from '../data/regional-calendars';
+import { validSoilEvidence } from '../domain/soil-evidence';
 import type { EvidencePlan } from '../domain/evidence-planner';
 export interface RealActivity {
   plantedDate?: string;
@@ -85,6 +86,7 @@ function validateEvidenceState(value: unknown): value is EvidenceState {
     v.version !== 2 ||
     !['en', 'bn'].includes(v.language) ||
     !f ||
+    (f.soilEvidence !== undefined && !validSoilEvidence(f.soilEvidence)) ||
     typeof f.name !== 'string' ||
     f.name.length > 80 ||
     typeof f.area !== 'number' ||

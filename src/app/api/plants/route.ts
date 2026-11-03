@@ -13,6 +13,7 @@ export async function GET(request: Request) {
     drainage = q.get('drainage') ?? '',
     irrigation = q.get('irrigation') ?? '';
   const page = Number(q.get('page') ?? '1'),
+    area = Number(q.get('area') ?? '1'),
     text = (q.get('q') ?? '').trim().toLocaleLowerCase(),
     category = q.get('category') ?? 'food',
     cycle = q.get('cycle') ?? 'all';
@@ -24,6 +25,9 @@ export async function GET(request: Request) {
     !Number.isFinite(longitude) ||
     Math.abs(longitude) > 180 ||
     !validDate(from) ||
+    !Number.isFinite(area) ||
+    area <= 0 ||
+    area > 1000 ||
     from < '1900-01-01' ||
     from > '2100-12-31' ||
     !['loam', 'clay', 'sandy', 'unknown'].includes(soil) ||
@@ -33,6 +37,7 @@ export async function GET(request: Request) {
     page < 1 ||
     page > 1000 ||
     text.length > 120 ||
+    category.length > 100 ||
     !['all', 'seasonal', 'perennial-review', 'unknown'].includes(cycle) ||
     !['matches', 'catalogue'].includes(q.get('mode') ?? 'matches')
   )
@@ -48,7 +53,7 @@ export async function GET(request: Request) {
           calendarSource: '',
           retrievedAt: normal.retrievedAt,
         },
-        { area: 1, soil, drainage, irrigation } as Farm,
+        { area, soil, drainage, irrigation } as Farm,
         from,
         { page, text, category, cycle, mode: q.get('mode') ?? 'matches' },
       ),

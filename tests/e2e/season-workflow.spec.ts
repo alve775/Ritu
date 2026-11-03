@@ -275,9 +275,8 @@ test('actual planting, observed stage, daily task and export remain truthful', a
   await expect(
     page.getByText('Walk the field and record what you see', { exact: true }),
   ).toBeVisible();
-  await page.getByText('Record an observed crop stage', { exact: true }).click();
   await page.getByLabel('Observed stage', { exact: true }).selectOption('Flowering');
-  await page.getByRole('button', { name: 'Save observation', exact: true }).click();
+  await page.getByRole('button', { name: 'Save daily check-in', exact: true }).click();
   await expect(
     page.getByText('Give the flowering crop a careful water check', { exact: true }),
   ).toBeVisible();

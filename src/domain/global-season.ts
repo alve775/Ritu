@@ -63,8 +63,21 @@ export interface CropSuggestion {
   annualRainFit: boolean | null;
   cautions: string[];
   reasons: string[];
+  /** New screens retain the original source duration beside any shorter
+   * temperature-supported planning interval. Neither predicts a cultivar harvest.
+   */
+  sourceDurationMin?: number;
+  sourceDurationMax?: number;
+  temperatureWindowDays?: number;
+  checks?: {
+    factor: 'temperature' | 'soil' | 'drainage' | 'water' | 'local';
+    state: 'supported' | 'unknown';
+    detail: string;
+  }[];
 }
 export interface SeasonFarm {
+  cultivarReference?: import('../data/cultivar-references').CultivarReference;
+  waterRecords?: import('./water-balance').WaterDayRecord[];
   id: string;
   createdAt: string;
   field: Farm;
@@ -76,6 +89,46 @@ export interface SeasonFarm {
   notes: string;
   done: string[];
   observations: { date: string; stage: string; note: string }[];
+  /** Optional so existing saved farms remain readable. Final harvest is harvestedDate. */
+  harvestStartedDate?: string;
+  checkIns?: DailyFieldCheckIn[];
+  thermalProfile?: MaizeThermalProfile | null;
+}
+export const observedStages = [
+  'Not sure',
+  'No change',
+  'Establishing',
+  'Leaf growth',
+  'Flowering',
+  'Fruit / grain filling',
+  'Maturing',
+  'Harvested',
+] as const;
+export interface DailyFieldCheckIn {
+  id: string;
+  date: string;
+  stage: (typeof observedStages)[number];
+  confidence: 'sure' | 'unsure';
+  coverage: 'not-sure' | 'few' | 'half' | 'most';
+  water: 'not-checked' | 'dry' | 'moist' | 'waterlogged';
+  damage: 'not-checked' | 'none-seen' | 'seen';
+  harvest: 'none' | 'started' | 'finished';
+  /** A new, dated field milestone, not an inferred stage from elapsed days. */
+  milestone: 'none' | 'maize-silking' | 'maize-maturity';
+  note: string;
+}
+export interface MaizeThermalProfile {
+  version: 1;
+  crop: 'maize';
+  purpose: 'grain';
+  method: 'corn-86-50-f';
+  origin: 'planting';
+  variety: string;
+  targetGdd: number;
+  /** Only when the document rates the same hybrid at 50% silking. */
+  silkingGdd?: number;
+  sourceUrl: string;
+  sourceNote: string;
 }
 export function localToday(timezone?: string, now = new Date()) {
   try {

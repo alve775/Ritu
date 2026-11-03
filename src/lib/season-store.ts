@@ -6,6 +6,11 @@ import { samePoint, validSite } from '../domain/farm-site';
 import type { ClimateNormal } from '../domain/global-season';
 import type { FarmSite } from '../domain/farm-site';
 import { validDate, addDays } from '../domain/evidence-planner';
+import { validCheckIn } from '../domain/season-lifecycle';
+import { validThermalProfile } from '../domain/crop-thermal';
+import { validSoilEvidence } from '../domain/soil-evidence';
+import { validWaterDayRecord } from '../domain/water-balance';
+import { validCultivarReference } from '../data/cultivar-references';
 
 export interface SeasonState {
   version: 1;
@@ -119,6 +124,39 @@ export function validSeasonState(raw: unknown): raw is SeasonState {
         (f.plantedDate === '' || validDate(f.plantedDate)) &&
         (f.harvestedDate === '' ||
           (validDate(f.harvestedDate) && !!f.plantedDate && f.harvestedDate >= f.plantedDate)) &&
+        (f.harvestStartedDate === undefined ||
+          f.harvestStartedDate === '' ||
+          (validDate(f.harvestStartedDate) &&
+            !!f.plantedDate &&
+            f.harvestStartedDate >= f.plantedDate &&
+            (f.selection.planKind === 'perennial-review' ||
+              !f.harvestedDate ||
+              f.harvestedDate >= f.harvestStartedDate))) &&
+        (f.thermalProfile === undefined ||
+          f.thermalProfile === null ||
+          (f.selection.crop === 'maize' && validThermalProfile(f.thermalProfile))) &&
+        (f.checkIns === undefined ||
+          (Array.isArray(f.checkIns) &&
+            f.checkIns.length <= 2000 &&
+            new Set(f.checkIns.map((c) => c?.id)).size === f.checkIns.length &&
+            f.checkIns.every(
+              (c) =>
+                validCheckIn(c) &&
+                !!f.plantedDate &&
+                c.date >= f.plantedDate &&
+                (c.milestone === 'none' || f.selection.crop === 'maize'),
+            ))) &&
+        (f.field.soilEvidence === undefined || validSoilEvidence(f.field.soilEvidence)) &&
+        (f.waterRecords === undefined ||
+          (Array.isArray(f.waterRecords) &&
+            f.waterRecords.length <= 2000 &&
+            new Set(f.waterRecords.map((r) => r?.id)).size === f.waterRecords.length &&
+            new Set(f.waterRecords.map((r) => r?.date)).size === f.waterRecords.length &&
+            f.waterRecords.every(validWaterDayRecord))) &&
+        (f.cultivarReference === undefined ||
+          (f.selection.crop === 'mung' &&
+            (!f.site.countryCode || f.site.countryCode === 'BD') &&
+            validCultivarReference(f.cultivarReference))) &&
         typeof f.notes === 'string' &&
         f.notes.length <= 10000 &&
         Array.isArray(f.done) &&
@@ -231,9 +269,28 @@ export const seasonStore = {
     id: string,
     patch: Pick<
       Partial<SeasonFarm>,
-      'plantedDate' | 'harvestedDate' | 'notes' | 'done' | 'observations'
+      | 'plantedDate'
+      | 'harvestedDate'
+      | 'notes'
+      | 'done'
+      | 'observations'
+      | 'harvestStartedDate'
+      | 'checkIns'
+      | 'thermalProfile'
+      | 'waterRecords'
+      | 'cultivarReference'
+      | 'field'
     >,
   ) {
+    if (patch.field) {
+      const original = snapshot.state.farms.find((f) => f.id === id)?.field;
+      if (
+        !original ||
+        JSON.stringify({ ...original, soilEvidence: undefined }) !==
+          JSON.stringify({ ...patch.field, soilEvidence: undefined })
+      )
+        throw Error('Change land conditions through the crop-selection workflow.');
+    }
     const state = {
       ...snapshot.state,
       farms: snapshot.state.farms.map((f) => (f.id === id ? { ...f, ...patch } : f)),

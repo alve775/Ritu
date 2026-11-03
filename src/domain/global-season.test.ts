@@ -18,7 +18,15 @@ describe('actual recorded NASA baseline and unextrapolated global crop records',
     const normal = parseClimateNormal(normalRaw, 23.86, 90);
     expect(normal.months[0].temperature).toBe(17.84);
     expect(normal.months[0].rain).toBeCloseTo(0.27 * 31);
-    expect(normal.annualRain).toBeCloseTo(1645.1475);
+    const febDays = (28 * 22 + 29 * 8) / 30;
+    expect(normal.months[1].rain).toBeCloseTo(
+      normalRaw.properties.parameter.PRECTOTCORR.FEB * febDays,
+      10,
+    );
+    expect(normal.annualRain).toBeCloseTo(
+      1645.1475 + normalRaw.properties.parameter.PRECTOTCORR.FEB * (febDays - 28.25),
+      10,
+    );
     expect(normal.sourceUrl).toContain('start=1991');
     expect(() =>
       parseClimateNormal({ ...normalRaw, header: { range: 'Another baseline' } }, 23.86, 90),
@@ -69,8 +77,12 @@ for (const { name, context } of contexts)
             expect(choice.endEarly > choice.start && choice.endLate >= choice.endEarly).toBe(true);
             expect(daysBetween(choice.start, choice.endEarly)).toBe(choice.durationMin);
             expect(daysBetween(choice.start, choice.endLate)).toBe(choice.durationMax);
-            expect(choice.temperature).toBeGreaterThanOrEqual(crop.TMIN!);
-            expect(choice.temperature).toBeLessThanOrEqual(crop.TMAX!);
+            if (choice.basis === 'climate-screen') {
+              expect(choice.temperature).toBeGreaterThanOrEqual(crop.TMIN!);
+              expect(choice.temperature).toBeLessThanOrEqual(crop.TMAX!);
+            } else if (choice.temperature < crop.TMIN! || choice.temperature > crop.TMAX!) {
+              expect(choice.checks?.find((c) => c.factor === 'temperature')?.state).toBe('unknown');
+            }
             if (drainage === 'poor') {
               const allowed = crop.drainage + crop.toleratedDrainage;
               expect(!allowed.includes('well') || allowed.includes('poorly')).toBe(true);

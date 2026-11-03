@@ -56,6 +56,7 @@ export interface CropPeriod {
   duration: number;
 }
 export interface Farm {
+  soilEvidence?: import('./soil-evidence').SoilEvidence;
   name: string;
   area: number;
   irrigation: Irrigation;

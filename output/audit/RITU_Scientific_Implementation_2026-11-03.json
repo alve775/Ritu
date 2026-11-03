@@ -1,0 +1,122 @@
+{
+  "createdAt": "2026-11-03T13:16:00.397561+00:00",
+  "scope": "Research-backed browser implementation; not field validation",
+  "preview": "http://127.0.0.1:3000",
+  "runtime": "Next.js 16.4.4 production build",
+  "unit": {
+    "passed": 566,
+    "failed": 0,
+    "total": 566
+  },
+  "productionBrowser": {
+    "startTime": "2026-11-03T13:13:07.539Z",
+    "duration": 33853.95,
+    "expected": 18,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "broaderBrowser": {
+    "initialPassed": 74,
+    "initialFailed": 2,
+    "distinctCases": 76,
+    "formerlyFailingCases": "Passed in final 18-case production follow-up; not a single uninterrupted 76/76 run"
+  },
+  "generatedWaterInputs": 10000,
+  "generatedCasesAreFieldTrials": false,
+  "productionDependencyAudit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "liveSoil": [
+    {
+      "point": "US-field",
+      "status": 200,
+      "latitude": 41,
+      "longitude": -100,
+      "depth": "5-15",
+      "median": 6.8,
+      "lower": 5.5,
+      "upper": 8.1
+    },
+    {
+      "point": "BD-Manikganj",
+      "status": 200,
+      "latitude": 23.86186,
+      "longitude": 90.00273,
+      "depth": "5-15",
+      "median": 5.3,
+      "lower": 4.6,
+      "upper": 7.4
+    },
+    {
+      "point": "KE-field",
+      "status": 200,
+      "latitude": -0.5,
+      "longitude": 36.9,
+      "depth": "5-15",
+      "median": 5.4,
+      "lower": 4.5,
+      "upper": 7.1
+    }
+  ],
+  "validation": {
+    "productionBuild": true,
+    "typescript": true,
+    "eslint": true,
+    "scopedFormatting": true
+  },
+  "notIntegrated": [
+    "NASA SMAP",
+    "NASA GPM IMERG",
+    "GAEZ"
+  ],
+  "notEstablished": [
+    "seasonal water adequacy",
+    "local cultivar performance",
+    "complete field suitability",
+    "farmer usability"
+  ],
+  "files": [
+    {
+      "path": "docs/SCIENTIFIC_IMPLEMENTATION_2026-11-03.md",
+      "sha256": "4795cc90d2e033a90899f33a152206cb2fa6c9ca3ca7b88356947752f54802f6"
+    },
+    {
+      "path": "src/domain/water-balance.ts",
+      "sha256": "e6ad1ef25614b14c502686ad9ded17eabf3f733881daa69ba597daf9f089f7d9"
+    },
+    {
+      "path": "src/lib/soil-reference.ts",
+      "sha256": "87d8c5684685e2556f5316492e0117b3528783a0e8d6873fb39af900439dd29d"
+    },
+    {
+      "path": "src/data/cultivar-references.ts",
+      "sha256": "a751c943f0cbae63d7527d101dadf707cd698f92b221b1a197bb624c9c7d4da5"
+    },
+    {
+      "path": "src/components/water-budget-panel.tsx",
+      "sha256": "fe246ce6b67d6d50d543078bc3ce18a3c5c79b019e015264531dd21b6b36f702"
+    },
+    {
+      "path": "src/components/soil-reference-panel.tsx",
+      "sha256": "df68522f6ea6f7f9eed00a97028ebc8c5338aa196aa5de99f38a5ffdfa1ce5a7"
+    },
+    {
+      "path": "src/components/soil-evidence-form.tsx",
+      "sha256": "9bbfd28ccdc1dbf5ec33cf68e317f610984bd94afbc200a4bafc57778f3a3ccb"
+    },
+    {
+      "path": "tests/e2e/season-scientific.spec.ts",
+      "sha256": "b550ede53c3fb424e83f5134ec2baefcabd0bd47e8afe4cb38bcad4994761e09"
+    },
+    {
+      "path": "output/audit/scientific-2026-11-03/live-soil-desktop.png",
+      "sha256": "4ae5501951e930a8996dd1ee18615b102f538c95119310af0da16313693f9fd4"
+    }
+  ]
+}

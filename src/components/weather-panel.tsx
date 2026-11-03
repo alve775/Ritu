@@ -33,7 +33,7 @@ export function WeatherContent({
   compact?: boolean;
 }) {
   const { t, language } = usePlanner();
-  const { data, error, loading, retry } = result;
+  const { data, error, loading, retry, automatic } = result;
   useEffect(() => {
     onWeather?.(error ? null : data);
   }, [data, error, onWeather]);
@@ -52,8 +52,12 @@ export function WeatherContent({
         <h3>{t('Weather is temporarily unavailable', 'আবহাওয়া আপাতত পাওয়া যাচ্ছে না')}</h3>
         <p role="status">
           {t(
-            'No sample weather is substituted. Check your connection; the app retries when you return online.',
-            'উদাহরণের আবহাওয়া বসানো হয় না। সংযোগ দেখুন; অনলাইনে ফিরলে আবার চেষ্টা হবে।',
+            automatic
+              ? 'No sample weather is substituted. Check your connection; the app retries when you return online.'
+              : 'No sample weather is substituted. Automatic updates are paused; use Retry weather to request an update.',
+            automatic
+              ? 'উদাহরণের আবহাওয়া বসানো হয় না। সংযোগ দেখুন; অনলাইনে ফিরলে আবার চেষ্টা হবে।'
+              : 'উদাহরণের আবহাওয়া বসানো হয় না। স্বয়ংক্রিয় আপডেট বন্ধ; নতুন তথ্য আনতে আবার আবহাওয়া আনুন চাপুন।',
           )}
         </p>
         <button className="button secondary" onClick={retry}>
@@ -91,7 +95,9 @@ export function WeatherContent({
       <div className="live-weather-heading">
         <div>
           <span className="eyebrow">
-            {t('AUTOMATIC WEATHER UPDATES', 'আবহাওয়া নিজে থেকে আপডেট')}
+            {automatic
+              ? t('AUTOMATIC WEATHER UPDATES', 'আবহাওয়া নিজে থেকে আপডেট')
+              : t('WEATHER · AUTOMATIC UPDATES PAUSED', 'আবহাওয়া · স্বয়ংক্রিয় আপডেট বন্ধ')}
           </span>
           <h3>{t('Current weather & next seven days', 'এখনকার আবহাওয়া ও আগামী সাত দিন')}</h3>
         </div>
@@ -190,15 +196,26 @@ export function WeatherContent({
         </div>
       </details>
       <p className="weather-source">
+        <button className="button secondary" type="button" onClick={retry}>
+          {t('Update weather now', 'এখন আবহাওয়া আপডেট করুন')}
+        </button>{' '}
+        {!automatic && <strong>{t('Automatic updates paused', 'স্বয়ংক্রিয় আপডেট বন্ধ')}</strong>}
+      </p>
+      <p className="weather-source">
         {t(
           'Current values are gridded model estimates, not a sensor on your field. Rain is for the displayed',
           'এখনকার মান গ্রিড মডেলের হিসাব, জমির সেন্সর নয়। বৃষ্টি দেখানো',
         )}{' '}
         {data.current.interval / 60}
-        {t(
-          '-minute interval. Refreshes every 10 minutes while this page is visible.',
-          ' মিনিটের জন্য। পাতা দেখা অবস্থায় প্রতি ১০ মিনিটে আপডেট হয়।',
-        )}{' '}
+        {automatic
+          ? t(
+              '-minute interval. Refreshes every 10 minutes while this page is visible.',
+              ' মিনিটের জন্য। পাতা দেখা অবস্থায় প্রতি ১০ মিনিটে আপডেট হয়।',
+            )
+          : t(
+              '-minute interval. Automatic refresh is paused.',
+              ' মিনিটের জন্য। স্বয়ংক্রিয় আপডেট বন্ধ।',
+            )}{' '}
         {t('Checked', 'দেখা হয়েছে')}:{' '}
         {new Intl.DateTimeFormat(language === 'bn' ? 'bn-BD' : 'en', {
           hour: '2-digit',

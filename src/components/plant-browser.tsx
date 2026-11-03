@@ -5,6 +5,7 @@ import { usePlanner } from './planner-provider';
 import { PlantPhoto } from './plant-photo';
 import type { CropSuggestion, GlobalCrop } from '../domain/global-season';
 import { commonPlantNames, plantDisplayName } from '../domain/plant-names';
+import { verifiedCommonNames } from '../data/verified-common-names';
 interface Results {
   total: number;
   matches: number;
@@ -57,6 +58,7 @@ export function PlantBrowser({
     soil: farm.soil,
     drainage: farm.drainage,
     irrigation: farm.irrigation,
+    area: String(farm.area),
     q: query,
     category,
     cycle,
@@ -122,8 +124,8 @@ export function PlantBrowser({
         <h2>{t('Find what you want to grow', 'কী চাষ করতে চান খুঁজুন')}</h2>
         <p>
           {t(
-            'Food plants appear first. Search a plant name, including peanut / groundnut. Categories overlap where the source lists several uses.',
-            'প্রথমে খাদ্য উদ্ভিদ দেখায়। গাছের প্রচলিত নামে খুঁজুন। উৎসে একাধিক ব্যবহার থাকলে একই গাছ কয়েক বিভাগে থাকে।',
+            'Source food-use categories appear first. Search a plant name, including peanut / groundnut. A category does not establish safe preparation or edibility of every plant part.',
+            'প্রথমে উৎসে খাদ্য ব্যবহারের বিভাগ দেখায়। গাছের প্রচলিত নামে খুঁজুন। বিভাগ দিয়ে নিরাপদ প্রক্রিয়াকরণ বা গাছের সব অংশের খাদ্যযোগ্যতা নিশ্চিত হয় না।',
           )}
         </p>
         <div className="plant-filters">
@@ -269,20 +271,47 @@ export function PlantBrowser({
                   <>
                     <span className="season-source-pill">
                       {s.basis === 'regional-calendar'
-                        ? t('Regional calendar + climate', 'আঞ্চলিক পঞ্জিকা ও জলবায়ু')
-                        : t('Climate-screen candidate', 'জলবায়ু যাচাইয়ের প্রার্থী')}
+                        ? t('Historical regional option', 'আঞ্চলিক পুরোনো তথ্যের বিকল্প')
+                        : t('Preliminary source match', 'উৎসের প্রাথমিক মিল')}
                     </span>
+                    <p className="season-crop-caution">
+                      {t(
+                        'Water adequacy and local suitability still need checking.',
+                        'পানির পর্যাপ্ততা ও স্থানীয় উপযুক্ততা এখনও যাচাই করতে হবে।',
+                      )}
+                    </p>
+                    <p className="season-small-note">
+                      {t('Source-supported factors', 'উৎসে মেলা বিষয়')}:{' '}
+                      {s.checks
+                        ?.filter((c) => c.state === 'supported')
+                        .map((c) =>
+                          t(
+                            c.factor === 'temperature'
+                              ? 'average temperature'
+                              : c.factor === 'soil'
+                                ? 'soil texture'
+                                : 'drainage',
+                            c.factor === 'temperature'
+                              ? 'গড় তাপমাত্রা'
+                              : c.factor === 'soil'
+                                ? 'মাটির গঠন'
+                                : 'নিষ্কাশন',
+                          ),
+                        )
+                        .join(' · ') || t('Not established', 'প্রতিষ্ঠিত নয়')}
+                    </p>
                     {s.planKind === 'perennial-review' ? (
                       <p className="season-crop-caution">
                         {t(
-                          'Perennial care plan · first harvest not predicted',
-                          'বহুবর্ষজীবী পরিচর্যা · প্রথম ফলের পূর্বাভাস নেই',
+                          'Perennial care plan · first harvest not predicted · winter survival unverified',
+                          'বহুবর্ষজীবী পরিচর্যা · প্রথম ফলের পূর্বাভাস নেই · শীত কাটানো অযাচাইকৃত',
                         )}
                       </p>
                     ) : (
                       <p>
-                        {t('Source growing period', 'উৎসের বৃদ্ধির সময়')}: {s.durationMin}–
-                        {s.durationMax} {t('days', 'দিন')}
+                        {t('Planning reference interval', 'পরিকল্পনার তথ্যভিত্তিক সময়')}:{' '}
+                        {s.durationMin}–{s.durationMax}{' '}
+                        {t('days · not a harvest prediction', 'দিন · কাটার পূর্বাভাস নয়')}
                       </p>
                     )}
                     <p>
@@ -300,10 +329,33 @@ export function PlantBrowser({
                         {t('Why this option & what to check', 'এই বিকল্পের কারণ ও কী যাচাই করবেন')}
                       </summary>
                       <ul>
+                        {s.checks?.map((c) => (
+                          <li key={c.factor}>
+                            <strong>
+                              {c.state === 'supported'
+                                ? t('Source match', 'উৎসে মিল')
+                                : t('Unverified', 'অযাচাইকৃত')}
+                            </strong>{' '}
+                            · {c.detail}
+                          </li>
+                        ))}
                         {s.reasons.map((r) => (
                           <li key={r}>{r}</li>
                         ))}
                       </ul>
+                      {s.sourceDurationMin !== undefined && s.sourceDurationMax !== undefined && (
+                        <p>
+                          {t(
+                            'Original ECOCROP growing-period range',
+                            'মূল ECOCROP বৃদ্ধির সময়সীমা',
+                          )}
+                          : {s.sourceDurationMin}–{s.sourceDurationMax}{' '}
+                          {t(
+                            'days; cultivar timing is not established.',
+                            'দিন; জাতের সময় নির্ধারিত নয়।',
+                          )}
+                        </p>
+                      )}
                       <h4>{t('Before planting', 'রোপণের আগে')}</h4>
                       <ul>
                         {s.cautions.map((c) => (
@@ -345,6 +397,20 @@ export function PlantBrowser({
                   >
                     FAO ECOCROP · {plant.ecocropId} <ExternalLink size={12} />
                   </a>
+                  {verifiedCommonNames[plant.id] && (
+                    <p>
+                      <a
+                        href={verifiedCommonNames[plant.id].source}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {t(
+                          'Supplemental common-name source · FAO',
+                          'প্রচলিত নামের অতিরিক্ত উৎস · FAO',
+                        )}
+                      </a>
+                    </p>
+                  )}
                 </details>
               </div>
             </article>

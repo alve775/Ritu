@@ -2,6 +2,7 @@ import { requirements, suggestSeason, screeningGap } from './plant-screen';
 import { globalCrop } from './global-season';
 import type { SeasonContext } from './global-season';
 import type { Farm } from './types';
+import { commonPlantNames } from './plant-names';
 const food = [
   'vegetables',
   'fruits & nuts',
@@ -29,7 +30,7 @@ export function searchPlantCatalogue(
           : (c.categories as string[]).includes(category))) &&
       (cycle === 'all' || c.planKind === cycle) &&
       (!text ||
-        `${c.name.en} ${c.name.bn} ${c.scientific} ${c.aliases}`
+        `${commonPlantNames(c).en ?? ''} ${commonPlantNames(c).bn ?? ''} ${c.name.en} ${c.name.bn} ${c.scientific} ${c.aliases}`
           .toLocaleLowerCase()
           .includes(text)),
   );
@@ -54,7 +55,7 @@ export function searchPlantCatalogue(
       unavailable: index.has(c.id)
         ? null
         : (screeningGap(c) ??
-          'Does not pass the entered texture/drainage and long-term temperature screen. This is not proof that the plant cannot grow here.'),
+          'Does not pass the available source temperature, texture or drainage checks. Water adequacy is unverified. This is not proof that the plant cannot grow here.'),
     })),
   };
 }

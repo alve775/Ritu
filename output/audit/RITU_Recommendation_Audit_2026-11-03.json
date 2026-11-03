@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-03",
+  "source_records": 2562,
+  "source_field_comparisons": 53802,
+  "source_fidelity_failures": [],
+  "calendar_cells_checked": 3628800,
+  "calendar_fields_checked": 1289526,
+  "locations": 6,
+  "dates_per_location": 366,
+  "profiles_per_date": 60,
+  "unique_location_date_soil_drainage_combinations": 26352,
+  "water_label_variants": 5,
+  "setup_evaluations": 131760,
+  "returned_options_checked": 81446025,
+  "saved_record_checks": 4320,
+  "all_matrix_passed": true,
+  "entries_returned_at_least_once": 1109,
+  "scope": "Source fidelity, declared screening-rule correctness and software behavior. Not validation of agronomic recommendation accuracy.",
+  "unresolved": [
+    "Crop-season water budget",
+    "Daily temperature extremes and cultivar winter survival",
+    "Soil chemistry, salinity, depth and nutrients",
+    "Local seed/cultivar availability, legal restrictions and pest pressure",
+    "Independent expert review and field outcome validation"
+  ]
+}

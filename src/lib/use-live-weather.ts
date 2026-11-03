@@ -1,5 +1,6 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useAutomaticWeather } from './use-automatic-weather';
 import type { FarmSite } from '../domain/farm-site';
 import type { LiveWeather } from '../domain/live-weather';
 
@@ -9,6 +10,8 @@ interface WeatherState {
   error: boolean;
 }
 export function useLiveWeather(site: FarmSite, enabled = true) {
+  const automatic = useAutomaticWeather(),
+    lastRequest = useRef('');
   const key = `${site.latitude.toFixed(5)},${site.longitude.toFixed(5)}`;
   const [state, setState] = useState<WeatherState | null>(null);
   const [retry, setRetry] = useState(0);
@@ -18,11 +21,12 @@ export function useLiveWeather(site: FarmSite, enabled = true) {
     let request: AbortController | null = null;
     const load = async () => {
       request?.abort();
-      request = new AbortController();
+      const currentRequest = new AbortController();
+      request = currentRequest;
       try {
         const response = await fetch(
           `/api/weather?latitude=${site.latitude}&longitude=${site.longitude}`,
-          { signal: request.signal },
+          { signal: currentRequest.signal },
         );
         const body = await response.json();
         if (
@@ -32,22 +36,34 @@ export function useLiveWeather(site: FarmSite, enabled = true) {
           body.weather.requested.longitude !== site.longitude
         )
           throw Error('Weather unavailable');
-        if (!stopped) setState({ key, data: body.weather, error: false });
+        if (!stopped && !currentRequest.signal.aborted) {
+          lastRequest.current = requestKey;
+          setState({ key, data: body.weather, error: false });
+        }
       } catch (error) {
-        if (!stopped && !(error instanceof DOMException && error.name === 'AbortError'))
+        if (
+          !stopped &&
+          !currentRequest.signal.aborted &&
+          !(error instanceof DOMException && error.name === 'AbortError')
+        ) {
+          lastRequest.current = requestKey;
           setState((previous) => ({
             key,
             data: previous?.key === key ? previous.data : null,
             error: true,
           }));
+        }
       }
     };
-    void load();
+    const requestKey = `${key}:${retry}`;
+    if (automatic || lastRequest.current !== requestKey) {
+      void load();
+    }
     const timer = setInterval(() => {
-      if (!document.hidden) void load();
+      if (automatic && !document.hidden) void load();
     }, 600000);
     const resume = () => {
-      if (!document.hidden) void load();
+      if (automatic && !document.hidden) void load();
     };
     window.addEventListener('online', resume);
     document.addEventListener('visibilitychange', resume);
@@ -58,11 +74,15 @@ export function useLiveWeather(site: FarmSite, enabled = true) {
       window.removeEventListener('online', resume);
       document.removeEventListener('visibilitychange', resume);
     };
-  }, [key, site.latitude, site.longitude, enabled, retry]);
+  }, [key, site.latitude, site.longitude, enabled, retry, automatic]);
   return {
     data: state?.key === key ? state.data : null,
     error: state?.key === key && state.error,
     loading: enabled && state?.key !== key,
-    retry: () => setRetry((n) => n + 1),
+    automatic,
+    retry: () => {
+      setRetry((n) => n + 1);
+      window.dispatchEvent(new Event('ritu-weather-refresh'));
+    },
   };
 }

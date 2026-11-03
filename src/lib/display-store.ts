@@ -1,4 +1,5 @@
 export interface DisplayPreferences {
+  autoWeather?: boolean;
   text: 'comfortable' | 'larger';
   motion: boolean;
   sound: boolean;
@@ -6,6 +7,7 @@ export interface DisplayPreferences {
   ambience: 'morning' | 'evening';
 }
 const defaults: DisplayPreferences = {
+  autoWeather: true,
   text: 'comfortable',
   motion: true,
   sound: false,
@@ -43,6 +45,10 @@ export const displayStore = {
         )
           snapshot = {
             preferences: {
+              autoWeather:
+                'autoWeather' in parsed && typeof parsed.autoWeather === 'boolean'
+                  ? parsed.autoWeather
+                  : true,
               text: parsed.text,
               motion: parsed.motion,
               sound: parsed.sound,

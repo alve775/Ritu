@@ -1,6 +1,7 @@
 import { crops } from '../data/crops';
 import type { GlobalCrop } from './global-season';
 import type { Language } from './types';
+import { verifiedCommonNames } from '../data/verified-common-names';
 
 // Reuse the existing sourced local common names, matching whole common names
 // only. Scientific identities and the imported source records stay unchanged.
@@ -19,8 +20,9 @@ function commonText(value: string, scientific: string) {
     .replace(/^[\s,;·-]+|[\s,;·-]+$/g, '')
     .trim();
 }
-export function commonPlantNames(plant: GlobalCrop) {
-  const en = commonText(plant.name.en, plant.scientific) || null;
+export function commonPlantNames(plant: Pick<GlobalCrop, 'id' | 'name' | 'scientific'>) {
+  const en =
+    verifiedCommonNames[plant.id]?.en || commonText(plant.name.en, plant.scientific) || null;
   const recorded = commonText(plant.name.bn, plant.scientific);
   const bn = hasBangla(recorded)
     ? recorded

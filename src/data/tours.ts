@@ -19,8 +19,8 @@ export const tourSteps: TourStep[] = [
       bn: 'আপনার কৃষি সহায়ক মাটির পরিচয়',
     },
     description: {
-      en: 'Set up one field, choose a seasonal crop or perennial care plan, and open its calendar and forecast. Add separate farms for other plots. This tour does not change your records.',
-      bn: 'এক জমির তথ্য দিয়ে এক মৌসুমের একটি ফসল বাছুন। ক্যালেন্ডার ও পূর্বাভাস খুলুন। অন্য জমির জন্য আলাদা খামার যোগ করুন। পরিচিতি হিসাব বদলায় না।',
+      en: 'This dashboard keeps your farms together. Add a farm when you are ready. Each page has its own short guide, then you can explore before continuing. Tours do not change your records.',
+      bn: 'এই ড্যাশবোর্ডে সব খামার একসঙ্গে থাকে। প্রস্তুত হলে খামার যোগ করুন। প্রতি পাতার আলাদা ছোট পরিচিতি শেষে নিজে দেখে পরের ধাপে যান। পরিচিতিতে হিসাব বদলায় না।',
     },
     mission: {
       en: 'RITU · Your growing season',
@@ -266,3 +266,12 @@ export const stepsForTour = (scope: TourScope) =>
   scope === 'full'
     ? tourSteps.filter((s) => s.scope !== 'field' && s.scope !== 'insights')
     : tourSteps.filter((s) => s.scope === scope);
+
+/** Page guides never move the farmer to another route or unlock a workflow step. */
+export function stepsForPageTour(path: string): TourStep[] {
+  const route =
+    path === '/track' ? '/plan' : ['/insights', '/sample'].includes(path) ? '/sources' : path;
+  return tourSteps
+    .filter((step) => step.route === route || (route === '/farms' && step.id === 'welcome'))
+    .map((step) => (step.route ? { ...step, route: path } : step));
+}

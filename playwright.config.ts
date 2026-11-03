@@ -5,6 +5,7 @@ export default defineConfig({
   // The current product is one crop per season with multiple saved farms.
   testMatch: [
     '**/season-*.spec.ts',
+    '**/farm-audio.spec.ts',
     '**/finalization-animation.spec.ts',
     '**/finalization-edge.spec.ts',
   ],

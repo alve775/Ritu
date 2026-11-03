@@ -12,10 +12,20 @@ async function openFarm(page: Page, farm = trackingFarm(), others: SeasonFarm[] 
   await page.addInitScript(
     ({ farms }) => {
       localStorage.setItem('ritu-tour-v1', 'seen');
+      localStorage.setItem(
+        'ritu-page-tours-v1',
+        JSON.stringify(['/farms', '/farm', '/crops', '/plan']),
+      );
       if (!localStorage.getItem('adaptive-seed')) {
         localStorage.setItem(
           'ritu-season-farms-v1',
-          JSON.stringify({ version: 1, farms, activeId: farms[0].id, confirmedKey: null }),
+          JSON.stringify({
+            version: 1,
+            farms,
+            activeId: farms[0].id,
+            calendarAccessId: farms[0].id,
+            confirmedKey: null,
+          }),
         );
         localStorage.setItem('adaptive-seed', '1');
       }

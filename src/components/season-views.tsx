@@ -61,6 +61,7 @@ function newField() {
     selected: null,
   });
   seasonStore.confirm('');
+  seasonStore.activate(null);
 }
 function exportRecords() {
   const records: Record<string, unknown> = { [seasonStorageKey]: seasonStore.getSnapshot().state };
@@ -748,7 +749,7 @@ export function FarmsView() {
 export function SeasonDashboard() {
   const { t, language } = usePlanner(),
     { state, ready, saved } = useSeasonFarms();
-  const farm = state.farms.find((f) => f.id === state.activeId) ?? state.farms[0];
+  const farm = state.farms.find((f) => f.id === state.activeId);
   if (!ready) return <p role="status">{t('Loading farm…', 'খামার আনা হচ্ছে…')}</p>;
   if (!farm)
     return (

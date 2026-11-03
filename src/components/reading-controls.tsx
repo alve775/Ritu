@@ -8,7 +8,7 @@ import { FarmAudio } from '../lib/farm-audio';
 import type { AudioStatus } from '../lib/farm-audio';
 
 export function ReadingControls() {
-  const { t } = usePlanner();
+  const { t, ready } = usePlanner();
   const { preferences, saved } = useSyncExternalStore(
     displayStore.subscribe,
     displayStore.getSnapshot,
@@ -60,6 +60,7 @@ export function ReadingControls() {
         className="button secondary tool-button reading-launch"
         aria-label={t('Reading & sound', 'পড়া ও শব্দ')}
         title={t('Reading & sound', 'পড়া ও শব্দ')}
+        disabled={!ready}
         onClick={() => setOpen(true)}
       >
         <Settings2 size={20} aria-hidden="true" />
@@ -149,7 +150,15 @@ export function ReadingControls() {
               />
             </label>
             <div className="button-row">
-              <button className="button primary" onClick={() => void audio.current?.start()}>
+              <button
+                className="button primary"
+                onClick={() => {
+                  if (!displayStore.getSnapshot().preferences.volume)
+                    displayStore.update({ volume: 35 });
+                  audio.current?.update(displayStore.getSnapshot().preferences);
+                  void audio.current?.start();
+                }}
+              >
                 {t('Play farm sounds', 'মাঠের শব্দ চালান')}
               </button>
               <button className="button secondary" onClick={() => audio.current?.stop()}>
@@ -159,6 +168,7 @@ export function ReadingControls() {
                 className="button secondary"
                 onClick={() => {
                   audio.current?.stop();
+                  window.dispatchEvent(new Event('ritu-audio-mute'));
                   displayStore.update({ sound: false, volume: 0 });
                 }}
               >
@@ -170,7 +180,12 @@ export function ReadingControls() {
               <input
                 type="checkbox"
                 checked={preferences.sound}
-                onChange={(event) => displayStore.update({ sound: event.target.checked })}
+                onChange={(event) =>
+                  displayStore.update({
+                    sound: event.target.checked,
+                    ...(event.target.checked && !preferences.volume ? { volume: 35 } : {}),
+                  })
+                }
               />
               {t('Quiet click sounds', 'হালকা ক্লিকের শব্দ')}
             </label>

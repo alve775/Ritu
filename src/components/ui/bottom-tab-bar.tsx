@@ -12,19 +12,35 @@ export function BottomTabBar({
 }) {
   return (
     <nav className="tab-bar" aria-label={label}>
-      {items.map(({ href, label: text, icon: Icon }) => (
-        <Link
-          key={href}
-          href={href}
-          className={`tab ${path === href ? 'current' : ''}`}
-          aria-current={path === href ? 'page' : undefined}
-        >
-          <Icon size={22} aria-hidden="true" />
-          <span className="nav-text">
-            <strong>{text}</strong>
-          </span>
-        </Link>
-      ))}
+      {items.map(({ href, label: text, icon: Icon, lockedReason }) =>
+        lockedReason ? (
+          <button
+            key={href}
+            className="tab locked"
+            type="button"
+            disabled
+            aria-label={`${text}: ${lockedReason}`}
+            title={lockedReason}
+          >
+            <Icon size={22} aria-hidden="true" />
+            <span className="nav-text">
+              <strong>{text}</strong>
+            </span>
+          </button>
+        ) : (
+          <Link
+            key={href}
+            href={href}
+            className={`tab ${path === href ? 'current' : ''}`}
+            aria-current={path === href ? 'page' : undefined}
+          >
+            <Icon size={22} aria-hidden="true" />
+            <span className="nav-text">
+              <strong>{text}</strong>
+            </span>
+          </Link>
+        ),
+      )}
     </nav>
   );
 }

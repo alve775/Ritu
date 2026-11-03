@@ -16,10 +16,18 @@ export interface SeasonState {
   version: 1;
   farms: SeasonFarm[];
   activeId: string | null;
+  /** Granted only by crop creation or explicitly opening a saved farm. */
+  calendarAccessId?: string | null;
   confirmedKey: string | null;
 }
 export const seasonStorageKey = 'ritu-season-farms-v1';
-const blank: SeasonState = { version: 1, farms: [], activeId: null, confirmedKey: null };
+const blank: SeasonState = {
+  version: 1,
+  farms: [],
+  activeId: null,
+  calendarAccessId: null,
+  confirmedKey: null,
+};
 const server = { state: blank, ready: false, saved: true, recovery: false };
 let snapshot = server,
   loaded = false,
@@ -58,6 +66,9 @@ export function validSeasonState(raw: unknown): raw is SeasonState {
     new Set(s.farms.map((f) => f?.id)).size === s.farms.length &&
     (s.activeId === null ||
       (typeof s.activeId === 'string' && s.farms.some((f) => f.id === s.activeId))) &&
+    (s.calendarAccessId === undefined ||
+      s.calendarAccessId === null ||
+      (s.calendarAccessId === s.activeId && s.farms.some((f) => f.id === s.calendarAccessId))) &&
     (s.confirmedKey === null || typeof s.confirmedKey === 'string') &&
     s.farms.every(
       (f) =>
@@ -258,12 +269,22 @@ export const seasonStore = {
   create(farm: SeasonFarm) {
     if (snapshot.state.farms.length >= 200)
       throw Error('Export and archive farms before adding more.');
-    const state = { ...snapshot.state, farms: [...snapshot.state.farms, farm], activeId: farm.id };
+    const state = {
+      ...snapshot.state,
+      farms: [...snapshot.state.farms, farm],
+      activeId: farm.id,
+      calendarAccessId: farm.id,
+    };
     if (!validSeasonState(state)) throw Error('The farm record could not be validated.');
     save(state);
   },
-  activate(id: string) {
-    if (snapshot.state.farms.some((f) => f.id === id)) save({ ...snapshot.state, activeId: id });
+  activate(id: string | null) {
+    if (id === null || snapshot.state.farms.some((f) => f.id === id))
+      save({ ...snapshot.state, activeId: id, calendarAccessId: id });
+  },
+  revokeCalendar() {
+    if (snapshot.state.calendarAccessId !== null)
+      save({ ...snapshot.state, calendarAccessId: null });
   },
   update(
     id: string,
@@ -304,6 +325,8 @@ export const seasonStore = {
       ...snapshot.state,
       farms,
       activeId: snapshot.state.activeId === id ? (farms[0]?.id ?? null) : snapshot.state.activeId,
+      calendarAccessId:
+        snapshot.state.calendarAccessId === id ? null : snapshot.state.calendarAccessId,
     });
   },
   reset() {

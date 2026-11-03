@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import rituLogo from '../../public/website_logo.jpg';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import {
@@ -13,7 +13,7 @@ import {
   House,
   Layers3,
   Sprout,
-  ClipboardCheck,
+  LayoutDashboard,
 } from 'lucide-react';
 import { usePlanner } from './planner-provider';
 import { Dialog } from './dialog';
@@ -24,43 +24,79 @@ import { LanguageSwitch } from './language-switch';
 import { StepProgress } from './ui/step-progress';
 import { BottomTabBar } from './ui/bottom-tab-bar';
 import { EvidenceSourcesView } from './evidence-views';
-import { useSeasonFarms } from '../lib/season-store';
+import { useSeasonFarms, seasonStore } from '../lib/season-store';
+import { fieldConfirmationKey } from '../domain/field-confirmation';
+import { localToday } from '../domain/global-season';
 
 export function Shell({ children }: { children: ReactNode }) {
   const path = usePathname();
   const planner = usePlanner();
   const { t, language, saved: farmSaved, demoSaved, journeySaved, ready } = planner;
   const season = useSeasonFarms();
+  const router = useRouter();
+  const loaded = ready && season.ready;
+  const landConfirmed =
+    !!planner.site &&
+    season.state.confirmedKey ===
+      fieldConfirmationKey(
+        planner.farm,
+        planner.site,
+        planner.from || localToday(planner.site.timezone),
+      );
+  const inSetup = path === '/farm' || path === '/crops';
+  const activeFarm =
+    !inSetup &&
+    season.state.calendarAccessId === season.state.activeId &&
+    season.state.farms.some((farm) => farm.id === season.state.activeId);
+  useEffect(() => {
+    if (loaded && inSetup) seasonStore.revokeCalendar();
+  }, [loaded, inSetup]);
+  const redirect =
+    path === '/crops' && !landConfirmed
+      ? '/farm'
+      : (path === '/plan' || path === '/track') && !activeFarm
+        ? landConfirmed
+          ? '/crops'
+          : '/farm'
+        : null;
+  useEffect(() => {
+    if (loaded && redirect) router.replace(redirect);
+  }, [loaded, redirect, router]);
   const saved = farmSaved && demoSaved && journeySaved && season.saved;
   const [modal, setModal] = useState<'about' | null>(null);
   const stepPath = path === '/track' ? '/plan' : path;
   const nav = [
     {
+      href: '/farms',
+      label: t('Dashboard', 'ড্যাশবোর্ড'),
+      icon: LayoutDashboard,
+      description: t('My farms & seasons', 'আমার খামার ও মৌসুম'),
+    },
+    {
       href: '/farm',
-      completed: !!season.state.confirmedKey,
+      completed: landConfirmed,
       label: t('Land details', 'জমির তথ্য'),
       icon: House,
       description: t('Soil, water & location', 'মাটি, সেচ ও স্থান'),
     },
     {
       href: '/crops',
-      completed: season.state.farms.length > 0,
+      completed: activeFarm,
+      lockedReason: !landConfirmed
+        ? t('Confirm land details first', 'আগে জমির তথ্য নিশ্চিত করুন')
+        : undefined,
       label: t('Suggested crops', 'প্রস্তাবিত ফসল'),
       icon: Sprout,
       description: t('Choose one crop for a season', 'এক মৌসুমের একটি ফসল বাছুন'),
     },
     {
       href: '/plan',
-      completed: season.state.farms.length > 0,
+      lockedReason: !activeFarm
+        ? t('Choose a crop and create a farm first', 'আগে ফসল বেছে খামার তৈরি করুন')
+        : undefined,
       label: t('Farm calendar', 'খামারের ক্যালেন্ডার'),
       icon: Layers3,
       description: t('Daily checks & weather', 'দৈনিক যাচাই ও আবহাওয়া'),
-    },
-    {
-      href: '/farms',
-      label: t('My farms', 'আমার খামার'),
-      icon: ClipboardCheck,
-      description: t('Manage fields & seasons', 'জমি ও মৌসুম পরিচালনা'),
     },
   ];
   const stepIndex = nav.findIndex((item) => item.href === stepPath);
@@ -93,7 +129,7 @@ export function Shell({ children }: { children: ReactNode }) {
               : t('Sources & methods', 'উৎস ও পদ্ধতি')}
           </p>
           <div className="header-tools">
-            <TourGuide />
+            <TourGuide key={path} enabled={loaded && !redirect} />
             <ReadingControls />
             <LanguageSwitch />
             <button
@@ -131,7 +167,15 @@ export function Shell({ children }: { children: ReactNode }) {
             {t('Step', 'ধাপ')} {stepIndex + 1} {t('of 4', '/ ৪')} · {nav[stepIndex].label}
           </p>
         )}
-        {ready ? children : <p role="status">{t('Loading your farm…', 'জমির তথ্য লোড হচ্ছে…')}</p>}
+        {loaded && !redirect ? (
+          children
+        ) : (
+          <p role="status">
+            {redirect
+              ? t('Opening the next required step…', 'আগে প্রয়োজনীয় ধাপ খোলা হচ্ছে…')
+              : t('Loading your farm…', 'জমির তথ্য লোড হচ্ছে…')}
+          </p>
+        )}
       </main>
       <footer className="footer">
         <div className="footer-inner">

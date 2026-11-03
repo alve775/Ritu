@@ -1,0 +1,70 @@
+{
+  "createdAt": "2026-11-03T15:01:26.230486+00:00",
+  "publishedCheckpoint": "367b9cf",
+  "publishedBeforeNavigationImplementation": true,
+  "navigationChanges": "local at handoff",
+  "pageOrder": [
+    "/farms",
+    "/farm",
+    "/crops",
+    "/plan"
+  ],
+  "browser": {
+    "startTime": "2026-11-03T14:49:50.161Z",
+    "duration": 240753.592,
+    "expected": 92,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "scrollFollowup": {
+    "startTime": "2026-11-03T14:58:29.125Z",
+    "duration": 73661.553,
+    "expected": 20,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "followupIsSubsetOfBroadCases": true,
+  "unit": {
+    "passed": 566,
+    "failed": 0,
+    "total": 566
+  },
+  "checks": {
+    "build": true,
+    "typescript": true,
+    "eslint": true,
+    "scopedFormatting": true
+  },
+  "files": [
+    {
+      "path": "src/components/shell.tsx",
+      "sha256": "47c893a0ea4299a074e0c829b876b303c452729282c26838b8e245cfa0d6637c"
+    },
+    {
+      "path": "src/components/tour-guide.tsx",
+      "sha256": "cb58a4e0526f95344df2eb980438876160991e27b4c9fe8a9cf43ad7933a105e"
+    },
+    {
+      "path": "src/lib/page-tours.ts",
+      "sha256": "68f80dc0c73c027c48f87fc5b8069b56505abd336982a4603c9c7a61d26027ee"
+    },
+    {
+      "path": "src/data/tours.ts",
+      "sha256": "3f0b588679556f26ad4a510ffc3f6780bfd273c26bee4d284cddec20a1d1ef6a"
+    },
+    {
+      "path": "tests/e2e/season-navigation.spec.ts",
+      "sha256": "df7995a40d9beb47b22e2781369f16a9025c6f3b6b9151b836eb37b115082a92"
+    },
+    {
+      "path": "output/audit/navigation-2026-11-03/dashboard-desktop.png",
+      "sha256": "253bddaa5b9f780422736ef13b22e9ad484e864878719f53c0ea1d459ef75af6"
+    },
+    {
+      "path": "output/audit/navigation-2026-11-03/dashboard-phone.png",
+      "sha256": "ed7cf8b7edc8edfbc5adea5e4a6260d9fa83cd266bdf39041535d02999e3933d"
+    }
+  ]
+}

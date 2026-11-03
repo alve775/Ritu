@@ -1,0 +1,109 @@
+{
+  "createdAt": "2026-11-03T17:17:21.959956+00:00",
+  "changes": "local, uncommitted",
+  "publishedCheckpoint": "367b9cf",
+  "broad": {
+    "startTime": "2026-11-03T17:05:50.732Z",
+    "duration": 409640.05,
+    "expected": 109,
+    "skipped": 0,
+    "unexpected": 5,
+    "flaky": 0
+  },
+  "productionFollowup": {
+    "startTime": "2026-11-03T17:14:24.477Z",
+    "duration": 79065.88,
+    "expected": 28,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "allFailedBroadCasesIncludedInPassingFollowup": true,
+  "notOneUninterrupted114CasePass": true,
+  "unit": {
+    "passed": 566,
+    "failed": 0,
+    "total": 566
+  },
+  "nativeAudio": {
+    "ambiencePeak": 0.03680674359202385,
+    "mutedPeak": 0,
+    "clickPeak": 0.020669884979724884,
+    "volume": "35",
+    "contexts": 1,
+    "errors": [],
+    "scope": "Actual Web Audio graph; not a measurement of physical speaker output"
+  },
+  "nativeSpeech": {
+    "audit": {
+      "starts": 1,
+      "ends": 0,
+      "errors": [],
+      "requested": [
+        {
+          "voice": "Microsoft David - English (United States)",
+          "lang": "en-US"
+        }
+      ]
+    },
+    "voices": [
+      {
+        "name": "Microsoft David - English (United States)",
+        "lang": "en-US",
+        "local": true
+      },
+      {
+        "name": "Microsoft Mark - English (United States)",
+        "lang": "en-US",
+        "local": true
+      },
+      {
+        "name": "Microsoft Zira - English (United States)",
+        "lang": "en-US",
+        "local": true
+      }
+    ],
+    "pageErrors": []
+  },
+  "checks": {
+    "build": true,
+    "typescript": true,
+    "eslint": true,
+    "scopedFormatting": true
+  },
+  "nativeBanglaVoiceAvailable": false,
+  "files": [
+    {
+      "path": "src/components/shell.tsx",
+      "sha256": "57358a011c382384ea59d05fa9762e67a6f3df15dae9c3851748b60aabbf8d35"
+    },
+    {
+      "path": "src/lib/season-store.ts",
+      "sha256": "bbb0101fa44fbaf5c094c48c1951c6a432ffd3fa683f09a6dab79a51e5c57324"
+    },
+    {
+      "path": "src/lib/page-tours.ts",
+      "sha256": "8e2fef05c27911154b21acfd9c6fc8c1cffd54f77a16b0bab793a664ce76af60"
+    },
+    {
+      "path": "src/lib/farm-audio.ts",
+      "sha256": "c5f0c01175742f577187b71b7aa453871294fdfd4787ea8eed88306698a6c6e4"
+    },
+    {
+      "path": "src/components/reading-controls.tsx",
+      "sha256": "0dcf52e18ed8fb7e1ca7aefc4cff7ab1a91f378eaaeba52a1bd75040fef6320d"
+    },
+    {
+      "path": "src/components/tour-speech.tsx",
+      "sha256": "b7b82fca67d31664f0cf53d0b75cbedbe596c69ef04c1dede345d69f732ac763"
+    },
+    {
+      "path": "tests/e2e/season-repairs.spec.ts",
+      "sha256": "bcc71f85e6bb6937bcc3ebcc2f4ab6fc8c654ee8ca58a1a3ad2637a83ec80ce6"
+    },
+    {
+      "path": "tests/e2e/season-speech.spec.ts",
+      "sha256": "10a14d0775963a662d5d25de1d79b7973be018f7fcab16629bf7d5edfaaa5171"
+    }
+  ]
+}

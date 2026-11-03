@@ -7,6 +7,7 @@ export interface StepItem {
   icon: LucideIcon;
   description?: string;
   completed?: boolean;
+  lockedReason?: string;
 }
 
 export function StepProgress({
@@ -24,22 +25,35 @@ export function StepProgress({
       <ol>
         {items.map((item, index) => {
           const state = index === current ? 'current' : item.completed ? 'done' : 'upcoming';
+          const content = (
+            <>
+              <span className="step-number" aria-hidden="true">
+                {index + 1}
+              </span>
+              <item.icon size={24} aria-hidden="true" />
+              <span className="nav-text">
+                <strong>{item.label}</strong>
+                {(item.lockedReason || item.description) && (
+                  <span>{item.lockedReason || item.description}</span>
+                )}
+              </span>
+            </>
+          );
           return (
             <li key={item.href} className={`step ${state}`}>
-              <Link
-                className="nav-item"
-                href={item.href}
-                aria-current={state === 'current' ? 'page' : undefined}
-              >
-                <span className="step-number" aria-hidden="true">
-                  {index + 1}
-                </span>
-                <item.icon size={24} aria-hidden="true" />
-                <span className="nav-text">
-                  <strong>{item.label}</strong>
-                  {item.description && <span>{item.description}</span>}
-                </span>
-              </Link>
+              {item.lockedReason ? (
+                <button className="nav-item" type="button" disabled title={item.lockedReason}>
+                  {content}
+                </button>
+              ) : (
+                <Link
+                  className="nav-item"
+                  href={item.href}
+                  aria-current={state === 'current' ? 'page' : undefined}
+                >
+                  {content}
+                </Link>
+              )}
             </li>
           );
         })}

@@ -21,7 +21,12 @@ const labels = {
   unknown: 'Not sure',
 };
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem('ritu-tour-v1', 'seen'));
+  await page.addInitScript(() =>
+    localStorage.setItem(
+      'ritu-page-tours-v1',
+      JSON.stringify(['/farms', '/farm', '/crops', '/plan']),
+    ),
+  );
   await page.route('https://tile.openstreetmap.org/**', (r) => r.abort());
   // Crop-photo delivery is separately audited. A deliberate image-provider
   // outage keeps this suite from generating hundreds of unrelated API calls.

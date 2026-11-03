@@ -21,14 +21,21 @@ export class FarmAudio {
   private async ready() {
     if (this.disposed) return false;
     try {
-      if (!this.context) {
-        this.context = new AudioContext();
+      if (!this.context || this.context.state === 'closed') {
+        const Context =
+          window.AudioContext ||
+          (window as typeof window & { webkitAudioContext?: typeof AudioContext })
+            .webkitAudioContext;
+        if (!Context) throw Error('Audio unsupported');
+        this.context = new Context();
         this.master = this.context.createGain();
         this.master.connect(this.context.destination);
         this.master.gain.value = this.preferences.volume / 100;
       }
       await this.context.resume();
-      return !this.disposed && this.context.state === 'running';
+      const running = !this.disposed && this.context.state === 'running';
+      if (!running && !this.disposed) this.report('unavailable');
+      return running;
     } catch {
       this.report('unavailable');
       return false;
@@ -101,7 +108,7 @@ export class FarmAudio {
     filter.type = 'lowpass';
     filter.frequency.value = 650;
     const gain = ctx.createGain();
-    gain.gain.value = 0.12;
+    gain.gain.value = 0.5;
     source.connect(filter);
     filter.connect(gain);
     gain.connect(this.master!);
@@ -128,7 +135,7 @@ export class FarmAudio {
           evening ? 2700 : 2400,
           at,
           evening ? 0.055 : 0.14,
-          evening ? 0.008 : 0.018,
+          evening ? 0.03 : 0.06,
         );
       }
       this.timer = setTimeout(call, (evening ? 1900 : 3400) + Math.random() * 1800);
@@ -166,7 +173,7 @@ export class FarmAudio {
       document.hidden
     )
       return;
-    this.tone(540, 540, this.context!.currentTime, 0.065, 0.025);
+    this.tone(540, 540, this.context!.currentTime, 0.065, 0.06);
   }
   dispose() {
     this.disposed = true;

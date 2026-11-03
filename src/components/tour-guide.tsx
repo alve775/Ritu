@@ -1,17 +1,17 @@
 'use client';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Check, Compass, Flag, X } from 'lucide-react';
 import { usePlanner } from './planner-provider';
-import { Dialog } from './dialog';
-import { stepsForTour } from '../data/tours';
-import type { TourScope, TourStep } from '../data/tours';
+import { stepsForPageTour } from '../data/tours';
+import { markPageTourSeen, pageTourSeen, pageTourPrompted, tourPages } from '../lib/page-tours';
+import type { TourStep } from '../data/tours';
 import { animateFrame, prefersReducedMotion } from '../lib/motion';
 import { StreamText } from './stream-text';
 import { FarmGuide } from './farm-guide';
+import { TourSpeech } from './tour-speech';
 
 export const TOUR_STORAGE_KEY = 'ritu-tour-v1';
-let autoPrompted = false;
 const TRAVEL_MS = 900;
 function cardOffset(previous: DOMRect, next: DOMRect) {
   return {
@@ -20,184 +20,76 @@ function cardOffset(previous: DOMRect, next: DOMRect) {
   };
 }
 interface Run {
-  scope: TourScope;
+  path: string;
   index: number;
-  intro?: boolean;
 }
 
-export function TourGuide() {
+export function TourGuide({ enabled = true }: { enabled?: boolean }) {
   const { t, ready, setTourPreview } = usePlanner();
   const path = usePathname();
-  const [chooser, setChooser] = useState(false);
   const [run, setRun] = useState<Run | null>(null);
-  const touring = Boolean(run);
+  const touring = !!run && run.path === path && enabled;
   useEffect(() => {
     setTourPreview(touring);
     return () => setTourPreview(false);
   }, [touring, setTourPreview]);
   useEffect(() => {
-    if (!ready || path !== '/farm' || autoPrompted) return;
-    try {
-      if (localStorage.getItem(TOUR_STORAGE_KEY) === 'seen') return;
-    } catch {
-      /* A tour is still available without storage. */
-    }
-    // A one-bit session fallback prevents repeated onboarding after a full
-    // navigation when localStorage is unavailable. It contains no farm data.
-    if (document.cookie.split(';').some((value) => value.trim() === 'ritu-tour-seen=1')) return;
-    const timer = window.setTimeout(() => {
-      autoPrompted = true;
-      setRun({ scope: 'farm', index: 0, intro: true });
-    }, 200);
-    return () => clearTimeout(timer);
-  }, [ready, path]);
+    if (
+      !ready ||
+      !enabled ||
+      !tourPages.includes(path as (typeof tourPages)[number]) ||
+      pageTourSeen(path)
+    )
+      return;
+    // Wait for this page's actual controls, including asynchronously loaded
+    // crop suggestions. Never navigate elsewhere to make a target exist.
+    let timer: number | undefined;
+    const prompt = () => {
+      if (
+        timer !== undefined ||
+        !stepsForPageTour(path).every((step) => !step.target || document.querySelector(step.target))
+      )
+        return;
+      timer = window.setTimeout(() => {
+        observer.disconnect();
+        if (pageTourSeen(path)) return;
+        pageTourPrompted(path);
+        setRun({ path, index: 0 });
+      }, 200);
+    };
+    const observer = new MutationObserver(prompt);
+    observer.observe(document.body, { childList: true, subtree: true });
+    prompt();
+    return () => {
+      observer.disconnect();
+      clearTimeout(timer);
+    };
+  }, [ready, path, enabled]);
   const finish = () => {
-    try {
-      localStorage.setItem(TOUR_STORAGE_KEY, 'seen');
-    } catch {
-      try {
-        document.cookie = 'ritu-tour-seen=1; Path=/; SameSite=Lax';
-      } catch {
-        /* In-memory fallback still works for this document. */
-      }
-    }
+    if (run) markPageTourSeen(run.path);
     setRun(null);
   };
-  const choices: { scope: TourScope; title: string; description: string }[] = [
-    {
-      scope: 'full',
-      title: t('Full mission tour', 'সম্পূর্ণ পরিচিতি'),
-      description: t(
-        'Land → choose one crop → farm calendar → my farms',
-        'জমি → একটি ফসল → খামারের ক্যালেন্ডার → সব খামার',
-      ),
-    },
-    {
-      scope: 'farm',
-      title: t('Your farm', 'আপনার জমি'),
-      description: t('Location, area, soil and water', 'স্থান, আয়তন, মাটি ও পানি'),
-    },
-    {
-      scope: 'crops',
-      title: t('Crop choices', 'ফসল বাছাই'),
-      description: t(
-        'Location-based suggestions for one season',
-        'এক মৌসুমের স্থানভিত্তিক প্রস্তাব',
-      ),
-    },
-    {
-      scope: 'compare',
-      title: t('Calendar', 'ক্যালেন্ডার'),
-      description: t(
-        'Daily checks, actual planting and forecast',
-        'প্রতিদিনের যাচাই, আসল রোপণ ও পূর্বাভাস',
-      ),
-    },
-    {
-      scope: 'field',
-      title: t('Crop matching methods', 'ফসল মেলানোর পদ্ধতি'),
-      description: t(
-        'Climate, regional evidence and field checks',
-        'জলবায়ু, আঞ্চলিক তথ্য ও জমির যাচাই',
-      ),
-    },
-    {
-      scope: 'insights',
-      title: t('Sources & methods', 'উৎস ও পদ্ধতি'),
-      description: t('Original data links and limits', 'মূল তথ্যের লিংক ও সীমা'),
-    },
-    {
-      scope: 'track',
-      title: t('My farms', 'আমার খামার'),
-      description: t(
-        'Separate fields, seasons and exported records',
-        'আলাদা জমি, মৌসুম ও হিসাব ডাউনলোড',
-      ),
-    },
-  ];
-  const currentScope: TourScope =
-    path === '/farm'
-      ? 'farm'
-      : path === '/crops'
-        ? 'crops'
-        : path === '/farms'
-          ? 'track'
-          : path === '/insights' || path === '/sources' || path === '/sample'
-            ? 'insights'
-            : 'compare';
-  const optionalScopes: TourScope[] = ['field', 'insights'];
-  const choiceButton = (choice: (typeof choices)[number]) => (
-    <button
-      className="tour-choice"
-      key={choice.scope}
-      data-tour-scope={choice.scope}
-      onClick={() => {
-        setChooser(false);
-        setRun({ scope: choice.scope, index: 0 });
-      }}
-    >
-      <span>
-        <strong>
-          {choice.title}
-          {choice.scope === currentScope && <small>{t('Current section', 'বর্তমান অংশ')}</small>}
-        </strong>
-        <span>
-          {choice.description} ·{' '}
-          {t(
-            `${stepsForTour(choice.scope).length} ${stepsForTour(choice.scope).length === 1 ? 'step' : 'steps'}`,
-            `${stepsForTour(choice.scope).length} ধাপ`,
-          )}
-        </span>
-      </span>
-      <ArrowRight size={20} />
-    </button>
-  );
+  const steps = stepsForPageTour(path);
   return (
     <>
       <button
         className="button secondary tool-button tour-launch"
         data-tour-launch
         aria-label={t('Take a tour', 'পরিচিতি দেখুন')}
-        title={t('Take a tour', 'পরিচিতি দেখুন')}
-        onClick={() => setChooser(true)}
+        title={t('Tour this page', 'এই পাতার পরিচিতি')}
+        disabled={!enabled || !steps.length}
+        onClick={() => {
+          pageTourPrompted(path);
+          setRun({ path, index: 0 });
+        }}
       >
         <Compass size={20} aria-hidden="true" />
         <span className="tool-label">{t('Take a tour', 'পরিচিতি দেখুন')}</span>
       </button>
-      {chooser && (
-        <Dialog
-          title={t('Choose your tour', 'যে পরিচিতি দেখতে চান')}
-          onClose={() => setChooser(false)}
-        >
-          <p>
-            {t(
-              'Choose a section or the full tour. Your saved data will stay unchanged.',
-              'একটি অংশ বা পুরো পরিচিতি বাছুন। সংরক্ষিত তথ্য বদলাবে না।',
-            )}
-          </p>
-          <div className="tour-choices">
-            {choices
-              .filter((choice) => !optionalScopes.includes(choice.scope))
-              .sort((a, b) => Number(b.scope === currentScope) - Number(a.scope === currentScope))
-              .map(choiceButton)}
-          </div>
-          <details className="tour-extra-help" open={optionalScopes.includes(currentScope)}>
-            <summary>{t('Crop tools & source guides', 'ফসলের সরঞ্জাম ও উৎসের পরিচিতি')}</summary>
-            <div className="tour-choices">
-              {choices.filter((choice) => optionalScopes.includes(choice.scope)).map(choiceButton)}
-            </div>
-          </details>
-        </Dialog>
-      )}
-      {run && (
+      {touring && run && (
         <TourOverlay
-          steps={
-            run.intro
-              ? stepsForTour('full').filter(
-                  (step) => step.scope === 'welcome' || step.scope === 'farm',
-                )
-              : stepsForTour(run.scope)
-          }
+          key={run.path}
+          steps={steps}
           index={run.index}
           onMove={(index) => setRun({ ...run, index })}
           onClose={finish}
@@ -220,7 +112,6 @@ function TourOverlay({
 }) {
   const { t, language, setLanguage, setFieldOpen } = usePlanner();
   const path = usePathname();
-  const router = useRouter();
   const step = steps[index];
   const dialog = useRef<HTMLDialogElement>(null);
   const title = useRef<HTMLHeadingElement>(null);
@@ -255,6 +146,8 @@ function TourOverlay({
     const element = dialog.current;
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const original = document.body.style.overflow;
+    const originalScroll = { top: window.scrollY, left: window.scrollX };
+    const originalPath = window.location.pathname;
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
     const settle = () => {
       if (prefersReducedMotion())
@@ -276,6 +169,11 @@ function TourOverlay({
         ? opener
         : document.querySelector<HTMLElement>('[data-tour-launch]')
       )?.focus({ preventScroll: true });
+      requestAnimationFrame(() => {
+        // Skip StrictMode's rehearsal cleanup and a genuine page navigation.
+        if (!alive.current && window.location.pathname === originalPath)
+          window.scrollTo({ ...originalScroll, behavior: 'instant' });
+      });
     };
   }, []);
   useLayoutEffect(() => {
@@ -285,12 +183,8 @@ function TourOverlay({
     };
   }, [step.target]);
   useEffect(() => {
-    for (const route of new Set(steps.map((item) => item.route))) if (route) router.prefetch(route);
-  }, [router, steps]);
-  useEffect(() => {
-    if (step.route && path !== step.route) router.push(step.route, { scroll: false });
     if (step.scope === 'field') setFieldOpen(true);
-  }, [step.route, step.scope, path, router, setFieldOpen]);
+  }, [step.scope, setFieldOpen]);
   useLayoutEffect(() => {
     if (prefersReducedMotion() || !origin.current?.card || !card.current) return;
     const next = card.current.getBoundingClientRect();
@@ -665,6 +559,10 @@ function TourOverlay({
               instant={instantText}
             />
           </p>
+          <TourSpeech
+            key={`${step.id}:${language}`}
+            text={`${step.title[language]}. ${step.description[language]}`}
+          />
           <div
             className="language-switch tour-languages"
             aria-label={t('Tour language', 'পরিচিতির ভাষা')}

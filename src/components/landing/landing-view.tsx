@@ -12,7 +12,7 @@ const COPY = {
     titleA: 'Explore what to plant,',
     titleB: 'every season.',
     lede: 'Find your field anywhere in the world. Choose one crop for a season, then follow your own farm calendar, daily field checks and weather forecast.',
-    cta: 'Plan my season',
+    cta: 'Open my dashboard',
     secondary: 'Explore data & methods',
     home: 'Ritu home',
   },
@@ -21,7 +21,7 @@ const COPY = {
     titleA: 'প্রতি মৌসুমে দেখুন,',
     titleB: 'কী লাগাবেন।',
     lede: 'বিশ্বের যেকোনো স্থানে জমি খুঁজুন। এক মৌসুমের একটি ফসল বেছে নিজস্ব ক্যালেন্ডার, প্রতিদিনের যাচাই ও আবহাওয়ার পূর্বাভাস দেখুন।',
-    cta: 'পরিকল্পনা শুরু করুন',
+    cta: 'আমার ড্যাশবোর্ড খুলুন',
     secondary: 'তথ্য ও পদ্ধতি দেখুন',
     home: 'ঋতু প্রথম পাতা',
   },
@@ -73,15 +73,12 @@ export function LandingView({ lang, languageSwitch, sourceHref = '/sources' }: P
             : 'নাসার জলবায়ু, প্রকাশিত ফসলের চাহিদা ও আঞ্চলিক পঞ্জিকা দিয়ে বিকল্প যাচাই করুন। আলাদা জমি ও ফসলের জন্য আলাদা খামার রাখুন।'}
         </p>
         <div className="landing__actions">
-          <Link href="/farm" className="landing__cta">
+          <Link href="/farms" className="landing__cta">
             {t.cta}
             <ArrowRight size={20} strokeWidth={2.4} aria-hidden="true" />
           </Link>
           <Link href={sourceHref} className="landing__secondary">
             {t.secondary}
-          </Link>
-          <Link href="/farms" className="landing__secondary">
-            {lang === 'en' ? 'My farms' : 'আমার খামার'}
           </Link>
         </div>
       </section>

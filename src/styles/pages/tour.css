@@ -430,3 +430,19 @@
     margin-top: 6px;
   }
 }
+.tour-speech {
+  margin-block: 10px;
+}
+.tour-speech .button-row {
+  justify-content: flex-start;
+  gap: 8px;
+}
+.tour-speech .button {
+  min-height: 40px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+}
+.tour-speech .field-help {
+  margin-block: 6px;
+  font-size: 0.75rem;
+}

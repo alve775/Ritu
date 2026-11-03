@@ -11,7 +11,7 @@ const exhaustive = process.env.RITU_WORLD_AUDIT === '1';
 const contexts = exhaustive ? auditContexts : originalContexts;
 import { testWeather } from './browser-test';
 import { localToday } from '../../src/domain/global-season';
-import { stepsForTour } from '../../src/data/tours';
+import { stepsForPageTour } from '../../src/data/tours';
 
 const combinations = (['loam', 'clay', 'unknown'] as const).flatMap((soil) =>
   (['good', 'unknown'] as const).flatMap((drainage) =>
@@ -45,8 +45,12 @@ test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     try {
       localStorage.setItem('ritu-tour-v1', 'seen');
+      localStorage.setItem(
+        'ritu-page-tours-v1',
+        JSON.stringify(['/farms', '/farm', '/crops', '/plan']),
+      );
     } catch {
-      document.cookie = 'ritu-tour-seen=1; Path=/; SameSite=Lax';
+      document.cookie = 'ritu-page-tours=15; Path=/; SameSite=Lax';
     }
   });
   await page.route('https://tile.openstreetmap.org/**', (route) => route.abort());
@@ -299,8 +303,9 @@ test('changed location invalidates confirmation; source outage has retry instead
   await page.getByRole('spinbutton', { name: 'Latitude', exact: true }).fill('0');
   await page.getByRole('button', { name: 'Use these coordinates', exact: true }).click();
   await page.goto('/crops');
+  await expect(page).toHaveURL(/\/farm$/);
   await expect(
-    page.getByRole('heading', { name: 'Confirm your land details first', exact: true }),
+    page.getByRole('heading', { name: 'Tell us about your land', exact: true }),
   ).toBeVisible();
   await expect(page.locator('.season-crop-card')).toHaveCount(0);
 });
@@ -340,7 +345,7 @@ test('partial storage recovery keeps valid farms, exposes a recovery export, and
   ).toBeVisible();
 });
 for (const language of ['en', 'bn'] as const)
-  test(`${language}: every updated full-tour stop stays within the viewport without changing farm data`, async ({
+  test(`${language}: every land-page tour stop stays within the viewport without changing farm data`, async ({
     page,
   }, info) => {
     test.setTimeout(90000);
@@ -354,8 +359,7 @@ for (const language of ['en', 'bn'] as const)
         exact: true,
       })
       .click();
-    await page.locator('[data-tour-scope="full"]').click();
-    const steps = stepsForTour('full');
+    const steps = stepsForPageTour('/farm');
     for (let i = 0; i < steps.length; i++) {
       const card = page.locator('.tour-card');
       await expect(card).toHaveAttribute('aria-busy', 'false');
@@ -365,19 +369,15 @@ for (const language of ['en', 'bn'] as const)
       expect(
         b.x >= 0 && b.y >= 0 && b.x + b.width <= v.width + 1 && b.y + b.height <= v.height + 1,
       ).toBe(true);
-      if (i === 5) await page.screenshot({ path: info.outputPath(`tour-${language}.png`) });
+      if (i === 2) await page.screenshot({ path: info.outputPath(`tour-${language}.png`) });
       const name =
         language === 'en'
           ? i === steps.length - 1
             ? 'Finish tour'
-            : i === 0
-              ? 'Start the tour'
-              : 'Next'
+            : 'Next'
           : i === steps.length - 1
             ? 'পরিচিতি শেষ করুন'
-            : i === 0
-              ? 'পরিচিতি শুরু করুন'
-              : 'পরের ধাপ';
+            : 'পরের ধাপ';
       await page.getByRole('button', { name, exact: true }).click();
     }
     await expect(page.locator('.tour-dialog')).toHaveCount(0);

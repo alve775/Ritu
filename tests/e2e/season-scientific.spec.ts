@@ -10,10 +10,20 @@ async function open(page: Page, farm = trackingFarm()) {
   await page.addInitScript(
     ({ farm }) => {
       localStorage.setItem('ritu-tour-v1', 'seen');
+      localStorage.setItem(
+        'ritu-page-tours-v1',
+        JSON.stringify(['/farms', '/farm', '/crops', '/plan']),
+      );
       if (!localStorage.getItem('scientific-seed')) {
         localStorage.setItem(
           'ritu-season-farms-v1',
-          JSON.stringify({ version: 1, farms: [farm], activeId: farm.id, confirmedKey: null }),
+          JSON.stringify({
+            version: 1,
+            farms: [farm],
+            activeId: farm.id,
+            calendarAccessId: farm.id,
+            confirmedKey: null,
+          }),
         );
         localStorage.setItem('scientific-seed', '1');
       }

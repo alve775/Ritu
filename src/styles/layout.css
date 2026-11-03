@@ -98,6 +98,18 @@
     border-radius: var(--radius-pill);
     color: var(--color-ink-muted);
     text-decoration: none;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    text-align: start;
+  }
+  .step .nav-item:disabled,
+  .tab:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+  }
+  .step .nav-item:disabled:hover {
+    background: transparent;
   }
   .step .nav-text strong {
     font-size: 0.8rem;

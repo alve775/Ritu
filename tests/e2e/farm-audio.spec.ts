@@ -4,9 +4,14 @@ test('farm soundscape plays only on request; volume, scenes, hiding, stop and mu
   page,
 }) => {
   await page.addInitScript(() => {
-    localStorage.setItem('ritu-tour-v1', 'seen');
+    localStorage.setItem(
+      'ritu-page-tours-v1',
+      JSON.stringify(['/farms', '/farm', '/crops', '/plan']),
+    );
     const audit = {
       contexts: 0,
+      tones: 0,
+      quietPeak: 0,
       loops: 0,
       stopped: 0,
       hidden: false,
@@ -34,6 +39,15 @@ test('farm soundscape plays only on request; volume, scenes, hiding, stop and mu
         };
         return node;
       }
+      createOscillator() {
+        const node = super.createOscillator(),
+          start = node.start.bind(node);
+        node.start = (...args) => {
+          audit.tones++;
+          start(...args);
+        };
+        return node;
+      }
       createGain() {
         const gain = super.createGain();
         const connect = gain.connect.bind(gain);
@@ -49,7 +63,7 @@ test('farm soundscape plays only on request; volume, scenes, hiding, stop and mu
       }
     };
   });
-  await page.goto('/farm');
+  await page.goto('/farm', { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: 'Reading & sound' }).click();
   const state = () =>
     page.evaluate(() => {
@@ -57,6 +71,8 @@ test('farm soundscape plays only on request; volume, scenes, hiding, stop and mu
         window as unknown as {
           soundAudit: {
             contexts: number;
+            tones: number;
+            quietPeak: number;
             loops: number;
             stopped: number;
             hidden: boolean;
@@ -68,6 +84,8 @@ test('farm soundscape plays only on request; volume, scenes, hiding, stop and mu
       a.analysers[0]?.getFloatTimeDomainData(values);
       return {
         contexts: a.contexts,
+        tones: a.tones,
+        quietPeak: a.quietPeak,
         loops: a.loops,
         stopped: a.stopped,
         peak: Math.max(...values.map(Math.abs)),
@@ -108,6 +126,33 @@ test('farm soundscape plays only on request; volume, scenes, hiding, stop and mu
   await expect(page.getByRole('slider', { name: 'Sound volume' })).toHaveValue('0');
   await expect(page.getByRole('checkbox', { name: 'Quiet click sounds' })).not.toBeChecked();
   expect((await state()).stopped).toBe((await state()).loops);
+  const beforeClick = (await state()).tones;
+  // Clear the prior analyzer window, then sample during the short click;
+  // polling only after the click can miss the entire 65 ms waveform.
+  await page.waitForTimeout(200);
+  await page.evaluate(() => {
+    const a = (
+      window as unknown as {
+        soundAudit: { analysers: AnalyserNode[]; quietPeak: number; sampleTimer?: number };
+      }
+    ).soundAudit;
+    const values = new Float32Array(2048);
+    a.quietPeak = 0;
+    a.sampleTimer = window.setInterval(() => {
+      a.analysers[0]?.getFloatTimeDomainData(values);
+      a.quietPeak = Math.max(a.quietPeak, ...values.map(Math.abs));
+    }, 5);
+  });
+  await page.getByRole('checkbox', { name: 'Quiet click sounds' }).check();
+  await expect(page.getByRole('slider', { name: 'Sound volume' })).toHaveValue('35');
+  await expect.poll(async () => (await state()).tones).toBeGreaterThan(beforeClick);
+  await expect.poll(async () => (await state()).quietPeak).toBeGreaterThan(0);
+  await page.evaluate(() =>
+    clearInterval(
+      (window as unknown as { soundAudit: { sampleTimer: number } }).soundAudit.sampleTimer,
+    ),
+  );
+  await page.getByRole('button', { name: 'Mute all sounds' }).click();
   await page.reload();
   await page.getByRole('button', { name: 'Reading & sound' }).click();
   await expect(page.getByRole('slider', { name: 'Sound volume' })).toHaveValue('0');
@@ -117,7 +162,10 @@ test('farm soundscape plays only on request; volume, scenes, hiding, stop and mu
 
 test('denied audio reports a useful error and leaves the planner usable', async ({ page }) => {
   await page.addInitScript(() => {
-    localStorage.setItem('ritu-tour-v1', 'seen');
+    localStorage.setItem(
+      'ritu-page-tours-v1',
+      JSON.stringify(['/farms', '/farm', '/crops', '/plan']),
+    );
     const Base = AudioContext;
     window.AudioContext = class extends Base {
       resume() {
@@ -125,12 +173,14 @@ test('denied audio reports a useful error and leaves the planner usable', async 
       }
     };
   });
-  await page.goto('/farm');
+  await page.goto('/farm', { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: 'Reading & sound' }).click();
   await page.getByRole('button', { name: 'Play farm sounds' }).click();
   await expect(page.getByText('Audio unavailable. Try again or use Ritu silently.')).toBeVisible();
   await page.keyboard.press('Escape');
 
-  await page.getByLabel('Farm name', { exact: true }).fill('My quiet farm');
-  await expect(page.getByLabel('Farm name', { exact: true })).toHaveValue('My quiet farm');
+  await page.getByLabel('Farm name · optional', { exact: true }).fill('My quiet farm');
+  await expect(page.getByLabel('Farm name · optional', { exact: true })).toHaveValue(
+    'My quiet farm',
+  );
 });

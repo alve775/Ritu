@@ -7,9 +7,11 @@ import { localToday } from '../domain/global-season';
 export function SoilEvidenceForm({
   value,
   onSave,
+  today = localToday(),
 }: {
   value?: SoilEvidence;
   onSave: (value: SoilEvidence | undefined) => void;
+  today?: string;
 }) {
   const { t } = usePlanner();
   const [ph, setPh] = useState(value ? String(value.ph) : '');
@@ -40,7 +42,7 @@ export function SoilEvidenceForm({
             sampledOn: date,
             source: source.trim(),
           };
-          if (!ph.trim() || !depth.trim() || date > localToday() || !validSoilEvidence(next)) {
+          if (!ph.trim() || !depth.trim() || date > today || !validSoilEvidence(next)) {
             setMessage(
               t(
                 'Check the pH, sampling depth/date and source.',
@@ -95,7 +97,7 @@ export function SoilEvidenceForm({
             <input
               required
               type="date"
-              max={localToday()}
+              max={today}
               value={date}
               onChange={(e) => setDate(e.target.value)}
             />

@@ -88,7 +88,8 @@ export function FarmMap({
     [retry, setRetry] = useState(0),
     [tilesFailed, setTilesFailed] = useState(false);
   const pinTitle = t('Drag the farm pin', 'জমির পিন সরান'),
-    pinAlt = t('Farm location pin', 'জমির স্থানের পিন');
+    pinAlt = t('Farm location pin', 'জমির স্থানের পিন'),
+    pinName = t('My pinned field', 'পিনে বাছা জমি');
   useEffect(() => {
     let stopped = false;
     let resize: ResizeObserver | undefined;
@@ -125,8 +126,8 @@ export function FarmMap({
         marker.current = pin;
         const choose = (point: Point) => {
           latest.current.onChange({
-            ...latest.current.site,
             ...canonicalPin(point.lat, point.lng),
+            name: pinName,
           });
         };
         instance.on('click', (event) => choose(event.latlng));
@@ -144,7 +145,7 @@ export function FarmMap({
       map.current = null;
       marker.current = null;
     };
-  }, [retry, pinTitle, pinAlt]);
+  }, [retry, pinTitle, pinAlt, pinName]);
   useEffect(() => {
     const point: [number, number] = [site.latitude, site.longitude];
     marker.current?.setLatLng(point);
@@ -176,8 +177,8 @@ export function FarmMap({
             const center = map.current?.getCenter();
             if (center)
               onChange({
-                ...site,
                 ...canonicalPin(center.lat, center.lng),
+                name: pinName,
               });
           }}
         >

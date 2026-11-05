@@ -1,0 +1,393 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "E:\\001_RITU\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/finalization-animation.spec.ts",
+      "tests/e2e/finalization-edge.spec.ts",
+      "--workers=1",
+      "--reporter=list,json",
+      "--output=research/visual-refresh-2026-11-05/playwright-output"
+    ],
+    "configFile": "E:\\001_RITU\\playwright.config.ts",
+    "rootDir": "E:/001_RITU/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "E:/001_RITU/research/visual-refresh-2026-11-05/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "E:/001_RITU/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/season-*.spec.ts",
+          "**/farm-audio.spec.ts",
+          "**/finalization-animation.spec.ts",
+          "**/finalization-edge.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "E:/001_RITU/research/visual-refresh-2026-11-05/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "E:/001_RITU/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/season-*.spec.ts",
+          "**/farm-audio.spec.ts",
+          "**/finalization-animation.spec.ts",
+          "**/finalization-edge.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "node node_modules/next/dist/bin/next dev --hostname 127.0.0.1 --port 3000",
+      "url": "http://127.0.0.1:3000",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "finalization-animation.spec.ts",
+      "file": "finalization-animation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "story advances sow, care, grow, harvest and replay with exactly one action",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6633,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T06:52:36.509Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ec3e6f5bcbe0bfa3b04c-941f09fd221d42dcca88",
+          "file": "finalization-animation.spec.ts",
+          "line": 2,
+          "column": 1
+        },
+        {
+          "title": "reduced-motion storyboard remains still and chapters remain selectable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2228,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T06:52:43.291Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ec3e6f5bcbe0bfa3b04c-08da9e36865998da972f",
+          "file": "finalization-animation.spec.ts",
+          "line": 39,
+          "column": 1
+        },
+        {
+          "title": "story advances sow, care, grow, harvest and replay with exactly one action",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9528,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T06:52:50.071Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ec3e6f5bcbe0bfa3b04c-e6696ebb32e3bcd1b725",
+          "file": "finalization-animation.spec.ts",
+          "line": 2,
+          "column": 1
+        },
+        {
+          "title": "reduced-motion storyboard remains still and chapters remain selectable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2978,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T06:52:59.778Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ec3e6f5bcbe0bfa3b04c-5da21952f3ca3af0972a",
+          "file": "finalization-animation.spec.ts",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "finalization-edge.spec.ts",
+      "file": "finalization-edge.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "canal meets soil without a pale curved seam",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1295,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T06:52:45.568Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0ef48feb10fb8e83c95d-882732ffac07a8b1540b",
+          "file": "finalization-edge.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "landing artwork has no outer gutters and paints both vertical edges",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2129,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T06:52:46.878Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0ef48feb10fb8e83c95d-a7f8f40c3aa398a68bf0",
+          "file": "finalization-edge.spec.ts",
+          "line": 74,
+          "column": 1
+        },
+        {
+          "title": "canal meets soil without a pale curved seam",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1310,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T06:53:02.809Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0ef48feb10fb8e83c95d-478c7dba889c70d6d58b",
+          "file": "finalization-edge.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "landing artwork has no outer gutters and paints both vertical edges",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4214,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T06:53:04.139Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0ef48feb10fb8e83c95d-a4b4d4ea52fac2ce6fd1",
+          "file": "finalization-edge.spec.ts",
+          "line": 74,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-05T06:52:35.555Z",
+    "duration": 33630.536,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

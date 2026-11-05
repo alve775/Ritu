@@ -14,6 +14,7 @@ async function flush() {
     try {
       const r = await fetch(
         `/api/plant-photo?plants=${encodeURIComponent(batch.map(([id]) => id).join(','))}`,
+        { cache: 'no-store' },
       );
       if (!r.ok) throw Error('Image source is temporarily unavailable.');
       const data = await r.json();
@@ -26,6 +27,10 @@ async function flush() {
       }
     }
   }
+}
+/** A failed image URL must not pin the retry button to a fulfilled cached promise. */
+export function invalidatePlantPhoto(id: string) {
+  cache.delete(id);
 }
 /** Nearby visible cards share one API request; failed calls remain retryable. */
 export function loadPlantPhoto(id: string): Promise<PlantPhoto | null> {

@@ -209,7 +209,14 @@ export const seasonStore = {
     if (!loaded) {
       loaded = true;
       window.addEventListener('storage', (event) => {
-        if (event.key !== seasonStorageKey || event.newValue === null) return;
+        if (event.key !== seasonStorageKey && event.key !== null) return;
+        if (event.newValue === null) {
+          blocked = false;
+          recovered = false;
+          snapshot = { state: blank, ready: true, saved: true, recovery: false };
+          notify();
+          return;
+        }
         try {
           const state: unknown = JSON.parse(event.newValue);
           if (validSeasonState(state)) {

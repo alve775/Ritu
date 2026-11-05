@@ -1,0 +1,49 @@
+{
+  "checkedAt": "2026-11-05T07:04:05.629Z",
+  "fixture": "Isolated UI QA farm; not farmer measurements or an agronomic recommendation",
+  "colors": {
+    "header": "rgb(62, 105, 75)",
+    "sidebar": "rgb(62, 105, 75)",
+    "addFarm": "rgb(62, 105, 75)",
+    "openFarm": "rgb(62, 105, 75)",
+    "languageSelected": "rgb(62, 105, 75)",
+    "primaryHover": "rgb(49, 84, 60)",
+    "secondaryHover": "rgb(224, 234, 223)",
+    "calendarSelected": "rgb(62, 105, 75)",
+    "landingCta": "rgb(62, 105, 75)",
+    "chapterSelected": "rgb(62, 105, 75)"
+  },
+  "results": [
+    {
+      "label": "dashboard-desktop",
+      "violations": [],
+      "overflow": false
+    },
+    {
+      "label": "calendar-desktop",
+      "violations": [],
+      "overflow": false
+    },
+    {
+      "label": "land-desktop",
+      "violations": [],
+      "overflow": false
+    },
+    {
+      "label": "landing-desktop",
+      "violations": [],
+      "overflow": false
+    },
+    {
+      "label": "landing-phone",
+      "violations": [],
+      "overflow": false
+    },
+    {
+      "label": "dashboard-phone",
+      "violations": [],
+      "overflow": false
+    }
+  ],
+  "errors": []
+}

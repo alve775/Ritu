@@ -15,22 +15,22 @@ interface Results {
   items: { plant: GlobalCrop; suggestion: CropSuggestion | null; unavailable: string | null }[];
 }
 const categories = [
-  ['food', 'Food plants'],
-  ['all', 'All source uses (includes non-food)'],
-  ['vegetables', 'Vegetables'],
-  ['fruits & nuts', 'Fruits & nuts'],
-  ['cereals & pseudocereals', 'Grains'],
-  ['pulses (grain legumes)', 'Pulses / beans'],
-  ['roots/tubers', 'Roots & tubers'],
-  ['materials', 'Oil, fibre & other materials'],
-  ['forage/pasture', 'Forage / pasture'],
-  ['cover crop', 'Cover crops'],
-  ['forest/wood', 'Trees / wood'],
-  ['medicinals & aromatic', 'Medicinal & aromatic uses'],
-  ['ornamentals/turf', 'Ornamentals / turf'],
-  ['environmental', 'Environmental uses'],
-  ['weed', 'Source-labelled weeds'],
-  ['other', 'Other uses'],
+  ['food', 'Food plants', 'খাদ্য উদ্ভিদ'],
+  ['all', 'All source uses (includes non-food)', 'উৎসের সব ব্যবহার (অখাদ্যসহ)'],
+  ['vegetables', 'Vegetables', 'সবজি'],
+  ['fruits & nuts', 'Fruits & nuts', 'ফল ও বাদাম'],
+  ['cereals & pseudocereals', 'Grains', 'শস্য'],
+  ['pulses (grain legumes)', 'Pulses / beans', 'ডাল / শিম'],
+  ['roots/tubers', 'Roots & tubers', 'শিকড় / কন্দ'],
+  ['materials', 'Oil, fibre & other materials', 'তেল, আঁশ ও অন্যান্য উপকরণ'],
+  ['forage/pasture', 'Forage / pasture', 'পশুখাদ্য / চারণভূমি'],
+  ['cover crop', 'Cover crops', 'আচ্ছাদন ফসল'],
+  ['forest/wood', 'Trees / wood', 'বনজ / কাঠের গাছ'],
+  ['medicinals & aromatic', 'Medicinal & aromatic uses', 'ঔষধি ও সুগন্ধি ব্যবহার'],
+  ['ornamentals/turf', 'Ornamentals / turf', 'শোভাবর্ধক / ঘাস'],
+  ['environmental', 'Environmental uses', 'পরিবেশগত ব্যবহার'],
+  ['weed', 'Source-labelled weeds', 'উৎসে চিহ্নিত আগাছা'],
+  ['other', 'Other uses', 'অন্যান্য ব্যবহার'],
 ];
 export function PlantBrowser({
   from,
@@ -145,9 +145,9 @@ export function PlantBrowser({
           <label>
             {t('Plant use', 'গাছের ব্যবহার')}
             <select value={category} onChange={(e) => change(() => setCategory(e.target.value))}>
-              {categories.map(([value, label]) => (
+              {categories.map(([value, en, bn]) => (
                 <option value={value} key={value}>
-                  {label}
+                  {t(en, bn)}
                 </option>
               ))}
             </select>

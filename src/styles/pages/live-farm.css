@@ -67,8 +67,8 @@
   }
   .place-combobox li[aria-selected='true'],
   .place-combobox li:hover {
-    background: #edf4f0;
-    color: #204b3b;
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
     border-radius: 6px;
   }
   .place-combobox li svg {

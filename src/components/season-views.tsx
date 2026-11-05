@@ -64,7 +64,18 @@ function newField() {
   seasonStore.activate(null);
 }
 function exportRecords() {
-  const records: Record<string, unknown> = { [seasonStorageKey]: seasonStore.getSnapshot().state };
+  const records: Record<string, unknown> = {
+    [seasonStorageKey]: seasonStore.getSnapshot().state,
+    'ritu-evidence-v2': evidenceStore.getSnapshot().state,
+  };
+  try {
+    const original = localStorage.getItem('ritu-evidence-v2');
+    if (original && original !== JSON.stringify(records['ritu-evidence-v2'])) {
+      records['ritu-evidence-v2-stored-original'] = original;
+    }
+  } catch {
+    /* The in-tab draft remains exportable when storage is unavailable. */
+  }
   try {
     if (seasonStore.getSnapshot().recovery) {
       const original = localStorage.getItem(seasonStorageKey);
@@ -74,7 +85,6 @@ function exportRecords() {
     /* The valid in-tab state is still exported. */
   }
   for (const key of [
-    'ritu-evidence-v2',
     'ritu-evidence-v2-recovery',
     'ritu-preview-v1',
     `${seasonStorageKey}-recovery`,
@@ -298,6 +308,7 @@ export function SeasonFarmView() {
         <SoilEvidenceForm
           key={JSON.stringify(farm.soilEvidence)}
           value={farm.soilEvidence}
+          today={today}
           onSave={(soilEvidence) => setFarm({ soilEvidence })}
         />
       </section>
@@ -1153,6 +1164,7 @@ function FarmWorkspace({
         <SoilEvidenceForm
           key={`${farm.id}:${JSON.stringify(farm.field.soilEvidence)}`}
           value={farm.field.soilEvidence}
+          today={today}
           onSave={(soilEvidence) =>
             seasonStore.update(farm.id, { field: { ...farm.field, soilEvidence } })
           }

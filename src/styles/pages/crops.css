@@ -26,8 +26,8 @@
     cursor: not-allowed;
   }
   .chip.filter[aria-pressed='true'] {
-    background: var(--color-ink);
-    color: var(--color-bg);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
     box-shadow: none;
   }
   .suggested-crops {

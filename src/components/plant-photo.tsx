@@ -1,7 +1,7 @@
 'use client';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
-import { loadPlantPhoto } from '../lib/plant-photo-client';
+import { invalidatePlantPhoto, loadPlantPhoto } from '../lib/plant-photo-client';
 import type { PlantPhoto as ReferencePhoto } from '../domain/plant-photo';
 import type { GlobalCrop } from '../domain/global-season';
 import { usePlanner } from './planner-provider';
@@ -74,6 +74,7 @@ export function PlantPhoto({ plant }: { plant: GlobalCrop }) {
           {status === 'failed' && (
             <button
               onClick={() => {
+                invalidatePlantPhoto(plant.id);
                 setPhoto(null);
                 setAttempt((a) => a + 1);
               }}

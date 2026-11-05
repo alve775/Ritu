@@ -180,13 +180,13 @@
     cursor: pointer;
   }
   .season-water-options label.selected {
-    background: #edf3ef;
-    border-color: #285843;
+    background: var(--color-primary-soft);
+    border-color: var(--color-primary);
   }
   .season-water-options input {
     width: 18px;
     height: 18px;
-    accent-color: #285843;
+    accent-color: var(--color-primary);
     flex-shrink: 0;
   }
   .season-data-status {
@@ -236,7 +236,7 @@
     display: inline-flex;
     gap: 7px;
     align-items: center;
-    color: #285843;
+    color: var(--color-primary);
   }
   .season-crop-grid {
     display: grid;
@@ -251,8 +251,8 @@
     background: white;
   }
   .season-crop-card.chosen {
-    border: 2px solid #285843;
-    box-shadow: 0 4px 18px #28584315;
+    border: 2px solid var(--color-primary);
+    box-shadow: 0 4px 18px color-mix(in srgb, var(--color-primary) 8%, transparent);
   }
   .water-budget-panel > form,
   .soil-evidence-form form {
@@ -320,7 +320,7 @@
   .season-crop-choice input {
     width: 21px;
     height: 21px;
-    accent-color: #285843;
+    accent-color: var(--color-primary);
   }
   .season-crop-choice > span {
     display: grid;
@@ -335,8 +335,8 @@
     justify-self: start;
     padding: 4px 10px;
     border-radius: 6px;
-    background: #edf3ef;
-    color: #285843;
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
     font-size: 0.8rem;
     line-height: 1.5;
   }
@@ -392,7 +392,7 @@
     padding: 55px 24px !important;
   }
   .season-empty > svg {
-    color: #285843;
+    color: var(--color-primary);
   }
   .season-empty p {
     max-width: 55ch;
@@ -588,10 +588,10 @@
     padding: 3px;
   }
   .season-calendar-grid > button.today {
-    box-shadow: inset 0 0 0 1px #285843;
+    box-shadow: inset 0 0 0 1px var(--color-primary);
   }
   .season-calendar-grid > button.selected {
-    background: #285843;
+    background: var(--color-primary);
     color: white;
   }
   .season-calendar-grid > button.selected small {
@@ -604,7 +604,10 @@
     position: absolute;
     right: 3px;
     top: 3px;
-    color: #78933c;
+    color: var(--color-primary);
+  }
+  .season-calendar-grid > button.selected svg {
+    color: var(--color-on-primary);
   }
   .season-calendar-legend {
     display: flex;
@@ -623,7 +626,7 @@
     width: 9px;
     height: 9px;
     border-radius: 2px;
-    background: #285843;
+    background: var(--color-primary);
   }
   .season-daily > p {
     font-size: 0.9rem;
@@ -651,7 +654,7 @@
     width: 20px;
     height: 20px;
     margin-top: 3px;
-    accent-color: #285843;
+    accent-color: var(--color-primary);
   }
   .season-task-list label > span {
     display: grid;
@@ -758,7 +761,7 @@
     margin-top: 2px;
   }
   .season-calendar-grid > button.growing-day {
-    background: #eff5f1;
+    background: var(--color-primary-soft);
   }
   .season-calendar-grid > button.reference-day {
     border: 2px dotted #697986;
@@ -767,13 +770,13 @@
     background: #fff2d8;
   }
   .season-calendar-grid > button.harvested-day {
-    box-shadow: inset 0 0 0 2px #265943;
+    box-shadow: inset 0 0 0 2px var(--color-primary);
   }
   .season-calendar-grid > button.projected-day {
     border: 2px dashed #355f91;
   }
   .season-calendar-grid > button.selected {
-    background: var(--color-primary, #285843);
+    background: var(--color-primary);
     color: white;
   }
   .season-calendar-grid > button.selected svg {

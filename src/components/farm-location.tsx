@@ -37,6 +37,13 @@ export function FarmLocation({ worldwide = false }: { worldwide?: boolean }) {
   const historyKey = `${site.latitude.toFixed(2)},${site.longitude.toFixed(2)}`;
   const [contextRetry, setContextRetry] = useState(0);
   const queryRef = useRef<HTMLInputElement>(null);
+  const gpsRequest = useRef(0);
+  useEffect(
+    () => () => {
+      gpsRequest.current++;
+    },
+    [],
+  );
   const update = useRef(setEnvironment);
   useEffect(() => {
     update.current = setEnvironment;
@@ -46,6 +53,8 @@ export function FarmLocation({ worldwide = false }: { worldwide?: boolean }) {
     longitude: String(site.longitude),
   });
   const chooseSite = (next: FarmSite) => {
+    gpsRequest.current++;
+    setGps('');
     setEnvironment({ site: next });
     setCoordinates({ latitude: String(next.latitude), longitude: String(next.longitude) });
     setExpanded(false);
@@ -259,9 +268,11 @@ export function FarmLocation({ worldwide = false }: { worldwide?: boolean }) {
                 );
                 return;
               }
+              const request = ++gpsRequest.current;
               setGps(t('Waiting for location permission…', 'স্থানের অনুমতির অপেক্ষা…'));
               navigator.geolocation.getCurrentPosition(
                 (position) => {
+                  if (request !== gpsRequest.current) return;
                   chooseSite({
                     latitude: Number(position.coords.latitude.toFixed(5)),
                     longitude: Number(position.coords.longitude.toFixed(5)),
@@ -274,13 +285,15 @@ export function FarmLocation({ worldwide = false }: { worldwide?: boolean }) {
                     ),
                   );
                 },
-                () =>
+                () => {
+                  if (request !== gpsRequest.current) return;
                   setGps(
                     t(
                       'Location was unavailable or permission was denied. Search or place the pin instead.',
                       'স্থান পাওয়া যায়নি বা অনুমতি নেই। খুঁজুন বা পিন বসান।',
                     ),
-                  ),
+                  );
+                },
                 { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 },
               );
             }}

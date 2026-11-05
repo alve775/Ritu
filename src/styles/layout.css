@@ -11,7 +11,7 @@
     position: sticky;
     top: 0;
     z-index: var(--z-header);
-    background: #204b3b;
+    background: var(--color-frame);
     backdrop-filter: saturate(1.2) blur(10px);
     border-bottom: 1px solid var(--color-line);
   }
@@ -145,7 +145,7 @@
     margin-left: auto;
   }
   .app-header .help-button {
-    color: #fff;
+    color: var(--color-frame-ink);
   }
   .language-switch {
     display: inline-flex;
@@ -162,13 +162,14 @@
     border: 0;
     border-radius: var(--radius-pill);
     background: transparent;
-    color: var(--color-ink);
+    color: var(--color-primary);
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
   }
   .language-switch button[aria-pressed='true'] {
-    background: var(--color-surface-raised);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
     box-shadow: var(--shadow-1);
   }
   .main-content {
@@ -237,31 +238,31 @@
   }
   /* Phones and tablets: the steps move to a bottom tab bar, because the header cannot hold them. */
   @media (max-width: 1023px) {
-    /* Measured tab bar heights. Labels wrap to two lines below these widths:
-       Bangla 355px, Extra large English 363px, Extra large Bangla 424px. */
+    /* Pre-hydration fallbacks; BottomTabBar measures the rendered labels,
+       fonts and safe-area padding and keeps this reservation up to date. */
     :root {
-      --tabbar-h: 69px;
+      --tabbar-h: calc(69px + env(safe-area-inset-bottom));
     }
     @media (max-width: 355px) {
       html:lang(bn) {
-        --tabbar-h: 84px;
+        --tabbar-h: calc(84px + env(safe-area-inset-bottom));
       }
     }
     @media (max-width: 363px) {
       html[data-text-size='larger'] {
-        --tabbar-h: 93px;
+        --tabbar-h: calc(93px + env(safe-area-inset-bottom));
       }
     }
     @media (max-width: 424px) {
       html[data-text-size='larger']:lang(bn) {
-        --tabbar-h: 93px;
+        --tabbar-h: calc(93px + env(safe-area-inset-bottom));
       }
     }
     .step-progress {
       display: none;
     }
     .footer {
-      padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+      padding-bottom: var(--tabbar-h);
     }
     .tab-bar {
       position: fixed;
@@ -405,7 +406,7 @@
   @media (min-width: 1024px) {
     .app {
       padding-left: var(--sidebar-w);
-      background: #204b3b;
+      background: var(--color-frame);
     }
     .app-header-inner {
       max-width: none;
@@ -418,7 +419,7 @@
     .header-context {
       display: block;
       margin: 0;
-      color: #fff;
+      color: var(--color-frame-ink);
       font-size: 0.95rem;
       font-weight: 600;
     }
@@ -432,8 +433,8 @@
       padding: 24px 16px 20px;
       overflow-y: auto;
       scrollbar-gutter: stable;
-      background: #204b3b;
-      color: #fff;
+      background: var(--color-frame);
+      color: var(--color-frame-ink);
       z-index: var(--z-header);
     }
     .planner-sidebar::after {
@@ -454,10 +455,14 @@
       margin-bottom: 4px;
     }
     .sidebar-heading {
-      color: #d6e7df;
+      color: var(--color-frame-muted);
       padding-inline: 12px;
       font-size: 0.85rem;
       letter-spacing: 0.04em;
+    }
+    .planner-sidebar :focus-visible {
+      outline: 3px solid var(--color-frame-ink);
+      outline-offset: 3px;
     }
     .step-progress ol {
       flex-direction: column;
@@ -476,7 +481,7 @@
       min-height: 80px;
       padding: 12px;
       border-radius: 12px;
-      color: #e5eee9;
+      color: var(--color-frame-ink);
     }
     .step .nav-item > svg {
       grid-column: 1;
@@ -502,34 +507,42 @@
       color: inherit;
     }
     .step.done .nav-item {
-      color: #e5eee9;
+      color: var(--color-frame-ink);
+    }
+    .step .nav-item:disabled {
+      color: var(--color-frame-muted);
+      opacity: 1;
     }
     .step.current .nav-item {
       background: #fff;
-      color: #204b3b;
+      color: var(--color-primary);
       box-shadow: 0 2px 8px #10281b22;
     }
     .step .nav-item:hover {
-      background: #315e4d;
-      color: #fff;
+      background: var(--color-frame-hover);
+      color: var(--color-frame-ink);
+    }
+    .step .nav-item:disabled:hover {
+      background: transparent;
+      color: var(--color-frame-muted);
     }
     .step.current .nav-item:hover {
-      background: #eef5f1;
-      color: #204b3b;
+      background: var(--color-primary-soft);
+      color: var(--color-primary);
     }
     .sidebar-source {
       margin-top: auto;
       padding: 18px 12px 0;
-      border-top: 1px solid #527363;
+      border-top: 1px solid var(--color-frame-line);
       display: grid;
       gap: 8px;
     }
     .sidebar-source p {
-      color: #d6e7df;
+      color: var(--color-frame-muted);
       font-size: 0.85rem;
     }
     .sidebar-source small {
-      color: #d6e7df;
+      color: var(--color-frame-muted);
       font-size: 0.875rem;
       line-height: 1.5;
     }
@@ -538,7 +551,7 @@
     }
     .sidebar-source strong,
     .sidebar-source .text-button {
-      color: #fff;
+      color: var(--color-frame-ink);
     }
     .main-content {
       max-width: none;

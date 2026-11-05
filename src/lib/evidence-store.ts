@@ -213,6 +213,30 @@ export const evidenceStore = {
     listeners.add(listener);
     if (!loaded) {
       loaded = true;
+      window.addEventListener('storage', (event) => {
+        if (event.key !== key && event.key !== null) return;
+        if (event.newValue === null) {
+          recoveryBlocked = false;
+          snapshot = {
+            state: { ...emptyEvidenceState, language: snapshot.state.language },
+            ready: true,
+            saved: true,
+          };
+        } else {
+          try {
+            const state: unknown = JSON.parse(event.newValue);
+            if (!validEvidenceState(state)) throw Error('Invalid external draft');
+            recoveryBlocked = false;
+            snapshot = { state, ready: true, saved: true };
+          } catch {
+            // Keep the readable in-tab draft and the external original. Export
+            // both before allowing another write to replace damaged records.
+            recoveryBlocked = true;
+            snapshot = { ...snapshot, saved: false };
+          }
+        }
+        listeners.forEach((notify) => notify());
+      });
       let state = emptyEvidenceState;
       try {
         const raw = localStorage.getItem(key);

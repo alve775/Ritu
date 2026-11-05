@@ -46,7 +46,7 @@
     gap: 16px;
     text-align: center;
     padding: 32px;
-    color: #365d48;
+    color: var(--color-primary);
   }
   .farm-illustration-fallback p {
     max-width: 30ch;
@@ -60,7 +60,7 @@
     gap: 8px;
     margin: 0 18px;
     padding: 10px 0;
-    border-top: 1px solid #cbd9ca;
+    border-top: 1px solid var(--color-line);
   }
   .farm-scene-stages,
   .farm-scene-playback {
@@ -80,19 +80,20 @@
     border: 1px solid transparent;
     border-radius: 12px;
     background: transparent;
-    color: #314f3c;
+    color: var(--color-primary);
     font: inherit;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
   }
   .farm-scene-toolbar button:hover {
-    background: #f8fbf5;
-    border-color: #bfd1bd;
+    background: var(--color-primary-soft-hover);
+    border-color: var(--color-primary-line);
   }
   .farm-scene-toolbar button[aria-pressed='true'] {
-    background: #fff;
-    border-color: #a7c0a8;
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    border-color: var(--color-primary);
     box-shadow: 0 2px 8px #24452a0d;
   }
   .farm-scene-stages button[aria-pressed='true']::after {
@@ -102,11 +103,11 @@
     left: 8px;
     right: 8px;
     height: 2px;
-    background: #65814a;
+    background: var(--color-on-primary);
     border-radius: 2px;
   }
   .farm-scene-toolbar button:focus-visible {
-    outline: 3px solid #3e674b;
+    outline: 3px solid var(--color-focus);
     outline-offset: 2px;
   }
   .farm-scene-toolbar button:disabled {

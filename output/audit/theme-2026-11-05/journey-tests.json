@@ -1,0 +1,250 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "E:\\001_RITU\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/season-navigation.spec.ts",
+      "--grep",
+      "first visit explains|saved farms open",
+      "--workers=1",
+      "--reporter=list,json",
+      "--output=research/theme-2026-11-05/playwright-output"
+    ],
+    "configFile": "E:\\001_RITU\\playwright.config.ts",
+    "rootDir": "E:/001_RITU/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "E:/001_RITU/research/theme-2026-11-05/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "E:/001_RITU/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/season-*.spec.ts",
+          "**/farm-audio.spec.ts",
+          "**/finalization-animation.spec.ts",
+          "**/finalization-edge.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "E:/001_RITU/research/theme-2026-11-05/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "E:/001_RITU/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/season-*.spec.ts",
+          "**/farm-audio.spec.ts",
+          "**/finalization-animation.spec.ts",
+          "**/finalization-edge.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "node node_modules/next/dist/bin/next dev --hostname 127.0.0.1 --port 3000",
+      "url": "http://127.0.0.1:3000",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "season-navigation.spec.ts",
+      "file": "season-navigation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "first visit explains each page independently, leaving time to enter land and choose a crop",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6868,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T07:04:22.724Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ddfbed30d113f29e8069-0dc70b89881ac4349fd0",
+          "file": "season-navigation.spec.ts",
+          "line": 128,
+          "column": 1
+        },
+        {
+          "title": "saved farms open from the dashboard; a new field does not reuse the old farm selection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5130,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T07:04:29.769Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ddfbed30d113f29e8069-01b18ea7700a97f7cb92",
+          "file": "season-navigation.spec.ts",
+          "line": 188,
+          "column": 1
+        },
+        {
+          "title": "first visit explains each page independently, leaving time to enter land and choose a crop",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8009,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T07:04:36.041Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ddfbed30d113f29e8069-f604a0e9077e469ad8c7",
+          "file": "season-navigation.spec.ts",
+          "line": 128,
+          "column": 1
+        },
+        {
+          "title": "saved farms open from the dashboard; a new field does not reuse the old farm selection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5913,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-05T07:04:44.202Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ddfbed30d113f29e8069-223361dab1740c747adc",
+          "file": "season-navigation.spec.ts",
+          "line": 188,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-05T07:04:21.329Z",
+    "duration": 29137.356000000003,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

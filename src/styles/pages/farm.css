@@ -50,7 +50,7 @@
   }
   .source-badge {
     color: #25533f;
-    background: #eef5f1;
+    background: var(--color-primary-soft);
     border: 1px solid #b9cebf;
     padding: 8px 14px;
     border-radius: 8px;

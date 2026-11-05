@@ -354,7 +354,7 @@ export function FarmIllustration({
                 </g>
                 {Array.from({ length: 6 }, (_, i) => (
                   <g key={i}>
-                    <use href={`#${p('seed')}`} x="30" y="0" width="4" height="3">
+                    <use href={`#${p('seed')}`} x="43" y="14" width="4" height="3">
                       <animateTransform
                         attributeName="transform"
                         type="translate"
@@ -404,18 +404,19 @@ export function FarmIllustration({
                 ))}
               </g>
               <g transform="translate(426 576) scale(2.05)">
-                <Farmer kind="water" prefix={id} />
-                <g transform="translate(40 26)">
+                <g
+                  transform="translate(40 26)"
+                  stroke="#426b70"
+                  strokeWidth=".8"
+                  strokeLinejoin="round"
+                >
+                  <path d="M-6-3q-9-22 7-22 16 0 14 21" fill="none" strokeWidth="3" />
                   <path d="M-10-5h24l-3 22H-8Z" fill="#65959a" />
                   <ellipse cx="2" cy="-5" rx="12" ry="4" fill="#9bbec0" />
-                  <path
-                    d="M-9 1q-22-9-19 6 1 13 17 7M12 9l23 8 3-5-24-12"
-                    fill="none"
-                    stroke="#517f87"
-                    strokeWidth="5"
-                  />
+                  <path d="M12 9l23 8 3-5-24-12" fill="none" stroke="#517f87" strokeWidth="5" />
                   <path d="m32 9 8 2-3 12-8-3Z" fill="#94b7b5" />
                 </g>
+                <Farmer kind="water" prefix={id} />
                 {Array.from({ length: 11 }, (_, i) => (
                   <ellipse key={i} cx={77 + (i % 3) * 4} cy="42" rx="1.4" ry="2.8" fill="#b4d9dc">
                     <animateTransform
@@ -537,8 +538,6 @@ export function FarmIllustration({
                   ))}
                   <path d="m-12-1 27-1" stroke="#ac7e43" strokeWidth="4" />
                 </g>
-                <path d="m23 32 19 13q16-13 4-25" fill="none" stroke="#6b7769" strokeWidth="2.5" />
-                <path d="m22 30 6 5" stroke="#a77847" strokeWidth="5" strokeLinecap="round" />
               </g>
               <g transform="translate(300 705) rotate(-18)">
                 {Array.from({ length: 10 }, (_, i) => (
@@ -571,87 +570,307 @@ export function FarmIllustration({
   );
 }
 
+/** Original adult characters with articulated silhouettes and cel-style shading. */
 function Farmer({ kind, prefix }: { kind: 'sow' | 'water' | 'harvest'; prefix: string }) {
   const harvest = kind === 'harvest',
-    shirt = '#bd7b51';
+    watering = kind === 'water',
+    shirt = harvest ? '#7199a5' : '#d9a365',
+    shade = harvest ? '#4e7584' : '#b87b45',
+    outline = '#533c32',
+    skin = '#bc825c',
+    light = '#d49b70';
   return (
-    <g data-farm-worker={kind}>
-      <ellipse cx="0" cy="78" rx="28" ry="6" fill="#4c4e37" opacity=".17" />
+    <g data-farm-worker={kind} strokeLinejoin="round" strokeLinecap="round">
+      <ellipse cx="1" cy="80" rx="32" ry="5" fill="#3e4431" opacity=".18" />
+      {/* Planted foot and bent knee give the figure weight. */}
       <path
-        d="M-15 43-16 72l-8 5m32-34 7 28 9 6"
-        stroke="#8e654c"
-        strokeWidth="8"
-        strokeLinecap="round"
-        fill="none"
+        d="M-17 42-18 59-22 73q1 5 7 3l7-23 3-11M5 43l6 19 7 13q6 3 6-2l-6-23-2-9"
+        fill={skin}
+        stroke={outline}
+        strokeWidth=".9"
       />
-      <path d="m-24 78 13-1m27 1 13 1" stroke="#514f42" strokeWidth="5" strokeLinecap="round" />
+      <path d="m-17 51-1 16m32-14 5 16" fill="none" stroke="#9c6549" strokeWidth="1.6" />
+      <path
+        d="M-23 73q7-2 10 0l-1 5-15 1q-3-3 6-6M17 73q5-2 8 1l8 3q2 4-4 3l-12-2Z"
+        fill="#78634e"
+        stroke={outline}
+        strokeWidth=".9"
+      />
+      <path
+        d="m-23 74 7 2m3-3-3 4m35-3 5 3m-5-3-2 3"
+        fill="none"
+        stroke="#dbbc89"
+        strokeWidth="1.2"
+      />
       <g>
         <animateTransform
           attributeName="transform"
           type="rotate"
-          values={harvest ? '9 0 40;17 0 40;9 0 40' : '-1 0 40;1.5 0 40;-1 0 40'}
+          values={harvest ? '7 0 40;13 0 40;7 0 40' : '-.7 0 40;1 0 40;-.7 0 40'}
           dur={harvest ? '4s' : '5s'}
           repeatCount="indefinite"
         />
-        <path d="M-18 20h35l7 30q-24 10-47 0Z" fill={harvest ? '#596f68' : '#63888a'} />
-        <path d="M-18 20h35l7 30q-24 10-47 0Z" fill={`url(#${prefix}-cloth)`} />
-        <path d="M-19 22q-3-24 2-34l16-9 18 9q6 13 4 34-19 8-40 0" fill={shirt} />
+        {/* Far arm, forearm and thumb sit behind the torso. */}
         <path
-          d="M-2-18 2-9l7-7m-7 7v29"
-          stroke={harvest ? '#5c7677' : '#a99979'}
-          strokeWidth="1.5"
-          fill="none"
+          d={
+            kind === 'sow'
+              ? 'M-17-7q-8 7-10 21l1 12 5 4 4-3-3-4 2-10 9-14Z'
+              : harvest
+                ? 'M-17-7q-9 5-11 18l-7 9-4 1-2 4 6 3 6-3 11-13 7-13Z'
+                : 'M-17-7q-9 8-10 20 5 9 18 12l6-2-3-4-12-8 9-12Z'
+          }
+          fill={skin}
+          stroke={outline}
+          strokeWidth=".9"
         />
-        <circle cx="4" cy="2" r="1" fill="#eee5c5" />
-        <circle cx="4" cy="11" r="1" fill="#eee5c5" />
-        <path d="M-4-23v8h11v-10" fill="#ac7c57" />
-        <g>
-          <animateTransform
-            attributeName="transform"
-            type="rotate"
-            values="-2 1 -27;2 1 -27;-2 1 -27"
-            dur="5s"
-            repeatCount="indefinite"
-          />
-          <path d="M-11-42q16-10 25 1l-1 18q-9 11-21-1Z" fill="#bb8a61" />
-          <path d="m11-35 5 5-5 2" fill="#bb8a61" />
-          <path d="m5-22 6-1" stroke="#7b5b42" strokeWidth="1" />
-          <circle cx="9" cy="-34" r="1.1" fill="#564c3b" />
-          <path d="M-12-36q-3-14 14-15 13 0 14 11l-8-3-9 1-5 8" fill="#4b5040" />
-          <use href={`#${prefix}-hat`} x="-35" y="-65" width="70" height="33" />
+        {harvest && (
+          <g>
+            <path
+              d="M-29 32C-37 47-53 43-54 26-47 39-39 34-34 29Z"
+              fill="#c1c9bd"
+              stroke="#52685b"
+              strokeWidth=".8"
+            />
+            <path d="m-38 24 9 8" stroke={outline} strokeWidth="4.6" />
+            <path d="m-38 24 9 8" stroke="#a77d4e" strokeWidth="3" />
+            <path d="m-38 23 3 2-1 2-3-1" fill={light} stroke={outline} strokeWidth=".6" />
+          </g>
+        )}
+        {watering ? (
+          <g>
+            <path
+              d="M-18 15 15 15l12 52q-24 9-51-1Z"
+              fill="#a35048"
+              stroke={outline}
+              strokeWidth="1"
+            />
+            <path
+              d="M-17 17q4 27-3 49m12-48 1 49m10-49 8 49m1-48 13 44"
+              fill="none"
+              stroke="#743c3a"
+              strokeWidth="1.3"
+            />
+            <path d="m-23 63 49 1 1 4q-23 9-51-1Z" fill="#e1bc7f" />
+            <path d="m-21 65 45 1" stroke="#754c38" strokeWidth=".7" />
+          </g>
+        ) : (
+          <g>
+            <path d="M-18 19h34l8 31q-21 8-47 0Z" fill="#668788" stroke={outline} strokeWidth="1" />
+            <path d="M-18 19h34l8 31q-21 8-47 0Z" fill={`url(#${prefix}-cloth)`} />
+            <path
+              d="m-16 22-2 25m11-23-2 27m9-28 4 28m8-27 8 24"
+              stroke="#355960"
+              strokeWidth="1"
+              opacity=".7"
+              fill="none"
+            />
+            <path d="M-21 49q23 7 44 0" fill="none" stroke="#d8d7b7" strokeWidth="1.7" />
+            <path d="m-13 23 15 3 12-5-3 9-9-1" fill="#46686c" stroke="#34565b" strokeWidth=".8" />
+          </g>
+        )}
+        <path d="M-7-25v12q7 7 15-1L7-29Z" fill={light} stroke={outline} strokeWidth=".8" />
+        <path d="m-6-24 13-2v7q-7 4-13-1" fill="#a56b4e" />
+        <path
+          d="M-8-17q-12 1-16 10l-4 11 12 5 1 15q17 5 34-1l-1-17 9-4-7-11-11-7-5 5Z"
+          fill={watering ? '#c47a59' : shirt}
+          stroke={outline}
+          strokeWidth="1"
+        />
+        <path
+          d="m-23-5 9 5-1 21-5-1-1-12-7-3m39-14 6 9 2 19-5 1 1-16-6-7"
+          fill={watering ? '#a95b45' : shade}
+        />
+        {watering ? (
+          <g>
+            {/* Sari border follows the drape across the shoulder and waist. */}
+            <path
+              d="m-9-18 12 1 17 38-13 7-23-10 8-1 12 3Z"
+              fill="#b45d50"
+              stroke="#77453b"
+              strokeWidth=".8"
+            />
+            <path d="m-8-18 4 1 15 37 8 1-3 3-10-2Z" fill="#e9c98a" />
+            <path d="m-4-9 7 18m-13 8 13 5" stroke="#863f3a" strokeWidth=".9" fill="none" />
+          </g>
+        ) : (
+          <g>
+            <path
+              d="m-8-18 8 8 6-7 4 6-6 5-4-4-6 6-6-7Z"
+              fill="#f0cf97"
+              stroke={shade}
+              strokeWidth=".8"
+            />
+            <path
+              d="M1-8v30m-17-16 3 4m25-1-3 7m-19 1-6 3"
+              fill="none"
+              stroke={shade}
+              strokeWidth="1"
+            />
+            <path d="M7-4h9v9q-5 3-9-1Z" fill={shade} stroke={outline} strokeWidth=".5" />
+            <path d="m7-3 9 1" stroke="#d9d8bc" strokeWidth=".8" />
+            {[0, 8, 16].map((y) => (
+              <circle
+                key={y}
+                cx="2.5"
+                cy={y}
+                r=".9"
+                fill="#f8e7bf"
+                stroke={shade}
+                strokeWidth=".4"
+              />
+            ))}
+            <path d="M-14 21q15 3 29 0" fill="none" stroke={shade} strokeWidth="1" />
+            <path d="m-14-14 6-3-3 34-6-1Z" fill="#eee0bd" stroke="#907b5d" strokeWidth=".6" />
+            <path d="m-14-5 5 1m-6 6 5 1m-6 6 5 1m-6 6 5 1" stroke="#9e614e" strokeWidth="1.2" />
+          </g>
+        )}
+        {/* Brow, eyelids, nose bridge, cheek and jaw remain legible at hero size. */}
+        <g transform="translate(1 -4) scale(.8)">
+          <g>
+            <animateTransform
+              attributeName="transform"
+              type="rotate"
+              values="-1 0 -29;1 0 -29;-1 0 -29"
+              dur="5s"
+              repeatCount="indefinite"
+            />
+            {watering && (
+              <ellipse
+                cx="-12"
+                cy="-43"
+                rx="9"
+                ry="9"
+                fill="#30332c"
+                stroke={outline}
+                strokeWidth="1"
+              />
+            )}
+            <path
+              d="M-10-48q3-12 15-9 11 3 10 17l3 8-5 2q-2 10-11 11-9-2-12-13Z"
+              fill={light}
+              stroke={outline}
+              strokeWidth="1"
+            />
+            <path d="M-10-46q-3 11 1 19 4 7 11 8-10 1-14-7l-3-12Z" fill={skin} />
+            <path d="M-10-36q-8-5-7 3 1 6 7 5" fill={light} stroke={outline} strokeWidth=".8" />
+            <path d="m-12-31-2-3 3 1" fill="none" stroke="#9e6347" strokeWidth=".8" />
+            <path
+              d="M-13-37q-7-19 5-23 14-6 22 6l2 10-6-9q-6 4-12 1l-4 8Z"
+              fill="#33362d"
+              stroke={outline}
+              strokeWidth=".8"
+            />
+            <path d="M-8-55q11-5 17 1" fill="none" stroke="#62604a" strokeWidth="1" />
+            <path d="m2-43 8-1M1-39q4 2 9-1" stroke="#4a372c" strokeWidth="1" fill="none" />
+            <g>
+              <animate
+                attributeName="opacity"
+                values="1;1;0;1;1"
+                keyTimes="0;.45;.47;.49;1"
+                dur="4.8s"
+                repeatCount="indefinite"
+              />
+              <path d="M1-39q4-4 9-1-4 4-9 1Z" fill="#fff7df" stroke={outline} strokeWidth=".65" />
+              <ellipse cx="7" cy="-39.5" rx="1.6" ry="1.9" fill="#342e26" />
+              <circle cx="7.5" cy="-40" r=".5" fill="#fff" stroke="none" />
+            </g>
+            <path d="m11-40 1 7 3 1-3 2" fill="none" stroke="#935e44" strokeWidth=".8" />
+            <path d="m6-26 6-1m-4 3 3-.3" stroke="#774936" strokeWidth=".8" fill="none" />
+            <path d="m-2-31 3-1" stroke="#dfa67b" strokeWidth="2" />
+            {watering ? (
+              <g>
+                <circle
+                  cx="-11"
+                  cy="-26"
+                  r="1.6"
+                  fill="#e6bc58"
+                  stroke="#8a6638"
+                  strokeWidth=".6"
+                />
+                <circle cx="11" cy="-47" r=".9" fill="#a64e3e" />
+                <path d="M-10-54q6 1 10-4" stroke="#79704b" strokeWidth=".7" fill="none" />
+              </g>
+            ) : (
+              <path d="M6-29q3-3 5-1l3 1-1 1-4-1-3 1Z" fill="#4d3c2d" stroke="none" />
+            )}
+            {!watering &&
+              (harvest ? (
+                <g>
+                  <path
+                    d="M-15-50q0-12 14-12 16 0 18 13l-13 1-13-1-5 8Z"
+                    fill="#e7d8ad"
+                    stroke={outline}
+                    strokeWidth=".8"
+                  />
+                  <path
+                    d="m-13-53 27-2m-27 6 28-1m-27-6 3 9m6-11 3 9m6-8 3 8"
+                    stroke="#a9684e"
+                    strokeWidth="1.2"
+                  />
+                  <path
+                    d="m-14-48-6 17 5 2 4-17"
+                    fill="#e7d8ad"
+                    stroke={outline}
+                    strokeWidth=".7"
+                  />
+                </g>
+              ) : (
+                <use href={`#${prefix}-hat`} x="-34" y="-76" width="68" height="32" />
+              ))}
+          </g>
         </g>
+        {/* Separate sleeve, elbow, palm and fingers make the action readable. */}
         <g>
           <animateTransform
             attributeName="transform"
             type="rotate"
             values={
               kind === 'sow'
-                ? '0 16 -5;-30 16 -5;0 16 -5'
+                ? '0 16 -5;-24 16 -5;0 16 -5'
                 : harvest
-                  ? '0 16 -5;13 16 -5;0 16 -5'
-                  : '-5 16 -5;2 16 -5;-5 16 -5'
+                  ? '0 16 -5;8 16 -5;0 16 -5'
+                  : '-2 16 -5;2 16 -5;-2 16 -5'
             }
             dur={kind === 'sow' ? '2.6s' : '4s'}
             repeatCount="indefinite"
           />
           <path
-            d="m17-6 11 17 10 4"
-            fill="none"
-            stroke="#b9855c"
-            strokeWidth="8"
-            strokeLinecap="round"
+            d={
+              harvest
+                ? 'M17-6q6 0 10 10l5 14 6 7-5 4-11-13-9-15Z'
+                : 'M17-6q6 0 11 11l4 5 8 3-2 7-12-3-12-16Z'
+            }
+            fill={light}
+            stroke={outline}
+            strokeWidth=".9"
           />
-          <path d="m16-7 8 14" stroke={shirt} strokeWidth="12" strokeLinecap="round" />
-          <path d="m34 14 8 2" stroke="#b9855c" strokeWidth="6" strokeLinecap="round" />
+          <path d="m18 3 8 10 7 3" stroke="#b67a56" strokeWidth="1" fill="none" />
+          <path
+            d="M17-10q8 2 11 15l-10 5-7-13Z"
+            fill={watering ? '#c47a59' : shirt}
+            stroke={outline}
+            strokeWidth=".9"
+          />
+          <path d="m18 7 9-4" stroke={watering ? '#8e4f3e' : shade} strokeWidth="1.8" />
+          <g transform={harvest ? 'translate(34 26) rotate(30)' : 'translate(37 16)'}>
+            <path
+              d={
+                watering
+                  ? 'M-3-3q1-4 5-4l6 1 1 5-2 4-4-1V-1L0 1l-3-1Z'
+                  : 'M-2-3 3-5q3-2 4 0l-2 3 7 1q2 1 0 2l-6 1 5 1q2 2-1 2H3l-5-2Z'
+              }
+              fill={light}
+              stroke={outline}
+              strokeWidth=".7"
+            />
+            <path
+              d={watering ? 'm3-4 4 1m-4 1 4 1' : 'm4 0 6 1m-6 1 5 1'}
+              stroke="#a86c4e"
+              strokeWidth=".6"
+            />
+            {watering && <path d="m-2-3 1 6" stroke="#e6bd64" strokeWidth="1.6" />}
+          </g>
         </g>
-        <path
-          d={kind === 'sow' ? 'M-18-5-25 13-23 27' : 'M-17-5-22 13-6 23'}
-          fill="none"
-          stroke="#b9855c"
-          strokeWidth="8"
-          strokeLinecap="round"
-        />
-        <path d="m-17-7-5 12" stroke={shirt} strokeWidth="12" strokeLinecap="round" />
       </g>
     </g>
   );

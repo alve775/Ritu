@@ -14,10 +14,10 @@
     --ritu-line-strong: #cfc3af; /* input borders, dashed "not sure" tiles */
 
     /* Action and state */
-    --ritu-action: #1e5b3a; /* the one primary button colour */
-    --ritu-action-hover: #123d26;
-    --ritu-on-action: #ffffff;
-    --ritu-selected: #e3efe6; /* selected tile fill (pair with 2px action border) */
+    --ritu-action: var(--color-primary);
+    --ritu-action-hover: var(--color-primary-hover);
+    --ritu-on-action: var(--color-on-primary);
+    --ritu-selected: var(--color-primary-soft); /* selected tile fill */
     --ritu-danger: #9a3412; /* destructive links only */
     --ritu-badge-bg: #faf0cc; /* "Prototype", "ask an advisor" */
     --ritu-badge-ink: #6b5000;

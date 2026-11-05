@@ -1,0 +1,197 @@
+{
+  "frames": [
+    {
+      "stage": "sow",
+      "time": 0.15,
+      "path": "output/audit/motion-repair-2026-11-05/sow-0.15.png",
+      "viewport": "desktop"
+    },
+    {
+      "stage": "sow",
+      "time": 0.9,
+      "path": "output/audit/motion-repair-2026-11-05/sow-0.9.png",
+      "viewport": "desktop"
+    },
+    {
+      "stage": "sow",
+      "time": 1.2,
+      "path": "output/audit/motion-repair-2026-11-05/sow-1.2.png",
+      "viewport": "desktop"
+    },
+    {
+      "stage": "sow",
+      "time": 2.1,
+      "path": "output/audit/motion-repair-2026-11-05/sow-2.1.png",
+      "viewport": "desktop"
+    },
+    {
+      "stage": "care",
+      "time": 7.15,
+      "path": "output/audit/motion-repair-2026-11-05/care-7.15.png",
+      "viewport": "desktop"
+    },
+    {
+      "stage": "care",
+      "time": 8,
+      "path": "output/audit/motion-repair-2026-11-05/care-8.png",
+      "viewport": "desktop"
+    },
+    {
+      "stage": "care",
+      "time": 9,
+      "path": "output/audit/motion-repair-2026-11-05/care-9.png",
+      "viewport": "desktop"
+    },
+    {
+      "stage": "care",
+      "time": 10.5,
+      "path": "output/audit/motion-repair-2026-11-05/care-10.5.png",
+      "viewport": "desktop"
+    },
+    {
+      "stage": "harvest",
+      "time": 23.15,
+      "path": "output/audit/motion-repair-2026-11-05/harvest-23.15.png",
+      "viewport": "desktop"
+    },
+    {
+      "stage": "harvest",
+      "time": 24.4,
+      "path": "output/audit/motion-repair-2026-11-05/harvest-24.4.png",
+      "viewport": "desktop"
+    },
+    {
+      "stage": "harvest",
+      "time": 25.6,
+      "path": "output/audit/motion-repair-2026-11-05/harvest-25.6.png",
+      "viewport": "desktop"
+    },
+    {
+      "stage": "harvest",
+      "time": 26.8,
+      "path": "output/audit/motion-repair-2026-11-05/harvest-26.8.png",
+      "viewport": "desktop"
+    },
+    {
+      "stage": "grow",
+      "time": 14.1,
+      "path": "output/audit/motion-repair-2026-11-05/desktop-grow-14.1.png",
+      "viewport": "desktop"
+    },
+    {
+      "stage": "grow",
+      "time": 16,
+      "path": "output/audit/motion-repair-2026-11-05/desktop-grow-16.png",
+      "viewport": "desktop"
+    },
+    {
+      "stage": "grow",
+      "time": 18,
+      "path": "output/audit/motion-repair-2026-11-05/desktop-grow-18.png",
+      "viewport": "desktop"
+    },
+    {
+      "stage": "grow",
+      "time": 21.5,
+      "path": "output/audit/motion-repair-2026-11-05/desktop-grow-21.5.png",
+      "viewport": "desktop"
+    },
+    {
+      "stage": "sow",
+      "time": 0.15,
+      "path": "output/audit/motion-repair-2026-11-05/phone-sow-0.15.png",
+      "viewport": "phone"
+    },
+    {
+      "stage": "sow",
+      "time": 0.9,
+      "path": "output/audit/motion-repair-2026-11-05/phone-sow-0.9.png",
+      "viewport": "phone"
+    },
+    {
+      "stage": "sow",
+      "time": 1.2,
+      "path": "output/audit/motion-repair-2026-11-05/phone-sow-1.2.png",
+      "viewport": "phone"
+    },
+    {
+      "stage": "sow",
+      "time": 2.1,
+      "path": "output/audit/motion-repair-2026-11-05/phone-sow-2.1.png",
+      "viewport": "phone"
+    },
+    {
+      "stage": "care",
+      "time": 7.15,
+      "path": "output/audit/motion-repair-2026-11-05/phone-care-7.15.png",
+      "viewport": "phone"
+    },
+    {
+      "stage": "care",
+      "time": 8,
+      "path": "output/audit/motion-repair-2026-11-05/phone-care-8.png",
+      "viewport": "phone"
+    },
+    {
+      "stage": "care",
+      "time": 9,
+      "path": "output/audit/motion-repair-2026-11-05/phone-care-9.png",
+      "viewport": "phone"
+    },
+    {
+      "stage": "care",
+      "time": 10.5,
+      "path": "output/audit/motion-repair-2026-11-05/phone-care-10.5.png",
+      "viewport": "phone"
+    },
+    {
+      "stage": "harvest",
+      "time": 23.15,
+      "path": "output/audit/motion-repair-2026-11-05/phone-harvest-23.15.png",
+      "viewport": "phone"
+    },
+    {
+      "stage": "harvest",
+      "time": 24.4,
+      "path": "output/audit/motion-repair-2026-11-05/phone-harvest-24.4.png",
+      "viewport": "phone"
+    },
+    {
+      "stage": "harvest",
+      "time": 25.6,
+      "path": "output/audit/motion-repair-2026-11-05/phone-harvest-25.6.png",
+      "viewport": "phone"
+    },
+    {
+      "stage": "harvest",
+      "time": 26.8,
+      "path": "output/audit/motion-repair-2026-11-05/phone-harvest-26.8.png",
+      "viewport": "phone"
+    },
+    {
+      "stage": "grow",
+      "time": 14.1,
+      "path": "output/audit/motion-repair-2026-11-05/phone-grow-14.1.png",
+      "viewport": "phone"
+    },
+    {
+      "stage": "grow",
+      "time": 16,
+      "path": "output/audit/motion-repair-2026-11-05/phone-grow-16.png",
+      "viewport": "phone"
+    },
+    {
+      "stage": "grow",
+      "time": 18,
+      "path": "output/audit/motion-repair-2026-11-05/phone-grow-18.png",
+      "viewport": "phone"
+    },
+    {
+      "stage": "grow",
+      "time": 21.5,
+      "path": "output/audit/motion-repair-2026-11-05/phone-grow-21.5.png",
+      "viewport": "phone"
+    }
+  ],
+  "errors": []
+}

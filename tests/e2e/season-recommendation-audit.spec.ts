@@ -122,9 +122,11 @@ for (const [i, site] of sites.entries())
       }
       await expect(page.getByRole('radio', { name: /Common name unrecorded/ })).toHaveCount(0);
       await expect(page.locator('.season-crop-card').first()).toContainText(
-        'Water adequacy and local suitability still need checking.',
+        'Source-supported factors',
       );
       const first = page.locator('.season-crop-card').first();
+      await first.getByText('Why this option & what to check', { exact: true }).click();
+      await expect(first).toContainText('Unverified');
       await first.getByRole('radio').check();
       await page.getByRole('button', { name: 'Create my farm', exact: true }).click();
       await expect(page).toHaveURL(/\/plan$/);

@@ -160,8 +160,8 @@ export function WeatherContent({
           <table>
             <caption>
               {t(
-                'Forecast for the farm’s local dates. Amounts and probabilities are estimates, not guarantees.',
-                'জমির স্থানীয় দিনের পূর্বাভাস। পরিমাণ ও সম্ভাবনা আনুমানিক, নিশ্চয়তা নয়।',
+                'Seven-day forecast · farm local dates',
+                'সাত দিনের পূর্বাভাস · জমির স্থানীয় তারিখ',
               )}
             </caption>
             <thead>
@@ -202,10 +202,7 @@ export function WeatherContent({
         {!automatic && <strong>{t('Automatic updates paused', 'স্বয়ংক্রিয় আপডেট বন্ধ')}</strong>}
       </p>
       <p className="weather-source">
-        {t(
-          'Current values are gridded model estimates, not a sensor on your field. Rain is for the displayed',
-          'এখনকার মান গ্রিড মডেলের হিসাব, জমির সেন্সর নয়। বৃষ্টি দেখানো',
-        )}{' '}
+        {t('Weather model · Rain interval:', 'আবহাওয়ার মডেল · বৃষ্টির সময়সীমা:')}{' '}
         {data.current.interval / 60}
         {automatic
           ? t(

@@ -2,10 +2,11 @@
 import { useState } from 'react';
 import { mungCultivars } from '../data/cultivar-references';
 import { usePlanner } from './planner-provider';
-import { seasonStore } from '../lib/season-store';
+import { useFarmRecordWriter } from './farm-record-scope';
 import type { SeasonFarm } from '../domain/global-season';
 
 export function CultivarReferencePanel({ farm }: { farm: SeasonFarm }) {
+  const writeFarm = useFarmRecordWriter();
   const { t } = usePlanner(),
     [chosen, setChosen] = useState(farm.cultivarReference?.varietyId ?? ''),
     [confirmed, setConfirmed] = useState(false),
@@ -23,8 +24,8 @@ export function CultivarReferencePanel({ farm }: { farm: SeasonFarm }) {
       </summary>
       <p>
         {t(
-          'Five named varieties from the July 2016 CIMMYT/CSISA Bangladesh guide. Choose only your actual seed variety. This adds a cultivar-specific reference interval and broadcast seed calculation; it does not certify the seed, current regional advice or field performance.',
-          'জুলাই ২০১৬-এর CIMMYT/CSISA বাংলাদেশ নির্দেশিকার পাঁচটি জাত। আসল বীজের জাতই বাছুন। এতে জাতের সময়সীমা ও ছিটিয়ে বোনার বীজের হিসাব আসে; বীজ, বর্তমান স্থানীয় পরামর্শ বা জমির ফলন নিশ্চিত হয় না।',
+          'Choose your seed variety to see its reference growing period and broadcast seed quantity. Source: CIMMYT/CSISA Bangladesh, July 2016.',
+          'বীজের জাত বাছলে উৎসের সময়সীমা ও ছিটিয়ে বোনার বীজের পরিমাণ পাবেন। উৎস: CIMMYT/CSISA বাংলাদেশ, জুলাই ২০১৬।',
         )}
       </p>
       <label>
@@ -54,8 +55,8 @@ export function CultivarReferencePanel({ farm }: { farm: SeasonFarm }) {
             </strong>
             .{' '}
             {t(
-              'Sowing date can change duration. This is not a harvest-readiness prediction.',
-              'বোনার দিনে সময় বদলাতে পারে। এটি কাটার প্রস্তুতির ভবিষ্যদ্বাণী নয়।',
+              'Reference growing time varies with sowing date.',
+              'রোপণের দিন অনুযায়ী বৃদ্ধির সময় বদলাতে পারে।',
             )}
           </p>
           <p>
@@ -75,8 +76,8 @@ export function CultivarReferencePanel({ farm }: { farm: SeasonFarm }) {
       {outside ? (
         <p className="notice-amber">
           {t(
-            'This selected location is outside Bangladesh; this local reference cannot be applied to its calendar.',
-            'বাছা স্থান বাংলাদেশের বাইরে; এই স্থানীয় তথ্য তার পঞ্জিকায় লাগানো যায় না।',
+            'This variety reference covers Bangladesh fields.',
+            'এই জাতের তথ্য বাংলাদেশের জমির জন্য।',
           )}
         </p>
       ) : (
@@ -98,7 +99,7 @@ export function CultivarReferencePanel({ farm }: { farm: SeasonFarm }) {
           className="button secondary"
           disabled={!variety || !confirmed || !!outside}
           onClick={() => {
-            seasonStore.update(farm.id, {
+            writeFarm(farm.id, {
               cultivarReference: {
                 registry: 'csisa-bd-mung-2016',
                 varietyId: chosen,
@@ -121,7 +122,7 @@ export function CultivarReferencePanel({ farm }: { farm: SeasonFarm }) {
             type="button"
             className="button secondary"
             onClick={() => {
-              seasonStore.update(farm.id, { cultivarReference: undefined });
+              writeFarm(farm.id, { cultivarReference: undefined });
               setMessage(
                 t('Returned to the original source reference.', 'মূল উৎসের সময়ে ফেরা হয়েছে।'),
               );

@@ -76,6 +76,9 @@ export interface CropSuggestion {
   }[];
 }
 export interface SeasonFarm {
+  /** Idempotency receipt for a confirmed crop choice; absent in older records. */
+  creationKey?: string;
+  fieldId?: string;
   cultivarReference?: import('../data/cultivar-references').CultivarReference;
   waterRecords?: import('./water-balance').WaterDayRecord[];
   id: string;

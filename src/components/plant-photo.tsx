@@ -98,11 +98,6 @@ export function PlantPhoto({ plant }: { plant: GlobalCrop }) {
           <a href={photo.entity} target="_blank" rel="noreferrer">
             {t('Plant identity', 'গাছের পরিচয়')}
           </a>
-          <br />
-          {t(
-            'API-sourced species reference; cultivar and growth stage may differ.',
-            'প্রজাতির উদাহরণ; আপনার জমি বা জাতের নিশ্চয়তা নয়।',
-          )}
         </figcaption>
       )}
     </figure>

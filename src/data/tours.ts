@@ -19,8 +19,8 @@ export const tourSteps: TourStep[] = [
       bn: 'আপনার কৃষি সহায়ক মাটির পরিচয়',
     },
     description: {
-      en: 'This dashboard keeps your farms together. Add a farm when you are ready. Each page has its own short guide, then you can explore before continuing. Tours do not change your records.',
-      bn: 'এই ড্যাশবোর্ডে সব খামার একসঙ্গে থাকে। প্রস্তুত হলে খামার যোগ করুন। প্রতি পাতার আলাদা ছোট পরিচিতি শেষে নিজে দেখে পরের ধাপে যান। পরিচিতিতে হিসাব বদলায় না।',
+      en: 'List your fields here, set each location and area, then add farms inside them. Each farm has its own crop and calendar. Each page has a short guide before you explore.',
+      bn: 'এখানে জমির তালিকা দিয়ে প্রতিটির স্থান ও আয়তন দিন, তারপর তার মধ্যে খামার যোগ করুন। প্রতি খামারের আলাদা ফসল ও ক্যালেন্ডার। প্রতি পাতার ছোট পরিচিতি শেষে নিজে দেখুন।',
     },
     mission: {
       en: 'RITU · Your growing season',
@@ -31,14 +31,14 @@ export const tourSteps: TourStep[] = [
     id: 'location',
     scope: 'farm',
     route: '/farm',
-    target: '.location-map-grid',
+    target: '.location-map-grid, .registered-field-location',
     title: {
       en: 'Find your field anywhere',
       bn: 'যেকোনো স্থানে জমি খুঁজুন',
     },
     description: {
-      en: 'Search a town or enter coordinates, then pin your actual field. Weather and long-term climate load automatically for the selected point. The starting map is not a selected farm.',
-      bn: 'স্থান বা স্থানাঙ্ক দিয়ে আসল জমিতে পিন দিন। বাছা স্থানের আবহাওয়া ও দীর্ঘ সময়ের জলবায়ু নিজে থেকে আসবে। শুরুর মানচিত্র বাছা জমি নয়।',
+      en: 'Search a town or enter coordinates, then pin your field. Its weather and long-term climate load automatically.',
+      bn: 'স্থান বা স্থানাঙ্ক দিয়ে জমিতে পিন দিন। সেই স্থানের আবহাওয়া ও দীর্ঘ সময়ের জলবায়ু নিজে থেকে আসবে।',
     },
     mission: {
       en: 'RITU · Your growing season',
@@ -55,8 +55,8 @@ export const tourSteps: TourStep[] = [
       bn: 'আয়তন ও পরের মৌসুম',
     },
     description: {
-      en: 'Enter the measured area in your preferred unit and when you are ready to plant. A farm name is optional. You are planning one crop, not an annual rotation.',
-      bn: 'পছন্দের এককে মাপা আয়তন ও রোপণে প্রস্তুত হওয়ার দিন দিন। নাম ঐচ্ছিক। একটি ফসলের পরিকল্পনা, বার্ষিক ফসলক্রম নয়।',
+      en: 'Enter the area in your preferred unit and choose when you are ready to plant. You can name this farm to identify it later.',
+      bn: 'পছন্দের এককে আয়তন ও রোপণে প্রস্তুত হওয়ার দিন দিন। পরে চেনার জন্য খামারের নাম দিতে পারেন।',
     },
     mission: {
       en: 'RITU · Your growing season',
@@ -73,8 +73,8 @@ export const tourSteps: TourStep[] = [
       bn: 'মাটি ও নিষ্কাশন লিখুন',
     },
     description: {
-      en: 'Choose what you know; use Not sure when needed. Known incompatible source soil and drainage categories are filtered out. Climate cannot measure your field soil.',
-      bn: 'যা জানেন বাছুন, প্রয়োজনে জানা নেই দিন। উৎসের সঙ্গে অমিল জানা মাটি ও নিষ্কাশনের ফসল বাদ যায়। জলবায়ু জমির মাটি মাপে না।',
+      en: 'Choose the field’s soil texture and usual drainage. Select Not sure if you do not know.',
+      bn: 'জমির মাটির গঠন ও সাধারণ নিষ্কাশন বাছুন। জানা না থাকলে নিশ্চিত নই বাছুন।',
     },
     mission: {
       en: 'RITU · Your growing season',
@@ -91,8 +91,8 @@ export const tourSteps: TourStep[] = [
       bn: 'পানির সুযোগ লিখুন',
     },
     description: {
-      en: 'Choose water you can actually use. Crop suggestions explain rainfall-related checks, but annual rainfall cannot establish water stored in your root zone.',
-      bn: 'বাস্তবে ব্যবহার করা পানি বাছুন। প্রস্তাবে বৃষ্টির যাচাই থাকে, কিন্তু বার্ষিক বৃষ্টি শিকড়ের মজুত পানি নয়।',
+      en: 'Choose the water supply you can use on this field.',
+      bn: 'এই জমিতে যে পানির সরবরাহ ব্যবহার করতে পারবেন তা বাছুন।',
     },
     mission: {
       en: 'RITU · Your growing season',
@@ -127,8 +127,8 @@ export const tourSteps: TourStep[] = [
       bn: 'একটি প্রস্তাবিত ফসল বাছুন',
     },
     description: {
-      en: 'After confirming land details, see species screened against NASA climate and source requirements. Search by name, plant use or life cycle. Open the reasons and limits. Select one planting; perennials have a care review, not a predicted first harvest.',
-      bn: 'জমি নিশ্চিত করলে নাসার জলবায়ু ও উৎসের চাহিদায় মেলা ফসল দেখুন। কারণ ও সীমা খুলে পড়ুন। এই মৌসুমে শুধু একটি ফসল বাছুন।',
+      en: 'Search crop options by name, use or life cycle. Open an option’s details to compare its requirements, then choose one crop for this farm.',
+      bn: 'নাম, ব্যবহার বা জীবনচক্র দিয়ে ফসল খুঁজুন। বিস্তারিত খুলে চাহিদা তুলনা করুন, তারপর এই খামারের জন্য একটি ফসল বাছুন।',
     },
     mission: {
       en: 'RITU · Your growing season',
@@ -145,8 +145,8 @@ export const tourSteps: TourStep[] = [
       bn: 'খামারের কাজের জায়গা',
     },
     description: {
-      en: 'Once a farm exists, its crop, planned start and growing-time reference appear here. The illustration is an overview, not a measurement of your crop.',
-      bn: 'খামার তৈরি হলে ফসল, শুরুর পরিকল্পনা ও সময়ের তথ্য আসে। আঁকা জমি পরিচিতি, আসল ফসলের মাপ নয়।',
+      en: 'Find the crop, planting date and reference growing period here. Use Switch farm to open another planting.',
+      bn: 'এখানে ফসল, রোপণের দিন ও উৎসের বৃদ্ধির সময় দেখুন। অন্য খামার খুলতে খামার বদলান ব্যবহার করুন।',
     },
     mission: {
       en: 'RITU · Your growing season',
@@ -181,8 +181,8 @@ export const tourSteps: TourStep[] = [
       bn: 'প্রতিদিনের সহায়তা হিসাব অনুসরণ করে',
     },
     description: {
-      en: 'Record actual planting, then use daily field updates to change the checks. Partial picking keeps the crop active; only final harvest completes a seasonal crop. Tick completed work. Forecasts refresh while the app is open; they do not operate irrigation hardware.',
-      bn: 'আসল রোপণের পরে দিনের খবর দিলে যাচাই বদলায়। আংশিক তোলায় চাষ চলে; শেষ তোলায় মৌসুমি ফসলের চাষ শেষ হয়। করা কাজে টিক দিন। অ্যাপ খোলা থাকলে পূর্বাভাস বদলায়; সেচযন্ত্র চালায় না।',
+      en: 'Record planting, then add the crop stage, soil moisture and any damage in your daily field update. This changes the guidance shown. Record each picking and the final harvest when the season ends.',
+      bn: 'রোপণের পর দিনের খবরে ফসলের পর্যায়, মাটির আর্দ্রতা ও ক্ষতি লিখুন। সে অনুযায়ী নির্দেশনা বদলায়। প্রতি দফার তোলা ও মৌসুম শেষে শেষ তোলা লিখুন।',
     },
     mission: {
       en: 'RITU · Your growing season',
@@ -199,8 +199,8 @@ export const tourSteps: TourStep[] = [
       bn: 'একাধিক জমি পরিচালনা করুন',
     },
     description: {
-      en: 'Add a farm for another plot or crop. Each keeps its own location, crop, dates and notes. Switch farms without replacing their records.',
-      bn: 'অন্য জমি বা ফসলের জন্য খামার যোগ করুন। প্রতি খামারের স্থান, ফসল, দিন ও নোট আলাদা। অন্যটি খুললে হিসাব হারায় না।',
+      en: 'Start with the number of fields you manage. Give each its own location and total area, then divide it into farms for different crops. Farms growing at the same time must fit within their field.',
+      bn: 'প্রথমে জমির সংখ্যা দিন। প্রতিটির স্থান ও মোট আয়তন দিয়ে আলাদা ফসলের খামারে ভাগ করুন। একই সময়ে চাষ করা খামারগুলো মোট জমির মধ্যে হতে হবে।',
     },
     mission: {
       en: 'RITU · Your growing season',
@@ -217,8 +217,8 @@ export const tourSteps: TourStep[] = [
       bn: 'ব্যাকআপ রাখুন',
     },
     description: {
-      en: 'Farms are saved on this browser, not synced to an account. Export all farm records for a backup. Previous rotation records remain accessible when present.',
-      bn: 'খামার এই ব্রাউজারে থাকে, অ্যাকাউন্টে যায় না। ব্যাকআপে সব হিসাব নামান। আগের ফসলক্রমের হিসাব থাকলে খোলা যায়।',
+      en: 'Farm records are saved in this browser. Export them to keep a backup or move them to another device.',
+      bn: 'খামারের হিসাব এই ব্রাউজারে থাকে। ব্যাকআপ বা অন্য যন্ত্রে নেওয়ার জন্য হিসাব নামান।',
     },
     mission: {
       en: 'RITU · Your growing season',
@@ -235,8 +235,8 @@ export const tourSteps: TourStep[] = [
       bn: 'ফসলের যাচাই বুঝুন',
     },
     description: {
-      en: 'NASA 1991–2020 climate and ECOCROP requirements support a broad species screen. Historical regional calendars improve timing evidence where available. No yield or profit score is invented.',
-      bn: 'নাসার ১৯৯১–২০২০ জলবায়ু ও ECOCROP দিয়ে প্রজাতির প্রাথমিক যাচাই হয়। আঞ্চলিক পুরোনো পঞ্জিকা থাকলে সময়ের তথ্য মেলে। ফলন বা লাভের নম্বর বানানো হয় না।',
+      en: 'See the NASA climate data, crop requirements and regional calendar sources used for your planting options.',
+      bn: 'ফসলের বিকল্পে ব্যবহৃত নাসার জলবায়ু, ফসলের চাহিদা ও আঞ্চলিক পঞ্জিকার উৎস দেখুন।',
     },
     mission: {
       en: 'RITU · Your growing season',

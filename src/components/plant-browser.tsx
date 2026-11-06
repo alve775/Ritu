@@ -124,8 +124,8 @@ export function PlantBrowser({
         <h2>{t('Find what you want to grow', 'কী চাষ করতে চান খুঁজুন')}</h2>
         <p>
           {t(
-            'Source food-use categories appear first. Search a plant name, including peanut / groundnut. A category does not establish safe preparation or edibility of every plant part.',
-            'প্রথমে উৎসে খাদ্য ব্যবহারের বিভাগ দেখায়। গাছের প্রচলিত নামে খুঁজুন। বিভাগ দিয়ে নিরাপদ প্রক্রিয়াকরণ বা গাছের সব অংশের খাদ্যযোগ্যতা নিশ্চিত হয় না।',
+            'Search by plant name, such as peanut or groundnut, or choose a category.',
+            'গাছের নাম দিয়ে খুঁজুন, যেমন চিনাবাদাম, অথবা একটি বিভাগ বাছুন।',
           )}
         </p>
         <div className="plant-filters">
@@ -175,17 +175,11 @@ export function PlantBrowser({
             </select>
           </label>
         </div>
-        <p className="plant-evidence-note">
-          {t(
-            'A climate match is a candidate to investigate, not confirmed field suitability. Fruit/nut trees and other perennials get a care calendar; first harvest and local fruiting season need cultivar and regional evidence.',
-            'জলবায়ু মিললে যাচাইয়ের প্রার্থী, জমিতে উপযুক্ততার নিশ্চয়তা নয়। ফল/বাদামের গাছ ও বহুবর্ষজীবী উদ্ভিদ পরিচর্যার ক্যালেন্ডার পায়; প্রথম ফল ও ফলনের মৌসুমে জাত ও আঞ্চলিক প্রমাণ দরকার।',
-          )}
-        </p>
         {category !== 'food' && (
           <p className="notice-amber">
             {t(
-              'Source use labels do not establish edibility, safety or local legal permission. Some catalogue plants are not food plants. Confirm the species and local restrictions.',
-              'উৎসের ব্যবহার খাদ্যযোগ্যতা, নিরাপত্তা বা স্থানীয় অনুমতি নিশ্চিত করে না। তালিকায় অখাদ্য উদ্ভিদও আছে। প্রজাতি ও স্থানীয় নিয়ম যাচাই করুন।',
+              'This category includes non-food plants. Check the species and its intended use.',
+              'এই বিভাগে অখাদ্য উদ্ভিদও আছে। প্রজাতি ও চাষের উদ্দেশ্য যাচাই করুন।',
             )}
           </p>
         )}
@@ -193,8 +187,8 @@ export function PlantBrowser({
       <div aria-live="polite" className="plant-result-status">
         {data
           ? t(
-              `${data.count} results · ${data.total.toLocaleString()} source plant records · no fixed result cap`,
-              `${data.count} ফলাফল · উৎসের ${data.total} গাছ · ফলাফলের নির্দিষ্ট সীমা নেই`,
+              `${data.count} results · ${data.total.toLocaleString()} plants in the catalogue`,
+              `${data.count} ফলাফল · তালিকায় ${data.total}টি গাছ`,
             )
           : error
             ? error
@@ -274,12 +268,6 @@ export function PlantBrowser({
                         ? t('Historical regional option', 'আঞ্চলিক পুরোনো তথ্যের বিকল্প')
                         : t('Preliminary source match', 'উৎসের প্রাথমিক মিল')}
                     </span>
-                    <p className="season-crop-caution">
-                      {t(
-                        'Water adequacy and local suitability still need checking.',
-                        'পানির পর্যাপ্ততা ও স্থানীয় উপযুক্ততা এখনও যাচাই করতে হবে।',
-                      )}
-                    </p>
                     <p className="season-small-note">
                       {t('Source-supported factors', 'উৎসে মেলা বিষয়')}:{' '}
                       {s.checks
@@ -302,16 +290,12 @@ export function PlantBrowser({
                     </p>
                     {s.planKind === 'perennial-review' ? (
                       <p className="season-crop-caution">
-                        {t(
-                          'Perennial care plan · first harvest not predicted · winter survival unverified',
-                          'বহুবর্ষজীবী পরিচর্যা · প্রথম ফলের পূর্বাভাস নেই · শীত কাটানো অযাচাইকৃত',
-                        )}
+                        {t('Perennial care calendar', 'বহুবর্ষজীবী পরিচর্যার ক্যালেন্ডার')}
                       </p>
                     ) : (
                       <p>
                         {t('Planning reference interval', 'পরিকল্পনার তথ্যভিত্তিক সময়')}:{' '}
-                        {s.durationMin}–{s.durationMax}{' '}
-                        {t('days · not a harvest prediction', 'দিন · কাটার পূর্বাভাস নয়')}
+                        {s.durationMin}–{s.durationMax} {t('days', 'দিন')}
                       </p>
                     )}
                     <p>

@@ -11,8 +11,19 @@ import { validThermalProfile } from '../domain/crop-thermal';
 import { validSoilEvidence } from '../domain/soil-evidence';
 import { validWaterDayRecord } from '../domain/water-balance';
 import { validCultivarReference } from '../data/cultivar-references';
+import {
+  migrateFieldRegistry,
+  recoverFieldRegistry,
+  validRegisteredField,
+  validFieldLinks,
+  peakFieldArea,
+  type RegisteredField,
+} from '../domain/field-registry';
 
 export interface SeasonState {
+  fields?: RegisteredField[];
+  draftFieldId?: string | null;
+  editingFieldId?: string | null;
   version: 1;
   farms: SeasonFarm[];
   activeId: string | null;
@@ -22,6 +33,9 @@ export interface SeasonState {
 }
 export const seasonStorageKey = 'ritu-season-farms-v1';
 const blank: SeasonState = {
+  fields: [],
+  draftFieldId: null,
+  editingFieldId: null,
   version: 1,
   farms: [],
   activeId: null,
@@ -61,7 +75,16 @@ export function validSeasonState(raw: unknown): raw is SeasonState {
   const s = raw as SeasonState;
   return (
     s.version === 1 &&
+    (s.fields === undefined ||
+      (Array.isArray(s.fields) &&
+        s.fields.length <= 200 &&
+        s.fields.every(validRegisteredField) &&
+        new Set(s.fields.map((f) => f.id)).size === s.fields.length)) &&
+    [s.draftFieldId, s.editingFieldId].every(
+      (id) => id === undefined || id === null || s.fields?.some((f) => f.id === id),
+    ) &&
     Array.isArray(s.farms) &&
+    s.farms.every((f) => !!f && typeof f === 'object') &&
     s.farms.length <= 200 &&
     new Set(s.farms.map((f) => f?.id)).size === s.farms.length &&
     (s.activeId === null ||
@@ -74,6 +97,12 @@ export function validSeasonState(raw: unknown): raw is SeasonState {
       (f) =>
         f &&
         typeof f.id === 'string' &&
+        (f.creationKey === undefined ||
+          (typeof f.creationKey === 'string' &&
+            f.creationKey.length > 0 &&
+            f.creationKey.length <= 20000)) &&
+        (f.fieldId === undefined ||
+          (typeof f.fieldId === 'string' && f.fieldId.length > 0 && f.fieldId.length <= 120)) &&
         f.id.length <= 100 &&
         validSite(f.site) &&
         f.field &&
@@ -184,7 +213,8 @@ export function validSeasonState(raw: unknown): raw is SeasonState {
             typeof o.note === 'string' &&
             o.note.length <= 2000,
         ),
-    )
+    ) &&
+    (s.fields === undefined || validFieldLinks(s.fields, s.farms))
   );
 }
 function notify() {
@@ -220,7 +250,12 @@ export const seasonStore = {
         try {
           const state: unknown = JSON.parse(event.newValue);
           if (validSeasonState(state)) {
-            snapshot = { state, ready: true, saved: true, recovery: false };
+            snapshot = {
+              state: migrateFieldRegistry(state),
+              ready: true,
+              saved: true,
+              recovery: false,
+            };
             notify();
           }
         } catch {
@@ -237,7 +272,7 @@ export const seasonStore = {
           } catch {
             /* Preserve original below. */
           }
-          if (validSeasonState(parsed)) state = parsed;
+          if (validSeasonState(parsed)) state = migrateFieldRegistry(parsed);
           else {
             localStorage.setItem(`${seasonStorageKey}-recovery`, raw);
             recovered = true;
@@ -255,7 +290,13 @@ export const seasonStore = {
                     confirmedKey: null,
                   }),
               );
-              state = { ...blank, farms, activeId: farms[0]?.id ?? null };
+              state = {
+                version: 1,
+                ...recoverFieldRegistry(farms, candidate.fields),
+                activeId: farms[0]?.id ?? null,
+                calendarAccessId: null,
+                confirmedKey: null,
+              };
             }
           }
         }
@@ -273,21 +314,113 @@ export const seasonStore = {
   confirm(key: string) {
     save({ ...snapshot.state, confirmedKey: key });
   },
-  create(farm: SeasonFarm) {
-    if (snapshot.state.farms.length >= 200)
-      throw Error('Export and archive farms before adding more.');
+  addFields(fields: RegisteredField[]) {
+    const state = { ...snapshot.state, fields: [...(snapshot.state.fields ?? []), ...fields] };
+    if (!validSeasonState(state))
+      throw Error('Check the field names and number of fields (up to 200).');
+    save(state);
+  },
+  selectField(id: string | null, editing = false) {
+    if (id !== null && !snapshot.state.fields?.some((f) => f.id === id))
+      throw Error('Choose an existing field.');
+    save({
+      ...snapshot.state,
+      draftFieldId: id,
+      editingFieldId: editing ? id : null,
+      confirmedKey: null,
+      calendarAccessId: null,
+    });
+  },
+  saveField(field: RegisteredField) {
+    const old = snapshot.state.fields?.find((f) => f.id === field.id);
+    if (!old) throw Error('This field no longer exists.');
+    if (
+      snapshot.state.farms.some((f) => f.fieldId === field.id) &&
+      old.site &&
+      field.site &&
+      !samePoint(old.site, field.site)
+    )
+      throw Error(
+        'Add another field for a different location. Existing farms keep their field location.',
+      );
     const state = {
       ...snapshot.state,
-      farms: [...snapshot.state.farms, farm],
+      fields: snapshot.state.fields!.map((f) => (f.id === field.id ? field : f)),
+      editingFieldId: null,
+    };
+    if (
+      !validSeasonState(state) ||
+      peakFieldArea(state.farms, field.id) > field.profile.area + 1e-8
+    )
+      throw Error('The field area cannot be smaller than its allocated farms.');
+    save(state);
+  },
+  removeField(id: string) {
+    if (snapshot.state.farms.some((f) => f.fieldId === id))
+      throw Error('Remove or archive the farms in this field first.');
+    save({
+      ...snapshot.state,
+      fields: snapshot.state.fields?.filter((f) => f.id !== id),
+      draftFieldId: snapshot.state.draftFieldId === id ? null : snapshot.state.draftFieldId,
+      editingFieldId: snapshot.state.editingFieldId === id ? null : snapshot.state.editingFieldId,
+    });
+  },
+  create(farm: SeasonFarm) {
+    const existing = snapshot.state.farms.find(
+      (f) => f.id === farm.id || (farm.creationKey && f.creationKey === farm.creationKey),
+    );
+    if (existing) {
+      save({ ...snapshot.state, activeId: existing.id, calendarAccessId: existing.id });
+      return existing.id;
+    }
+    if (snapshot.state.farms.length >= 200)
+      throw Error('Export and archive farms before adding more.');
+    const parent = !farm.fieldId
+      ? {
+          id: `field-${farm.id}`,
+          name: (farm.field.name || farm.site.name).slice(0, 80),
+          profile: { ...farm.field },
+          site: { ...farm.site },
+        }
+      : undefined;
+    const linked = parent ? { ...farm, fieldId: parent.id } : farm;
+    const state = {
+      ...snapshot.state,
+      fields: parent ? [...(snapshot.state.fields ?? []), parent] : snapshot.state.fields,
+      farms: [...snapshot.state.farms, linked],
       activeId: farm.id,
       calendarAccessId: farm.id,
     };
-    if (!validSeasonState(state)) throw Error('The farm record could not be validated.');
+    if (
+      !validSeasonState(state) ||
+      state.fields?.some((f) => peakFieldArea(state.farms, f.id) > f.profile.area + 1e-8)
+    )
+      throw Error(
+        'Check the farm location and area. Farms growing at the same time must fit within their field.',
+      );
     save(state);
+    return farm.id;
   },
   activate(id: string | null) {
     if (id === null || snapshot.state.farms.some((f) => f.id === id))
       save({ ...snapshot.state, activeId: id, calendarAccessId: id });
+  },
+  resizeFarm(id: string, area: number) {
+    if (!Number.isFinite(area) || area <= 0 || area > 1000)
+      throw Error('Enter a farm area greater than zero.');
+    const state = {
+      ...snapshot.state,
+      farms: snapshot.state.farms.map((f) =>
+        f.id === id ? { ...f, field: { ...f.field, area } } : f,
+      ),
+    };
+    if (
+      !state.farms.some((f) => f.id === id) ||
+      !validSeasonState(state) ||
+      state.fields?.some((f) => peakFieldArea(state.farms, f.id) > f.profile.area + 1e-8)
+    )
+      throw Error('The farm areas must fit inside their field.');
+    save(state);
   },
   revokeCalendar() {
     if (snapshot.state.calendarAccessId !== null)

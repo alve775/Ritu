@@ -41,11 +41,15 @@ describe('guarded grain-corn thermal time', () => {
         (a) => a.id === 'thermal-maturity-check',
       ),
     ).toBe(false);
+    const record = farm();
+    const before = structuredClone(record);
     expect(
-      actionsForDay(farm(), '2026-03-07', null, estimate).find(
+      actionsForDay(record, '2026-03-07', null, estimate).find(
         (a) => a.id === 'thermal-maturity-check',
-      )?.detail,
-    ).toContain('not a harvest order');
+      )?.title,
+    ).toBe('Check physical grain maturity and moisture');
+    expect(record).toEqual(before);
+    expect(record.harvestedDate).toBe('');
     expect(
       actionsForDay(farm(), today, null, { status: 'stage-conflict' }).some(
         (a) => a.id === 'thermal-conflict',

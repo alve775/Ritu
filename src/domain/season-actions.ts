@@ -48,14 +48,14 @@ export function actionsForDay(
           kind: 'planning',
           title: 'Check the field before planting',
           detail:
-            'Confirm drainage, usable water, seed or planting material and the locally suitable variety. The climate screen cannot confirm these for you.',
+            'Check drainage, usable water, seed or planting material and the variety you will plant.',
           source: 'https://gaez.fao.org/pages/ecocrop',
         },
         {
           id: 'record-planting',
           kind: 'planning',
           title: 'Record the actual planting date when planted',
-          detail: `Your planning date is ${farm.selection.start}. Actual sowing or transplanting is recorded separately; the app will then count days from that event.`,
+          detail: `Planned planting: ${farm.selection.start}. Record the day you sow or transplant to start the crop calendar.`,
           source: farm.selection.calendar?.sourceUrl ?? 'https://gaez.fao.org/pages/ecocrop',
         },
       ]
@@ -64,7 +64,7 @@ export function actionsForDay(
           id: 'walk-field',
           kind: 'field',
           title: 'Walk the field and record what you see',
-          detail: `Day ${age + 1} since recorded planting. Look for uneven establishment, weeds, damage and symptoms. Record the observed crop stage; age alone cannot determine flowering or harvest readiness.`,
+          detail: `Day ${age + 1} since planting. Check several parts of the field for missing plants, weeds or damage, and record the crop stage.`,
           source: ipm,
         },
         {
@@ -72,7 +72,7 @@ export function actionsForDay(
           kind: 'field',
           title: 'Check water in the root zone',
           detail:
-            'Inspect your soil and drainage before deciding whether to irrigate. Rainfall forecasts and reference evaporation are not a measurement of available root-zone water.',
+            'Inspect moisture around the active roots and check drainage before deciding whether to water.',
           source: water,
         },
       ];
@@ -82,7 +82,7 @@ export function actionsForDay(
       kind: 'planning',
       title: 'Review perennial establishment and local fruiting guidance',
       detail:
-        'Record survival and observed growth. First bearing and fruiting season depend on species, cultivar, rootstock, plant age and local conditions. This care calendar does not predict first harvest; a recorded harvest does not end a perennial planting.',
+        'Check plant survival and new growth. Record flowering, fruiting and each harvest; keep caring for the planting after picking.',
       source:
         'https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-apples',
     });
@@ -98,7 +98,7 @@ export function actionsForDay(
         kind: 'field',
         title: 'Check physical grain maturity and moisture',
         detail:
-          'The documented heat target or a reported black-layer milestone calls for a field check. Inspect physical maturity and grain moisture using the hybrid and local harvest/storage protocol. A heat projection is not a harvest order.',
+          'The heat target or a recorded black-layer milestone has been reached. Inspect physical maturity and grain moisture using the hybrid’s harvest and storage guidance.',
         source: thermalMethodSource,
       });
     if (thermal.status === 'stage-conflict')
@@ -120,7 +120,7 @@ export function actionsForDay(
       kind: 'field',
       title: 'Recheck the root-zone water calculation',
       detail:
-        'Your reported-input water calculation exceeds its supplied RAW threshold. Check actual root-zone water, coefficient evidence and the local irrigation protocol. A calculated deficit is not a gross irrigation dose.',
+        'The recorded water calculation exceeds its RAW threshold. Check root-zone moisture, crop coefficients and the irrigation schedule.',
       source: waterBalanceSource,
     });
   if (!planning && stage === 'Establishing')
@@ -138,7 +138,7 @@ export function actionsForDay(
       kind: 'field',
       title: 'Give the flowering crop a careful water check',
       detail:
-        'You recorded flowering. A fully developed canopy can have high water demand; inspect actual root-zone water and the crop-specific local protocol. Do not turn reference evaporation into an irrigation dose.',
+        'You recorded flowering. Check moisture around the active roots and follow the crop’s irrigation schedule.',
       source: water,
     });
   if (!planning && stage === 'Maturing')
@@ -165,7 +165,7 @@ export function actionsForDay(
       kind: 'field',
       title: 'Inspect developing fruit or grain',
       detail:
-        'You recorded fruit or grain filling. Check actual crop condition and root-zone water; this observation does not establish a harvest date or an irrigation dose.',
+        'You recorded fruit or grain filling. Inspect developing fruit or grain and moisture around the active roots.',
       source: water,
     });
   if (!planning && observed && observed.date >= addDays(date, -1)) {
@@ -175,7 +175,7 @@ export function actionsForDay(
         kind: 'field',
         title: 'Recheck the reported dry soil',
         detail:
-          'Your field update reported dry soil. Inspect moisture in the active root zone and confirm usable water before deciding on crop-specific irrigation. No quantity is inferred from this answer.',
+          'You reported dry soil. Recheck moisture around the active roots and the water supply before watering.',
         source: water,
       });
     if (observed.water === 'waterlogged')
@@ -193,7 +193,7 @@ export function actionsForDay(
         kind: 'field',
         title: 'Inspect and document the reported damage',
         detail:
-          'Record where damage or symptoms occur and inspect affected plants. Seek crop-specific diagnosis before treatment; a check-in is not a pest diagnosis or pesticide prescription.',
+          'Note where damage occurs, inspect affected plants and identify the cause before choosing treatment.',
         source: ipm,
       });
   }
@@ -212,7 +212,7 @@ export function actionsForDay(
       kind: 'planning',
       title: 'Keep tracking beyond the reference window',
       detail:
-        'The original reference window has passed but final harvest is not recorded. Check the actual stage, variety and field conditions. No replacement maturity date is invented.',
+        'The reference growing period has passed. Check the crop’s stage and maturity, and continue recording progress until final harvest.',
       source: farm.selection.calendar?.sourceUrl ?? 'https://gaez.fao.org/pages/ecocrop',
     });
   if (
@@ -227,7 +227,7 @@ export function actionsForDay(
         id: 'rain-check',
         kind: 'weather',
         title: 'Rain is in the forecast',
-        detail: `${forecast.rain.toFixed(1)} mm is forecast for this date. Recheck before field work; inspect drains and update the watering decision using actual soil conditions. This is a forecast, not measured rain.`,
+        detail: `${forecast.rain.toFixed(1)} mm is forecast for this date. Check the forecast before field work, inspect drains and check soil moisture before watering.`,
         source: weather!.sourceUrl,
       });
     if (forecast?.minimum !== null && forecast?.minimum !== undefined && forecast.minimum <= 0)
@@ -249,7 +249,7 @@ export function actionsForDay(
       kind: 'field',
       title: 'Check actual maturity before harvest',
       detail:
-        'The source’s indicative duration has been reached. Inspect cultivar-specific maturity and local harvest guidance. The calendar cannot confirm that this crop is ready.',
+        'The reference growing period has been reached. Inspect maturity using the variety’s harvest guidance.',
       source:
         referenceWindow(farm).cultivar?.source ??
         farm.selection.calendar?.sourceUrl ??

@@ -117,8 +117,8 @@ export function ReadingControls() {
             <legend>{t('Farm sounds', 'মাঠের শব্দ')}</legend>
             <p>
               {t(
-                'Original synthesized wind and bird-like or insect-like calls. Optional atmosphere, not a field recording.',
-                'নিজেদের তৈরি বাতাস ও পাখি বা পোকামাকড়ের মতো শব্দ। ঐচ্ছিক আবহ, বাস্তব রেকর্ডিং নয়।',
+                'Choose background farm sounds and adjust the volume.',
+                'পেছনে বাজানোর চাষের শব্দ বাছুন ও আওয়াজ ঠিক করুন।',
               )}
             </p>
             <label>

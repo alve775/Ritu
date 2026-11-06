@@ -299,6 +299,7 @@ test('changed location invalidates confirmation; source outage has retry instead
   await enterLand(page, contexts[0]);
   await expect(page.locator('.season-crop-card').first()).toBeVisible();
   await page.getByRole('link', { name: 'Edit land details', exact: true }).click();
+  await page.getByRole('combobox', { name: 'Field for this farm', exact: true }).selectOption('');
   await page.getByText('Enter exact coordinates instead', { exact: true }).click();
   await page.getByRole('spinbutton', { name: 'Latitude', exact: true }).fill('0');
   await page.getByRole('button', { name: 'Use these coordinates', exact: true }).click();
@@ -341,7 +342,7 @@ test('partial storage recovery keeps valid farms, exposes a recovery export, and
   await expect(page.locator('.season-farm-tile')).toHaveCount(0);
   await page.reload();
   await expect(
-    page.getByRole('heading', { name: 'Your first farm starts here', exact: true }),
+    page.getByRole('spinbutton', { name: 'How many fields do you have?', exact: true }),
   ).toBeVisible();
 });
 for (const language of ['en', 'bn'] as const)
@@ -457,7 +458,7 @@ test('a perennial gets a saved care calendar without a first-harvest prediction'
     .getByRole('searchbox', { name: 'Search plants', exact: true })
     .fill('Mangifera indica');
   await page.getByRole('radio', { name: 'Mango', exact: true }).check();
-  await expect(page.locator('.season-crop-body')).toContainText('first harvest not predicted');
+  await expect(page.locator('.season-crop-body')).toContainText('Perennial care calendar');
   await page.getByRole('button', { name: 'Create my farm', exact: true }).click();
   await expect(page.getByText('YOUR PERENNIAL CARE PLAN', { exact: true })).toBeVisible();
   await expect(page.locator('.season-hero-facts')).toContainText('Care review horizon');

@@ -1,14 +1,15 @@
 'use client';
 import { useState } from 'react';
 import type { SeasonFarm, MaizeThermalProfile } from '../domain/global-season';
-import { cycleStatus, referenceWindow } from '../domain/season-lifecycle';
+import { cycleStatus, referenceWindow, latestFieldUpdate } from '../domain/season-lifecycle';
+import { stageLabel } from './season-check-in';
 import {
   thermalMethodSource,
   validThermalProfile,
   type ThermalEstimate,
   type ThermalWeather,
 } from '../domain/crop-thermal';
-import { seasonStore } from '../lib/season-store';
+import { useFarmRecordWriter } from './farm-record-scope';
 import { usePlanner } from './planner-provider';
 
 export function CycleStatus({ farm, today }: { farm: SeasonFarm; today: string }) {
@@ -45,6 +46,7 @@ export function SeasonProgress({
   const window = referenceWindow(farm),
     perennial = farm.selection.planKind === 'perennial-review';
   const status = cycleStatus(farm, today);
+  const observed = latestFieldUpdate(farm, today);
   const date = (value: string) =>
     new Intl.DateTimeFormat(language === 'bn' ? 'bn-BD' : 'en-GB', {
       dateStyle: 'medium',
@@ -61,6 +63,12 @@ export function SeasonProgress({
           <CycleStatus farm={farm} today={today} />
         </span>
       </div>
+      {observed && (
+        <p className="season-observed-stage" role="status">
+          {t('Latest field update', 'জমির সর্বশেষ খবর')}:{' '}
+          <strong>{stageLabel(observed.stage, language)}</strong> · {date(observed.date)}
+        </p>
+      )}
       <a className="button secondary" href="#farm-daily-update" onClick={onCheckIn}>
         {t('Update today’s field observations', 'আজকের জমির খবর দিন')}
       </a>
@@ -128,15 +136,15 @@ export function SeasonProgress({
       </dl>
       <p>
         {t(
-          'Reference dates are planning information, not a readiness diagnosis. A crop never finishes just because the counter reaches its reference duration.',
-          'উৎসের তারিখ পরিকল্পনার তথ্য, কাটার প্রস্তুতির পরীক্ষা নয়। শুধু দিনের গণনা পূর্ণ হলে ফসলের মৌসুম শেষ হয় না।',
+          'Planting sets the schedule. Record the final harvest to finish the season.',
+          'রোপণ থেকে সময়সূচি শুরু। মৌসুম শেষ করতে শেষ ফসল তোলার দিন লিখুন।',
         )}
       </p>
       {!perennial && status === 'extended' && (
         <p className="notice-amber">
           {t(
-            'Final harvest is not confirmed. Tracking and field checks continue; no extra days are guessed.',
-            'শেষ তোলা নিশ্চিত হয়নি। হিসাব ও জমির যাচাই চলবে; অতিরিক্ত দিন অনুমান করে বসানো হয় না।',
+            'The reference period has passed. Keep recording crop progress until the final harvest.',
+            'উৎসের সময়সীমা পেরিয়েছে। শেষ ফসল তোলা পর্যন্ত অগ্রগতির হিসাব রাখুন।',
           )}
         </p>
       )}
@@ -148,78 +156,76 @@ export function SeasonProgress({
           )}
         </p>
       )}
-      <div className="season-model-status" role="status">
-        <strong>
-          {farm.thermalProfile
-            ? t('Experimental timing estimate', 'পরীক্ষামূলক সময়ের হিসাব')
-            : t('Numerical estimate unavailable', 'সংখ্যাভিত্তিক হিসাব নেই')}
-        </strong>
-        <p>
-          {estimate.status === 'projected'
-            ? t(
-                `Heat-threshold projection: ${date(estimate.projectedDate!)}. Confirm physical maturity and grain moisture before harvest.`,
-                `তাপের সীমা পূরণের পূর্বানুমান: ${date(estimate.projectedDate!)}। কাটার আগে আসল পরিপক্বতা ও দানার আর্দ্রতা যাচাই করুন।`,
-              )
-            : estimate.status === 'observed-maturity'
+      {farm.thermalProfile && (
+        <div className="season-model-status" role="status">
+          <strong>{t('Heat-based timing estimate', 'তাপভিত্তিক সময়ের হিসাব')}</strong>
+          <p>
+            {estimate.status === 'projected'
               ? t(
-                  `Farmer-reported physiological maturity: ${date(estimate.observedDate!)}. Harvest is still a separate event.`,
-                  `কৃষকের খবর অনুযায়ী দৈহিক পরিপক্বতা: ${date(estimate.observedDate!)}। তোলা আলাদা ঘটনা।`,
+                  `Heat-threshold projection: ${date(estimate.projectedDate!)}. Confirm physical maturity and grain moisture before harvest.`,
+                  `তাপের সীমা পূরণের পূর্বানুমান: ${date(estimate.projectedDate!)}। কাটার আগে আসল পরিপক্বতা ও দানার আর্দ্রতা যাচাই করুন।`,
                 )
-              : estimate.status === 'threshold-reached'
+              : estimate.status === 'observed-maturity'
                 ? t(
-                    'The documented heat target has been reached. Check actual maturity; the model does not automatically finish the season.',
-                    'নথির তাপের সীমা পূর্ণ হয়েছে। আসল পরিপক্বতা দেখুন; মডেল নিজে থেকে মৌসুম শেষ করে না।',
+                    `Farmer-reported physiological maturity: ${date(estimate.observedDate!)}. Harvest is still a separate event.`,
+                    `কৃষকের খবর অনুযায়ী দৈহিক পরিপক্বতা: ${date(estimate.observedDate!)}। তোলা আলাদা ঘটনা।`,
                   )
-                : estimate.status === 'stage-conflict'
+                : estimate.status === 'threshold-reached'
                   ? t(
-                      'The heat model and recent field stage disagree. An updated date is unavailable; review the variety, field stage and weather inputs.',
-                      'তাপের মডেল ও সাম্প্রতিক জমির পর্যায় মেলেনি। নতুন তারিখ নেই; জাত, পর্যায় ও আবহাওয়ার তথ্য যাচাই করুন।',
+                      'The documented heat target has been reached. Check actual maturity; the model does not automatically finish the season.',
+                      'নথির তাপের সীমা পূর্ণ হয়েছে। আসল পরিপক্বতা দেখুন; মডেল নিজে থেকে মৌসুম শেষ করে না।',
                     )
-                  : estimate.status === 'forecast-limited'
+                  : estimate.status === 'stage-conflict'
                     ? t(
-                        'Updated date unavailable: the remaining heat target is not reached within the available forecast. No long-range temperatures are invented.',
-                        'নতুন তারিখ নেই: পাওয়া পূর্বাভাসের মধ্যে বাকি তাপের সীমা পূর্ণ হয় না। দূরের দিনের তাপমাত্রা বানানো হয় না।',
+                        'The heat model and recent field stage disagree. An updated date is unavailable; review the variety, field stage and weather inputs.',
+                        'তাপের মডেল ও সাম্প্রতিক জমির পর্যায় মেলেনি। নতুন তারিখ নেই; জাত, পর্যায় ও আবহাওয়ার তথ্য যাচাই করুন।',
                       )
-                    : estimate.status === 'history-incomplete'
+                    : estimate.status === 'forecast-limited'
                       ? t(
-                          `Updated date unavailable: ${estimate.missingDays} completed day(s) lack usable temperature evidence.`,
-                          `নতুন তারিখ নেই: ${estimate.missingDays}টি শেষ হওয়া দিনের ব্যবহারযোগ্য তাপমাত্রা নেই।`,
+                          'The available forecast does not yet reach the remaining heat target.',
+                          'পাওয়া পূর্বাভাসে এখনও বাকি তাপের সীমা পূর্ণ হচ্ছে না।',
                         )
-                      : estimate.status === 'completed'
+                      : estimate.status === 'history-incomplete'
                         ? t(
-                            'Season completed from the farmer’s final-harvest record.',
-                            'কৃষকের শেষ তোলার হিসাব অনুযায়ী মৌসুম শেষ।',
+                            `Updated date unavailable: ${estimate.missingDays} completed day(s) lack usable temperature evidence.`,
+                            `নতুন তারিখ নেই: ${estimate.missingDays}টি শেষ হওয়া দিনের ব্যবহারযোগ্য তাপমাত্রা নেই।`,
                           )
-                        : estimate.status === 'waiting-planting'
+                        : estimate.status === 'completed'
                           ? t(
-                              'Record actual planting to begin heat accumulation.',
-                              'তাপের হিসাব শুরু করতে আসল রোপণ লিখুন।',
+                              'Season completed from the farmer’s final-harvest record.',
+                              'কৃষকের শেষ তোলার হিসাব অনুযায়ী মৌসুম শেষ।',
                             )
-                          : estimate.status === 'unavailable'
+                          : estimate.status === 'waiting-planting'
                             ? t(
-                                'Updated date unavailable: fresh, complete weather evidence is needed.',
-                                'নতুন তারিখ নেই: নতুন ও সম্পূর্ণ আবহাওয়ার তথ্য দরকার।',
+                                'Record actual planting to begin heat accumulation.',
+                                'তাপের হিসাব শুরু করতে আসল রোপণ লিখুন।',
                               )
-                            : t(
-                                'No supported variety model is configured. Field observations still update guidance; a new numerical date is not invented.',
-                                'জাতের সমর্থিত মডেল ঠিক করা নেই। জমির খবর অনুযায়ী নির্দেশনা বদলায়; সংখ্যার নতুন তারিখ বানানো হয় না।',
-                              )}
-        </p>
-        {estimate.accumulated !== undefined && (
-          <p>
-            {t('Model heat accumulated', 'মডেলে জমা তাপ')}: {estimate.accumulated.toFixed(1)}{' '}
-            °F·days · {t('remaining', 'বাকি')}: {estimate.remaining!.toFixed(1)} °F·days
+                            : estimate.status === 'unavailable'
+                              ? t(
+                                  'Updated date unavailable: fresh, complete weather evidence is needed.',
+                                  'নতুন তারিখ নেই: নতুন ও সম্পূর্ণ আবহাওয়ার তথ্য দরকার।',
+                                )
+                              : t(
+                                  'Check the documented variety and heat-model settings.',
+                                  'নথিভুক্ত জাত ও তাপের মডেলের তথ্য যাচাই করুন।',
+                                )}
           </p>
-        )}
-        {estimate.anchorGdd !== undefined && estimate.anchorGdd > 0 && (
-          <p>
-            {t(
-              'Anchored to the recorded 50%-silking event using the documented stage requirement.',
-              'নথির পর্যায়ের তাপের চাহিদা দিয়ে অর্ধেক গাছে রেশম আসার লিখিত ঘটনাকে ভিত্তি করা হয়েছে।',
-            )}
-          </p>
-        )}
-      </div>
+          {estimate.accumulated !== undefined && (
+            <p>
+              {t('Model heat accumulated', 'মডেলে জমা তাপ')}: {estimate.accumulated.toFixed(1)}{' '}
+              °F·days · {t('remaining', 'বাকি')}: {estimate.remaining!.toFixed(1)} °F·days
+            </p>
+          )}
+          {estimate.anchorGdd !== undefined && estimate.anchorGdd > 0 && (
+            <p>
+              {t(
+                'Anchored to the recorded 50%-silking event using the documented stage requirement.',
+                'নথির পর্যায়ের তাপের চাহিদা দিয়ে অর্ধেক গাছে রেশম আসার লিখিত ঘটনাকে ভিত্তি করা হয়েছে।',
+              )}
+            </p>
+          )}
+        </div>
+      )}
     </section>
   );
 }
@@ -235,6 +241,7 @@ export function ThermalModelSettings({
 }) {
   const { t, language } = usePlanner();
   const [variety, setVariety] = useState(farm.thermalProfile?.variety ?? '');
+  const writeFarm = useFarmRecordWriter();
   const [target, setTarget] = useState(String(farm.thermalProfile?.targetGdd ?? ''));
   const [silking, setSilking] = useState(String(farm.thermalProfile?.silkingGdd ?? ''));
   const [sourceUrl, setSourceUrl] = useState(farm.thermalProfile?.sourceUrl ?? '');
@@ -245,10 +252,7 @@ export function ThermalModelSettings({
   return (
     <details className="card season-thermal-settings">
       <summary>
-        {t(
-          'Experimental grain-corn heat model · documented variety only',
-          'পরীক্ষামূলক দানার ভুট্টার তাপের মডেল · নথিভুক্ত জাতের জন্য',
-        )}
+        {t('Grain-corn heat model · documented variety', 'দানার ভুট্টার তাপের মডেল · নথিভুক্ত জাত')}
       </summary>
       <p>
         {t(
@@ -258,8 +262,8 @@ export function ThermalModelSettings({
       </p>
       <p className="notice-amber">
         {t(
-          'You supply and verify the document. RITU does not authenticate its contents or claim local calibration. Weather is a regional model estimate; heat alone does not model all stress, disease or harvest moisture.',
-          'নথি আপনি দেবেন ও যাচাই করবেন। ঋতু নথির সত্যতা বা স্থানীয় ক্যালিব্রেশন নিশ্চিত করে না। আবহাওয়া আঞ্চলিক মডেলের হিসাব; শুধু তাপ দিয়ে সব চাপ, রোগ বা কাটার আর্দ্রতা বোঝা যায় না।',
+          'Use the hybrid’s published heat requirement and method. Check physical maturity and grain moisture in the field before harvest.',
+          'হাইব্রিডের প্রকাশিত তাপের চাহিদা ও পদ্ধতি ব্যবহার করুন। কাটার আগে জমিতে পরিপক্বতা ও দানার আর্দ্রতা দেখুন।',
         )}
       </p>
       <form
@@ -287,13 +291,8 @@ export function ThermalModelSettings({
             return;
           }
           try {
-            seasonStore.update(farm.id, { thermalProfile: profile });
-            setMessage(
-              t(
-                'Documented inputs saved. Model uncertainty is not calibrated.',
-                'নথির তথ্য রাখা হয়েছে। মডেলের অনিশ্চয়তার ক্যালিব্রেশন নেই।',
-              ),
-            );
+            writeFarm(farm.id, { thermalProfile: profile });
+            setMessage(t('Heat-model settings saved.', 'তাপের মডেলের তথ্য রাখা হয়েছে।'));
           } catch {
             setMessage(t('The model settings could not be saved.', 'মডেলের তথ্য রাখা যায়নি।'));
           }
@@ -386,7 +385,7 @@ export function ThermalModelSettings({
             type="button"
             className="text-button"
             onClick={() => {
-              seasonStore.update(farm.id, { thermalProfile: null });
+              writeFarm(farm.id, { thermalProfile: null });
               setVariety('');
               setTarget('');
               setSilking('');

@@ -49,16 +49,11 @@ export function SoilReferencePanel({ site }: { site?: FarmSite }) {
       className="soil-reference source-method"
       onToggle={(e) => setOpen(e.currentTarget.open)}
     >
-      <summary>
-        {t(
-          'Regional soil reference · modeled, not a soil test',
-          'আঞ্চলিক মাটির তথ্য · মডেলের হিসাব, মাটি পরীক্ষা নয়',
-        )}
-      </summary>
+      <summary>{t('SoilGrids pH estimate', 'SoilGrids-এর pH হিসাব')}</summary>
       <p>
         {t(
-          'ISRIC SoilGrids 2.0 uses a 250 m native grid. This depth-specific prediction stays separate from your measured soil record and does not change crop ranking or fill water-capacity inputs.',
-          'ISRIC SoilGrids 2.0-এর মূল গ্রিড ২৫০ মিটার। গভীরতাভিত্তিক মডেলের মান মাপা মাটির হিসাবের আলাদা; এতে ফসলের ক্রম বা পানি ধারণক্ষমতা নিজে থেকে বসে না।',
+          'ISRIC SoilGrids 2.0 · 250 m grid. Choose a depth to view the modeled pH and its uncertainty range.',
+          'ISRIC SoilGrids 2.0 · ২৫০ মিটার গ্রিড। গভীরতা বেছে মডেলের pH ও অনিশ্চয়তার সীমা দেখুন।',
         )}
       </p>
       <label>

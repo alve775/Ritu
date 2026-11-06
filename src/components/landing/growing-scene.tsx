@@ -205,11 +205,6 @@ export function GrowingScene({ language }: { language: Language }) {
           </button>
         </div>
       </div>
-      <p className="farm-scene-note">
-        {bn
-          ? 'কৃষিকাজের আঁকা দৃশ্য · বৃদ্ধির পূর্বাভাস নয়'
-          : 'An illustrated farm in motion · not a growth forecast'}
-      </p>
     </section>
   );
 }

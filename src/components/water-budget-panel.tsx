@@ -13,7 +13,7 @@ import {
   type WaterDayInput,
   type WaterDayRecord,
 } from '../domain/water-balance';
-import { seasonStore } from '../lib/season-store';
+import { useFarmRecordWriter } from './farm-record-scope';
 
 const fields = [
   ['fieldCapacity', 'Field capacity · volume %', 'ক্ষেত্রধারণ ক্ষমতা · আয়তন %', 0, 100],
@@ -47,6 +47,7 @@ export function WaterBudgetPanel({
   weather: LiveWeather | null;
 }) {
   const { t } = usePlanner();
+  const writeFarm = useFarmRecordWriter();
   const saved = (farm.waterRecords ?? []).find((r) => r.date === date);
   const [values, setValues] = useState(() => toStrings(saved));
   const [system, setSystem] = useState(saved?.system ?? '');
@@ -73,8 +74,8 @@ export function WaterBudgetPanel({
       <summary>{t('Daily water balance · FAO-56', 'দৈনিক পানির হিসাব · FAO-56')}</summary>
       <p>
         {t(
-          'An optional calculation for your chosen crop and stage. Enter documented coefficients and root-zone inputs; blank values are not estimated. This single-coefficient daily model is for non-ponded soil with a fixed root depth. It is not a seasonal water guarantee or an irrigation order.',
-          'বাছা ফসল ও পর্যায়ের জন্য ঐচ্ছিক হিসাব। নথিভুক্ত সহগ ও শিকড়ের অঞ্চলের তথ্য দিন; ফাঁকা মান অনুমান করা হয় না। এই দৈনিক মডেল স্থির শিকড়ের গভীরতা ও জমা পানি নেই এমন মাটির জন্য। এটি মৌসুমের পানি নিশ্চিত বা সেচের আদেশ নয়।',
+          'Calculate daily root-zone water balance using your crop-stage coefficients and field measurements. This model covers non-ponded soil at a fixed root depth.',
+          'ফসলের পর্যায়ের সহগ ও জমির মাপ দিয়ে শিকড়ের দৈনিক পানির হিসাব করুন। এই মডেল স্থির শিকড়ের গভীরতা ও জমা পানি নেই এমন মাটির জন্য।',
         )}
       </p>
       <p>
@@ -128,7 +129,7 @@ export function WaterBudgetPanel({
             savedAt: new Date().toISOString(),
           };
           try {
-            seasonStore.update(farm.id, {
+            writeFarm(farm.id, {
               waterRecords: [
                 ...(farm.waterRecords ?? []).filter((r) => r.date !== date),
                 record,
@@ -161,10 +162,7 @@ export function WaterBudgetPanel({
                 )}
               </option>
               <option value="reported">
-                {t(
-                  'Reported day inputs · not independently verified',
-                  'দিনের দেওয়া তথ্য · স্বাধীনভাবে যাচাই নয়',
-                )}
+                {t('Farmer-reported daily inputs', 'কৃষকের দেওয়া দিনের তথ্য')}
               </option>
             </select>
           </label>
@@ -200,8 +198,8 @@ export function WaterBudgetPanel({
                 setMode('scenario');
                 setMessage(
                   t(
-                    'Imported modeled reference ET₀ only. Rain and field measurements were not filled.',
-                    'মডেলের রেফারেন্স ET₀ আনা হয়েছে। বৃষ্টি বা জমির মাপ বসানো হয়নি।',
+                    'Modeled reference ET₀ imported. Enter the rainfall and field measurements below.',
+                    'মডেলের রেফারেন্স ET₀ আনা হয়েছে। নিচে বৃষ্টি ও জমির মাপ দিন।',
                   ),
                 );
               }}
@@ -259,8 +257,8 @@ export function WaterBudgetPanel({
         </div>
         <p className="field-help">
           {t(
-            'Enter an explicit zero only when justified. Irrigation is water infiltrating the root zone, not pump output. p must apply to this crop and demand; no universal default is supplied.',
-            'প্রমাণ থাকলেই শূন্য দিন। সেচ মানে শিকড়ের অঞ্চলে প্রবেশ করা পানি, পাম্পের মোট পানি নয়। p এই ফসল ও চাহিদার উপযোগী হতে হবে; সবার জন্য একটি মান বসানো হয় না।',
+            'Use measured or documented values, including any zero. Irrigation means water entering the root zone. Use a depletion fraction p for this crop and stage.',
+            'শূন্যসহ প্রতিটি মান মাপ বা নথি থেকে দিন। সেচ বলতে শিকড়ের অঞ্চলে প্রবেশ করা পানি বোঝায়। এই ফসল ও পর্যায়ের উপযুক্ত p ব্যবহার করুন।',
           )}
         </p>
         <label>
@@ -341,10 +339,7 @@ export function WaterBudgetPanel({
                   'Planning scenario · includes assumptions or model data',
                   'পরিকল্পনার হিসাব · অনুমান বা মডেলের তথ্য আছে',
                 )
-              : t(
-                  'Based on your reported inputs · not field-validated',
-                  'আপনার দেওয়া তথ্যের ভিত্তিতে · জমিতে যাচাই হয়নি',
-                )}
+              : t('Calculated from farmer-reported inputs', 'কৃষকের দেওয়া তথ্য থেকে হিসাব')}
           </p>
           <dl className="season-form-grid">
             {[
@@ -374,12 +369,12 @@ export function WaterBudgetPanel({
           <p className={result.thresholdExceeded ? 'notice-amber' : 'field-help'}>
             {result.thresholdExceeded
               ? t(
-                  'Estimated depletion exceeds RAW. Recheck actual root-zone water and the local irrigation protocol; this is not an automatic watering order.',
-                  'হিসাবে ঘাটতি RAW পেরিয়েছে। আসল মাটির পানি ও স্থানীয় সেচের নিয়ম যাচাই করুন; এটি স্বয়ংক্রিয় সেচের আদেশ নয়।',
+                  'Calculated depletion exceeds RAW. Inspect root-zone moisture and review the crop’s irrigation schedule.',
+                  'হিসাবের ঘাটতি RAW পেরিয়েছে। শিকড়ের মাটির আর্দ্রতা ও ফসলের সেচের সময়সূচি দেখুন।',
                 )
               : t(
-                  'This calculation ends within the supplied RAW threshold. That does not establish seasonal water adequacy.',
-                  'এই হিসাব দেওয়া RAW-এর মধ্যে শেষ হচ্ছে। এতে মৌসুমের পানির পর্যাপ্ততা নিশ্চিত হয় না।',
+                  'Calculated depletion is within the supplied RAW threshold for this day.',
+                  'এই দিনের হিসাবের ঘাটতি দেওয়া RAW সীমার মধ্যে আছে।',
                 )}
           </p>
           <p>
@@ -407,7 +402,7 @@ export function WaterBudgetPanel({
                   className="text-button"
                   aria-label={`${t('Delete water calculation', 'পানির হিসাব মুছুন')} ${r.date}`}
                   onClick={() => {
-                    seasonStore.update(farm.id, {
+                    writeFarm(farm.id, {
                       waterRecords: farm.waterRecords!.filter((x) => x.id !== r.id),
                     });
                     if (r.date === date) setShown(null);

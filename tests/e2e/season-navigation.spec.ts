@@ -121,7 +121,7 @@ test('landing opens the dashboard first; its tour finishes without leaving it', 
   await expect(page).toHaveTitle('Step 1 of 4 · Dashboard — RITU');
   await page.screenshot({ path: info.outputPath('dashboard-first.png') });
   await page.reload();
-  await expect(page.getByRole('heading', { name: 'My farms', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /^My fields & farms/ })).toBeVisible();
   await expect(page.locator('.tour-dialog')).toHaveCount(0);
 });
 
@@ -131,7 +131,7 @@ test('first visit explains each page independently, leaving time to enter land a
   test.setTimeout(90000);
   await page.goto('/farms');
   await tour(page, '/farms');
-  await page.getByRole('link', { name: 'Set up my first field', exact: true }).click();
+  await page.getByRole('button', { name: 'Add a farm', exact: true }).click();
   await tour(page, '/farm');
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThanOrEqual(2);
   await expect(page).toHaveTitle('Step 2 of 4 · Land details — RITU');
@@ -246,9 +246,9 @@ test('page acknowledgements use a session fallback when browser storage is block
   await page.goto('/farms');
   await tour(page, '/farms');
   await page.reload();
-  await expect(page.getByRole('heading', { name: 'My farms', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /^My fields & farms/ })).toBeVisible();
   await expect(page.locator('.tour-dialog')).toHaveCount(0);
-  await page.getByRole('link', { name: 'Set up my first field', exact: true }).click();
+  await page.getByRole('button', { name: 'Add a farm', exact: true }).click();
   await tour(page, '/farm');
   await page.reload();
   await expect(

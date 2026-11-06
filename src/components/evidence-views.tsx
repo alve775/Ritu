@@ -1215,8 +1215,8 @@ function FieldMonitor({ tracked }: { tracked: SavedEvidencePlan }) {
                 {rain.date}: {rain.rain} mm ·{' '}
                 {rain.rainProbability === null ? '' : `${rain.rainProbability}%`}.{' '}
                 {t(
-                  'Forecast rain is not measured water in your soil. Check the root zone, water supply and local irrigation guidance.',
-                  'বৃষ্টির পূর্বাভাস মাটিতে মাপা পানি নয়। শিকড়ের মাটি, পানির সরবরাহ ও স্থানীয় সেচের পরামর্শ দেখুন।',
+                  'Check root-zone moisture and the water supply before watering.',
+                  'সেচের আগে শিকড়ের আর্দ্রতা ও পানির সরবরাহ দেখুন।',
                 )}
               </p>
             </li>
@@ -1231,8 +1231,8 @@ function FieldMonitor({ tracked }: { tracked: SavedEvidencePlan }) {
                 {t('Recorded planting', 'লেখা রোপণ')}:{' '}
                 {tracked.records[periodKey(active)].plantedDate}.{' '}
                 {t(
-                  'Record what you observe. A planting date alone does not establish growth stage or diagnose disease.',
-                  'বাস্তব পর্যবেক্ষণ লিখুন। শুধু রোপণের দিনে গাছের পর্যায় বা রোগ জানা যায় না।',
+                  'Record the crop stage and any damage you observe.',
+                  'ফসলের পর্যায় ও দেখা ক্ষতি লিখুন।',
                 )}
               </p>
             </li>
@@ -1242,8 +1242,8 @@ function FieldMonitor({ tracked }: { tracked: SavedEvidencePlan }) {
               <p>
                 {calendarByCrop(next.crop)!.name[language]}: {next.start}.{' '}
                 {t(
-                  'This is a reference date, not an instruction to plant today. Check variety, soil/field readiness and current local advice.',
-                  'এটি আঞ্চলিক সময়, আজ রোপণের নির্দেশ নয়। জাত, মাটি/জমির প্রস্তুতি ও স্থানীয় পরামর্শ দেখুন।',
+                  'Check the variety and field readiness before planting.',
+                  'রোপণের আগে জাত ও জমির প্রস্তুতি দেখুন।',
                 )}
               </p>
             </li>
@@ -1288,8 +1288,8 @@ export function EvidenceTrackingView() {
         <h1>{t('Save your calendar to start tracking', 'হিসাব করতে ক্যালেন্ডার রাখুন')}</h1>
         <p>
           {t(
-            'Only your saved regional calendar appears here. Previous sample calendars are not reused as real advice.',
-            'এখানে শুধু আপনার রাখা আঞ্চলিক ক্যালেন্ডার থাকবে। আগের উদাহরণ বাস্তব পরামর্শ হিসেবে ব্যবহার হয় না।',
+            'Open a saved farm to see its calendar and recorded activities.',
+            'রাখা খামার খুলে ক্যালেন্ডার ও কাজের হিসাব দেখুন।',
           )}
         </p>
         <Link href="/plan" className="button primary">
@@ -1471,14 +1471,14 @@ export function EvidenceSourcesView({
         <h2>{t('Worldwide, one-season crop matching', 'বিশ্বজুড়ে এক মৌসুমের ফসল মেলানো')}</h2>
         <p>
           {t(
-            'The current farm workflow compares NASA POWER 1991–2020 monthly climate normals with FAO ECOCROP species temperature and soil/drainage categories. Water labels record your access; they do not change crop ranking or establish seasonal water adequacy. The result is preliminary source matching, not a field-validated yield, cultivar or optimum-crop prediction.',
-            'বর্তমান খামার ব্যবস্থায় নাসা পাওয়ারের ১৯৯১–২০২০ মাসিক জলবায়ু FAO ECOCROP-এর প্রজাতিভিত্তিক তাপ ও মাটি/নিষ্কাশনের সঙ্গে মেলে। পানির নাম আপনার সুযোগ লেখে; এতে ফসলের ক্রম বদলায় না বা মৌসুমের পানির পর্যাপ্ততা নিশ্চিত হয় না। এটি উৎসভিত্তিক প্রাথমিক মিল, জমিতে পরীক্ষিত ফলন, জাত বা সেরা ফসলের ভবিষ্যদ্বাণী নয়।',
+            'NASA POWER monthly climate normals (1991–2020) are matched to FAO ECOCROP temperature, soil and drainage requirements. Results show source matches for species. Seasonal water supply, local cultivar performance and field suitability remain separate checks.',
+            'নাসা পাওয়ারের ১৯৯১–২০২০ মাসিক জলবায়ু FAO ECOCROP-এর তাপ, মাটি ও নিষ্কাশনের চাহিদায় মেলে। ফলাফলে প্রজাতির উৎসভিত্তিক মিল দেখায়। মৌসুমি পানি, স্থানীয় জাতের ফলন ও জমির উপযুক্ততা আলাদা যাচাইয়ের বিষয়।',
           )}
         </p>
         <p className="field-help">
           {t(
-            'FAO reports that ECOCROP was developed in 1999 and discontinued around 2015. It remains a useful historical species reference, not a continuously updated cultivar advisory service. A current retrieval date does not make its underlying crop evidence current.',
-            'FAO জানায় ECOCROP ১৯৯৯ সালে তৈরি এবং প্রায় ২০১৫ সালে বন্ধ হয়। এটি প্রজাতির পুরোনো তথ্যসূত্র, নিয়মিত হালনাগাদ জাতভিত্তিক পরামর্শ নয়। আজ তথ্য আনলেই ফসলের মূল তথ্য নতুন হয়ে যায় না।',
+            'FAO dates ECOCROP to 1999, with updates discontinued around 2015. Crop requirements retain those historical source dates.',
+            'FAO অনুযায়ী ECOCROP ১৯৯৯ সালে তৈরি; প্রায় ২০১৫ সালে হালনাগাদ বন্ধ হয়। ফসলের চাহিদায় সেই উৎসের তারিখ রাখা আছে।',
           )}
         </p>
         <p>
@@ -1503,8 +1503,8 @@ export function EvidenceSourcesView({
         <h2>{t('What water advice requires', 'পানির পরামর্শে যা দরকার')}</h2>
         <p>
           {t(
-            'The farm calendar now offers an optional FAO-56 daily water calculation. It requires your crop-stage coefficients, effective root depth, soil water capacity, beginning water and daily water inputs. Its single-coefficient approximation uses beginning-of-day stress and daily wetting totals; surplus drains at day end. It does not model ponded paddy, root growth, salinity or within-day timing. Results are calculations from supplied inputs, not field validation or gross irrigation orders. Forecast ET₀ imports remain labeled planning scenarios.',
-            'খামারের পঞ্জিকায় এখন ঐচ্ছিক FAO-56 দৈনিক পানির হিসাব আছে। ফসলের সহগ, কার্যকর শিকড়ের গভীরতা, মাটির ধারণক্ষমতা, শুরুর পানি ও দিনের পানির তথ্য লাগে। এতে শুরুর পানি দিয়ে চাপ, দিনের মোট পানি ও দিন শেষে বাড়তি পানি নেমে যাওয়া ধরা হয়। জমা পানির ধান, শিকড়ের বৃদ্ধি, লবণাক্ততা বা দিনের ভেতরের সময় ধরা হয় না। এটি দেওয়া তথ্যের হিসাব, জমির যাচাই বা সেচের আদেশ নয়। পূর্বাভাসের ET₀ নিলে পরিকল্পনার হিসাব বলা হয়।',
+            'The optional FAO-56 daily calculation uses crop-stage coefficients, root depth, soil capacity, starting moisture and daily water inputs. It covers non-ponded soil at fixed root depth, using beginning-of-day stress and daily totals. Forecast ET₀ is labelled as a planning scenario.',
+            'ঐচ্ছিক FAO-56 দৈনিক হিসাবে ফসলের সহগ, শিকড়ের গভীরতা, মাটির ধারণক্ষমতা, শুরুর আর্দ্রতা ও দিনের পানির তথ্য লাগে। স্থির শিকড়ের গভীরতা ও জমা পানি নেই এমন মাটিতে শুরুর চাপ ও দিনের মোট পানি ব্যবহৃত হয়। পূর্বাভাসের ET₀ পরিকল্পনার হিসাব হিসেবে থাকে।',
           )}
         </p>
         <SourceLink href="https://www.fao.org/4/x0490e/x0490e0b.htm">
@@ -1521,8 +1521,8 @@ export function EvidenceSourcesView({
         </h2>
         <p>
           {t(
-            'Published methods can support a calculation; local accuracy needs observed outcomes. DSSAT specifies weather, soil and management inputs plus flowering, maturity or yield observations for model evaluation. The optional grain-corn heat calculation follows a documented method, but the farmer’s hybrid document and the observation-based stage adjustment are not independently validated here. A calendar reference is not a harvest order.',
-            'প্রকাশিত পদ্ধতিতে হিসাব করা যায়; স্থানীয় নির্ভুলতা যাচাইয়ে আসল ফল দরকার। DSSAT মডেল যাচাইয়ে আবহাওয়া, মাটি ও ব্যবস্থাপনার পাশাপাশি ফুল, পরিপক্বতা বা ফলনের পর্যবেক্ষণ চায়। ঐচ্ছিক দানার ভুট্টার তাপের হিসাব নথিভুক্ত পদ্ধতিতে হয়, কিন্তু আপনার হাইব্রিডের নথি ও দেখা পর্যায় দিয়ে সমন্বয় এখানে স্বাধীনভাবে যাচাই হয়নি। পঞ্জিকার দিন কাটার নির্দেশ নয়।',
+            'Local model evaluation compares weather, soil and management inputs with observed flowering, maturity and harvest outcomes. The optional grain-corn heat model requires a documented hybrid heat target; local calibration is not established.',
+            'স্থানীয় মডেল যাচাইয়ে আবহাওয়া, মাটি ও ব্যবস্থাপনার তথ্যের সঙ্গে দেখা ফুল, পরিপক্বতা ও তোলার ফল মিলিয়ে দেখা হয়। ঐচ্ছিক দানার ভুট্টার তাপের মডেলে হাইব্রিডের নথির তাপের চাহিদা লাগে; স্থানীয় ক্যালিব্রেশন প্রতিষ্ঠিত নয়।',
           )}
         </p>
         <SourceLink href="https://dssat.net/data/minimum-data/">
@@ -1537,8 +1537,8 @@ export function EvidenceSourcesView({
         <h2>{t('Global historical crop calendars', 'বিশ্বের পুরোনো ফসল পঞ্জিকা')}</h2>
         <p>
           {t(
-            'Sacks et al. (2010), University of Wisconsin–Madison SAGE: fourteen unfilled, unextrapolated 0.5° crop/season grids are integrated. Most original observations describe the 1990s or early 2000s. The dataset’s “winter” category does not always identify a winter cultivar in tropical/subtropical regions. These regional dates do not establish current farm timing or winter survival. Climate-only options retain the ECOCROP source range and show a shorter reference interval only when it fits monthly-normal temperatures; a compatible local variety still needs confirmation.',
-            'Sacks ও সহকর্মীদের (২০১০), উইসকনসিন–ম্যাডিসন SAGE-এর অপ্রসারিত ০.৫°-এর ১৪টি ফসল/মৌসুমের গ্রিড যুক্ত। বেশিরভাগ আসল তথ্য ১৯৯০-এর দশক বা ২০০০-এর শুরুর। উষ্ণ অঞ্চলে “winter” নাম মানেই শীতকালীন জাত নয়। আঞ্চলিক দিন আজকের জমির সময় বা শীতে বাঁচা নিশ্চিত করে না। জলবায়ুভিত্তিক বিকল্পে ECOCROP-এর মূল সময় থাকে; মাসিক স্বাভাবিক তাপে মেলা ছোট পরিকল্পনার সময় দেখালেও উপযুক্ত স্থানীয় জাত নিশ্চিত করতে হবে।',
+            'Sacks et al. (2010), SAGE, supplies fourteen original 0.5° crop/season grids, mainly based on 1990s and early-2000s observations. Regional planting windows are displayed with their source dates. Climate-only options use ECOCROP duration ranges and monthly-normal temperature windows. Local varieties and winter survival need regional evidence.',
+            'Sacks ও সহকর্মীদের (২০১০) SAGE-এর ০.৫°-এর ১৪টি ফসল/মৌসুমের মূল গ্রিড ব্যবহার হয়; বেশিরভাগ পর্যবেক্ষণ ১৯৯০-এর দশক ও ২০০০-এর শুরুর। আঞ্চলিক রোপণের সময়ে উৎসের দিন থাকে। শুধু জলবায়ুর বিকল্পে ECOCROP-এর সময়সীমা ও মাসিক স্বাভাবিক তাপের সময় ব্যবহৃত হয়। স্থানীয় জাত ও শীতে বাঁচার তথ্য আঞ্চলিকভাবে যাচাই দরকার।',
           )}
         </p>
         <SourceLink href="https://sage.nelson.wisc.edu/data-and-models/datasets/crop-calendar-dataset/">
@@ -1553,8 +1553,8 @@ export function EvidenceSourcesView({
         <h2>{t('Daily guidance & automation', 'দৈনিক সহায়তা ও স্বয়ংক্রিয় কাজ')}</h2>
         <p>
           {t(
-            'Live weather refreshes while the app is open and retries when it reconnects, unless you pause automatic updates in Reading & sound. Manual refresh remains available and timestamps remain visible. Field checks use the actual recorded planting date, observed crop stage and dated forecast. They are not sensor readings, pest diagnoses or automatic irrigation/fertilizer/pesticide control. Farm records are saved on this browser, separately for every field; use export for backups. Previous rotation records are preserved.',
-            'Reading & sound-এ স্বয়ংক্রিয় আপডেট থামানো না থাকলে অ্যাপ খোলা অবস্থায় আবহাওয়া আপডেট হয় ও সংযোগ ফিরলে চেষ্টা করে। নিজে আপডেট করা যায় এবং তথ্যের সময় দেখা যায়। আসল রোপণ, দেখা পর্যায় ও তারিখের পূর্বাভাস দিয়ে জমি যাচাইয়ের কাজ আসে। এগুলো সেন্সরের মাপ, রোগ নির্ণয় বা স্বয়ংক্রিয় সেচ/সার/বালাইনাশক নিয়ন্ত্রণ নয়। প্রতি জমির হিসাব আলাদা এই ব্রাউজারে থাকে; ব্যাকআপে নামান। আগের ফসলক্রমের হিসাব থাকে।',
+            'Weather refreshes while the app is open and reconnects automatically. Reading & sound controls automatic updates; manual refresh and source timestamps remain available. Daily guidance uses planting dates, observed crop stages and dated forecasts. Records are stored in this browser; export them for backup.',
+            'অ্যাপ খোলা থাকলে আবহাওয়া আপডেট হয় ও সংযোগ ফিরলে নিজে চেষ্টা করে। Reading & sound থেকে স্বয়ংক্রিয় আপডেট নিয়ন্ত্রণ করা যায়; নিজে আপডেট ও উৎসের সময় দেখা যায়। রোপণ, দেখা পর্যায় ও তারিখের পূর্বাভাসে দৈনিক নির্দেশনা আসে। হিসাব এই ব্রাউজারে থাকে; ব্যাকআপে নামান।',
           )}
         </p>
         <SourceLink href="https://www.fao.org/4/s2022e/s2022e02.htm">
@@ -1574,8 +1574,8 @@ export function EvidenceSourcesView({
         </h2>
         <p>
           {t(
-            'Actual daily historical meteorology: air temperature, corrected precipitation and modeled surface wetness. Complete source coverage and units are checked before aggregation. Dates and locations are retained. History is not a forecast or field soil test.',
-            'আসল দৈনিক আবহাওয়ার ইতিহাস: তাপ, সংশোধিত বৃষ্টি ও মডেলের পৃষ্ঠের ভেজাভাব। যোগ করার আগে তথ্যের পূর্ণতা ও একক যাচাই হয়। দিন ও স্থান থাকে। ইতিহাস পূর্বাভাস বা মাটির পরীক্ষা নয়।',
+            'NASA POWER daily history includes air temperature, corrected precipitation and modeled surface wetness. Source coverage, dates and units are retained in the saved records.',
+            'নাসা পাওয়ারের দৈনিক ইতিহাসে তাপ, সংশোধিত বৃষ্টি ও মডেলের পৃষ্ঠের ভেজাভাব থাকে। রাখা হিসাবে উৎসের পূর্ণতা, দিন ও একক থাকে।',
           )}
         </p>
         <SourceLink href="https://power.larc.nasa.gov/docs/faqs/data/">NASA POWER</SourceLink>
@@ -1589,8 +1589,8 @@ export function EvidenceSourcesView({
         </h2>
         <p>
           {t(
-            'SoilGrids 2.0 pH-in-water predictions and 5th/95th quantiles are connected through ISRIC WCS for three topsoil depths. The native grid is 250 m; modeled values remain separate from reported soil tests and do not automatically determine crop suitability or water capacity. The REST service remains paused. GAEZ v5, NASA SMAP L4 root-zone moisture and GPM IMERG precipitation are researched candidates, not connected inputs. Their modeled regional fields would still need appropriate local interpretation.',
-            'ISRIC WCS দিয়ে SoilGrids 2.0-এর তিনটি উপরিভাগের গভীরতায় পানিতে মাপা pH-এর মডেল ও ৫ম/৯৫তম কোয়ান্টাইল যুক্ত। মূল গ্রিড ২৫০ মিটার; মডেলের মান মাটি পরীক্ষার আলাদা এবং একা ফসলের উপযুক্ততা বা পানি ধারণক্ষমতা নির্ধারণ করে না। REST বন্ধ আছে। GAEZ v5, নাসা SMAP L4 ও GPM IMERG গবেষণার সম্ভাবনা, যুক্ত তথ্য নয়। সেগুলোর আঞ্চলিক মডেলেও স্থানীয় ব্যাখ্যা লাগবে।',
+            'SoilGrids 2.0 supplies modeled pH-in-water and 5th/95th quantiles through ISRIC WCS for three topsoil depths at 250 m resolution. Predictions are kept separate from farmer-reported soil tests. GAEZ, NASA SMAP and GPM IMERG are research references and are not integrated into farm calculations.',
+            'SoilGrids 2.0 থেকে ISRIC WCS দিয়ে ২৫০ মিটার রেজোলিউশনে তিন গভীরতার পানিতে pH-এর মডেল ও ৫ম/৯৫তম কোয়ান্টাইল আসে। কৃষকের মাটি পরীক্ষার তথ্য আলাদা থাকে। GAEZ, নাসা SMAP ও GPM IMERG গবেষণার উৎস; খামারের হিসাবে যুক্ত নয়।',
           )}
         </p>
         <SourceLink href="https://www.fao.org/gaez/en">FAO GAEZ</SourceLink> ·{' '}
@@ -1613,8 +1613,8 @@ export function EvidenceSourcesView({
         <h2>Open-Meteo / GeoNames / OpenStreetMap</h2>
         <p>
           {t(
-            'Current model estimates and seven-day forecasts update online, with source timestamps and missing-value handling. Place search and map pinning select a location; they do not survey a farm boundary. Open-Meteo/GeoNames data uses CC BY 4.0. OSM attribution remains visible.',
-            'বর্তমান মডেলের হিসাব ও সাত দিনের পূর্বাভাস অনলাইনে সময়সহ আসে। স্থান খোঁজা ও পিন দিয়ে স্থান বাছা হয়; জমির সীমানা জরিপ হয় না। Open-Meteo/GeoNames CC BY 4.0; OSM-এর কৃতিত্ব দেখা যায়।',
+            'Open-Meteo supplies current model estimates and seven-day forecasts with timestamps. GeoNames supports place search; OpenStreetMap supplies map tiles. Licences: Open-Meteo/GeoNames CC BY 4.0; OpenStreetMap attribution is shown on the map.',
+            'Open-Meteo সময়সহ বর্তমান মডেলের মান ও সাত দিনের পূর্বাভাস দেয়। GeoNames স্থান খোঁজা ও OpenStreetMap মানচিত্র দেয়। Open-Meteo/GeoNames CC BY 4.0; মানচিত্রে OpenStreetMap-এর কৃতিত্ব দেখা যায়।',
           )}
         </p>
         <SourceLink href="https://open-meteo.com/en/docs">Open-Meteo</SourceLink> ·{' '}
@@ -1624,8 +1624,8 @@ export function EvidenceSourcesView({
         <h2>{t('Previous rotation records: DAE / BAMIS', 'আগের ফসলক্রমের হিসাব: DAE / BAMIS')}</h2>
         <p>
           {t(
-            'Regional crop-weather calendars supply published duration ranges and annual reference weeks. Dates are computed calendar displays, not claims of optimal field timing. Full durations and year/leap-day overlap checks are enforced. No invented water, drought or soil-fit score is used.',
-            'আঞ্চলিক পঞ্জিকা থেকে প্রকাশিত সময়ের সীমা ও বার্ষিক সপ্তাহ আসে। গণনা করা দিন সেরা স্থানীয় সময়ের দাবি নয়। পুরো সময় এবং বছর/অধিবর্ষের সংঘাত দেখা হয়। পানি, খরা বা মাটির বানানো নম্বর নেই।',
+            'DAE/BAMIS regional calendars supply published growing-duration ranges and reference weeks for earlier saved rotation plans.',
+            'আগের রাখা ফসলক্রমের জন্য DAE/BAMIS আঞ্চলিক পঞ্জিকা থেকে প্রকাশিত বৃদ্ধির সময়সীমা ও সপ্তাহ নেওয়া হয়েছে।',
           )}
         </p>
         <ul>
@@ -1660,8 +1660,8 @@ export function EvidenceSourcesView({
         <h2>{t('What still needs local evidence', 'যেখানে স্থানীয় তথ্য দরকার')}</h2>
         <p>
           {t(
-            'Cultivar-specific dates, soil chemistry, actual root-zone moisture, irrigation availability/efficiency and locally validated decision rules. RITU does not claim a scientifically proven optimum, yield increase, measured water saving or soil-health improvement. Actual observations and crop outcomes must be checked in the field.',
-            'জাতভিত্তিক দিন, মাটির রাসায়নিক পরীক্ষা, শিকড়ের মাপা আর্দ্রতা, সেচের সরবরাহ/দক্ষতা ও স্থানীয় যাচাইকৃত নিয়ম দরকার। ঋতু প্রমাণিত সেরা পরিকল্পনা, ফলন বৃদ্ধি, মাপা পানি সাশ্রয় বা মাটির উন্নতি দাবি করে না। বাস্তব ফল জমিতে যাচাই করতে হবে।',
+            'Before planting, confirm the local variety, soil test, usable irrigation supply and field conditions. Record crop observations and harvest outcomes for the next season.',
+            'রোপণের আগে স্থানীয় জাত, মাটি পরীক্ষা, ব্যবহারযোগ্য সেচ ও জমির অবস্থা নিশ্চিত করুন। পরের মৌসুমের জন্য ফসলের পর্যবেক্ষণ ও তোলার ফল লিখে রাখুন।',
           )}
         </p>
         <SourceLink href="https://portal.cropzoning.gov.bd/">BARC</SourceLink> ·{' '}

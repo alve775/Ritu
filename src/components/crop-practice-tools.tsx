@@ -41,10 +41,7 @@ export function MungPracticeTools() {
           </strong>{' '}
           · {farm.area} ha × {mungBroadcastRates.find((v) => v.id === variety)!.low}–
           {mungBroadcastRates.find((v) => v.id === variety)!.high} kg/ha.{' '}
-          {t(
-            'For broadcasting only. These rates are not automatically applied to machine or bed sowing.',
-            'শুধু ছিটিয়ে বোনার জন্য। যন্ত্র বা বেডে এই হার নিজে থেকে ব্যবহার হয় না।',
-          )}
+          {t('Broadcast sowing rate.', 'ছিটিয়ে বোনার হার।')}
         </p>
       )}
       <h3>{t('Check your seed germination', 'বীজের অঙ্কুরোদগম দেখুন')}</h3>
@@ -74,8 +71,8 @@ export function MungPracticeTools() {
       )}
       <p>
         {t(
-          'The same guide describes machine line sowing at 30 cm row spacing; it does not make that a universal spacing for every variety or establishment method.',
-          'একই নির্দেশিকায় যন্ত্রে সারির দূরত্ব ৩০ সেমি বলা আছে; সব জাত বা পদ্ধতিতে এটিই একমাত্র দূরত্ব নয়।',
+          'For machine line sowing, this guide specifies 30 cm between rows.',
+          'এই নির্দেশিকায় যন্ত্রে সারিতে বোনার জন্য সারির দূরত্ব ৩০ সেমি দেওয়া আছে।',
         )}
       </p>
       <a href={mungGuide.url} target="_blank" rel="noopener noreferrer">

@@ -67,11 +67,6 @@ export function LandingView({ lang, languageSwitch, sourceHref = '/sources' }: P
           <span>{t.titleB}</span>
         </h1>
         <p className="landing__lede">{t.lede}</p>
-        <p className="landing__evidence">
-          {lang === 'en'
-            ? 'NASA climate, published crop requirements and regional calendar records help screen your options. Manage separate farms for different fields and crops.'
-            : 'নাসার জলবায়ু, প্রকাশিত ফসলের চাহিদা ও আঞ্চলিক পঞ্জিকা দিয়ে বিকল্প যাচাই করুন। আলাদা জমি ও ফসলের জন্য আলাদা খামার রাখুন।'}
-        </p>
         <div className="landing__actions">
           <Link href="/farms" className="landing__cta">
             {t.cta}

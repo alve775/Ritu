@@ -28,8 +28,8 @@ export function SoilEvidenceForm({
       </summary>
       <p>
         {t(
-          'Record a real field/laboratory result. This is your reported evidence, not an authenticated laboratory report. Different pH methods are not interchangeable; this record does not automatically certify crop suitability.',
-          'জমি বা পরীক্ষাগারের আসল ফল লিখুন। এটি আপনার দেওয়া তথ্য, পরীক্ষাগারের সত্যতা যাচাই নয়। ভিন্ন pH পদ্ধতি এক নয়; এই হিসাব একা ফসলের উপযুক্ততা নিশ্চিত করে না।',
+          'Enter your soil test result with its pH method, sampling depth, date and laboratory or source.',
+          'মাটির পরীক্ষার ফল, pH পদ্ধতি, নমুনার গভীরতা, তারিখ ও পরীক্ষাগার বা উৎস লিখুন।',
         )}
       </p>
       <form

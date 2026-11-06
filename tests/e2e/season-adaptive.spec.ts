@@ -143,7 +143,12 @@ test('daily stage, soil and damage reports update next-day checks without invent
     page.getByText('Inspect and document the reported damage', { exact: true }),
   ).toBeVisible();
   await expect(page.getByLabel('Observed stage', { exact: true })).toBeDisabled();
-  await expect(status(page)).toContainText('No supported variety model');
+  await expect(page.locator('.season-model-status')).toHaveCount(0);
+  const recorded = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('ritu-season-farms-v1')!).farms[0],
+  );
+  expect(recorded.selection).toEqual(trackingFarm().selection);
+  expect(recorded.harvestedDate).toBe('');
   await page.getByRole('link', { name: 'Update today’s field observations', exact: true }).click();
   await expect(page.getByLabel('Observed stage', { exact: true })).toBeEnabled();
   await page.getByLabel('Observed stage', { exact: true }).selectOption('No change');
@@ -232,9 +237,7 @@ test('documented grain-corn model has no defaults, shows a short projection, and
     r.fulfill({ json: { series: thermalSeries(farm) } }),
   );
   await openFarm(page, farm);
-  await page
-    .getByText('Experimental grain-corn heat model · documented variety only', { exact: true })
-    .click();
+  await page.getByText('Grain-corn heat model · documented variety', { exact: true }).click();
   await expect(page.getByLabel('GDD to black layer', { exact: true })).toHaveValue('');
   await expect(
     page.getByRole('button', { name: 'Save documented model inputs', exact: true }),

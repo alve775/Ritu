@@ -7,8 +7,10 @@ import {
   recordFieldCheckIn,
   removeFieldCheckIn,
 } from '../domain/season-lifecycle';
-import { seasonStore } from '../lib/season-store';
+import { useFarmRecordWriter } from './farm-record-scope';
 import { usePlanner } from './planner-provider';
+import { actionsForDay } from '../domain/season-actions';
+import { actionCopy } from '../lib/action-copy';
 
 const banglaStages: Record<string, string> = {
   'Not sure': 'নিশ্চিত নই',
@@ -35,6 +37,7 @@ export function DailyCheckInForm({
   onNextDay: () => void;
 }) {
   const { t, language } = usePlanner();
+  const writeFarm = useFarmRecordWriter();
   const [stage, setStage] = useState<DailyFieldCheckIn['stage'] | ''>('');
   const [confidence, setConfidence] = useState<DailyFieldCheckIn['confidence']>('sure');
   const [coverage, setCoverage] = useState<DailyFieldCheckIn['coverage']>('not-sure');
@@ -51,6 +54,30 @@ export function DailyCheckInForm({
     day <= today &&
     cycleStatus(farm, day) !== 'completed';
   const previous = latestFieldUpdate(farm, day);
+  let proposed: ReturnType<typeof actionsForDay> = [];
+  if (enabled && stage) {
+    try {
+      const patch = recordFieldCheckIn(
+        farm,
+        {
+          id: 'unsaved-preview',
+          date: day,
+          stage,
+          confidence: stage === 'Not sure' ? 'unsure' : confidence,
+          coverage,
+          water,
+          damage,
+          harvest,
+          milestone,
+          note: '',
+        },
+        today,
+      );
+      proposed = actionsForDay({ ...farm, ...patch }, day, null);
+    } catch {
+      // Invalid draft combinations are validated by the same rules when saving.
+    }
+  }
   return (
     <section
       className="season-check-in"
@@ -59,8 +86,8 @@ export function DailyCheckInForm({
       <h3>{t('Daily field update', 'প্রতিদিনের জমির খবর')}</h3>
       <p>
         {t(
-          'Record what you saw on the selected calendar day. No change or Not sure is a valid answer.',
-          'ক্যালেন্ডারে বাছা দিনে যা দেখেছেন লিখুন। আগের পর্যায় বা নিশ্চিত নই—দুটিই গ্রহণযোগ্য।',
+          'Record the crop stage, soil moisture and any damage you observed.',
+          'ফসলের পর্যায়, মাটির আর্দ্রতা ও দেখা ক্ষতির খবর লিখুন।',
         )}{' '}
         <time dateTime={day}>{day}</time>
       </p>
@@ -104,7 +131,7 @@ export function DailyCheckInForm({
               milestone,
               note,
             };
-            seasonStore.update(farm.id, recordFieldCheckIn(farm, checkIn, today));
+            writeFarm(farm.id, recordFieldCheckIn(farm, checkIn, today));
             setSaved(true);
             setStage('');
             setNote('');
@@ -158,9 +185,7 @@ export function DailyCheckInForm({
                 <option value="sure">
                   {t('I can identify this stage', 'পর্যায়টি চিনতে পারছি')}
                 </option>
-                <option value="unsure">
-                  {t('Not sure — keep it uncertain', 'নিশ্চিত নই — অনিশ্চিত রাখুন')}
-                </option>
+                <option value="unsure">{t('Not sure', 'নিশ্চিত নই')}</option>
               </select>
             </label>
             <label>
@@ -204,8 +229,8 @@ export function DailyCheckInForm({
           {stage === 'Harvested' && harvest === 'none' && (
             <p className="notice-amber">
               {t(
-                'Choose whether this was a partial picking or the final harvest. A stage note alone cannot finish the season.',
-                'আংশিক তোলা নাকি শেষ তোলা তা বাছুন। শুধু পর্যায় লিখলে মৌসুম শেষ হবে না।',
+                'Choose partial picking or final harvest below.',
+                'নিচে আংশিক তোলা বা শেষ তোলা বাছুন।',
               )}
             </p>
           )}
@@ -301,6 +326,20 @@ export function DailyCheckInForm({
           </button>
         </fieldset>
       </form>
+      {proposed.length > 0 && (
+        <section
+          className="field-update-preview"
+          aria-label={t('Preview of next checks', 'পরের যাচাইয়ের প্রিভিউ')}
+          aria-live="polite"
+        >
+          <h4>{t('Checks after saving this update', 'এই খবর রাখলে পরের যাচাই')}</h4>
+          <ul>
+            {proposed.map((action) => (
+              <li key={action.id}>{actionCopy(action, language).title}</li>
+            ))}
+          </ul>
+        </section>
+      )}
       {error && (
         <p role="alert" className="notice-amber">
           {error}
@@ -309,8 +348,8 @@ export function DailyCheckInForm({
       {saved && (
         <p role="status">
           {t(
-            'Saved. Guidance uses this update; a numerical date changes only when the model has sufficient evidence.',
-            'রাখা হয়েছে। নির্দেশনায় এই খবর ব্যবহার হবে; মডেলে যথেষ্ট তথ্য থাকলেই সংখ্যার তারিখ বদলাবে।',
+            'Saved. Your field checks now use this update.',
+            'রাখা হয়েছে। জমির পরের যাচাইয়ে এই খবর ব্যবহার হবে।',
           )}{' '}
           <button className="text-button" onClick={onNextDay}>
             {t('See next day’s checks', 'পরের দিনের যাচাই দেখুন')}
@@ -355,7 +394,7 @@ export function DailyCheckInForm({
                     )}
                     onClick={() => {
                       try {
-                        seasonStore.update(farm.id, removeFieldCheckIn(farm, c.id));
+                        writeFarm(farm.id, removeFieldCheckIn(farm, c.id));
                         setSaved(false);
                         setError('');
                       } catch {

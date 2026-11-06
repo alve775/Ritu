@@ -351,6 +351,36 @@ for (const stage of ['land', 'suggestions', 'selected-crop', 'saved-farm']) {
   });
 }
 
+test('a new farm with identical crop and land inputs is a separate planting operation', async ({
+  page,
+}) => {
+  await page.goto('/farms');
+  await page.getByRole('button', { name: 'Add fields', exact: true }).click();
+  await page.getByRole('button', { name: 'Set up field', exact: true }).click();
+  await setupField(page, 'Two plots', 'Manikganj', '2');
+  await addFarm(page, 'Two plots', 'Same crop plot', '1');
+  await expect(page).toHaveURL(/\/plan$/);
+  const first = (await records(page)).farms[0];
+  await page.getByRole('link', { name: 'All my farms', exact: true }).click();
+  await page.getByRole('button', { name: 'Add farm to: Two plots', exact: true }).click();
+  await page
+    .getByRole('textbox', { name: 'Farm name · optional', exact: true })
+    .fill('Same crop plot');
+  await page.locator('#farm-area').fill('1');
+  await page.getByLabel('Ready to plant from', { exact: true }).fill('2027-05-01');
+  await page.getByRole('button', { name: 'Show suggested crops', exact: true }).click();
+  await page.getByRole('radio').first().check();
+  await expect(page.getByRole('button', { name: 'Create my farm', exact: true })).toBeEnabled();
+  await page.getByRole('button', { name: 'Create my farm', exact: true }).click();
+  await expect(page).toHaveURL(/\/plan$/);
+  const state = await records(page);
+  expect(state.farms).toHaveLength(2);
+  expect(state.fields).toHaveLength(1);
+  expect(state.farms[1].field).toEqual(first.field);
+  expect(state.farms[1].selection).toEqual(first.selection);
+  expect(state.farms[1].id).not.toBe(first.id);
+});
+
 test('list several fields before setup and keep them on reload', async ({ page }) => {
   await page.goto('/farms');
   await page

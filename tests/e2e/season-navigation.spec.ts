@@ -146,7 +146,7 @@ test('first visit explains each page independently, leaving time to enter land a
   await tour(page, '/plan');
   await expect(page).toHaveTitle('Step 4 of 4 · Farm calendar — RITU');
   await expect(
-    page.getByRole('heading', { name: 'Onboarding QA field', exact: true }),
+    page.getByRole('heading', { name: 'Onboarding QA field', level: 1, exact: true }),
   ).toBeVisible();
   expect(
     await page.evaluate(() => JSON.parse(localStorage.getItem('ritu-page-tours-v1')!)),
@@ -158,7 +158,7 @@ test('first visit explains each page independently, leaving time to enter land a
   await expect(page.locator('.season-farm-tile')).toHaveCount(1);
   await page.getByRole('button', { name: 'Open farm', exact: true }).click();
   await expect(
-    page.getByRole('heading', { name: 'Onboarding QA field', exact: true }),
+    page.getByRole('heading', { name: 'Onboarding QA field', level: 1, exact: true }),
   ).toBeVisible();
   await expect(page.locator('.tour-dialog')).toHaveCount(0);
 });

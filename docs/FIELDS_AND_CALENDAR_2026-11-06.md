@@ -1,5 +1,7 @@
 # Fields, farms and calendar — 6 November 2026
 
+**Follow-up:** Daily completion checkboxes and scores were subsequently removed. Use the source-linked daily guidance and record actual planting, observations and harvests. See [Farm guidance and creation repair](FARM_GUIDANCE_AND_CREATION_2026-11-06.md) for the current behavior and verification. The earlier run results below are retained as historical evidence.
+
 The dashboard now registers physical fields before grouping crop farms within them. A field in Bangladesh and another in Washington keep separate locations, areas, conditions and weather. Each farm uses part of its parent field, with its own crop, season, calendar and records.
 
 ## How to use it
@@ -8,7 +10,7 @@ The dashboard now registers physical fields before grouping crop farms within th
 2. Choose **Set up field** for each one. Set its location, name, total area, soil and water information, then **Save field**.
 3. Choose **Add a farm** within that field. Enter the part of the field used by this farm and when it will be ready, then choose a crop. Repeat for another crop or part of the field.
 4. Open the farm calendar. Record actual planting with **I planted on this day** or its date input. The day counter, growing period and daily work update together.
-5. Tick completed work to see the completion count and calendar badge immediately. Stage, water, damage and harvest choices show the next-check preview before saving; **Save daily check-in** applies them to the farm record.
+5. Review the daily guidance. Stage, water, damage and harvest choices show the next-guidance preview before saving; **Save daily check-in** applies them to the farm record. Completion checkboxes and scores have been removed.
 6. For a mentor walkthrough, choose **Preview another day**, then **Next preview day** or a specific **Preview date**. Planting, observations, harvest, notes and settings in this mode affect only an in-memory copy. **Finish preview** restores the saved farm. Export continues to contain real saved records.
 
 The ordinary **Previous day / Next day** buttons browse work for a calendar date. Future actual activity remains disabled outside preview mode. Weather retains its real timestamps and available forecast window; advancing the preview does not manufacture future weather.

@@ -22,6 +22,31 @@ afterEach(() => {
 });
 
 describe('farm creation recovery', () => {
+  it('keeps retry identity stable but assigns a new operation for another planting', () => {
+    seasonStore.selectField(null);
+    const first = seasonStore.getSnapshot().state.draftOperationId;
+    expect(first).toBeTruthy();
+    seasonStore.confirm('same-land-and-date');
+    expect(seasonStore.getSnapshot().state.draftOperationId).toBe(first);
+    seasonStore.confirm('same-land-and-date');
+    expect(seasonStore.getSnapshot().state.draftOperationId).toBe(first);
+    seasonStore.selectField(null);
+    expect(seasonStore.getSnapshot().state.draftOperationId).not.toBe(first);
+    seasonStore.reset();
+    expect(seasonStore.getSnapshot().state.draftOperationId).toBeNull();
+  });
+  it('adds an operation on confirmation of an older draft without changing its land key', () => {
+    seasonStore.confirm('legacy-land-key');
+    const state = seasonStore.getSnapshot().state;
+    expect(state.confirmedKey).toBe('legacy-land-key');
+    expect(state.draftOperationId).toMatch(/^[\da-f-]{36}$/);
+  });
+  it('validates operation ids without rejecting older saved states', () => {
+    const state = seasonStore.getSnapshot().state;
+    for (const draftOperationId of ['', 12, {}, 'a'.repeat(101)])
+      expect(validSeasonState({ ...state, draftOperationId })).toBe(false);
+    expect(validSeasonState({ ...state, draftOperationId: undefined })).toBe(true);
+  });
   it('retries the same confirmed choice without duplicating farms, fields or journals', () => {
     const first = seasonStore.create(farm());
     seasonStore.update(first, { notes: 'Keep this field observation' });

@@ -266,7 +266,9 @@ test('multiple farms keep separate notes; deleting one preserves the other', asy
   await page.getByRole('button', { name: 'Open farm', exact: true }).click();
   await expect(page.getByLabel('Field notes', { exact: true })).toHaveValue('First farm note');
 });
-test('actual planting, observed stage, daily task and export remain truthful', async ({ page }) => {
+test('actual planting, observed stage, daily guidance and export remain truthful', async ({
+  page,
+}) => {
   await page.route('**/api/weather?**', (route) =>
     route.fulfill({ json: { weather: testWeather(23.86186, 90.00273) } }),
   );
@@ -284,9 +286,12 @@ test('actual planting, observed stage, daily task and export remain truthful', a
   await expect(
     page.getByText('Give the flowering crop a careful water check', { exact: true }),
   ).toBeVisible();
-  await page.locator('.season-task-list input').first().check();
+  await expect(page.locator('.season-daily').getByRole('checkbox')).toHaveCount(0);
   await page.reload();
-  await expect(page.locator('.season-task-list input').first()).toBeChecked();
+  await expect(page.getByLabel('Actual planting date', { exact: true })).toHaveValue(today);
+  await expect(page.locator('.season-observed-stage')).toContainText('Flowering');
+  await expect(page.locator('.season-daily')).toContainText('Give the flowering crop');
+  await expect(page.locator('.season-daily').getByRole('checkbox')).toHaveCount(0);
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export all farm records', exact: true }).click();
   expect((await download).suggestedFilename()).toBe('ritu-farm-records.json');

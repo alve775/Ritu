@@ -1,4 +1,6 @@
-> **Latest field/calendar update, 6 November:** [Fields, farms, live feedback and date preview](FIELDS_AND_CALENDAR_2026-11-06.md). Register physical fields in separate locations, subdivide their area into crop farms, resize without losing journals, and retain older records. The calendar shades the full growing period, shows completed work and previews guidance as choices change. Temporary future-date tests never overwrite real farms. 572/572 unit/API tests and 41,900 generated domain scenarios passed; 486 distinct browser cases have passing evidence across runs, with final gates of 228/228 and 26/26. Fifteen responsive/accessibility checks passed. Live NASA POWER and Open-Meteo checks succeeded for Bangladesh and Washington. See the report for initial failures, the inherited-field time-zone repair and exact run accounting. Changes are local; no new commit/push requested.
+> **Latest guidance/creation update, 6 November:** [Farm guidance and creation repair](FARM_GUIDANCE_AND_CREATION_2026-11-06.md). Daily completion checkboxes, scores and badges are removed; planting, observations, harvest records and source-linked guidance remain. Saved farms have a recoverable calendar link if navigation stalls. Retry protection is scoped to each planting operation, so identical new plots remain separate. Repeated English/Bangla cautions are simplified, with methods, forecast labels, source credits and validation retained. Checkpoint `6d7b2cb` was pushed before continuing. Final evidence: 582/582 unit/API tests, 41,900 generated field/calendar scenarios, 498 distinct browser cases with passing evidence across the full run and scoped tour rechecks, and 15/15 responsive/accessibility checks. The report records the initial failures and exact accounting.
+
+> **Earlier field/calendar update, 6 November:** [Fields, farms, live feedback and date preview](FIELDS_AND_CALENDAR_2026-11-06.md). Physical fields in separate locations can be subdivided into crop farms, resized without losing journals, and retained through migration. Temporary future-date previews preserve real farm records. Its earlier completion-checkbox interface is superseded by the guidance update above.
 
 > **Latest motion correction, 5 November:** [Hand, prop and action timing repairs](MOTION_REPAIRS_2026-11-05.md). Grain, sickle, can and basket follow their grips; seed release and the moving water outlet are synchronized. Harvest cuts before lifting and settles once. Growth roots remain grounded. Desktop/phone contact and playback regressions plus 32 timed frames check the movement that earlier chapter-only tests did not cover. No commit/push requested for this follow-up.
 
@@ -290,10 +292,11 @@ After preview verification, Abid explicitly requested: commit and push on a diff
 
 ## External work still required
 
-Real data/rule work below remains future work under the mock-only instruction; it is not a current-turn blocker.
+The current application uses real source integrations. Remaining work below concerns additional releases, local agricultural evidence and field evaluation.
 
 - [ ] Review the full 2026 challenge brief/resources when published and confirm applicable preparation/submission rules with organizers.
-- [ ] Integrate NASA observations with product/version, units, time/grid footprint, quality and processing provenance.
+- [x] Integrate NASA POWER climate and Open-Meteo weather with source links, coordinates, timestamps and units.
+- [ ] Evaluate additional NASA products against the released challenge resources, retaining product/version, time/grid footprint, quality and processing provenance.
 - [ ] Obtain locally reviewed planting windows, crop characteristics, soil/irrigation/drainage rules and method validation.
 - [ ] Observe intended Rajshahi farmers on their actual phones and revise from real feedback.
 - [ ] Review Bangla terms and physical-device visibility, audio and GPU behavior.

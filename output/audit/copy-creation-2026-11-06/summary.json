@@ -1,0 +1,57 @@
+{
+  "checkedAt": "2026-11-06T11:26:34.705Z",
+  "unit": {
+    "passed": 582,
+    "failed": 0,
+    "files": 37
+  },
+  "initialBrowserRun": {
+    "startTime": "2026-11-06T08:49:19.273Z",
+    "duration": 810203.779,
+    "expected": 490,
+    "skipped": 0,
+    "unexpected": 6,
+    "flaky": 0
+  },
+  "finalBrowserRun": {
+    "startTime": "2026-11-06T11:12:07.043Z",
+    "duration": 823498.722,
+    "expected": 497,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "focusedTourRecheck": {
+    "startTime": "2026-11-06T11:21:32.230Z",
+    "duration": 84902.659,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "distinctBrowserCases": 498,
+  "distinctBrowserCasesWithPassingEvidence": 498,
+  "fullRunFailures": [
+    {
+      "key": "desktop|season-navigation.spec.ts|first visit explains each page independently, leaving time to enter land and choose a crop",
+      "project": "desktop",
+      "title": "first visit explains each page independently, leaving time to enter land and choose a crop",
+      "status": "unexpected",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Onboarding QA field', exact: true })\nExpected: visible\nError: strict mode violation: getByRole('heading', { name: 'Onboarding QA field', exact: true }) resolved to 2 elements:\n    1) <h2>Onboarding QA field</h2> aka locator('header').filter({ hasText: 'Onboarding QA fieldMy pinned' }).getByRole('heading')\n    2) <h2>Onboarding QA field</h2> aka getByRole('article').getByRole('heading', { name: 'Onboarding QA field' })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Onboarding QA field', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Onboarding QA field', exact: true })\u001b[22m\n\n\n  160 |   await expect(\n  161 |     page.getByRole('heading', { name: 'Onboarding QA field', exact: true }),\n> 162 |   ).toBeVisible();\n      |     ^\n  163 |   await expect(page.locator('.tour-dialog')).toHaveCount(0);\n  164 | });\n  165 |\n    at E:\\001_RITU\\tests\\e2e\\season-navigation.spec.ts:162:5"
+      ]
+    }
+  ],
+  "unresolvedBrowserCases": [],
+  "responsive": {
+    "checks": 15,
+    "failures": [],
+    "errors": []
+  },
+  "generatedFieldCalendarScenarios": 41900,
+  "build": "passed",
+  "typescript": "passed",
+  "eslint": "passed without warnings",
+  "changedSourceAndTestFormatting": "passed",
+  "note": "Distinct-case coverage combines the final complete run with the scoped tour recheck. It is not a claim that the complete run passed every case in one attempt. Browser fixtures are isolated QA data; software checks do not establish field efficacy."
+}

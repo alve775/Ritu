@@ -200,8 +200,10 @@ test('the revised result evidence is accessible in English and Bangla', async ({
   expect(axe.violations).toEqual([]);
   await page.getByRole('button', { name: 'বাংলা', exact: true }).click();
   await expect(page.locator('.season-crop-card')).toContainText('বাংলা নাম উৎসে নেই');
+  await page.getByText('এই বিকল্পের কারণ ও কী যাচাই করবেন', { exact: true }).click();
+  await expect(page.locator('.season-crop-card')).toContainText('অযাচাইকৃত');
   await expect(page.locator('.season-crop-card')).toContainText(
-    'পানির পর্যাপ্ততা ও স্থানীয় উপযুক্ততা এখনও যাচাই করতে হবে।',
+    'Seasonal water adequacy has not been established.',
   );
   await page.screenshot({ path: info.outputPath('bangla-evidence.png') });
   axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();

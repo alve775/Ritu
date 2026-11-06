@@ -555,7 +555,13 @@ export function SeasonCropsView() {
   const draftKey = seasonDraftKey(p.farm, p.site, from);
   const suggestion = picked?.key === draftKey ? picked.value : undefined;
   const creationKey = suggestion
-    ? JSON.stringify([state.draftFieldId ?? null, draftKey, suggestion.crop, suggestion.start])
+    ? JSON.stringify([
+        state.draftOperationId ?? null,
+        state.draftFieldId ?? null,
+        draftKey,
+        suggestion.crop,
+        suggestion.start,
+      ])
     : null;
   const created = creationKey
     ? state.farms.find((farm) => farm.creationKey === creationKey)

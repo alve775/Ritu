@@ -309,11 +309,16 @@ test('a Bangladesh variety reference cannot be applied to a known non-Bangladesh
   const panel = page.locator('.cultivar-reference');
   await panel.locator('> summary').click();
   await panel.getByLabel('Actual mungbean variety', { exact: true }).selectOption('bari-mung-6');
-  await expect(panel).toContainText('outside Bangladesh');
+  await expect(panel).toContainText('This variety reference covers Bangladesh fields.');
   await expect(
     panel.getByRole('button', { name: 'Use this variety reference', exact: true }),
   ).toBeDisabled();
   await expect(panel.getByRole('checkbox')).toHaveCount(0);
+  expect(
+    await page.evaluate(
+      () => JSON.parse(localStorage.getItem('ritu-season-farms-v1')!).farms[0].cultivarReference,
+    ),
+  ).toBeUndefined();
 });
 test('new water, soil and cultivar controls remain usable in Bangla with accessible labels', async ({
   page,

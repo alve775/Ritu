@@ -24,6 +24,8 @@ export interface SeasonState {
   fields?: RegisteredField[];
   draftFieldId?: string | null;
   editingFieldId?: string | null;
+  /** A fresh operation when the farmer starts another planting, even with identical inputs. */
+  draftOperationId?: string | null;
   version: 1;
   farms: SeasonFarm[];
   activeId: string | null;
@@ -36,6 +38,7 @@ const blank: SeasonState = {
   fields: [],
   draftFieldId: null,
   editingFieldId: null,
+  draftOperationId: null,
   version: 1,
   farms: [],
   activeId: null,
@@ -75,6 +78,11 @@ export function validSeasonState(raw: unknown): raw is SeasonState {
   const s = raw as SeasonState;
   return (
     s.version === 1 &&
+    (s.draftOperationId === undefined ||
+      s.draftOperationId === null ||
+      (typeof s.draftOperationId === 'string' &&
+        s.draftOperationId.length > 0 &&
+        s.draftOperationId.length <= 100)) &&
     (s.fields === undefined ||
       (Array.isArray(s.fields) &&
         s.fields.length <= 200 &&
@@ -312,7 +320,11 @@ export const seasonStore = {
     };
   },
   confirm(key: string) {
-    save({ ...snapshot.state, confirmedKey: key });
+    save({
+      ...snapshot.state,
+      confirmedKey: key,
+      draftOperationId: snapshot.state.draftOperationId ?? crypto.randomUUID(),
+    });
   },
   addFields(fields: RegisteredField[]) {
     const state = { ...snapshot.state, fields: [...(snapshot.state.fields ?? []), ...fields] };
@@ -326,6 +338,7 @@ export const seasonStore = {
     save({
       ...snapshot.state,
       draftFieldId: id,
+      draftOperationId: crypto.randomUUID(),
       editingFieldId: editing ? id : null,
       confirmedKey: null,
       calendarAccessId: null,

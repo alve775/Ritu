@@ -165,7 +165,7 @@
     min-width: 0;
   }
   .insights-page .demo-section-heading h2 {
-    font-family: var(--font-display);
+    font-family: var(--font-heading);
     font-size: 1.3rem;
   }
   .insights-page .demo-label {
@@ -200,7 +200,7 @@
   .insights-page .demo-metrics dd {
     margin: 6px 0 0;
     color: var(--color-ink);
-    font-family: var(--font-display);
+    font-family: var(--font-heading);
     font-size: 1.3rem;
     font-weight: 500;
     line-height: 1.2;
@@ -329,7 +329,7 @@
   .insights-page .tradeoff-grid strong {
     margin: 0;
     color: var(--color-ink);
-    font-family: var(--font-display);
+    font-family: var(--font-heading);
     font-size: 1.3rem;
     font-weight: 500;
   }

@@ -143,8 +143,7 @@ test('soil record persists independently of modeled references, and can be clear
   await page.reload();
   await panel.locator('> summary').click();
   await expect(panel.getByLabel('Measured soil pH', { exact: true })).toHaveValue('6.3');
-  await page.locator('.soil-reference > summary').click();
-  await expect(page.locator('.soil-reference')).toContainText('No usable prediction');
+  await expect(page.locator('.soil-reference')).toContainText('not available near this field');
   await expect(panel.getByLabel('pH measurement method', { exact: true })).toHaveValue('cacl2');
   await panel.screenshot({ path: info.outputPath('measured-soil-and-source.png') });
   await panel.getByRole('button', { name: 'Clear soil test record', exact: true }).click();
@@ -227,7 +226,7 @@ test('weather pause survives reload and stops timers/visibility updates; manual 
   await expect(page.getByText('Automatic updates paused', { exact: true })).toBeVisible();
 });
 
-test('soil predictions follow the selected depth without becoming a measured soil test', async ({
+test('the topsoil pH prediction shows its likely range without becoming a measured soil test', async ({
   page,
 }) => {
   await open(page);
@@ -257,11 +256,8 @@ test('soil predictions follow the selected depth without becoming a measured soi
     });
   });
   const soil = page.locator('.soil-reference');
-  await soil.locator('> summary').click();
-  await expect(soil).toContainText('median: 6.8');
-  await soil.getByLabel('Soil reference depth (cm)', { exact: true }).selectOption('0-5');
-  await expect(soil).toContainText('median: 6.6');
-  expect(depths).toEqual(['5-15', '0-5']);
+  await expect(soil).toContainText('6.8 · likely between 5.5 and 8.1');
+  expect([...new Set(depths)]).toEqual(['5-15']);
   expect(
     await page.evaluate(
       () => JSON.parse(localStorage.getItem('ritu-season-farms-v1')!).farms[0].field.soilEvidence,

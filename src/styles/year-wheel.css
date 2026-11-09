@@ -104,7 +104,7 @@
     text-transform: uppercase;
   }
   .wheel-center strong {
-    font-family: var(--font-display);
+    font-family: var(--font-heading);
     font-size: 1.3rem;
     font-weight: 500;
     line-height: 1.1;

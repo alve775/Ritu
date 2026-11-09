@@ -1,0 +1,2175 @@
+/* Year plans (rotation): plans page, crop picker, dashboard sequence and the plan calendar.
+   Intensity bars always read the same way: more filled segments, and redder, means more trouble. */
+@layer pages {
+  .rot-page {
+    --rot-l1: #3f8f5c;
+    --rot-l2: #8bb04f;
+    --rot-l3: #e0b03a;
+    --rot-l4: #df7a32;
+    --rot-l5: #c2412d;
+    --rot-rain: #b9d2ea;
+    --rot-rain-ink: #2c64a3;
+    --rot-irrigate: #d79a2b;
+    --rot-bad: #b23b27;
+    --rot-bad-bg: #f8e2dc;
+  }
+  .rot-calendar,
+  .rot-seq-wrap {
+    --rot-l1: #3f8f5c;
+    --rot-l2: #8bb04f;
+    --rot-l3: #e0b03a;
+    --rot-l4: #df7a32;
+    --rot-l5: #c2412d;
+    --rot-rain: #b9d2ea;
+    --rot-rain-ink: #2c64a3;
+    --rot-irrigate: #d79a2b;
+    --rot-bad: #b23b27;
+    --rot-bad-bg: #f8e2dc;
+  }
+  .rabi {
+    --rot-season: var(--ritu-rabi);
+    --rot-season-on: var(--ritu-rabi-on);
+    --rot-season-tint: var(--ritu-rabi-tint);
+  }
+  .k1 {
+    --rot-season: var(--ritu-k1);
+    --rot-season-on: var(--ritu-k1-on);
+    --rot-season-tint: var(--ritu-k1-tint);
+  }
+  .k2 {
+    --rot-season: var(--ritu-k2);
+    --rot-season-on: var(--ritu-k2-on);
+    --rot-season-tint: var(--ritu-k2-tint);
+  }
+
+  .rot-lastyear {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    margin: 0;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: var(--color-soft);
+  }
+  .rot-season-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+  }
+  .rot-season-tag::before {
+    content: '';
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--rot-season);
+  }
+
+  .rot-plans {
+    display: grid;
+    gap: 18px;
+  }
+  .rot-plan {
+    display: grid;
+    gap: 16px;
+  }
+  .rot-plan.best {
+    border: 2px solid var(--color-primary);
+  }
+  .rot-plan-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .rot-plan-head h2 {
+    margin: 0;
+    font-size: 1.3rem;
+  }
+  .rot-badge {
+    padding: 3px 12px;
+    border-radius: 999px;
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+  .rot-plan-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .rot-plan-left {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+  }
+  .rot-verdicts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .rot-verdict {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 12px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .rot-verdict-good {
+    background: var(--color-success-bg);
+    color: var(--color-success-ink);
+  }
+  .rot-verdict-ok {
+    background: var(--color-warn-bg);
+    color: var(--color-warn-ink);
+  }
+  .rot-verdict-risky,
+  .rot-verdict-no {
+    background: var(--rot-bad-bg);
+    color: var(--rot-bad);
+  }
+
+  .rot-compare {
+    display: grid;
+    gap: 6px;
+  }
+  .rot-compare-big {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+  }
+  .rot-compare-big small {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+  }
+  .rot-cmpbar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) 2.2rem;
+    gap: 6px 10px;
+    align-items: center;
+    font-size: 0.88rem;
+    color: var(--color-ink-muted);
+  }
+  .rot-cmpbar div {
+    height: 12px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--color-soft);
+  }
+  .rot-cmpbar i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--rot-rain-ink);
+  }
+  .rot-cmpbar i.last {
+    background: var(--ritu-line-strong);
+  }
+  .rot-cmpbar b {
+    text-align: right;
+    color: var(--color-ink);
+  }
+  .rot-diff {
+    justify-self: start;
+    margin: 0;
+    padding: 4px 12px;
+    border-radius: 10px;
+    background: var(--color-soft);
+    font-weight: 700;
+    color: var(--color-ink-muted);
+  }
+  .rot-diff.good {
+    background: var(--color-success-bg);
+    color: var(--color-success-ink);
+  }
+  .rot-diff.bad {
+    background: var(--rot-bad-bg);
+    color: var(--rot-bad);
+  }
+
+  .rot-intensity {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+  }
+  .rot-intensity.compact {
+    gap: 8px;
+  }
+  .rot-intensity-help {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--color-ink-muted);
+  }
+  .rot-mini {
+    display: inline-grid;
+    grid-template-columns: repeat(5, 8px);
+    gap: 2px;
+  }
+  .rot-mini i {
+    height: 10px;
+    border-radius: 2px;
+  }
+  .rot-mini .l1,
+  .rot-ibar .on.l1 {
+    background: var(--rot-l1);
+  }
+  .rot-mini .l2,
+  .rot-ibar .on.l2 {
+    background: var(--rot-l2);
+  }
+  .rot-mini .l3,
+  .rot-ibar .on.l3 {
+    background: var(--rot-l3);
+  }
+  .rot-mini .l4,
+  .rot-ibar .on.l4 {
+    background: var(--rot-l4);
+  }
+  .rot-mini .l5,
+  .rot-ibar .on.l5 {
+    background: var(--rot-l5);
+  }
+  .rot-irow {
+    display: grid;
+    gap: 4px;
+  }
+  .rot-itop {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .rot-itop b {
+    font-size: 0.95rem;
+  }
+  .rot-itop span {
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-align: right;
+  }
+  .compact .rot-itop b,
+  .compact .rot-itop span {
+    font-size: 0.84rem;
+  }
+  .rot-lvl-1,
+  .rot-lvl-2 {
+    color: var(--color-success-ink);
+  }
+  .rot-lvl-3 {
+    color: var(--color-warn-ink);
+  }
+  .rot-lvl-4,
+  .rot-lvl-5 {
+    color: var(--rot-bad);
+  }
+  .rot-ibar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 3px;
+  }
+  .rot-ibar i {
+    height: 12px;
+    border-radius: 3px;
+    background: var(--color-soft);
+  }
+  .compact .rot-ibar i {
+    height: 9px;
+  }
+  .rot-iends {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--color-ink-muted);
+  }
+  .compact .rot-iends {
+    display: none;
+  }
+
+  /* Year chart */
+  .rot-year text {
+    font-size: 11px;
+    fill: var(--color-ink-muted);
+  }
+  .rot-rainbar {
+    fill: var(--rot-rain);
+  }
+  .rot-tick {
+    stroke: var(--color-line);
+  }
+  .rot-block {
+    fill: var(--rot-season);
+  }
+  .rot-year .rot-block-label {
+    font-size: 11px;
+    font-weight: 700;
+    fill: var(--rot-season-on);
+  }
+  .rot-hot {
+    fill: var(--rot-bad);
+  }
+  .rot-today {
+    stroke: var(--color-ink);
+    stroke-width: 1.5;
+  }
+  .rot-dim {
+    opacity: 0.35;
+  }
+  .rot-key {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--color-ink-muted);
+  }
+  .rot-key.center {
+    justify-content: center;
+  }
+  .rot-key i {
+    display: inline-block;
+    width: 14px;
+    height: 10px;
+    margin-right: 6px;
+    border-radius: 2px;
+    vertical-align: 0;
+  }
+  .rot-key i.rain {
+    background: var(--rot-rain);
+  }
+  .rot-key i.hot {
+    background: var(--rot-bad);
+  }
+  .rot-key i.crop {
+    background: var(--ritu-rabi);
+  }
+  .rot-key i.hotmonth {
+    background: var(--rot-bad-bg);
+  }
+  .rot-key i.need {
+    height: 3px;
+    vertical-align: 3px;
+    background: var(--color-primary);
+  }
+  .rot-key i.gap {
+    background: color-mix(in srgb, var(--rot-irrigate) 30%, transparent);
+  }
+  .rot-key i.irr {
+    width: 10px;
+    border-radius: 50%;
+    background: var(--rot-irrigate);
+  }
+  .rot-key i.temp {
+    height: 3px;
+    vertical-align: 3px;
+    background: var(--ritu-k1);
+  }
+
+  .rot-more {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 14px;
+    color: var(--color-ink-muted);
+  }
+
+  /* Builder */
+  .rot-builder {
+    display: grid;
+    gap: 14px;
+  }
+  .rot-slot {
+    display: grid;
+    gap: 14px;
+    padding: 16px;
+    border: 1px solid var(--color-line);
+    border-left: 6px solid var(--rot-season);
+    border-radius: 14px;
+    background: var(--color-surface);
+  }
+  .rot-slot-head {
+    display: grid;
+    grid-template-columns: minmax(0, 11rem) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+  }
+  .rot-slot-head small {
+    display: block;
+    color: var(--color-ink-muted);
+  }
+  .rot-slot-choice strong {
+    font-size: 1.1rem;
+  }
+  .rot-slot-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+  .rot-muted {
+    color: var(--color-ink-muted);
+  }
+  .rot-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .rot-option {
+    display: grid;
+    align-content: start;
+    gap: 10px;
+    padding: 12px;
+    border: 1.5px solid var(--color-line);
+    border-radius: 14px;
+    background: var(--color-surface);
+    color: var(--color-ink);
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+  }
+  .rot-option:hover {
+    border-color: var(--color-primary);
+  }
+  .rot-option[aria-selected='true'] {
+    border-color: var(--color-primary);
+    background: var(--color-primary-soft);
+  }
+  .rot-option.blocked {
+    opacity: 0.7;
+  }
+  .rot-option-photo {
+    display: block;
+    height: 110px;
+    overflow: hidden;
+    border-radius: 10px;
+    background: var(--color-soft);
+  }
+  .rot-option-photo :is(img, figure) {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    object-fit: cover;
+  }
+  .rot-option-photo figcaption {
+    display: none;
+  }
+  .rot-option-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  .rot-option-top strong {
+    font-size: 1.15rem;
+  }
+  .rot-why {
+    font-size: 0.9rem;
+  }
+  .rot-summary {
+    display: grid;
+    gap: 14px;
+  }
+  .rot-check {
+    display: grid;
+    gap: 4px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+  .rot-check.good {
+    background: var(--color-success-bg);
+    color: var(--color-success-ink);
+  }
+  .rot-check.bad {
+    background: var(--rot-bad-bg);
+    color: var(--rot-bad);
+  }
+
+  /* Dashboard sequence */
+  .rot-seq {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .rot-seq li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 10px;
+    padding: 10px 12px;
+    border-left: 4px solid var(--rot-season);
+    border-radius: 10px;
+    background: var(--color-soft);
+  }
+  .rot-seq li.now {
+    background: var(--color-primary-soft);
+  }
+  .rot-seq li.done {
+    opacity: 0.65;
+  }
+  /* Ended without a harvest: crossed out, with the reason in the danger colour. */
+  .rot-seq li.ended {
+    background: color-mix(in srgb, var(--color-danger) 8%, var(--color-surface));
+  }
+  .rot-seq li.ended .what strong {
+    text-decoration: line-through;
+    color: var(--color-ink-muted);
+  }
+  .rot-seq li.ended .when,
+  .rot-seq li.ended .what span {
+    color: var(--color-danger);
+    font-weight: 700;
+  }
+  /* Small label on its own line, so the crop name and dates get the full width of a narrow tile. */
+  .rot-seq .when {
+    flex: 1 0 100%;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+  .rot-seq .what {
+    display: grid;
+    flex: 1 1 9rem;
+    min-width: 0;
+  }
+  .rot-seq .what strong {
+    overflow-wrap: normal;
+  }
+  .rot-seq .what span {
+    font-size: 0.85rem;
+    color: var(--color-ink-muted);
+  }
+  .rot-seq li > span:empty {
+    display: none;
+  }
+  .rot-seq .button {
+    flex: none;
+    min-height: 38px;
+    padding: 6px 14px;
+  }
+
+  /* Calendar */
+  .rot-calendar {
+    display: grid;
+    gap: 18px;
+  }
+  .rot-cal-top {
+    display: grid;
+    grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+    align-items: center;
+    gap: 22px;
+  }
+  .rot-wheel-wrap {
+    display: grid;
+    gap: 6px;
+  }
+  .rot-wheel text {
+    font-size: 11.5px;
+    fill: var(--color-ink-muted);
+  }
+  .rot-wheel-bg {
+    fill: var(--color-soft);
+  }
+  .rot-wheel-rain {
+    fill: var(--rot-rain);
+  }
+  .rot-wheel-heat.h0 {
+    fill: var(--color-soft);
+  }
+  .rot-wheel-heat.h1 {
+    fill: var(--color-warn-bg);
+  }
+  .rot-wheel-heat.h2 {
+    fill: var(--rot-bad-bg);
+  }
+  .rot-wheel .rot-wheel-month {
+    font-weight: 700;
+    fill: var(--color-ink);
+  }
+  .rot-wheel-crop {
+    fill: var(--rot-season);
+    cursor: pointer;
+  }
+  .rot-wheel-crop.sel {
+    stroke: var(--color-ink);
+    stroke-width: 2.5;
+  }
+  .rot-wheel .rot-wheel-crop-label {
+    font-size: 12px;
+    font-weight: 700;
+    fill: var(--rot-season-on);
+    pointer-events: none;
+  }
+  .rot-wheel-hand {
+    stroke: var(--color-ink);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+  .rot-wheel-dot {
+    fill: var(--color-ink);
+  }
+  .rot-wheel .rot-wheel-big {
+    font-size: 24px;
+    font-weight: 800;
+    fill: var(--color-ink);
+  }
+  .rot-wheel .rot-wheel-small {
+    font-size: 12px;
+  }
+  .rot-now {
+    display: grid;
+    gap: 14px;
+    padding: 18px;
+    border-radius: 16px;
+    background: var(--color-primary-soft);
+  }
+  .rot-now-action {
+    display: grid;
+    grid-template-columns: 60px minmax(0, 1fr);
+    align-items: center;
+    gap: 14px;
+  }
+  .rot-now-action h2 {
+    margin: 0;
+    font-size: 1.35rem;
+  }
+  .rot-now-action p {
+    margin: 4px 0 0;
+    color: var(--color-ink-muted);
+  }
+  .rot-now-ico {
+    display: grid;
+    place-items: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 14px;
+    background: var(--color-surface);
+  }
+  .rot-now-ico .rot-plant {
+    width: 44px;
+    height: 44px;
+  }
+  .rot-tiles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .rot-tiles div {
+    display: grid;
+    gap: 2px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--color-surface);
+  }
+  .rot-tiles span {
+    font-size: 0.82rem;
+    color: var(--color-ink-muted);
+  }
+  .rot-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .rot-chips span {
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--color-surface);
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+  .rot-cal-crop-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .rot-cal-crop-head h2 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+  .rot-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .rot-tabs button {
+    padding: 6px 14px;
+    border: 1.5px solid var(--color-line);
+    border-left: 6px solid var(--rot-season);
+    border-radius: 999px;
+    background: var(--color-surface);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .rot-tabs button[aria-selected='true'],
+  .rot-tabs button[aria-pressed='true'] {
+    border-color: var(--color-primary);
+    border-left-color: var(--rot-season);
+    background: var(--color-primary-soft);
+  }
+  .rot-weeks-scroll,
+  .rot-detail-scroll {
+    overflow-x: auto;
+    min-width: 0;
+  }
+  .rot-weeks-scroll {
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+  }
+  .rot-weeks {
+    display: grid;
+    grid-template-columns: 6.5rem repeat(var(--n), minmax(64px, 1fr));
+    min-width: max-content;
+  }
+  .rot-weeks > * {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-height: 52px;
+    padding: 6px 2px;
+    border: 0;
+    border-bottom: 1px solid var(--color-line);
+    background: none;
+    font: inherit;
+    text-align: center;
+  }
+  .rot-weeks .rh {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    align-items: flex-start;
+    padding-left: 12px;
+    background: var(--color-soft);
+    font-weight: 700;
+  }
+  .rot-weeks .wk {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+  }
+  .rot-weeks .wk small {
+    font-size: 0.72rem;
+    font-weight: 500;
+  }
+  .rot-weeks .wk span {
+    color: var(--color-ink);
+  }
+  .rot-weeks .wk.today {
+    color: var(--color-ink);
+    text-decoration: underline;
+  }
+  .rot-weeks .cell {
+    cursor: pointer;
+  }
+  .rot-weeks .cell:hover {
+    background: var(--color-soft);
+  }
+  .rot-weeks .sel {
+    background: var(--color-primary-soft);
+  }
+  .rot-weeks .cell small {
+    font-size: 0.74rem;
+    color: var(--color-ink-muted);
+  }
+  .rot-plant {
+    width: 30px;
+    height: 30px;
+  }
+  .rot-ground {
+    stroke: var(--color-ink-muted);
+    stroke-width: 1;
+  }
+  .rot-leaf {
+    fill: var(--color-primary);
+  }
+  .rot-stem {
+    fill: none;
+    stroke: var(--color-primary);
+    stroke-width: 2;
+  }
+  .rot-flower {
+    fill: var(--ritu-rabi);
+  }
+  .rot-weeks .chip {
+    width: calc(100% - 8px);
+    padding: 6px 2px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .chip.water {
+    background: var(--color-warn-bg);
+    color: var(--color-warn-ink);
+  }
+  .chip.rain {
+    background: var(--ritu-k2-tint);
+    color: var(--rot-rain-ink);
+  }
+  .chip.hot {
+    background: var(--rot-bad-bg);
+    color: var(--rot-bad);
+  }
+  .rot-week-detail {
+    display: grid;
+    grid-template-columns: 60px minmax(0, 1fr);
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+  }
+  .rot-week-detail .rot-now-ico {
+    background: var(--color-soft);
+  }
+  .rot-act {
+    margin: 4px 0;
+    font-size: 1.08rem;
+    font-weight: 700;
+  }
+  .rot-act.water {
+    color: var(--color-warn-ink);
+  }
+  .rot-act.risk {
+    color: var(--rot-bad);
+  }
+  .rot-act.good {
+    color: var(--color-success-ink);
+  }
+  .rot-nums {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+  }
+  .rot-nums span {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--color-soft);
+    font-size: 0.86rem;
+  }
+  .rot-details {
+    padding: 12px 14px;
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+  }
+  .rot-details summary {
+    font-weight: 700;
+    color: var(--color-primary);
+    cursor: pointer;
+  }
+  .rot-details[open] summary {
+    margin-bottom: 10px;
+  }
+  .rot-fix-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px 20px;
+  }
+  .rot-fix-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .rot-fix-row input {
+    flex: 1;
+    min-width: 0;
+  }
+  .rot-fix-crops {
+    margin-bottom: 14px;
+  }
+  .rot-fix-dates .form-field {
+    display: grid;
+    gap: 6px;
+  }
+  .rot-fix-dates .form-field > label {
+    font-weight: 700;
+  }
+  .rot-fix-row input {
+    cursor: pointer;
+  }
+  .rot-fix-hint {
+    color: var(--color-ink-muted);
+    font-size: 0.82rem;
+  }
+  .rot-fix-hint.warn {
+    color: var(--color-warn-ink);
+    font-weight: 700;
+  }
+  .rot-detail text {
+    font-size: 10.5px;
+    fill: var(--color-ink-muted);
+  }
+  .rot-detail .lane {
+    font-weight: 700;
+    fill: var(--color-ink);
+  }
+  .rot-detail .grid {
+    stroke: var(--color-line);
+  }
+  .rot-detail .rain {
+    fill: var(--rot-rain);
+  }
+  .rot-detail .gap {
+    fill: var(--rot-irrigate);
+    fill-opacity: 0.25;
+  }
+  .rot-detail .irr {
+    fill: var(--rot-irrigate);
+  }
+  .rot-detail .need {
+    fill: none;
+    stroke: var(--color-primary);
+    stroke-width: 2.5;
+  }
+  .rot-detail .temp {
+    fill: none;
+    stroke: var(--ritu-k1);
+    stroke-width: 2;
+  }
+  .rot-detail .limit {
+    stroke: var(--rot-bad);
+    stroke-width: 1.5;
+    stroke-dasharray: 4 3;
+  }
+  .rot-detail .limit-label {
+    font-weight: 700;
+    fill: var(--rot-bad);
+  }
+  .rot-detail .hotzone {
+    fill: var(--rot-bad-bg);
+  }
+  .rot-detail .hotdot {
+    fill: var(--rot-bad);
+  }
+  .rot-source {
+    margin: 10px 0 0;
+    font-size: 0.85rem;
+    color: var(--color-ink-muted);
+  }
+
+  /* Calendar page with a year plan: Today, then the season week by week, then the whole year. */
+  .rot-today {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: 20px;
+    border: 2px solid var(--color-primary);
+    background: var(--color-primary-soft);
+  }
+  .rot-today-main {
+    display: grid;
+    align-content: start;
+    gap: 14px;
+    min-width: 0;
+  }
+  .rot-today .rot-now-action h2 {
+    font-size: 1.5rem;
+  }
+  .rot-record {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+  .rot-record .notice-amber {
+    margin: 0;
+  }
+  .rot-forecast {
+    display: grid;
+    align-content: start;
+    gap: 10px;
+    padding: 14px;
+    border-radius: 14px;
+    background: var(--color-surface);
+  }
+  .rot-forecast ul {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .rot-forecast li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: baseline;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .rot-forecast li:last-child {
+    border-bottom: 0;
+  }
+  .rot-forecast li span {
+    color: var(--color-ink-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .rot-forecast li span.wet {
+    color: var(--rot-rain-ink);
+    font-weight: 700;
+  }
+  .rot-soil-line {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--color-ink-muted);
+  }
+  .rot-season {
+    display: grid;
+    gap: 16px;
+  }
+  .rot-year-card {
+    display: grid;
+    gap: 14px;
+  }
+  .rot-year-card h2 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+  .rot-year-row {
+    display: grid;
+    grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+    align-items: center;
+    gap: 22px;
+  }
+  .rot-year-side {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+  }
+  .rot-year-list {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .rot-year-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    border-left: 4px solid var(--rot-season);
+    border-radius: 10px;
+    background: var(--color-soft);
+  }
+  .rot-year-list button {
+    display: grid;
+    gap: 2px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .rot-year-list button span {
+    font-size: 0.86rem;
+    color: var(--color-ink-muted);
+  }
+  .rot-year-list small {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  @media (max-width: 760px) {
+    .rot-plan-body,
+    .rot-cal-top,
+    .rot-today,
+    .rot-year-row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .rot-slot-head {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .rot-slot-actions {
+      justify-content: flex-start;
+    }
+    .rot-tiles {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+/* Calendar page with a year plan: at a glance, today, every day, the month, notes and big events. */
+@layer pages {
+  .rot-calendar {
+    --rot-water: #1f7fb8;
+    --rot-water-bg: #dcecf7;
+    --rot-done: #2f7a4b;
+    --rot-fert: #7a3d96;
+    --rot-fert-bg: #efe2f5;
+  }
+  .wx-sun {
+    color: #d99a0b;
+  }
+  .wx-cloud {
+    color: #7d8c97;
+  }
+  .wx-rain {
+    color: #1f7fb8;
+  }
+
+  /* At a glance: the year wheel on the dark field panel. */
+  .rot-glance {
+    display: grid;
+    grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+    align-items: center;
+    gap: 22px;
+    padding: 20px 22px;
+    border-radius: var(--radius-card);
+    background: var(--stage-bg);
+    color: var(--stage-ink);
+    box-shadow: var(--shadow-1);
+  }
+  .rot-glance svg text {
+    font-family: var(--font-ui);
+  }
+  .rot-glance .month {
+    font-size: 12px;
+    font-weight: 700;
+    fill: var(--stage-muted);
+  }
+  .rot-glance svg .rain {
+    fill: #6f97bd;
+    opacity: 0.85;
+  }
+  .rot-glance .heat-track {
+    fill: var(--stage-line);
+  }
+  .rot-glance svg .heat {
+    fill: #e0664f;
+  }
+  .rot-glance .crop {
+    fill: var(--rot-season);
+    cursor: pointer;
+    transform-origin: 180px 180px;
+    animation: rot-grow 0.7s var(--ease-out) both;
+  }
+  .rot-glance .crop.current {
+    stroke: var(--stage-ink);
+    stroke-width: 3;
+  }
+  .rot-glance .crop:focus-visible {
+    outline: none;
+    stroke: var(--stage-accent);
+    stroke-width: 4;
+  }
+  .rot-glance .crop-label {
+    font-size: 13px;
+    font-weight: 800;
+    fill: var(--rot-season-on);
+    pointer-events: none;
+  }
+  .rot-glance svg .drop {
+    fill: #8cc8ee;
+  }
+  .rot-glance svg .drop.due {
+    stroke: var(--stage-ink);
+    stroke-width: 1.5;
+  }
+  .rot-glance svg .drop.done {
+    fill: #93dfa9;
+  }
+  .rot-glance svg .drop.missed {
+    fill: #ff8a73;
+  }
+  .rot-glance svg .drop.past {
+    fill: var(--stage-line);
+  }
+  .rot-glance svg .hand {
+    stroke: var(--stage-ink);
+    stroke-width: 3;
+    stroke-linecap: round;
+    transform-origin: 180px 180px;
+    animation: rot-sweep 1s var(--ease-out) both;
+  }
+  .rot-glance .hub {
+    fill: var(--stage-ink);
+  }
+  .rot-glance .big {
+    font-size: 30px;
+    font-weight: 800;
+    fill: var(--stage-ink);
+  }
+  .rot-glance .small {
+    font-size: 12px;
+    fill: var(--stage-muted);
+  }
+  @keyframes rot-grow {
+    from {
+      opacity: 0;
+      transform: scale(0.86);
+    }
+  }
+  @keyframes rot-sweep {
+    from {
+      opacity: 0;
+      transform: rotate(-120deg);
+    }
+  }
+  .rot-glance-key {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 12px;
+    margin: 6px 0 0;
+    font-size: 0.78rem;
+    color: var(--stage-muted);
+  }
+  .rot-glance-key i {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 5px;
+    border-radius: 50%;
+  }
+  .rot-glance-key i.rain {
+    background: #6f97bd;
+  }
+  .rot-glance-key i.drop {
+    background: #8cc8ee;
+  }
+  .rot-glance-key i.drop.done {
+    background: #93dfa9;
+  }
+  .rot-glance-key i.heat {
+    background: #e0664f;
+  }
+  .rot-glance-key i.hand {
+    background: var(--stage-ink);
+  }
+  .rot-glance-stats {
+    display: grid;
+    gap: 10px;
+    min-width: 0;
+  }
+  .rot-glance-stats .eyebrow {
+    color: var(--stage-accent);
+  }
+  .rot-glance-stats h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--stage-ink);
+  }
+  .rot-glance-seq {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+  }
+  .rot-glance-seq .pill {
+    padding: 2px 10px;
+    border-radius: var(--radius-pill);
+    background: var(--rot-season);
+    color: var(--rot-season-on);
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+  .rot-glance-seq .arrow {
+    margin-right: 6px;
+    color: var(--stage-muted);
+  }
+  .rot-glance-stat {
+    display: grid;
+    gap: 4px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: var(--stage-line);
+  }
+  .rot-glance-stat > span:first-child {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--stage-muted);
+  }
+  .rot-glance-stat b {
+    font-size: 1rem;
+  }
+  .rot-glance .meter,
+  .rot-irr-progress .meter {
+    display: block;
+    height: 8px;
+    overflow: hidden;
+    border-radius: var(--radius-pill);
+    background: rgba(255, 255, 255, 0.14);
+  }
+  .rot-glance .meter i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: #93dfa9;
+  }
+
+  /* What to do today */
+  .rot-today2 {
+    display: grid;
+    gap: 14px;
+    background: var(--rot-season-tint, var(--color-primary-soft));
+  }
+  .rot-today2.empty {
+    background: var(--color-soft);
+  }
+  .rot-today2 > h2 {
+    margin: 0;
+  }
+  .rot-today2-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .rot-crop-chip {
+    display: inline-flex;
+    padding: 3px 12px;
+    border-radius: var(--radius-pill);
+    background: var(--rot-season, var(--color-primary));
+    color: var(--rot-season-on, var(--color-on-primary));
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+  .rot-wx-now {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    padding: 8px 12px;
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+    font-size: 0.9rem;
+  }
+  .rot-wx-now .temp b {
+    font-size: 1.3rem;
+  }
+  .rot-wx-now .temp span {
+    color: var(--color-ink-muted);
+  }
+  .rot-wx-now .word {
+    font-weight: 700;
+  }
+  .rot-wx-now .next {
+    display: flex;
+    gap: 12px;
+    margin-left: auto;
+  }
+  .rot-wx-now .next > span {
+    display: grid;
+    justify-items: center;
+    font-size: 0.78rem;
+    line-height: 1.15;
+  }
+  .rot-wx-now .next small {
+    font-size: 0.7rem;
+    color: var(--color-ink-muted);
+  }
+  .rot-wx-now .hint {
+    flex-basis: 100%;
+    margin: 2px 0 0;
+    padding-left: 10px;
+    border-left: 4px solid var(--rot-season, var(--color-primary));
+    font-weight: 700;
+  }
+  .rot-today-reminder {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    padding: 6px 12px;
+    border-radius: 14px;
+    background: var(--color-surface);
+    font-weight: 600;
+  }
+  .rot-today-reminder svg {
+    color: var(--rot-fert);
+  }
+  .rot-today2-main {
+    display: grid;
+    grid-template-columns: 116px minmax(0, 1fr);
+    align-items: center;
+    gap: 18px;
+  }
+  .rot-today2-main h2 {
+    margin: 0;
+    font-size: 1.45rem;
+    line-height: 1.3;
+  }
+  .rot-today2-main p {
+    margin: 6px 0 0;
+    color: var(--color-ink-muted);
+  }
+  .rot-ring {
+    width: 116px;
+    height: 116px;
+  }
+  .rot-ring .track {
+    fill: none;
+    stroke: color-mix(in srgb, var(--color-ink) 10%, transparent);
+    stroke-width: 10;
+  }
+  .rot-ring .bar {
+    fill: none;
+    stroke: var(--rot-season, var(--color-primary));
+    stroke-width: 10;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.4s var(--ease-out);
+  }
+  .rot-ring .big {
+    font-size: 26px;
+    font-weight: 800;
+    fill: var(--color-ink);
+  }
+  .rot-ring .small {
+    font-size: 10.5px;
+    font-weight: 600;
+    fill: var(--color-ink-muted);
+  }
+  .button.water {
+    background: var(--rot-water);
+    color: #fff;
+  }
+  .button.water:hover {
+    background: #18689a;
+  }
+  .rot-planned {
+    color: var(--color-warn-ink);
+    font-weight: 700;
+  }
+  .rot-planned::before {
+    content: '◷ ';
+  }
+  .rot-saved {
+    font-weight: 700;
+    color: var(--rot-done);
+  }
+  .rot-journey {
+    display: grid;
+    gap: 6px;
+  }
+  .rot-journey .bar {
+    position: relative;
+    display: grid;
+    gap: 3px;
+    height: 14px;
+  }
+  .rot-journey .bar i {
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--color-ink) 9%, transparent);
+  }
+  .rot-journey .bar i.past {
+    background: var(--rot-season);
+    opacity: 0.55;
+  }
+  .rot-journey .bar i.now {
+    background: var(--rot-season);
+  }
+  .rot-journey .dot {
+    position: absolute;
+    top: 50%;
+    width: 22px;
+    height: 22px;
+    margin: -11px 0 0 -11px;
+    border: 4px solid var(--color-ink);
+    border-radius: 50%;
+    background: var(--color-surface);
+  }
+  .rot-journey .labels {
+    display: grid;
+    gap: 3px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+  }
+  .rot-journey .labels span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .rot-journey .labels .now {
+    color: var(--color-ink);
+    font-weight: 800;
+  }
+
+  /* Sections */
+  .rot-block {
+    display: grid;
+    gap: 10px;
+    min-width: 0;
+  }
+  .rot-block-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+  }
+  .rot-block-head h2 {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 1.2rem;
+  }
+  .rot-block-head > span {
+    font-size: 0.85rem;
+    color: var(--color-ink-muted);
+  }
+
+  /* Every day this week */
+  .rot-days {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(132px, 1fr);
+    gap: 8px;
+    overflow-x: auto;
+    padding: 2px 2px 6px;
+    scroll-snap-type: x proximity;
+  }
+  .rot-day-card {
+    display: grid;
+    align-content: start;
+    gap: 6px;
+    min-height: 140px;
+    padding: 10px;
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    background: var(--color-surface);
+    text-align: left;
+    scroll-snap-align: start;
+  }
+  .rot-day-card.today {
+    border: 2px solid var(--color-ink);
+  }
+  .rot-day-card .when {
+    display: grid;
+    line-height: 1.25;
+  }
+  .rot-day-card .when small {
+    font-size: 0.75rem;
+    color: var(--color-ink-muted);
+  }
+  .rot-day-card .wx {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .rot-tips {
+    display: grid;
+    gap: 6px;
+  }
+  .rot-tip {
+    display: block;
+    padding: 6px 8px;
+    border-radius: 10px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .rot-tip.water {
+    background: var(--rot-water-bg);
+    color: #0f4f75;
+  }
+  .rot-tip.done {
+    background: var(--color-success-bg);
+    color: var(--rot-done);
+  }
+  .rot-tip.risk {
+    background: var(--rot-bad-bg);
+    color: var(--rot-bad);
+  }
+  .rot-tip.sow {
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+  .rot-tip.fert {
+    background: var(--rot-fert-bg);
+    color: #5b2a73;
+  }
+  .rot-tip.care {
+    background: var(--color-soft);
+  }
+  .rot-tip.quiet {
+    padding: 0;
+    font-weight: 500;
+    color: var(--color-ink-muted);
+  }
+
+  /* Month calendar */
+  .rot-month {
+    display: grid;
+    gap: 12px;
+  }
+  .rot-irr-progress {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    font-size: 0.9rem;
+  }
+  .rot-irr-progress .meter {
+    flex: 1 1 140px;
+    height: 10px;
+    background: var(--rot-water-bg);
+  }
+  .rot-irr-progress .meter i {
+    display: block;
+    height: 100%;
+    background: var(--rot-water);
+  }
+  .rot-month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .rot-month-nav > div {
+    display: grid;
+    text-align: center;
+  }
+  .rot-month-nav b {
+    font-size: 1.1rem;
+  }
+  .rot-month-nav span {
+    font-size: 0.85rem;
+    color: var(--color-ink-muted);
+  }
+  .rot-grid7 {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .rot-grid7 .wd {
+    padding: 2px 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--color-ink-muted);
+  }
+  .rot-cell {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    gap: 1px;
+    min-width: 0;
+    min-height: 70px;
+    padding: 9px 4px 3px;
+    overflow: hidden;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: var(--color-soft);
+    text-align: left;
+  }
+  .rot-cell.crop {
+    background: var(--rot-season-tint);
+  }
+  .rot-cell.window {
+    border: 2px dashed var(--color-primary);
+  }
+  .rot-cell.today {
+    border: 2px solid var(--color-ink);
+  }
+  .rot-cell.sel {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 1px;
+  }
+  .rot-cell .g {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .rot-cell .b {
+    overflow: hidden;
+    font-size: 0.66rem;
+    line-height: 1.1;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--color-ink-muted);
+  }
+  .rot-cell .band {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 5px;
+    background: var(--rot-water);
+  }
+  .rot-cell .band.done {
+    background: var(--rot-done);
+  }
+  .rot-cell .band.missed {
+    background: var(--rot-bad);
+  }
+  .rot-cell .band.past {
+    background: color-mix(in srgb, var(--rot-water) 30%, transparent);
+  }
+  .rot-cell.hot::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 4px;
+    background: var(--rot-bad);
+  }
+  .rot-cell .marks {
+    position: absolute;
+    top: 8px;
+    right: 4px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    color: var(--rot-fert);
+  }
+  .rot-cell .marks i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-ink);
+  }
+  .rot-cell .tag {
+    align-self: end;
+    justify-self: start;
+    max-width: 100%;
+    margin-bottom: 3px;
+    padding: 1px 5px;
+    overflow: hidden;
+    border-radius: 6px;
+    font-size: 0.64rem;
+    font-weight: 800;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #fff;
+    background: var(--color-ink-muted);
+  }
+  .rot-cell .tag.water {
+    background: var(--rot-water);
+  }
+  .rot-cell .tag.done {
+    background: var(--rot-done);
+  }
+  .rot-cell .tag.risk {
+    background: var(--rot-bad);
+  }
+  .rot-cell .tag.sow {
+    background: var(--color-primary);
+  }
+  .rot-cell .tag.fert {
+    background: var(--rot-fert);
+  }
+  .rot-cal-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--color-ink-muted);
+  }
+  .rot-cal-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .rot-cal-legend svg {
+    color: var(--rot-fert);
+  }
+  .rot-cal-legend i {
+    display: inline-block;
+    width: 14px;
+    height: 12px;
+    border-radius: 3px;
+  }
+  .rot-cal-legend i.water {
+    background: var(--rot-water);
+  }
+  .rot-cal-legend i.done {
+    background: var(--rot-done);
+  }
+  .rot-cal-legend i.risk {
+    background: var(--rot-bad);
+  }
+  .rot-cal-legend i.fert {
+    background: var(--rot-fert);
+  }
+  .rot-cal-legend i.window {
+    border: 2px dashed var(--color-primary);
+  }
+  .rot-cal-legend i.tint {
+    background: var(--rot-season-tint);
+    border: 1px solid var(--rot-season);
+  }
+  .rot-cal-legend i.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-ink);
+  }
+  .rot-cal-legend i.today {
+    border: 2px solid var(--color-ink);
+  }
+
+  /* Day sheet */
+  .rot-sheet .dialog-body {
+    gap: 12px;
+  }
+  .rot-sheet h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0 0;
+    font-size: 1rem;
+  }
+  .rot-sheet-crop {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+  }
+  .rot-wx-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 6px 14px;
+    padding: 14px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #e6f0f8, #f7f0e1);
+  }
+  .rot-wx-card .src {
+    grid-column: 1 / -1;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-ink-muted);
+  }
+  .rot-wx-card .t b {
+    font-size: 1.9rem;
+    line-height: 1;
+  }
+  .rot-wx-card .t span {
+    color: var(--color-ink-muted);
+  }
+  .rot-wx-card .t div {
+    font-weight: 700;
+  }
+  .rot-wx-card .grid {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 8px;
+  }
+  .rot-wx-card .grid div {
+    padding: 6px 10px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.7);
+    font-size: 0.78rem;
+    color: var(--color-ink-muted);
+  }
+  .rot-wx-card .grid b {
+    display: block;
+    font-size: 1rem;
+    color: var(--color-ink);
+  }
+  .rot-note-small {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--color-ink-muted);
+  }
+  .rot-count {
+    padding: 0 8px;
+    border-radius: var(--radius-pill);
+    background: var(--color-soft);
+    font-size: 0.8rem;
+  }
+
+  /* Notes card and big events */
+  .rot-notes {
+    display: grid;
+    gap: 14px;
+  }
+  .rot-timeline {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .rot-timeline li {
+    --c: var(--color-ink-muted);
+    position: relative;
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 12px;
+    padding-bottom: 14px;
+  }
+  .rot-timeline li::before {
+    content: '';
+    position: absolute;
+    top: 24px;
+    bottom: -2px;
+    left: 13px;
+    width: 2px;
+    background: var(--color-line);
+  }
+  .rot-timeline li:last-child::before {
+    display: none;
+  }
+  .rot-timeline li.irrigate {
+    --c: var(--rot-water);
+  }
+  .rot-timeline li.sow,
+  .rot-timeline li.harvest {
+    --c: var(--color-primary);
+  }
+  .rot-timeline li.heat {
+    --c: var(--rot-bad);
+  }
+  .rot-timeline li.fert {
+    --c: var(--rot-fert);
+  }
+  .rot-timeline li.stage {
+    --c: var(--ritu-rabi);
+  }
+  .rot-timeline .node {
+    width: 28px;
+    height: 28px;
+    border: 4px solid var(--color-bg);
+    border-radius: 50%;
+    background: var(--c);
+    box-shadow: 0 0 0 2px var(--c);
+  }
+  .rot-timeline button {
+    display: grid;
+    gap: 2px;
+    padding: 0;
+    text-align: left;
+  }
+  .rot-timeline button span {
+    font-size: 0.86rem;
+    color: var(--color-ink-muted);
+  }
+  .rot-timeline .in {
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    background: var(--color-soft);
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--color-ink-muted);
+  }
+
+  @media (max-width: 760px) {
+    .rot-glance {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 16px;
+    }
+    .rot-glance-wheel {
+      width: 100%;
+      max-width: 360px;
+      margin: 0 auto;
+    }
+    .rot-today2-main {
+      grid-template-columns: minmax(0, 1fr);
+      justify-items: start;
+    }
+    .rot-today2-main h2 {
+      font-size: 1.28rem;
+    }
+    .rot-cell {
+      min-height: 58px;
+      padding: 8px 3px 2px;
+    }
+    .rot-cell .b {
+      font-size: 0.6rem;
+    }
+    .rot-cell .tag {
+      padding: 0 3px;
+      font-size: 0.56rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rot-glance .crop,
+    .rot-glance svg .hand {
+      animation: none;
+    }
+  }
+}
+
+/* Choosing and keeping a year plan: the confirmation list and the chosen-plan page. */
+@layer pages {
+  .rot-confirm-list {
+    list-style: none;
+    margin: 0 0 12px;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .rot-confirm-list li {
+    display: grid;
+    gap: 2px;
+    padding: 10px 12px;
+    border-left: 4px solid var(--rot-season, var(--color-primary));
+    border-radius: 10px;
+    background: var(--color-soft);
+  }
+  .rot-confirm-list span {
+    color: var(--color-ink-muted);
+    font-size: 0.9rem;
+  }
+  .rot-chosen .rot-seq-wrap {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-line);
+  }
+  .rot-chosen .rot-seq {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+  }
+  .rot-changing {
+    margin: 0;
+  }
+}
+
+@layer pages {
+  .rot-confirm-undo {
+    display: grid;
+    gap: 10px;
+  }
+  .rot-confirm-undo p {
+    margin: 0;
+  }
+}
+
+/* Deadlines and crops ended without a harvest: late (amber), cancelled / lost / closed (grey). */
+@layer pages {
+  .rot-today2.warn {
+    background: var(--color-warn-bg);
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--color-warn-ink) 35%, transparent);
+  }
+  .rot-today2.warn .rot-ring .track {
+    stroke: color-mix(in srgb, var(--color-warn-ink) 30%, transparent);
+  }
+  .rot-today2.stop {
+    background: var(--color-soft);
+  }
+  .rot-today2.stop .rot-ring .track {
+    stroke: color-mix(in srgb, var(--color-ink) 18%, transparent);
+  }
+  .rot-crop-chip.x {
+    background: var(--color-surface);
+    color: var(--color-ink-muted);
+    text-decoration: line-through;
+  }
+  .rot-flag {
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--color-surface) 75%, transparent);
+    color: var(--color-ink);
+    font-size: 0.95rem;
+  }
+  .rot-flag.warn {
+    border-left: 4px solid var(--color-warn-ink);
+  }
+  .rot-flag.stop {
+    border-left: 4px solid var(--color-ink-muted);
+  }
+  .rot-plan-line {
+    margin-top: 4px;
+    font-weight: 700;
+    color: var(--color-warn-ink);
+  }
+  .rot-end-link {
+    justify-self: start;
+    font-size: 0.92rem;
+  }
+  .rot-journey .harvest-mark {
+    position: absolute;
+    top: -5px;
+    bottom: -5px;
+    width: 4px;
+    margin-left: -2px;
+    border-radius: 2px;
+    background: var(--color-warn-ink);
+  }
+  .rot-lost {
+    font-weight: 700;
+    color: var(--color-danger);
+  }
+  .rot-fix-label {
+    font-weight: 700;
+  }
+  .rot-fix-row.rot-lost-row {
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--color-danger) 8%, var(--color-surface));
+    justify-content: space-between;
+  }
+  .rot-end-sheet {
+    display: grid;
+    gap: 12px;
+  }
+  .rot-end-sheet p {
+    margin: 0;
+  }
+  .rot-end-sheet .form-field {
+    display: grid;
+    gap: 6px;
+  }
+  .rot-end-sheet .form-field label,
+  .rot-end-label {
+    font-weight: 700;
+  }
+  .rot-choice,
+  .rot-seg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .rot-choice button,
+  .rot-seg button {
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1.5px solid var(--color-line);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .rot-choice button[aria-pressed='true'],
+  .rot-seg button[aria-pressed='true'] {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+  .rot-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .rot-check input {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--color-primary);
+  }
+}

@@ -1,9 +1,12 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { Anek_Bangla, Hind_Siliguri } from 'next/font/google';
-// Noto Sans Bengali stays only as the fallback named in the font tokens.
-import '@fontsource/noto-sans-bengali/400.css';
-import '@fontsource/noto-sans-bengali/600.css';
+// Bangla text uses Noto Sans Bengali. Only its Bengali subset is loaded, so English text
+// keeps Hind Siliguri / Anek Bangla's Latin letters (see the font tokens).
+import '@fontsource/noto-sans-bengali/bengali-400.css';
+import '@fontsource/noto-sans-bengali/bengali-500.css';
+import '@fontsource/noto-sans-bengali/bengali-600.css';
+import '@fontsource/noto-sans-bengali/bengali-700.css';
 // Stylesheet order is cascade order: the layer list first, then each layer's file.
 import './globals.css';
 import '../styles/tokens.css';
@@ -22,15 +25,18 @@ import '../styles/pages/tour.css';
 import '../styles/pages/live-farm.css';
 import '../styles/pages/evidence.css';
 import '../styles/pages/season-farms.css';
+import '../styles/pages/plots.css';
+import '../styles/pages/rotation.css';
+import '../styles/pages/notes.css';
 import { PlannerProvider } from '../components/planner-provider';
 
 const display = Anek_Bangla({
-  subsets: ['bengali', 'latin'],
+  subsets: ['latin'],
   weight: ['600', '700', '800'],
   variable: '--font-display',
 });
 const body = Hind_Siliguri({
-  subsets: ['bengali', 'latin'],
+  subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   variable: '--font-body',
 });

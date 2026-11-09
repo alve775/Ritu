@@ -19,8 +19,8 @@ export const tourSteps: TourStep[] = [
       bn: 'আপনার কৃষি সহায়ক মাটির পরিচয়',
     },
     description: {
-      en: 'List your fields here, set each location and area, then add farms inside them. Each farm has its own crop and calendar. Each page has a short guide before you explore.',
-      bn: 'এখানে জমির তালিকা দিয়ে প্রতিটির স্থান ও আয়তন দিন, তারপর তার মধ্যে খামার যোগ করুন। প্রতি খামারের আলাদা ফসল ও ক্যালেন্ডার। প্রতি পাতার ছোট পরিচিতি শেষে নিজে দেখুন।',
+      en: 'Add your land with its location and size, then divide it into plots. For each plot you enter last year’s crops, get crop suggestions and follow a crop calendar. Each page has a short guide before you explore.',
+      bn: 'স্থান ও আয়তন দিয়ে জমি যোগ করুন, তারপর জমিকে প্লটে ভাগ করুন। প্রতিটি প্লটে গত বছরের ফসল দিয়ে ফসলের পরামর্শ নিন ও ফসলের ক্যালেন্ডার দেখুন। প্রতি পাতার ছোট পরিচিতি শেষে নিজে দেখুন।',
     },
     mission: {
       en: 'RITU · Your growing season',
@@ -51,12 +51,12 @@ export const tourSteps: TourStep[] = [
     route: '/farm',
     target: '[data-tour="farm-basics"]',
     title: {
-      en: 'Area and next season',
-      bn: 'আয়তন ও পরের মৌসুম',
+      en: 'Name and size',
+      bn: 'নাম ও আয়তন',
     },
     description: {
-      en: 'Enter the area in your preferred unit and choose when you are ready to plant. You can name this farm to identify it later.',
-      bn: 'পছন্দের এককে আয়তন ও রোপণে প্রস্তুত হওয়ার দিন দিন। পরে চেনার জন্য খামারের নাম দিতে পারেন।',
+      en: 'Enter the land’s size in your preferred unit and give it a name you will recognise later.',
+      bn: 'পছন্দের এককে জমির আয়তন দিন এবং পরে চেনার জন্য একটি নাম দিন।',
     },
     mission: {
       en: 'RITU · Your growing season',
@@ -109,8 +109,8 @@ export const tourSteps: TourStep[] = [
       bn: 'বাছা ফসল এখানে থাকবে',
     },
     description: {
-      en: 'This bar shows the one crop you choose below. Once selected, Create my farm opens a separate workspace without replacing your other farms. First confirm land details if suggestions are not yet available.',
-      bn: 'নিচে বাছা একটি ফসল এই বারে থাকবে। বাছার পরে খামার তৈরির বোতামে আলাদা কাজের জায়গা খুলবে, অন্য খামার বদলাবে না। প্রস্তাব না এলে আগে জমির তথ্য নিশ্চিত করুন।',
+      en: 'This bar shows the one crop you choose below. Once selected, Create crop calendar opens this plot’s calendar without changing your other plots.',
+      bn: 'নিচে বাছা একটি ফসল এই বারে থাকবে। বাছার পরে ফসলের ক্যালেন্ডার তৈরি করুন চাপলে এই প্লটের ক্যালেন্ডার খুলবে, অন্য প্লট বদলাবে না।',
     },
     mission: {
       en: 'RITU · Your growing season',
@@ -127,8 +127,8 @@ export const tourSteps: TourStep[] = [
       bn: 'একটি প্রস্তাবিত ফসল বাছুন',
     },
     description: {
-      en: 'Search crop options by name, use or life cycle. Open an option’s details to compare its requirements, then choose one crop for this farm.',
-      bn: 'নাম, ব্যবহার বা জীবনচক্র দিয়ে ফসল খুঁজুন। বিস্তারিত খুলে চাহিদা তুলনা করুন, তারপর এই খামারের জন্য একটি ফসল বাছুন।',
+      en: 'Search crop options by name, use or life cycle. Open an option’s details to compare its requirements, then choose one crop for this plot.',
+      bn: 'নাম, ব্যবহার বা জীবনচক্র দিয়ে ফসল খুঁজুন। বিস্তারিত খুলে চাহিদা তুলনা করুন, তারপর এই প্লটের জন্য একটি ফসল বাছুন।',
     },
     mission: {
       en: 'RITU · Your growing season',
@@ -141,12 +141,12 @@ export const tourSteps: TourStep[] = [
     route: '/plan',
     target: '[data-tour="calendar-main"]',
     title: {
-      en: 'Your farm workspace',
-      bn: 'খামারের কাজের জায়গা',
+      en: 'Your crop calendar',
+      bn: 'আপনার ফসলের ক্যালেন্ডার',
     },
     description: {
-      en: 'Find the crop, planting date and reference growing period here. Use Switch farm to open another planting.',
-      bn: 'এখানে ফসল, রোপণের দিন ও উৎসের বৃদ্ধির সময় দেখুন। অন্য খামার খুলতে খামার বদলান ব্যবহার করুন।',
+      en: 'Find the crop, planting date and reference growing period here. Use Switch crop to open another planting.',
+      bn: 'এখানে ফসল, রোপণের দিন ও উৎসের বৃদ্ধির সময় দেখুন। অন্য ফসল খুলতে অন্য ফসল খুলুন ব্যবহার করুন।',
     },
     mission: {
       en: 'RITU · Your growing season',
@@ -195,12 +195,12 @@ export const tourSteps: TourStep[] = [
     route: '/farms',
     target: '[data-tour="my-farms"]',
     title: {
-      en: 'Manage more than one field',
-      bn: 'একাধিক জমি পরিচালনা করুন',
+      en: 'Your lands and plots',
+      bn: 'আপনার জমি ও প্লট',
     },
     description: {
-      en: 'Start with the number of fields you manage. Give each its own location and total area, then divide it into farms for different crops. Farms growing at the same time must fit within their field.',
-      bn: 'প্রথমে জমির সংখ্যা দিন। প্রতিটির স্থান ও মোট আয়তন দিয়ে আলাদা ফসলের খামারে ভাগ করুন। একই সময়ে চাষ করা খামারগুলো মোট জমির মধ্যে হতে হবে।',
+      en: 'Each box is one land. Inside it are its plots, with last year’s crops and the crop growing now. Add a plot to get crop suggestions; plots must fit within their land.',
+      bn: 'প্রতিটি বাক্স একটি জমি। এর ভেতরে প্লটগুলো, গত বছরের ফসল ও এখনকার ফসলসহ। ফসলের পরামর্শ পেতে প্লট যোগ করুন; প্লটগুলো জমির আয়তনের মধ্যে হতে হবে।',
     },
     mission: {
       en: 'RITU · Your growing season',
@@ -217,8 +217,8 @@ export const tourSteps: TourStep[] = [
       bn: 'ব্যাকআপ রাখুন',
     },
     description: {
-      en: 'Farm records are saved in this browser. Export them to keep a backup or move them to another device.',
-      bn: 'খামারের হিসাব এই ব্রাউজারে থাকে। ব্যাকআপ বা অন্য যন্ত্রে নেওয়ার জন্য হিসাব নামান।',
+      en: 'Your records are saved in this browser. Export them to keep a backup or move them to another device.',
+      bn: 'আপনার হিসাব এই ব্রাউজারে থাকে। ব্যাকআপ বা অন্য যন্ত্রে নেওয়ার জন্য হিসাব নামান।',
     },
     mission: {
       en: 'RITU · Your growing season',

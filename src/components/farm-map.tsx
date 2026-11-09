@@ -102,7 +102,7 @@ export function FarmMap({
           keyboard: true,
           touchZoom: true,
           zoomControl: true,
-        }).setView([initial.latitude, initial.longitude], 13);
+        }).setView([initial.latitude, initial.longitude], 12);
         map.current = instance;
         const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,

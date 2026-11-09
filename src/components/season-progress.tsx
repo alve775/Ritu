@@ -151,8 +151,8 @@ export function SeasonProgress({
       {status === 'completed' && (
         <p>
           {t(
-            'Growing-season checks stop from the final harvest date. The farm record stays available for review and export.',
-            'শেষ তোলার দিন থেকে চাষের যাচাই বন্ধ। দেখা ও নামানোর জন্য জমির হিসাব থাকে।',
+            'Growing-season checks stop from the final harvest date. The crop record stays available for review and export.',
+            'শেষ তোলার দিন থেকে চাষের যাচাই বন্ধ। দেখা ও নামানোর জন্য ফসলের হিসাব থাকে।',
           )}
         </p>
       )}

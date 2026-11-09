@@ -115,6 +115,12 @@
     font-size: 0.8rem;
     font-weight: 600;
   }
+  .step .step-icon {
+    display: inline-flex;
+    align-items: center;
+    flex-direction: row-reverse;
+    gap: 6px;
+  }
   .step-dot {
     flex-shrink: 0;
     color: inherit;
@@ -474,26 +480,46 @@
     }
     .step .nav-item {
       display: grid;
-      grid-template-columns: 28px 1fr;
+      grid-template-columns: 40px minmax(0, 1fr);
       align-items: center;
-      gap: 4px 10px;
+      gap: 12px;
       width: 100%;
-      min-height: 80px;
+      min-height: 72px;
       padding: 12px;
       border-radius: 12px;
       color: var(--color-frame-ink);
     }
-    .step .nav-item > svg {
-      grid-column: 1;
-      grid-row: 2;
+    /* Every item has the same icon tile, so icons and labels line up; the step number sits on its corner. */
+    .step .step-icon {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: color-mix(in srgb, currentColor 12%, transparent);
     }
     .step .step-number {
-      font-size: 0.75rem;
-      opacity: 0.85;
+      position: absolute;
+      top: -6px;
+      left: -6px;
+      display: grid;
+      place-items: center;
+      min-width: 18px;
+      height: 18px;
+      border-radius: var(--radius-pill);
+      background: var(--color-frame-ink);
+      color: var(--color-primary);
+      font-size: 0.68rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .step.current .step-number {
+      background: var(--color-primary);
+      color: #fff;
     }
     .step .nav-text {
       grid-column: 2;
-      grid-row: 1 / 3;
     }
     .step .nav-text strong {
       font-size: 1rem;
@@ -594,6 +620,36 @@
   @media (min-width: 1024px) and (max-width: 1199px) {
     html[data-tour-layout='active'] .app {
       padding-right: 0;
+    }
+  }
+}
+
+/* Notes sit under the calendar step in the menu; a red count shows reminders that are due. */
+@layer layout {
+  .nav-badge {
+    display: inline-grid;
+    place-items: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: var(--radius-pill);
+    background: var(--color-danger);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .tab .nav-badge {
+    position: absolute;
+    top: 0;
+    left: calc(50% + 6px);
+  }
+  @media (min-width: 1024px) {
+    .step .nav-item:has(.nav-badge) {
+      grid-template-columns: 40px minmax(0, 1fr) auto;
+    }
+    .step .nav-badge {
+      grid-column: 3;
     }
   }
 }

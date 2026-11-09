@@ -50,8 +50,8 @@
     --ritu-cta: 56px; /* primary button height */
 
     /* Type: --font-display / --font-body come from next/font in app/layout.tsx */
-    --ritu-font-display: var(--font-display), 'Noto Sans Bengali', system-ui, sans-serif;
-    --ritu-font-body: var(--font-body), 'Noto Sans Bengali', system-ui, sans-serif;
+    --ritu-font-display: 'Noto Sans Bengali', var(--font-display), system-ui, sans-serif;
+    --ritu-font-body: 'Noto Sans Bengali', var(--font-body), system-ui, sans-serif;
   }
 
   body {

@@ -10,12 +10,12 @@ export function FarmAreaField() {
     <div className="form-field area-entry">
       <label htmlFor="farm-area">
         {unit === 'hectares'
-          ? t('Field area (hectares)', 'জমির আয়তন (হেক্টর)')
+          ? t('Land area (hectares)', 'জমির আয়তন (হেক্টর)')
           : unit === 'acres'
-            ? t('Field area (acres)', 'জমির আয়তন (একর)')
+            ? t('Land area (acres)', 'জমির আয়তন (একর)')
             : unit === 'decimal'
-              ? t('Field area (decimal / shotok)', 'জমির আয়তন (শতক)')
-              : t('Field area (square metres)', 'জমির আয়তন (বর্গমিটার)')}
+              ? t('Land area (decimal / shotok)', 'জমির আয়তন (শতক)')
+              : t('Land area (square metres)', 'জমির আয়তন (বর্গমিটার)')}
       </label>
       <div className="area-entry-inputs">
         <input

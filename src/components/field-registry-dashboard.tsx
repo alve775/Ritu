@@ -1,31 +1,30 @@
 'use client';
-import { useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { MapPin, Plus } from 'lucide-react';
+import { Droplets, Layers, LandPlot, MapPin, Pencil, Plus, Ruler } from 'lucide-react';
 import { usePlanner } from './planner-provider';
 import { seasonStore, useSeasonFarms } from '../lib/season-store';
-import { blankFarm, evidenceStore } from '../lib/evidence-store';
-import { fieldReady, peakFieldArea } from '../domain/field-registry';
-import { localToday, type SeasonFarm } from '../domain/global-season';
+import { evidenceStore } from '../lib/evidence-store';
+import { fieldReady, type RegisteredField } from '../domain/field-registry';
+import type { SeasonFarm } from '../domain/global-season';
+import { defaultSite } from '../domain/farm-site';
+import type { Farm } from '../domain/types';
+import { pilotRegionFor } from '../data/regions';
+import { RegionBadge } from './region-badge';
+import { localDigits } from '../domain/numerals';
+import { FieldPlots, plotAreaInUse } from './plot-setup';
+import { useToday } from '../lib/use-today';
 
-export function prepareRegisteredField(id: string, editing: boolean) {
-  const state = seasonStore.getSnapshot().state,
-    field = state.fields?.find((f) => f.id === id);
+type Translate = (en: string, bn: string) => string;
+
+/** Loads a land into the land page for editing. */
+export function prepareRegisteredField(id: string) {
+  const field = seasonStore.getSnapshot().state.fields?.find((f) => f.id === id);
   if (!field) return;
-  const today = localToday(field.site?.timezone),
-    used = peakFieldArea(state.farms, id, today);
   evidenceStore.update({
-    farm: {
-      ...field.profile,
-      name: editing
-        ? field.name
-        : `${field.name} · Farm ${state.farms.filter((f) => f.fieldId === id).length + 1}`.slice(
-            0,
-            80,
-          ),
-      area: editing ? field.profile.area : Math.max(0, field.profile.area - used),
-    },
-    site: field.site,
+    farm: { ...field.profile, name: field.name },
+    // A land without a location starts at the default Rajshahi pin; the farmer can move it.
+    site: field.site ?? defaultSite,
     climate: undefined,
     from: '',
     district: '',
@@ -34,160 +33,182 @@ export function prepareRegisteredField(id: string, editing: boolean) {
     reviewed: null,
     selected: null,
   });
-  seasonStore.selectField(id, editing);
+  seasonStore.selectField(id, true);
   seasonStore.activate(null);
 }
 
+/** A crop planting whose season is over (perennials stay open for review). */
+export const farmFinished = (farm: SeasonFarm, today: string) =>
+  farm.selection.planKind !== 'perennial-review' &&
+  !!farm.harvestedDate &&
+  farm.harvestedDate <= today;
+
+const soilName = (soil: Farm['soil'], t: Translate) =>
+  ({
+    loam: t('Loam', 'দোআঁশ'),
+    clay: t('Clay', 'এঁটেল'),
+    sandy: t('Sandy', 'বেলে'),
+    unknown: t('Soil not sure', 'মাটি জানা নেই'),
+  })[soil];
+const waterName = (water: Farm['irrigation'], t: Translate) =>
+  ({
+    reliable: t('Reliable irrigation', 'নির্ভরযোগ্য সেচ'),
+    limited: t('Limited irrigation', 'সীমিত সেচ'),
+    rainfed: t('Rain only', 'শুধু বৃষ্টি'),
+    severe: t('Severe water shortage', 'পানির তীব্র সংকট'),
+    unknown: t('Water not sure', 'পানি জানা নেই'),
+  })[water];
+const ha = (n: number) => Number(n.toFixed(4));
+
 export function FieldRegistryDashboard({
+  onAddLand,
+  renderCrop,
   renderFarm,
 }: {
+  onAddLand: () => void;
+  /** A crop shown inside its plot. */
+  renderCrop: (farm: SeasonFarm) => ReactNode;
+  /** A crop that is not inside a current plot (older records, finished seasons). */
   renderFarm: (farm: SeasonFarm) => ReactNode;
 }) {
   const { t } = usePlanner(),
+    { state } = useSeasonFarms();
+  const fields = state.fields ?? [];
+  if (!fields.length)
+    return (
+      <section className="land-empty card">
+        <span className="land-empty-mark" aria-hidden="true">
+          <LandPlot size={34} />
+        </span>
+        <h2>{t('Add your first land', 'আপনার প্রথম জমি যোগ করুন')}</h2>
+        <p>
+          {t(
+            'Mark where the land is and how big it is. Then divide it into plots and get crop suggestions for each plot.',
+            'জমি কোথায় ও কত বড় তা দিন। তারপর জমিকে প্লটে ভাগ করে প্রতিটি প্লটের জন্য ফসলের পরামর্শ নিন।',
+          )}
+        </p>
+        <button className="button primary" onClick={onAddLand}>
+          <Plus size={19} />
+          {t('Add land', 'জমি যোগ করুন')}
+        </button>
+      </section>
+    );
+  return (
+    <div className="field-registry land-grid">
+      {fields.map((field) => (
+        <LandCard key={field.id} field={field} renderCrop={renderCrop} renderFarm={renderFarm} />
+      ))}
+    </div>
+  );
+}
+
+function LandCard({
+  field,
+  renderCrop,
+  renderFarm,
+}: {
+  field: RegisteredField;
+  renderCrop: (farm: SeasonFarm) => ReactNode;
+  renderFarm: (farm: SeasonFarm) => ReactNode;
+}) {
+  const { t, language } = usePlanner(),
     { state } = useSeasonFarms(),
     router = useRouter();
-  const fields = state.fields ?? [];
-  const [count, setCount] = useState('1'),
-    [message, setMessage] = useState('');
+  const n = (value: number) => localDigits(ha(value), language);
+  const today = useToday(field.site?.timezone),
+    ready = fieldReady(field),
+    plots = (state.plots ?? []).filter(
+      (p) => p.fieldId === field.id && (!p.endDate || p.endDate >= today),
+    ),
+    plotIds = new Set(plots.map((p) => p.id)),
+    farms = state.farms.filter((f) => f.fieldId === field.id),
+    inPlots = farms.filter((f) => f.plotId && plotIds.has(f.plotId) && !farmFinished(f, today)),
+    // A plot with a year plan shows its own done, now and next crops, so its calendars are not repeated here.
+    planned = new Set(plots.filter((p) => p.plan).map((p) => p.id)),
+    other = farms.filter((f) => !inPlots.includes(f) && !(f.plotId && planned.has(f.plotId))),
+    used = plotAreaInUse(state.plots ?? [], field.id, today),
+    area = field.profile.area,
+    share = area > 0 ? Math.min(100, (used / area) * 100) : 0,
+    edit = () => {
+      prepareRegisteredField(field.id);
+      router.push('/farm');
+    };
   return (
-    <div className="field-registry">
-      <form
-        className="card field-count-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setMessage('');
-          try {
-            const n = Number(count);
-            if (!Number.isInteger(n) || n < 1 || n > 200 - fields.length)
-              throw Error(
-                t(
-                  'Enter a whole number from 1 to the remaining field limit.',
-                  'অবশিষ্ট সীমার মধ্যে ১ বা বেশি পূর্ণ সংখ্যা দিন।',
-                ),
-              );
-            const names = new Set(fields.map((f) => f.name));
-            let serial = 1;
-            seasonStore.addFields(
-              Array.from({ length: n }, () => {
-                let name = `${t('Field', 'জমি')} ${serial++}`;
-                while (names.has(name)) name = `${t('Field', 'জমি')} ${serial++}`;
-                names.add(name);
-                return {
-                  id: crypto.randomUUID(),
-                  name,
-                  profile: { ...blankFarm },
-                };
-              }),
-            );
-            setMessage(
-              t(
-                `${n} field${n === 1 ? '' : 's'} added. Set each location, then add farms inside it.`,
-                `${n}টি জমি যোগ হয়েছে। প্রতিটির স্থান দিয়ে তার মধ্যে খামার যোগ করুন।`,
-              ),
-            );
-          } catch (error) {
-            setMessage(
-              error instanceof Error ? error.message : t('Could not add fields.', 'জমি যোগ হয়নি।'),
-            );
-          }
-        }}
-      >
-        <label>
-          {fields.length
-            ? t('More fields to add', 'আর কতটি জমি যোগ করবেন')
-            : t('How many fields do you have?', 'আপনার কয়টি জমি আছে?')}
-          <input
-            type="number"
-            min="1"
-            max={Math.max(1, 200 - fields.length)}
-            step="1"
-            required
-            value={count}
-            onChange={(e) => setCount(e.target.value)}
-          />
-        </label>
-        <button className="button primary" disabled={fields.length >= 200}>
-          <Plus size={18} />
-          {t('Add fields', 'জমি যোগ করুন')}
-        </button>
-        <p role="status">
-          {message ||
-            t(
-              'Give each field its own location and area. Divide it into farms for different crops.',
-              'প্রতি জমির আলাদা স্থান ও আয়তন দিন। বিভিন্ন ফসলের জন্য তার মধ্যে খামার ভাগ করুন।',
-            )}
+    <section className="land-card registered-field" aria-label={field.name}>
+      <header className="land-card-head registered-field-heading">
+        <span className="land-card-mark" aria-hidden="true">
+          <LandPlot size={26} />
+        </span>
+        <div className="land-card-title">
+          <span className="eyebrow">{t('LAND', 'জমি')}</span>
+          <h2>{field.name}</h2>
+          <p>
+            <MapPin size={16} />
+            {field.site?.name || t('Location not set yet', 'স্থান এখনো দেওয়া হয়নি')}
+          </p>
+        </div>
+        <div className="land-card-actions">
+          <button
+            className="button secondary"
+            aria-label={`${t('Edit land', 'জমির তথ্য বদলান')}: ${field.name}`}
+            onClick={edit}
+          >
+            <Pencil size={16} />
+            {ready ? t('Edit land', 'জমির তথ্য বদলান') : t('Finish setup', 'তথ্য সম্পূর্ণ করুন')}
+          </button>
+          {!farms.length && !plots.length && (
+            <button className="text-button" onClick={() => seasonStore.removeField(field.id)}>
+              {t('Remove', 'সরান')}
+            </button>
+          )}
+        </div>
+      </header>
+      {ready ? (
+        <>
+          <ul className="land-facts" aria-label={t('About this land', 'এই জমির তথ্য')}>
+            <li>
+              <Ruler size={16} />
+              {n(area)} {t('ha', 'হেক্টর')}
+            </li>
+            <li>
+              <Layers size={16} />
+              {soilName(field.profile.soil, t)}
+            </li>
+            <li>
+              <Droplets size={16} />
+              {waterName(field.profile.irrigation, t)}
+            </li>
+            <li className="land-facts-region">
+              <RegionBadge match={pilotRegionFor(field.site)} />
+            </li>
+          </ul>
+          <div className="land-usage">
+            <div className="land-usage-bar" aria-hidden="true">
+              <span style={{ width: `${share}%` }} />
+            </div>
+            <p>
+              <strong>
+                {n(used)} {t('ha in plots', 'হেক্টর প্লটে')}
+              </strong>{' '}
+              · {n(Math.max(0, area - used))} {t('ha free', 'হেক্টর খালি')}
+            </p>
+          </div>
+          <FieldPlots field={field} farms={inPlots} renderCrop={renderCrop} />
+        </>
+      ) : (
+        <p className="field-empty-note">
+          {t(
+            'Add this land’s location and size to start adding plots.',
+            'প্লট যোগ করতে আগে এই জমির স্থান ও আয়তন দিন।',
+          )}
         </p>
-      </form>
-      {fields.map((field) => {
-        const farms = state.farms.filter((f) => f.fieldId === field.id),
-          today = localToday(field.site?.timezone),
-          used = peakFieldArea(state.farms, field.id, today),
-          ready = fieldReady(field);
-        return (
-          <section className="card registered-field" key={field.id} aria-label={field.name}>
-            <header className="registered-field-heading">
-              <div>
-                <h2>{field.name}</h2>
-                <p>
-                  <MapPin size={16} />
-                  {field.site?.name || t('Choose this field’s location', 'এই জমির স্থান বাছুন')}
-                </p>
-                {ready && (
-                  <p>
-                    {field.profile.area} ha · {t('Allocated', 'বরাদ্দ')} {Number(used.toFixed(6))}{' '}
-                    ha · {t('Available', 'খালি')}{' '}
-                    {Number(Math.max(0, field.profile.area - used).toFixed(6))} ha
-                  </p>
-                )}
-              </div>
-              <div className="button-row">
-                <button
-                  className="button secondary"
-                  onClick={() => {
-                    prepareRegisteredField(field.id, true);
-                    router.push('/farm');
-                  }}
-                >
-                  {ready ? t('Edit field', 'জমির তথ্য বদলান') : t('Set up field', 'জমির তথ্য দিন')}
-                </button>
-                {ready && (
-                  <button
-                    className="button primary"
-                    aria-label={`${t('Add farm to', 'খামার যোগ করুন')}: ${field.name}`}
-                    onClick={() => {
-                      prepareRegisteredField(field.id, false);
-                      router.push('/farm');
-                    }}
-                  >
-                    <Plus size={17} />
-                    {t('Add a farm', 'খামার যোগ করুন')}
-                  </button>
-                )}
-                {!farms.length && (
-                  <button className="text-button" onClick={() => seasonStore.removeField(field.id)}>
-                    {t('Remove empty field', 'খালি জমি সরান')}
-                  </button>
-                )}
-              </div>
-            </header>
-            {farms.length ? (
-              <div className="season-farms-grid">{farms.map(renderFarm)}</div>
-            ) : (
-              <p className="field-empty-note">
-                {ready
-                  ? t(
-                      'This field is ready. Add a farm and choose the area and crop.',
-                      'জমি প্রস্তুত। খামার যোগ করে তার আয়তন ও ফসল বাছুন।',
-                    )
-                  : t(
-                      'Set up this field before dividing it into farms.',
-                      'খামারে ভাগ করার আগে এই জমির তথ্য দিন।',
-                    )}
-              </p>
-            )}
-          </section>
-        );
-      })}
-    </div>
+      )}
+      {other.length > 0 && (
+        <div className="land-other-crops">
+          <h3>{t('Other crops on this land', 'এই জমির অন্যান্য ফসল')}</h3>
+          <div className="season-farms-grid">{other.map(renderFarm)}</div>
+        </div>
+      )}
+    </section>
   );
 }

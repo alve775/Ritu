@@ -1,8 +1,11 @@
 @layer tokens {
   :root {
     color-scheme: light;
-    /* --font-display (Anek Bangla) and --font-body (Hind Siliguri) are set by next/font in src/app/layout.tsx. */
-    --font-ui: var(--font-body), 'Noto Sans Bengali', system-ui, sans-serif;
+    /* --font-display (Anek Bangla) and --font-body (Hind Siliguri) are set by next/font in src/app/layout.tsx.
+       Noto Sans Bengali comes first but only covers Bengali characters, so Bangla is drawn in Noto
+       and English falls through to the Latin fonts. */
+    --font-ui: 'Noto Sans Bengali', var(--font-body), system-ui, sans-serif;
+    --font-heading: 'Noto Sans Bengali', var(--font-display), system-ui, sans-serif;
     --color-bg: #ffffff;
     --color-surface: #ffffff;
     --color-surface-raised: #ffffff;

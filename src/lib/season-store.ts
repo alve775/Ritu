@@ -11,6 +11,7 @@ import { validThermalProfile } from '../domain/crop-thermal';
 import { validSoilEvidence } from '../domain/soil-evidence';
 import { validWaterDayRecord } from '../domain/water-balance';
 import { validCultivarReference } from '../data/cultivar-references';
+import { cancelReasons, lossReasons } from '../domain/rotation/crop-end';
 import {
   migrateFieldRegistry,
   recoverFieldRegistry,
@@ -19,10 +20,22 @@ import {
   peakFieldArea,
   type RegisteredField,
 } from '../domain/field-registry';
+import {
+  recoverPlots,
+  validFarmPlotLinks,
+  validPlot,
+  validPlotLinks,
+  type Plot,
+  type PlotPlan,
+} from '../domain/plot';
 
 export interface SeasonState {
   fields?: RegisteredField[];
+  /** Persistent parts of fields that keep their crop history; absent in older records. */
+  plots?: Plot[];
   draftFieldId?: string | null;
+  /** The plot whose crop is being chosen; the created crop is linked to it. */
+  draftPlotId?: string | null;
   editingFieldId?: string | null;
   /** A fresh operation when the farmer starts another planting, even with identical inputs. */
   draftOperationId?: string | null;
@@ -91,6 +104,9 @@ export function validSeasonState(raw: unknown): raw is SeasonState {
     [s.draftFieldId, s.editingFieldId].every(
       (id) => id === undefined || id === null || s.fields?.some((f) => f.id === id),
     ) &&
+    (s.draftPlotId === undefined ||
+      s.draftPlotId === null ||
+      !!s.plots?.some((p) => p.id === s.draftPlotId && p.fieldId === s.draftFieldId)) &&
     Array.isArray(s.farms) &&
     s.farms.every((f) => !!f && typeof f === 'object') &&
     s.farms.length <= 200 &&
@@ -111,6 +127,10 @@ export function validSeasonState(raw: unknown): raw is SeasonState {
             f.creationKey.length <= 20000)) &&
         (f.fieldId === undefined ||
           (typeof f.fieldId === 'string' && f.fieldId.length > 0 && f.fieldId.length <= 120)) &&
+        (f.plotId === undefined ||
+          (typeof f.plotId === 'string' && f.plotId.length > 0 && f.plotId.length <= 120)) &&
+        (f.rotationSeason === undefined ||
+          (!!f.plotId && ['winter', 'pre-monsoon', 'monsoon'].includes(f.rotationSeason))) &&
         f.id.length <= 100 &&
         validSite(f.site) &&
         f.field &&
@@ -172,6 +192,33 @@ export function validSeasonState(raw: unknown): raw is SeasonState {
         (f.plantedDate === '' || validDate(f.plantedDate)) &&
         (f.harvestedDate === '' ||
           (validDate(f.harvestedDate) && !!f.plantedDate && f.harvestedDate >= f.plantedDate)) &&
+        (f.plannedSowDate === undefined ||
+          f.plannedSowDate === '' ||
+          validDate(f.plannedSowDate)) &&
+        (f.plannedHarvestDate === undefined ||
+          f.plannedHarvestDate === '' ||
+          validDate(f.plannedHarvestDate)) &&
+        (f.cancelled === undefined ||
+          (!f.plantedDate &&
+            validDate(f.cancelled.date) &&
+            (cancelReasons as readonly string[]).includes(f.cancelled.reason))) &&
+        (f.lost === undefined ||
+          (!!f.plantedDate &&
+            !f.harvestedDate &&
+            validDate(f.lost.date) &&
+            f.lost.date >= f.plantedDate &&
+            (lossReasons as readonly string[]).includes(f.lost.reason))) &&
+        (f.earlyHarvest === undefined || typeof f.earlyHarvest === 'boolean') &&
+        (f.lostTries === undefined ||
+          (Array.isArray(f.lostTries) &&
+            f.lostTries.length <= 20 &&
+            f.lostTries.every(
+              (x) =>
+                validDate(x?.plantedDate) &&
+                validDate(x.date) &&
+                x.date >= x.plantedDate &&
+                (lossReasons as readonly string[]).includes(x.reason),
+            ))) &&
         (f.harvestStartedDate === undefined ||
           f.harvestStartedDate === '' ||
           (validDate(f.harvestStartedDate) &&
@@ -222,7 +269,15 @@ export function validSeasonState(raw: unknown): raw is SeasonState {
             o.note.length <= 2000,
         ),
     ) &&
-    (s.fields === undefined || validFieldLinks(s.fields, s.farms))
+    (s.fields === undefined || validFieldLinks(s.fields, s.farms)) &&
+    (s.plots === undefined ||
+      (Array.isArray(s.plots) &&
+        s.plots.length <= 500 &&
+        s.plots.every(validPlot) &&
+        new Set(s.plots.map((p) => p.id)).size === s.plots.length &&
+        s.fields !== undefined &&
+        validPlotLinks(s.fields, s.plots))) &&
+    validFarmPlotLinks(s.plots, s.farms)
   );
 }
 function notify() {
@@ -293,14 +348,19 @@ export const seasonStore = {
                   all.findIndex((other) => other?.id === farm?.id) === index &&
                   validSeasonState({
                     version: 1,
-                    farms: [farm],
+                    // Plot links are checked after plots are recovered below.
+                    farms: [
+                      farm && typeof farm === 'object' ? { ...farm, plotId: undefined } : farm,
+                    ],
                     activeId: null,
                     confirmedKey: null,
                   }),
               );
+              const registry = recoverFieldRegistry(farms, candidate.fields);
               state = {
                 version: 1,
-                ...recoverFieldRegistry(farms, candidate.fields),
+                ...registry,
+                ...recoverPlots(candidate.plots, registry.fields, registry.farms),
                 activeId: farms[0]?.id ?? null,
                 calendarAccessId: null,
                 confirmedKey: null,
@@ -332,12 +392,15 @@ export const seasonStore = {
       throw Error('Check the field names and number of fields (up to 200).');
     save(state);
   },
-  selectField(id: string | null, editing = false) {
+  selectField(id: string | null, editing = false, plotId: string | null = null) {
     if (id !== null && !snapshot.state.fields?.some((f) => f.id === id))
       throw Error('Choose an existing field.');
+    if (plotId !== null && !snapshot.state.plots?.some((p) => p.id === plotId && p.fieldId === id))
+      throw Error('Choose an existing plot.');
     save({
       ...snapshot.state,
       draftFieldId: id,
+      draftPlotId: plotId,
       draftOperationId: crypto.randomUUID(),
       editingFieldId: editing ? id : null,
       confirmedKey: null,
@@ -365,7 +428,7 @@ export const seasonStore = {
       !validSeasonState(state) ||
       peakFieldArea(state.farms, field.id) > field.profile.area + 1e-8
     )
-      throw Error('The field area cannot be smaller than its allocated farms.');
+      throw Error('The field area cannot be smaller than its allocated farms or plots.');
     save(state);
   },
   removeField(id: string) {
@@ -374,8 +437,117 @@ export const seasonStore = {
     save({
       ...snapshot.state,
       fields: snapshot.state.fields?.filter((f) => f.id !== id),
+      plots: snapshot.state.plots?.filter((p) => p.fieldId !== id),
       draftFieldId: snapshot.state.draftFieldId === id ? null : snapshot.state.draftFieldId,
+      draftPlotId: snapshot.state.draftFieldId === id ? null : snapshot.state.draftPlotId,
       editingFieldId: snapshot.state.editingFieldId === id ? null : snapshot.state.editingFieldId,
+    });
+  },
+  addPlot(plot: Plot) {
+    const plots = snapshot.state.plots ?? [];
+    if (plots.some((p) => p.id === plot.id)) throw Error('This plot already exists.');
+    if (!snapshot.state.fields?.some((f) => f.id === plot.fieldId))
+      throw Error('Choose an existing field for this plot.');
+    const state = { ...snapshot.state, plots: [...plots, plot] };
+    if (!validSeasonState(state))
+      throw Error(
+        'Check the plot name, size and crops. Plots in use at the same time must fit inside their field.',
+      );
+    save(state);
+    return plot.id;
+  },
+  updatePlot(id: string, patch: Pick<Plot, 'name' | 'areaHa' | 'lastYear' | 'overrides'>) {
+    const plots = snapshot.state.plots ?? [];
+    if (!plots.some((p) => p.id === id)) throw Error('This plot no longer exists.');
+    const state = {
+      ...snapshot.state,
+      plots: plots.map((p) => (p.id === id ? { ...p, ...patch } : p)),
+    };
+    if (!validSeasonState(state))
+      throw Error(
+        'Check the plot name, size and crops. Plots in use at the same time must fit inside their field.',
+      );
+    save(state);
+  },
+  updatePlotLastYear(id: string, lastYear: Plot['lastYear']) {
+    const plots = snapshot.state.plots ?? [];
+    if (!plots.some((p) => p.id === id)) throw Error('This plot no longer exists.');
+    const state = {
+      ...snapshot.state,
+      plots: plots.map((p) => (p.id === id ? { ...p, lastYear } : p)),
+    };
+    if (!validSeasonState(state))
+      throw Error('Choose a crop, empty or not sure for each of the three seasons.');
+    save(state);
+  },
+  /** Save the year plan chosen for a plot; crops of the old plan that have not started are dropped. */
+  choosePlan(id: string, plan: PlotPlan) {
+    const plots = snapshot.state.plots ?? [];
+    if (!plots.some((p) => p.id === id)) throw Error('This plot no longer exists.');
+    const farms = snapshot.state.farms.filter(
+      (f) => !(f.plotId === id && f.rotationSeason && !f.plantedDate),
+    );
+    const state = {
+      ...snapshot.state,
+      farms,
+      activeId: farms.some((f) => f.id === snapshot.state.activeId)
+        ? snapshot.state.activeId
+        : null,
+      plots: plots.map((p) => (p.id === id ? { ...p, plan } : p)),
+    };
+    if (!validSeasonState(state)) throw Error('This plan could not be saved.');
+    save(state);
+  },
+  /** Stop using a plot from a day on; its records stay. Its open calendar closes. */
+  endPlot(id: string, endDate: string) {
+    const plots = snapshot.state.plots ?? [];
+    const plot = plots.find((p) => p.id === id);
+    if (!plot) throw Error('This plot no longer exists.');
+    if (plot.endDate !== undefined) throw Error('This plot has already ended.');
+    const onPlot = (farmId: string | null | undefined) =>
+      !!farmId && snapshot.state.farms.some((f) => f.id === farmId && f.plotId === id);
+    const state = {
+      ...snapshot.state,
+      plots: plots.map((p) => (p.id === id ? { ...p, endDate } : p)),
+      activeId: onPlot(snapshot.state.activeId) ? null : snapshot.state.activeId,
+      calendarAccessId: onPlot(snapshot.state.calendarAccessId)
+        ? null
+        : snapshot.state.calendarAccessId,
+      draftPlotId: snapshot.state.draftPlotId === id ? null : snapshot.state.draftPlotId,
+    };
+    if (!validSeasonState(state)) throw Error('The end date cannot be before the plot started.');
+    save(state);
+  },
+  /** Use a stopped plot again, if its land still has room for it. */
+  reopenPlot(id: string) {
+    const plots = snapshot.state.plots ?? [];
+    if (!plots.some((p) => p.id === id)) throw Error('This plot no longer exists.');
+    const state = {
+      ...snapshot.state,
+      plots: plots.map((p) => (p.id === id ? { ...p, endDate: undefined } : p)),
+    };
+    if (!validSeasonState(state))
+      throw Error('This land does not have room for the plot. Make another plot smaller first.');
+    save(state);
+  },
+  /** Delete a plot with nothing recorded on it, with any crop calendars not started. */
+  removePlot(id: string) {
+    const plots = snapshot.state.plots ?? [];
+    if (!plots.some((p) => p.id === id)) throw Error('This plot no longer exists.');
+    const own = snapshot.state.farms.filter((f) => f.plotId === id);
+    if (own.some((f) => f.plantedDate || f.harvestedDate))
+      throw Error('This plot has crop records. Stop using it instead, so they are kept.');
+    const gone = new Set(own.map((f) => f.id));
+    const farms = snapshot.state.farms.filter((f) => !gone.has(f.id));
+    save({
+      ...snapshot.state,
+      farms,
+      plots: plots.filter((p) => p.id !== id),
+      activeId: gone.has(snapshot.state.activeId ?? '') ? null : snapshot.state.activeId,
+      calendarAccessId: gone.has(snapshot.state.calendarAccessId ?? '')
+        ? null
+        : snapshot.state.calendarAccessId,
+      draftPlotId: snapshot.state.draftPlotId === id ? null : snapshot.state.draftPlotId,
     });
   },
   create(farm: SeasonFarm) {
@@ -449,6 +621,12 @@ export const seasonStore = {
       | 'done'
       | 'observations'
       | 'harvestStartedDate'
+      | 'plannedSowDate'
+      | 'plannedHarvestDate'
+      | 'cancelled'
+      | 'lost'
+      | 'earlyHarvest'
+      | 'lostTries'
       | 'checkIns'
       | 'thermalProfile'
       | 'waterRecords'

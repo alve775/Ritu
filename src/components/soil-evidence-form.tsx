@@ -23,8 +23,9 @@ export function SoilEvidenceForm({
   return (
     <details className="soil-evidence-form source-method">
       <summary>
-        {t('Soil test record · optional', 'মাটি পরীক্ষার হিসাব · ঐচ্ছিক')}
-        {value ? ' ✓' : ''}
+        {value
+          ? `${t('Your own soil test', 'নিজের মাটি পরীক্ষা')}: pH ${value.ph} ✓`
+          : t('Enter your own soil test pH · optional', 'নিজের মাটি পরীক্ষার pH দিন · ঐচ্ছিক')}
       </summary>
       <p>
         {t(

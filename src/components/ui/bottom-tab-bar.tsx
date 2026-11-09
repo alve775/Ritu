@@ -35,7 +35,7 @@ export function BottomTabBar({
   }, []);
   return (
     <nav ref={nav} className="tab-bar" aria-label={label}>
-      {items.map(({ href, label: text, icon: Icon, lockedReason }) =>
+      {items.map(({ href, label: text, icon: Icon, lockedReason, badge }) =>
         lockedReason ? (
           <button
             key={href}
@@ -61,6 +61,7 @@ export function BottomTabBar({
             <span className="nav-text">
               <strong>{text}</strong>
             </span>
+            {!!badge && <span className="nav-badge">{badge}</span>}
           </Link>
         ),
       )}

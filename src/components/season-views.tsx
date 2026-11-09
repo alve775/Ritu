@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import {
   ArrowRight,
   ArrowLeft,
@@ -15,6 +15,7 @@ import {
   Droplets,
   Leaf,
   ExternalLink,
+  FlaskConical,
   Trash2,
 } from 'lucide-react';
 import { usePlanner } from './planner-provider';
@@ -50,19 +51,25 @@ import { fieldConfirmationKey } from '../domain/field-confirmation';
 import { SoilEvidenceForm } from './soil-evidence-form';
 import { WaterBudgetPanel } from './water-budget-panel';
 import { SoilReferencePanel } from './soil-reference-panel';
+import { useSoilTexture } from '../lib/use-soil-texture';
+import { textureNames } from '../domain/soil-texture';
 import { CultivarReferencePanel } from './cultivar-reference-panel';
-import { FieldRegistryDashboard, prepareRegisteredField } from './field-registry-dashboard';
-import { peakFieldArea, fieldReady } from '../domain/field-registry';
+import { FieldRegistryDashboard } from './field-registry-dashboard';
+import { RotationPlansView } from './rotation/rotation-plans';
+import { RotationCalendar } from './rotation/rotation-calendar';
+import { fieldLogStore, fieldLogStorageKey } from '../lib/field-log-store';
 import { farmCalendarDay } from '../domain/farm-calendar';
 import { FarmRecordScope, type FarmRecordWriter } from './farm-record-scope';
-import { defaultSite } from '../domain/farm-site';
+import { defaultSite, type FarmSite } from '../domain/farm-site';
+import { useToday } from '../lib/use-today';
 
 export const seasonDraftKey = fieldConfirmationKey;
 function newField() {
   seasonStore.selectField(null);
   evidenceStore.update({
     farm: { ...blankFarm },
-    site: undefined,
+    // Start at the default Rajshahi pin; the farmer can move it.
+    site: defaultSite,
     climate: undefined,
     from: '',
     district: '',
@@ -78,6 +85,8 @@ function exportRecords() {
   const records: Record<string, unknown> = {
     [seasonStorageKey]: seasonStore.getSnapshot().state,
     'ritu-evidence-v2': evidenceStore.getSnapshot().state,
+    // Note text and reminders; photos stay in the phone's photo store.
+    [fieldLogStorageKey]: fieldLogStore.getSnapshot().state,
   };
   try {
     const original = localStorage.getItem('ritu-evidence-v2');
@@ -198,16 +207,31 @@ export function SeasonFarmView() {
   const router = useRouter(),
     farms = useSeasonFarms();
   const context = useSeasonContext(site);
+  const soilTexture = useSoilTexture(p.site);
+  // Fill soil texture from SoilGrids once per pin, unless the farmer has chosen it themselves.
+  const autoSoil = useRef<{ key: string; soil: Farm['soil'] | null }>({ key: '', soil: null });
+  useEffect(() => {
+    const found = soilTexture.texture;
+    if (!found) return;
+    const key = `${found.latitude},${found.longitude}`;
+    if (autoSoil.current.key === key) return;
+    const previous = autoSoil.current.soil;
+    autoSoil.current = { key, soil: previous };
+    if (farm.soil === 'unknown' || farm.soil === previous) {
+      autoSoil.current = { key, soil: found.soil };
+      if (farm.soil !== found.soil) setFarm({ soil: found.soil });
+    }
+  }, [soilTexture.texture, farm.soil, setFarm]);
   const parent = farms.state.fields?.find((f) => f.id === farms.state.draftFieldId);
-  const editingField = !!parent && farms.state.editingFieldId === parent.id;
+  // This page only describes land; crops are chosen per plot.
+  const editingField = !!parent;
   const fieldWeather = useLiveWeather(
     site ?? defaultSite,
     !!site && !!parent?.site && !editingField,
   );
   const today = localToday(
-      (parent && !editingField && fieldWeather.data?.timezone) || site?.timezone,
-    ),
-    from = p.from || today;
+    (parent && !editingField && fieldWeather.data?.timezone) || site?.timezone,
+  );
   const [attempted, setAttempted] = useState(false);
   useEffect(() => {
     if (
@@ -221,105 +245,75 @@ export function SeasonFarmView() {
   }, [parent, editingField, site, fieldWeather.data, setEnvironment]);
   const [fieldError, setFieldError] = useState('');
   const issues = [
-    !site && t('Choose your farm’s location.', 'জমির স্থান বাছুন।'),
+    !site && t('Choose your land’s location.', 'জমির স্থান বাছুন।'),
     !(farm.area > 0 && farm.area <= 1000) &&
       t(
         'Enter an area greater than zero, up to 1,000 hectares.',
         'শূন্যের বেশি, সর্বোচ্চ ১,০০০ হেক্টর আয়তন দিন।',
       ),
-    !editingField &&
-      parent &&
-      farm.area > parent.profile.area &&
-      t('The farm area must fit inside its field.', 'খামারের আয়তন জমির মধ্যে হতে হবে।'),
-    !editingField &&
-      (!validDate(from) || from < today || from > addDays(today, 730)) &&
-      t(
-        'Choose a starting date within the next two years.',
-        'আগামী দুই বছরের মধ্যে শুরুর দিন বাছুন।',
-      ),
   ].filter(Boolean);
+  /** Save the land; a land without plots goes straight to adding its first plot. */
+  const saveLand = (current: Farm, chosen: FarmSite) => {
+    let id = parent?.id;
+    try {
+      if (parent) {
+        seasonStore.saveField({
+          ...parent,
+          name: current.name.trim() || parent.name,
+          profile: { ...current },
+          site: { ...chosen },
+        });
+      } else {
+        id = crypto.randomUUID();
+        seasonStore.addFields([
+          {
+            id,
+            name: current.name.trim() || chosen.name.slice(0, 80),
+            profile: { ...current },
+            site: { ...chosen },
+          },
+        ]);
+      }
+      seasonStore.selectField(null);
+    } catch (error) {
+      setFieldError(
+        error instanceof Error ? error.message : t('Check the land details.', 'জমির তথ্য দেখুন।'),
+      );
+      return;
+    }
+    const hasPlots = farms.state.plots?.some((plot) => plot.fieldId === id);
+    router.push(hasPlots || !id ? '/farms' : `/plot?field=${encodeURIComponent(id)}`);
+  };
   return (
     <div className="season-page evidence-page">
       <header className="season-page-heading">
         <div>
-          <span className="eyebrow">
-            {t('ONE FIELD · ONE CROP · ONE SEASON', 'এক জমি · এক ফসল · এক মৌসুম')}
-          </span>
-          <h1>
-            {editingField
-              ? t('Set up your field', 'আপনার জমির তথ্য দিন')
-              : t('Tell us about your land', 'আপনার জমির তথ্য দিন')}
-          </h1>
+          <span className="eyebrow">{t('YOUR LAND', 'আপনার জমি')}</span>
+          <h1>{parent ? parent.name : t('Add a land', 'জমি যোগ করুন')}</h1>
           <p>
             {t(
-              'Find your field. We’ll load its climate and weather, then help you choose a crop for one growing season.',
-              'জমি খুঁজুন। আবহাওয়া ও জলবায়ু নিজে থেকে আসবে। তারপর এক মৌসুমের ফসল বাছুন।',
+              'Find your land and describe it. Weather, climate and soil data load automatically. Next, you add plots.',
+              'জমি খুঁজে তার তথ্য দিন। আবহাওয়া, জলবায়ু ও মাটির তথ্য নিজে থেকে আসবে। এরপর প্লট যোগ করবেন।',
             )}
           </p>
         </div>
         <div className="season-header-actions">
           <Link className="button secondary" href="/farms">
-            {t('My farms', 'আমার খামার')} ({farms.state.farms.length})
+            <ArrowLeft size={17} />
+            {t('Dashboard', 'ড্যাশবোর্ড')}
           </Link>
           <ResetDataControl />
         </div>
       </header>
-      {!editingField && !!farms.state.fields?.length && (
-        <section className="card season-form-grid">
-          <label>
-            {t('Field for this farm', 'এই খামারের জমি')}
-            <select
-              aria-label={t('Field for this farm', 'এই খামারের জমি')}
-              value={parent?.id ?? ''}
-              onChange={(e) => {
-                if (e.target.value) prepareRegisteredField(e.target.value, false);
-                else newField();
-              }}
-            >
-              <option value="">{t('New field', 'নতুন জমি')}</option>
-              {farms.state.fields.map((f) => (
-                <option key={f.id} value={f.id} disabled={!fieldReady(f)}>
-                  {f.name} · {f.site?.name || t('Location not set', 'স্থান দেওয়া হয়নি')}
-                </option>
-              ))}
-            </select>
-          </label>
-          {parent && (
-            <p>
-              {t('Total field area', 'জমির মোট আয়তন')}: {parent.profile.area} ha.{' '}
-              {t('Already allocated', 'আগে বরাদ্দ')}:{' '}
-              {Number(peakFieldArea(farms.state.farms, parent.id, from).toFixed(6))} ha.{' '}
-              {t(
-                'Enter only the part used by this farm below.',
-                'নিচে শুধু এই খামারে ব্যবহৃত অংশের আয়তন দিন।',
-              )}
-            </p>
-          )}
-        </section>
-      )}
-      {parent?.site && !editingField ? (
-        <section className="card registered-field-location">
-          <h2>{parent.name}</h2>
-          <p>
-            <MapPin size={17} /> {parent.site.name}
-          </p>
-          <p>
-            {t('Location and weather come from this field.', 'এই জমির স্থান থেকেই আবহাওয়া আসবে।')}
-          </p>
-        </section>
-      ) : (
-        <FarmLocation worldwide />
-      )}
+      <FarmLocation worldwide />
       <section className="card season-fields" data-tour="farm-basics">
         <h2>
           <MapPin size={21} />
-          {t('Your field & season', 'জমি ও মৌসুম')}
+          {t('Your land', 'আপনার জমি')}
         </h2>
         <div className="season-form-grid">
           <label>
-            {editingField
-              ? t('Field name', 'জমির নাম')
-              : t('Farm name · optional', 'খামারের নাম · ঐচ্ছিক')}
+            {t('Land name', 'জমির নাম')}
             <input
               maxLength={80}
               value={farm.name}
@@ -328,25 +322,6 @@ export function SeasonFarmView() {
             />
           </label>
           <FarmAreaField />
-          {!editingField && (
-            <label>
-              {t('Ready to plant from', 'যেদিন থেকে রোপণ করতে প্রস্তুত')}
-              <input
-                type="date"
-                aria-label={t('Ready to plant from', 'যেদিন থেকে রোপণ করতে প্রস্তুত')}
-                min={today}
-                max={addDays(today, 730)}
-                value={from}
-                onChange={(e) => p.update({ from: e.target.value })}
-              />
-              <small>
-                {t(
-                  'Choose when this farm will be ready for planting.',
-                  'এই খামারে কবে রোপণ শুরু করতে পারবেন বাছুন।',
-                )}
-              </small>
-            </label>
-          )}
         </div>
       </section>
       <section className="card" data-tour="farm-soil">
@@ -383,14 +358,27 @@ export function SeasonFarmView() {
             </select>
           </label>
         </div>
-        <p>
-          {t(
-            'Choose the soil texture and usual drainage for this field. Select Not sure if you do not know.',
-            'জমির মাটির গঠন ও সাধারণ নিষ্কাশন বাছুন। জানা না থাকলে নিশ্চিত নই বাছুন।',
-          )}
+        <p className="soil-texture-source" aria-live="polite">
+          {soilTexture.texture
+            ? `${t('From SoilGrids', 'SoilGrids থেকে')}: ${textureNames[soilTexture.texture.texture][p.language]} (${t('clay', 'এঁটেল')} ${soilTexture.texture.clayPct}%, ${t('sand', 'বালু')} ${soilTexture.texture.sandPct}%, ${t('silt', 'পলি')} ${soilTexture.texture.siltPct}%) · 5–15 cm${soilTexture.texture.distanceM > 0 ? ` · ${t('nearest data', 'নিকটতম তথ্য')} ${(soilTexture.texture.distanceM / 1000).toFixed(1)} km ${t('away', 'দূরে')}` : ''}. ${t('Change it if your field is different.', 'আপনার জমি আলাদা হলে বদলে দিন।')}`
+            : soilTexture.loading
+              ? t('Loading soil texture from SoilGrids…', 'SoilGrids থেকে মাটির গঠন আনা হচ্ছে…')
+              : soilTexture.error
+                ? t(
+                    'Soil texture isn’t available from SoilGrids here. Choose it yourself, or leave Not sure.',
+                    'এখানে SoilGrids থেকে মাটির গঠন পাওয়া যায়নি। নিজে বাছুন, অথবা জানা নেই রাখুন।',
+                  )
+                : t(
+                    'Choose the soil texture and usual drainage for this field. Select Not sure if you do not know.',
+                    'জমির মাটির গঠন ও সাধারণ নিষ্কাশন বাছুন। জানা না থাকলে নিশ্চিত নই বাছুন।',
+                  )}
         </p>
       </section>
       <section className="card">
+        <h2>
+          <FlaskConical size={21} />
+          {t('Soil pH', 'মাটির pH')}
+        </h2>
         <SoilReferencePanel site={p.site} />
         <SoilEvidenceForm
           key={JSON.stringify(farm.soilEvidence)}
@@ -478,58 +466,20 @@ export function SeasonFarmView() {
       <div className="season-next" data-tour="farm-continue">
         <p>
           {t(
-            'Next: see crops screened for this location and your field conditions. Choose just one.',
-            'পরের ধাপ: স্থান ও জমির শর্তে মেলা ফসল দেখুন। শুধু একটি বাছুন।',
+            'Next: add the plots on this land and the crops each one grew last year.',
+            'পরের ধাপ: এই জমির প্লট ও প্রতিটিতে গত বছরের ফসল যোগ করুন।',
           )}
         </p>
         <button
           className="button primary"
-          disabled={
-            !editingField &&
-            (!context.data || (!!parent && !site?.timezone && !p.from && fieldWeather.loading))
-          }
           onClick={() => {
             setAttempted(true);
             if (issues.length || !site) return;
             setFieldError('');
-            try {
-              if (editingField && parent) {
-                seasonStore.saveField({
-                  ...parent,
-                  name: farm.name.trim() || parent.name,
-                  profile: { ...farm },
-                  site: { ...site },
-                });
-                seasonStore.selectField(null);
-                router.push('/farms');
-                return;
-              }
-              if (!parent) {
-                const field = {
-                  id: crypto.randomUUID(),
-                  name: farm.name.trim() || site.name.slice(0, 80),
-                  profile: { ...farm },
-                  site: { ...site },
-                };
-                seasonStore.addFields([field]);
-                seasonStore.selectField(field.id);
-              }
-            } catch (error) {
-              setFieldError(
-                error instanceof Error
-                  ? error.message
-                  : t('Check the field details.', 'জমির তথ্য দেখুন।'),
-              );
-              return;
-            }
-            p.update({ from });
-            seasonStore.confirm(seasonDraftKey(farm, site, from));
-            router.push('/crops');
+            saveLand(farm, site);
           }}
         >
-          {editingField
-            ? t('Save field', 'জমি সংরক্ষণ করুন')
-            : t('Show suggested crops', 'প্রস্তাবিত ফসল দেখুন')}
+          {t('Save land', 'জমি সংরক্ষণ করুন')}
           <ArrowRight size={18} />
         </button>
       </div>
@@ -551,6 +501,7 @@ export function SeasonCropsView() {
     router = useRouter();
   const [picked, setPicked] = useState<{ key: string; value: CropSuggestion } | null>(null),
     [error, setError] = useState('');
+  const [single, setSingle] = useState(false);
   const confirmed = !!p.site && state.confirmedKey === seasonDraftKey(p.farm, p.site, from);
   const draftKey = seasonDraftKey(p.farm, p.site, from);
   const suggestion = picked?.key === draftKey ? picked.value : undefined;
@@ -576,6 +527,7 @@ export function SeasonCropsView() {
         createdAt: new Date().toISOString(),
         field: { ...p.farm },
         fieldId: state.draftFieldId || undefined,
+        plotId: state.draftPlotId || undefined,
         site: { ...p.site },
         selection: suggestion,
         context: { ...context.data, site: { ...p.site } },
@@ -587,9 +539,23 @@ export function SeasonCropsView() {
       });
       router.push('/plan');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not create farm.');
+      setError(e instanceof Error ? e.message : 'Could not create the crop calendar.');
     }
   };
+  const draftPlot = state.plots?.find((x) => x.id === state.draftPlotId),
+    draftField = state.fields?.find((f) => f.id === state.draftFieldId);
+  if (confirmed && !single && draftPlot && draftField && p.site && context.data?.normal)
+    return (
+      <RotationPlansView
+        site={p.site}
+        profile={p.farm}
+        from={from}
+        context={context.data}
+        plot={draftPlot}
+        field={draftField}
+        onSingle={() => setSingle(true)}
+      />
+    );
   return (
     <div className="season-page evidence-page">
       <header className="season-page-heading">
@@ -600,27 +566,34 @@ export function SeasonCropsView() {
           <h1>{t('What would you like to grow?', 'কোন ফসল চাষ করতে চান?')}</h1>
           <p>
             {t(
-              'Choose a crop for this field and planting season.',
-              'এই জমি ও রোপণের মৌসুমের জন্য একটি ফসল বাছুন।',
+              'Choose a crop for this plot and planting season.',
+              'এই প্লট ও রোপণের মৌসুমের জন্য একটি ফসল বাছুন।',
             )}
           </p>
         </div>
-        <Link className="button secondary" href="/farm">
+        <Link
+          className="button secondary"
+          href={
+            state.draftFieldId && state.draftPlotId
+              ? `/plot?field=${encodeURIComponent(state.draftFieldId)}&plot=${encodeURIComponent(state.draftPlotId)}`
+              : '/farms'
+          }
+        >
           <ArrowLeft size={17} />
-          {t('Edit land details', 'জমির তথ্য বদলান')}
+          {state.draftPlotId ? t('Back to plot', 'প্লটে ফিরুন') : t('My lands', 'আমার জমি')}
         </Link>
       </header>
       {!confirmed ? (
         <section className="card evidence-gate" data-tour="crop-suggestions">
-          <h2>{t('Confirm your land details first', 'আগে জমির তথ্য নিশ্চিত করুন')}</h2>
+          <h2>{t('Open a plot first', 'আগে একটি প্লট খুলুন')}</h2>
           <p>
             {t(
-              'Confirm the field location, area and planting date to see crop options.',
-              'ফসল দেখতে জমির স্থান, আয়তন ও রোপণের দিন নিশ্চিত করুন।',
+              'On the dashboard, open a plot (or add one) and press Show suggested plans.',
+              'ড্যাশবোর্ডে একটি প্লট খুলুন (বা যোগ করুন), তারপর পরামর্শ দেখুন চাপুন।',
             )}
           </p>
-          <Link className="button primary" href="/farm">
-            {t('Set up this field', 'জমির তথ্য দিন')}
+          <Link className="button primary" href="/farms">
+            {t('Go to my lands', 'আমার জমিতে যান')}
           </Link>
         </section>
       ) : context.loading ? (
@@ -652,17 +625,17 @@ export function SeasonCropsView() {
               <strong>
                 {suggestion
                   ? `${plantDisplayName(globalCrop(suggestion.crop)!, language)} · ${suggestion.planKind === 'perennial-review' ? t('perennial care', 'বহুবর্ষজীবী পরিচর্যা') : t('one season', 'এক মৌসুম')}`
-                  : t('Choose one crop to create your farm', 'খামার তৈরি করতে একটি ফসল বাছুন')}
+                  : t('Choose one crop for this plot', 'এই প্লটের জন্য একটি ফসল বাছুন')}
               </strong>
               <p>
                 {created
                   ? t(
-                      'Farm created. Open its calendar to begin.',
-                      'খামার তৈরি হয়েছে। শুরু করতে ক্যালেন্ডার খুলুন।',
+                      'Crop calendar created. Open it to begin.',
+                      'ফসলের ক্যালেন্ডার তৈরি হয়েছে। শুরু করতে খুলুন।',
                     )
                   : t(
-                      'Create a farm with its own calendar, daily work and weather forecast.',
-                      'নিজস্ব ক্যালেন্ডার, দৈনিক কাজ ও আবহাওয়ার পূর্বাভাসসহ খামার তৈরি করুন।',
+                      'Create this crop’s calendar, daily work and weather forecast.',
+                      'এই ফসলের ক্যালেন্ডার, দৈনিক কাজ ও আবহাওয়ার পূর্বাভাস তৈরি করুন।',
                     )}
               </p>
             </div>
@@ -680,12 +653,12 @@ export function SeasonCropsView() {
                   }
                 }}
               >
-                {t('Open farm calendar', 'খামারের ক্যালেন্ডার খুলুন')}
+                {t('Open crop calendar', 'ফসলের ক্যালেন্ডার খুলুন')}
                 <ArrowRight size={18} />
               </a>
             ) : (
               <button className="button primary" disabled={!suggestion} onClick={create}>
-                {t('Create my farm', 'আমার খামার তৈরি করুন')}
+                {t('Create crop calendar', 'ফসলের ক্যালেন্ডার তৈরি করুন')}
                 <ArrowRight size={18} />
               </button>
             )}
@@ -742,32 +715,35 @@ export function FarmsView() {
   const [resizing, setResizing] = useState<SeasonFarm | null>(null),
     [newArea, setNewArea] = useState(''),
     [resizeError, setResizeError] = useState('');
+  const addLand = () => {
+    newField();
+    router.push('/farm');
+  };
+  const openCalendar = (farm: SeasonFarm) => {
+    seasonStore.activate(farm.id);
+    router.push('/plan');
+  };
   return (
     <div className="season-page evidence-page">
       <header className="season-page-heading">
         <div>
-          <span className="eyebrow">{t('YOUR FIELDS, TOGETHER', 'আপনার সব জমি একসঙ্গে')}</span>
+          <span className="eyebrow">{t('DASHBOARD', 'ড্যাশবোর্ড')}</span>
           <h1>
-            {t('My fields & farms', 'আমার জমি ও খামার')}{' '}
-            <small>({state.fields?.length ?? 0})</small>
+            {t('My lands', 'আমার জমি')} <small>({state.fields?.length ?? 0})</small>
           </h1>
           <p>
             {t(
-              'List your fields first. Each field can contain several farms, with one crop and calendar per farm.',
-              'আগে জমির তালিকা দিন। এক জমিতে একাধিক খামার থাকবে; প্রতি খামারের আলাদা ফসল ও ক্যালেন্ডার।',
+              'Each land is divided into plots. Open a plot to enter last year’s crops, get suggestions and follow its crop calendar.',
+              'প্রতিটি জমি প্লটে ভাগ করা। প্লট খুলে গত বছরের ফসল দিন, পরামর্শ নিন ও ফসলের ক্যালেন্ডার দেখুন।',
             )}
           </p>
         </div>
-        <button
-          className="button primary"
-          onClick={() => {
-            newField();
-            router.push('/farm');
-          }}
-        >
-          <Plus size={19} />
-          {t('Add a farm', 'খামার যোগ করুন')}
-        </button>
+        {!!state.fields?.length && (
+          <button className="button primary" onClick={addLand}>
+            <Plus size={19} />
+            {t('Add land', 'জমি যোগ করুন')}
+          </button>
+        )}
       </header>
       {(!saved || recovery) && (
         <p className="notice-amber" role="alert">
@@ -777,16 +753,48 @@ export function FarmsView() {
                 'ব্রাউজারে সংরক্ষণ সম্ভব নয়। ট্যাব বন্ধের আগে হিসাব ডাউনলোড করুন।',
               )
             : t(
-                'Some saved records could not be read. Export includes the original recovery copy; existing valid farms are not replaced.',
-                'কিছু হিসাব পড়া যায়নি। নামানো ফাইলে মূল ব্যাকআপ থাকবে; সঠিক আগের খামার বদলানো হয় না।',
+                'Some saved records could not be read. Export includes the original recovery copy; existing valid records are not replaced.',
+                'কিছু হিসাব পড়া যায়নি। নামানো ফাইলে মূল ব্যাকআপ থাকবে; সঠিক আগের হিসাব বদলানো হয় না।',
               )}
         </p>
       )}
       <div data-tour="my-farms">
         {!ready ? (
-          <p role="status">{t('Loading farms…', 'খামার আনা হচ্ছে…')}</p>
+          <p role="status">{t('Loading your lands…', 'আপনার জমি আনা হচ্ছে…')}</p>
         ) : (
           <FieldRegistryDashboard
+            onAddLand={addLand}
+            renderCrop={(farm) => {
+              const crop = globalCrop(farm.selection.crop)!,
+                today = localToday(farm.site.timezone),
+                name = plantDisplayName(crop, language);
+              return (
+                <div className="plot-crop-row" key={farm.id}>
+                  <Sprout size={18} aria-hidden="true" />
+                  <div>
+                    <strong>{name}</strong>
+                    <span>
+                      <CycleStatus farm={farm} today={today} />
+                    </span>
+                  </div>
+                  <button
+                    className="button primary"
+                    aria-label={`${t('Open calendar', 'ক্যালেন্ডার খুলুন')}: ${name}`}
+                    onClick={() => openCalendar(farm)}
+                  >
+                    {t('Calendar', 'ক্যালেন্ডার')}
+                    <ArrowRight size={16} />
+                  </button>
+                  <button
+                    className="icon-button season-delete"
+                    aria-label={`${t('Delete crop', 'ফসল মুছুন')}: ${name}`}
+                    onClick={() => setRemove(farm.id)}
+                  >
+                    <Trash2 size={17} />
+                  </button>
+                </div>
+              );
+            }}
             renderFarm={(farm) => {
               const crop = globalCrop(farm.selection.crop)!,
                 today = localToday(farm.site.timezone),
@@ -805,7 +813,7 @@ export function FarmsView() {
                       <CycleStatus farm={farm} today={today} />
                     </span>
                     <h2>
-                      {farm.field.name || plantDisplayName(crop, language) + t(' farm', ' খামার')}
+                      {farm.field.name || plantDisplayName(crop, language) + t(' crop', ' ফসল')}
                     </h2>
                     <p>
                       <Sprout size={16} />
@@ -832,19 +840,13 @@ export function FarmsView() {
                       )}
                     </p>
                     <div className="season-tile-actions">
-                      <button
-                        className="button primary"
-                        onClick={() => {
-                          seasonStore.activate(farm.id);
-                          router.push('/plan');
-                        }}
-                      >
-                        {t('Open farm', 'খামার খুলুন')}
+                      <button className="button primary" onClick={() => openCalendar(farm)}>
+                        {t('Open calendar', 'ক্যালেন্ডার খুলুন')}
                         <ArrowRight size={17} />
                       </button>
                       <button
                         className="icon-button season-delete"
-                        aria-label={`${t('Delete farm', 'খামার মুছুন')}: ${farm.field.name || plantDisplayName(crop, language)}`}
+                        aria-label={`${t('Delete crop', 'ফসল মুছুন')}: ${farm.field.name || plantDisplayName(crop, language)}`}
                         onClick={() => setRemove(farm.id)}
                       >
                         <Trash2 size={18} />
@@ -858,7 +860,7 @@ export function FarmsView() {
                         setResizeError('');
                       }}
                     >
-                      {t('Change farm area', 'খামারের আয়তন বদলান')}
+                      {t('Change crop area', 'ফসলের আয়তন বদলান')}
                     </button>
                   </div>
                 </article>
@@ -872,14 +874,14 @@ export function FarmsView() {
           <h2>{t('Your records stay yours', 'হিসাব আপনারই থাকে')}</h2>
           <p>
             {t(
-              'Saved in this browser. Download a backup to keep a copy; farms do not sync between devices.',
+              'Saved in this browser. Download a backup to keep a copy; records do not sync between devices.',
               'এই ব্রাউজারে সংরক্ষিত। কপি রাখতে ডাউনলোড করুন; ডিভাইসের মধ্যে নিজে থেকে যায় না।',
             )}
           </p>
         </div>
         <button className="button secondary" onClick={exportRecords}>
           <Download size={17} />
-          {t('Export all farm records', 'সব খামারের হিসাব নামান')}
+          {t('Export all records', 'সব হিসাব নামান')}
         </button>
         {tracked && (
           <Link href="/records">
@@ -888,11 +890,11 @@ export function FarmsView() {
         )}
       </section>
       {remove && (
-        <Dialog title={t('Delete this farm?', 'খামারটি মুছবেন?')} onClose={() => setRemove(null)}>
+        <Dialog title={t('Delete this crop?', 'এই ফসল মুছবেন?')} onClose={() => setRemove(null)}>
           <p>
             {t(
-              'This deletes only this farm’s season and notes. Other farms remain. Download a backup first if needed.',
-              'শুধু এই খামারের মৌসুম ও নোট মুছবে। অন্য খামার থাকবে। দরকার হলে আগে ডাউনলোড করুন।',
+              'This deletes only this crop’s season and notes. Your land and plots stay. Download a backup first if needed.',
+              'শুধু এই ফসলের মৌসুম ও নোট মুছবে। জমি ও প্লট থাকবে। দরকার হলে আগে ডাউনলোড করুন।',
             )}
           </p>
           <div className="button-row">
@@ -901,7 +903,7 @@ export function FarmsView() {
               {t('Export first', 'আগে নামান')}
             </button>
             <button className="button secondary" onClick={() => setRemove(null)}>
-              {t('Keep farm', 'রাখুন')}
+              {t('Keep it', 'রাখুন')}
             </button>
             <button
               className="button primary"
@@ -910,14 +912,14 @@ export function FarmsView() {
                 setRemove(null);
               }}
             >
-              {t('Delete this farm', 'এই খামার মুছুন')}
+              {t('Delete this crop', 'এই ফসল মুছুন')}
             </button>
           </div>
         </Dialog>
       )}
       {resizing && (
         <Dialog
-          title={t('Change farm area', 'খামারের আয়তন বদলান')}
+          title={t('Change crop area', 'ফসলের আয়তন বদলান')}
           onClose={() => setResizing(null)}
         >
           <form
@@ -936,13 +938,10 @@ export function FarmsView() {
           >
             <p>
               {resizing.field.name} ·{' '}
-              {t(
-                'Crop dates and records stay with this farm.',
-                'ফসলের তারিখ ও হিসাব এই খামারেই থাকবে।',
-              )}
+              {t('Crop dates and records stay the same.', 'ফসলের তারিখ ও হিসাব একই থাকবে।')}
             </p>
             <label>
-              {t('Farm area (hectares)', 'খামারের আয়তন (হেক্টর)')}
+              {t('Crop area (hectares)', 'ফসলের আয়তন (হেক্টর)')}
               <input
                 type="number"
                 min="0.000001"
@@ -958,9 +957,7 @@ export function FarmsView() {
               <button type="button" className="button secondary" onClick={() => setResizing(null)}>
                 {t('Cancel', 'বাতিল')}
               </button>
-              <button className="button primary">
-                {t('Save farm area', 'খামারের আয়তন রাখুন')}
-              </button>
+              <button className="button primary">{t('Save crop area', 'ফসলের আয়তন রাখুন')}</button>
             </div>
           </form>
         </Dialog>
@@ -973,23 +970,28 @@ export function SeasonDashboard() {
   const { t, language } = usePlanner(),
     { state, ready, saved } = useSeasonFarms();
   const farm = state.farms.find((f) => f.id === state.activeId);
-  if (!ready) return <p role="status">{t('Loading farm…', 'খামার আনা হচ্ছে…')}</p>;
+  if (!ready) return <p role="status">{t('Loading calendar…', 'ক্যালেন্ডার আনা হচ্ছে…')}</p>;
   if (!farm)
     return (
       <div className="season-page evidence-page" data-tour="calendar-main">
         <header className="page-header">
-          <h1>{t('Your farm workspace', 'খামারের কাজের জায়গা')}</h1>
+          <h1>{t('Crop calendar', 'ফসলের ক্যালেন্ডার')}</h1>
         </header>
         <section className="card evidence-gate">
-          <h2>{t('Create a farm to see its calendar', 'ক্যালেন্ডার দেখতে খামার তৈরি করুন')}</h2>
+          <h2>
+            {t(
+              'Choose a crop for a plot to see its calendar',
+              'ক্যালেন্ডার দেখতে কোনো প্লটের জন্য ফসল বাছুন',
+            )}
+          </h2>
           <p>
             {t(
-              'Choose one crop after confirming your land details. Your calendar, daily field checks and forecast will appear here.',
-              'জমির তথ্য নিশ্চিত করে একটি ফসল বাছুন। ক্যালেন্ডার, প্রতিদিনের যাচাই ও পূর্বাভাস এখানে আসবে।',
+              'Open a plot on the dashboard and choose one crop. Its calendar, daily field checks and forecast will appear here.',
+              'ড্যাশবোর্ডে একটি প্লট খুলে একটি ফসল বাছুন। ক্যালেন্ডার, প্রতিদিনের যাচাই ও পূর্বাভাস এখানে আসবে।',
             )}
           </p>
-          <Link className="button primary" href="/farm">
-            {t('Start with my land', 'জমির তথ্য শুরু করুন')}
+          <Link className="button primary" href="/farms">
+            {t('Go to my lands', 'আমার জমিতে যান')}
             <ArrowRight size={17} />
           </Link>
         </section>
@@ -1022,13 +1024,7 @@ function FarmWorkspace({
     crop = globalCrop(farm.selection.crop)!;
   const weather = useLiveWeather(farm.site),
     timezone = weather.data?.timezone || farm.site.timezone;
-  const [actualToday, setToday] = useState(() => localToday(timezone));
-  useEffect(() => {
-    const update = () => setToday(localToday(timezone));
-    update();
-    const timer = setInterval(update, 60000);
-    return () => clearInterval(timer);
-  }, [timezone]);
+  const actualToday = useToday(timezone);
   const today = preview?.date ?? actualToday;
   const [selectedDay, setDay] = useState<string | null>(null),
     [selectedMonth, setMonth] = useState<string | null>(null),
@@ -1111,6 +1107,583 @@ function FarmWorkspace({
       );
     }
   };
+  const { state: seasonState } = useSeasonFarms();
+  const plotPlan =
+    !!farm.rotationSeason && !!seasonState.plots?.find((p) => p.id === farm.plotId)?.plan;
+  const previewBlock = (
+    <>
+      <section
+        className={`card calendar-preview-controls ${preview ? 'preview-active' : ''}`}
+        aria-label={t('Calendar date preview', 'ক্যালেন্ডারের দিনের প্রিভিউ')}
+      >
+        {preview ? (
+          <>
+            <strong>
+              {t('Preview mode', 'প্রিভিউ চলছে')} · <ShortDate value={today} />
+            </strong>
+            <p>
+              {t(
+                'Changes here are temporary. Your saved crops are unchanged.',
+                'এখানকার পরিবর্তন সাময়িক। সংরক্ষিত ফসল বদলাবে না।',
+              )}
+            </p>
+            <label>
+              {t('Preview date', 'প্রিভিউর দিন')}
+              <input
+                type="date"
+                aria-label={t('Preview date', 'প্রিভিউর দিন')}
+                min="1900-01-01"
+                max={addDays(actualToday, 730)}
+                value={today}
+                onChange={(e) => chooseDay(e.target.value)}
+              />
+            </label>
+            <button
+              className="button secondary"
+              disabled={today <= '1900-01-01'}
+              onClick={() => chooseDay(addDays(today, -1))}
+            >
+              {t('Previous preview day', 'আগের প্রিভিউ দিন')}
+            </button>
+            <button
+              className="button primary"
+              disabled={today >= addDays(actualToday, 730)}
+              onClick={() => chooseDay(addDays(today, 1))}
+            >
+              {t('Next preview day', 'পরের প্রিভিউ দিন')}
+            </button>
+            <button
+              className="button secondary"
+              onClick={() => {
+                setPreview(null);
+                setDay(null);
+                setMonth(null);
+              }}
+            >
+              {t('Finish preview', 'প্রিভিউ শেষ করুন')}
+            </button>
+          </>
+        ) : (
+          <>
+            <p>
+              {t(
+                'Move through the calendar to review the growing period and daily work.',
+                'ক্যালেন্ডারে এগিয়ে চাষের সময় ও প্রতিদিনের কাজ দেখুন।',
+              )}
+            </p>
+            <button
+              className="button secondary"
+              onClick={() => {
+                const date = day;
+                setPreview({ farm: structuredClone(storedFarm), date });
+                setDay(date);
+                setMonth(date.slice(0, 7));
+              }}
+            >
+              {t('Preview another day', 'অন্য দিনের প্রিভিউ')}
+            </button>
+          </>
+        )}
+      </section>
+    </>
+  );
+  const savedNotice = (
+    <>
+      {!saved && (
+        <p className="notice-amber" role="alert">
+          {t(
+            'Not saved to browser storage. Export before closing.',
+            'ব্রাউজারে রাখা যায়নি। বন্ধের আগে হিসাব নামান।',
+          )}
+        </p>
+      )}
+    </>
+  );
+  const heroBlock = (
+    <>
+      <section className="season-farm-hero" data-tour="calendar-main">
+        <FarmLandscape crop={crop.id} />
+        <div className="season-hero-info">
+          <span className="eyebrow">
+            {farm.selection.planKind === 'perennial-review'
+              ? t('YOUR PERENNIAL CARE PLAN', 'আপনার বহুবর্ষজীবী পরিচর্যা')
+              : t('YOUR SINGLE-SEASON FARM', 'আপনার এক মৌসুমের খামার')}
+          </span>
+          <h2>{plantDisplayName(crop, language)}</h2>
+          <p>
+            <CycleStatus farm={farm} today={today} />
+          </p>
+          {age !== null &&
+            age > 0 &&
+            (!farm.harvestedDate || farm.selection.planKind === 'perennial-review') && (
+              <p>{`${t('Day', 'দিন')} ${age} ${t('since planting', 'রোপণের পরে')}`}</p>
+            )}
+          <div className="season-hero-facts">
+            <span>
+              <CalendarDays size={18} />
+              {t('Planned start', 'শুরুর পরিকল্পনা')}
+              <strong>
+                <ShortDate value={farm.selection.start} />
+              </strong>
+            </span>
+            <span>
+              <Leaf size={18} />
+              {farm.selection.planKind === 'perennial-review'
+                ? t('Care review horizon', 'পরিচর্যা পর্যালোচনার সময়')
+                : t('Indicative duration', 'আনুমানিক সময়')}
+              <strong>
+                {timing.cultivar
+                  ? `${timing.cultivar.durationMin}–${timing.cultivar.durationMax}`
+                  : farm.selection.durationMin === farm.selection.durationMax
+                    ? farm.selection.durationMax
+                    : `${farm.selection.durationMin}–${farm.selection.durationMax}`}{' '}
+                {t('days', 'দিন')}
+              </strong>
+            </span>
+          </div>
+          {farm.selection.planKind === 'perennial-review' && (
+            <p className="season-crop-caution">
+              {t(
+                'Keep this perennial planting active through repeated harvests. Review its care after one year.',
+                'বারবার ফল তোলার পরেও বহুবর্ষজীবী চাষ চালু থাকবে। এক বছর পরে পরিচর্যা পর্যালোচনা করুন।',
+              )}
+            </p>
+          )}
+        </div>
+      </section>
+    </>
+  );
+  const progressBlock = (
+    <>
+      <SeasonProgress
+        farm={farm}
+        today={today}
+        estimate={estimate}
+        onCheckIn={() => {
+          setDay(null);
+          setMonth(null);
+        }}
+      />
+    </>
+  );
+  const workBlock = (
+    <>
+      <div className="season-work-grid">
+        <section className="card season-calendar" data-tour="calendar-dates">
+          <div className="season-section-heading">
+            <h2>
+              <CalendarDays size={21} />
+              {t('Crop calendar', 'ফসলের ক্যালেন্ডার')}
+            </h2>
+            <div className="season-month-nav">
+              <button aria-label={t('Previous month', 'আগের মাস')} onClick={() => changeMonth(-1)}>
+                <ArrowLeft size={18} />
+              </button>
+              <strong>
+                {new Intl.DateTimeFormat(language === 'bn' ? 'bn-BD' : 'en-GB', {
+                  month: 'long',
+                  year: 'numeric',
+                  timeZone: 'UTC',
+                }).format(new Date(first + 'T12:00:00Z'))}
+              </strong>
+              <button aria-label={t('Next month', 'পরের মাস')} onClick={() => changeMonth(1)}>
+                <ArrowRight size={18} />
+              </button>
+            </div>
+          </div>
+          <div
+            className="season-calendar-grid"
+            role="group"
+            aria-label={t('Choose a calendar day', 'ক্যালেন্ডারের দিন বাছুন')}
+          >
+            {(language === 'bn'
+              ? ['সোম', 'মঙ্গল', 'বুধ', 'বৃহ', 'শুক্র', 'শনি', 'রবি']
+              : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+            ).map((d) => (
+              <span className="calendar-weekday" key={d}>
+                {d}
+              </span>
+            ))}
+            {Array.from({ length: weekday }, (_, i) => (
+              <span key={`empty-${i}`} />
+            ))}
+            {Array.from({ length: count }, (_, i) => {
+              const date = `${month}-${String(i + 1).padStart(2, '0')}`,
+                forecast =
+                  weather.error || !weather.data || !weatherIsRecent(weather.data)
+                    ? undefined
+                    : weather.data?.days.find((d) => d.date === date);
+              const planted = date === farm.plantedDate,
+                planned = !farm.plantedDate && date === farm.selection.start;
+              const { growing, scheduled, extended } = farmCalendarDay(farm, date, today);
+              const reference = date >= timing.early && date <= timing.late;
+              const harvested = date === farm.harvestedDate;
+              const projected = date === estimate.projectedDate;
+              return (
+                <button
+                  key={date}
+                  className={`${day === date ? 'selected' : ''} ${date === today ? 'today' : ''} ${planted || planned ? 'planting' : ''} ${growing ? 'growing-day' : ''} ${scheduled ? 'scheduled-day' : ''} ${extended ? 'extended-day' : ''} ${reference ? 'reference-day' : ''} ${harvested ? 'harvested-day' : ''} ${projected ? 'projected-day' : ''}`}
+                  data-growing-period={scheduled || growing}
+                  aria-pressed={day === date}
+                  aria-label={`${date}${date === today ? t(' · Today', ' · আজ') : ''}${planted ? t(' · Actual planting', ' · আসল রোপণ') : planned ? t(' · Planned planting', ' · পরিকল্পিত রোপণ') : ''}${reference ? t(' · Reference window, not confirmed maturity', ' · উৎসের সময়, পরিপক্বতা নিশ্চিত নয়') : ''}${extended ? t(' · Continuing beyond reference', ' · উৎসের সময়ের পরেও চলছে') : ''}${harvested ? t(' · Actual harvest recorded', ' · আসল তোলা লেখা আছে') : ''}${projected ? t(' · Forecast heat-threshold projection', ' · পূর্বাভাসে তাপের সীমার হিসাব') : ''}`}
+                  onClick={() => chooseDay(date)}
+                >
+                  <span>{i + 1}</span>
+                  {(planted || planned) && <Sprout size={13} />}
+                  {(harvested || projected) && (
+                    <span className="season-calendar-event" aria-hidden="true">
+                      {harvested ? '✓' : '≈'}
+                    </span>
+                  )}
+                  <small>
+                    {forecast?.rain === null || forecast?.rain === undefined
+                      ? ''
+                      : `${forecast.rain.toFixed(1)} mm`}
+                  </small>
+                </button>
+              );
+            })}
+          </div>
+          <div className="season-calendar-legend">
+            <span>
+              <i className="scheduled-key" />
+              {t('Growing period', 'চাষের সময়')}
+            </span>
+            <span>
+              <i />
+              {t('Selected day', 'বাছা দিন')}
+            </span>
+            <span>
+              <Sprout size={14} />
+              {t('Planting', 'রোপণ')}
+            </span>
+            <span>{t('Rain figures = forecast', 'বৃষ্টির সংখ্যা = পূর্বাভাস')}</span>
+            <span>
+              <i className="reference-key" />
+              {t('Dotted outline = reference window', 'বিন্দুর রেখা = উৎসের সময়')}
+            </span>
+            <span>
+              <i className="extended-key" />
+              {t('Amber = continuing beyond reference', 'হলুদ = উৎসের সময় পেরিয়েও চলছে')}
+            </span>
+            <span>
+              {t('✓ Actual harvest · ≈ heat projection', '✓ আসল তোলা · ≈ তাপের পূর্বানুমান')}
+            </span>
+          </div>
+          <div className="button-row calendar-day-nav">
+            <button className="button secondary" onClick={() => chooseDay(addDays(day, -1))}>
+              {t('Previous day', 'আগের দিন')}
+            </button>
+            <ShortDate value={day} />
+            <button className="button secondary" onClick={() => chooseDay(addDays(day, 1))}>
+              {t('Next day', 'পরের দিন')}
+            </button>
+            <button className="text-button" onClick={() => chooseDay(actualStart)}>
+              {t('Go to planting', 'রোপণের দিনে যান')}
+            </button>
+            <button className="text-button" onClick={() => chooseDay(timing.late)}>
+              {t('Go to estimated end', 'আনুমানিক শেষ দিনে যান')}
+            </button>
+          </div>
+          <button
+            className="text-button"
+            onClick={() => {
+              if (preview) chooseDay(actualToday);
+              else {
+                setDay(null);
+                setMonth(null);
+              }
+            }}
+          >
+            {t('Back to today', 'আজকে ফিরুন')}
+          </button>
+        </section>
+        <section className="card season-daily" data-tour="daily-actions">
+          <div className="season-section-heading">
+            <h2>
+              {day === today
+                ? t('Today’s farm guidance', 'আজকের চাষের নির্দেশনা')
+                : t('Farm guidance for this day', 'এই দিনের চাষের নির্দেশনা')}
+            </h2>
+            <ShortDate value={day} />
+          </div>
+          {(!weather.data ||
+            weather.error ||
+            !weatherIsRecent(weather.data) ||
+            !weather.data.days.some((d) => d.date === day)) && (
+            <p className="season-small-note">
+              {t(
+                'No current forecast is available for this date.',
+                'এই তারিখের বর্তমান পূর্বাভাস নেই।',
+              )}
+            </p>
+          )}
+          <ul className="season-task-list">
+            {actions.map((action) => {
+              const copy = actionCopy(action, language);
+              return (
+                <li key={action.id}>
+                  <div className="season-guidance-copy">
+                    <strong>{copy.title}</strong>
+                    <p>{copy.detail}</p>
+                  </div>
+                  {action.id === 'record-planting' && (
+                    <button
+                      className="button secondary"
+                      disabled={day > today}
+                      onClick={() => setActivity('plantedDate', day)}
+                    >
+                      {t('I planted on this day', 'এই দিনে রোপণ করেছি')}
+                    </button>
+                  )}
+                  <a href={action.source} target="_blank" rel="noreferrer">
+                    {t('Source', 'উৎস')}
+                    <ExternalLink size={12} />
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      </div>
+    </>
+  );
+  const weatherBlock = (
+    <>
+      <section className="card" data-tour="track-weather">
+        <WeatherContent site={farm.site} result={weather} />
+      </section>
+    </>
+  );
+  const waterBlock = (
+    <>
+      <WaterBudgetPanel
+        key={`${farm.id}:${day}`}
+        farm={farm}
+        date={day}
+        today={today}
+        weather={weather.error ? null : weather.data}
+      />
+    </>
+  );
+  const cultivarBlock = (
+    <>
+      <CultivarReferencePanel key={`cultivar:${farm.id}`} farm={farm} />
+    </>
+  );
+  const soilBlock = (
+    <>
+      <section className="card">
+        <h2>
+          <FlaskConical size={21} />
+          {t('Soil pH', 'মাটির pH')}
+        </h2>
+        <SoilReferencePanel site={farm.site} />
+        <SoilEvidenceForm
+          key={`${farm.id}:${JSON.stringify(farm.field.soilEvidence)}`}
+          value={farm.field.soilEvidence}
+          today={today}
+          onSave={(soilEvidence) => writeFarm(farm.id, { field: { ...farm.field, soilEvidence } })}
+        />
+      </section>
+    </>
+  );
+  const notesBlock = (
+    <>
+      <section
+        id="farm-daily-update"
+        className="card season-observations"
+        data-tour="track-records"
+      >
+        <div className="season-section-heading">
+          <h2>{t('What actually happened?', 'বাস্তবে কী হয়েছে?')}</h2>
+          <span className="season-source-pill">
+            {t('Saved automatically', 'নিজে থেকে সংরক্ষিত')}
+          </span>
+        </div>
+        <div className="season-form-grid">
+          <label>
+            {t('Actual planting date', 'আসল রোপণের দিন')}
+            <input
+              type="date"
+              aria-label={t('Actual planting date', 'আসল রোপণের দিন')}
+              max={today}
+              value={farm.plantedDate}
+              onChange={(e) => setActivity('plantedDate', e.target.value)}
+            />
+            <small>
+              {t(
+                'For transplanted crops, record the main-field transplanting date.',
+                'চারা রোপণের ফসলে মূল জমিতে রোপণের দিন লিখুন।',
+              )}
+            </small>
+          </label>
+          <label>
+            {t('Actual harvest date', 'আসল ফসল কাটার দিন')}
+            <input
+              type="date"
+              aria-label={t('Actual harvest date', 'আসল ফসল কাটার দিন')}
+              min={farm.plantedDate || undefined}
+              max={today}
+              value={farm.harvestedDate}
+              onChange={(e) => setActivity('harvestedDate', e.target.value)}
+            />
+            <small>
+              {farm.selection.planKind === 'perennial-review'
+                ? t(
+                    'Records this harvest; perennial care continues.',
+                    'এই দফার তোলা রাখে; বহুবর্ষজীবী পরিচর্যা চলবে।',
+                  )
+                : t(
+                    'Final harvest only: this completes the season. Record partial pickings in the daily field update. Clear an accidental final date to resume tracking.',
+                    'শুধু শেষ তোলা: এতে মৌসুম শেষ হয়। আংশিক তোলা দিনের খবরে লিখুন। ভুল শেষ তারিখ মুছলে আবার হিসাব চলবে।',
+                  )}
+            </small>
+          </label>
+        </div>
+        {activityError && (
+          <p role="alert" className="notice-amber">
+            {activityError}
+          </p>
+        )}
+        <label>
+          {t('Field notes', 'জমির নোট')}
+          <textarea
+            aria-label={t('Field notes', 'জমির নোট')}
+            maxLength={10000}
+            value={farm.notes}
+            rows={3}
+            onChange={(e) => writeFarm(farm.id, { notes: e.target.value })}
+            placeholder={t(
+              'Describe the crop, soil, water or work you observed.',
+              'ফসল, মাটি, পানি বা দেখা কাজ লিখুন।',
+            )}
+          />
+        </label>
+        <DailyCheckInForm
+          key={`${farm.id}-${day}`}
+          farm={farm}
+          day={day}
+          today={today}
+          onNextDay={() => {
+            const next = addDays(day, 1);
+            chooseDay(next);
+            document.querySelector('[data-tour="daily-actions"]')?.scrollIntoView({
+              behavior:
+                window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+                document.documentElement.dataset.motion === 'off'
+                  ? 'instant'
+                  : 'smooth',
+              block: 'start',
+            });
+          }}
+        />
+        {!!farm.observations.length && (
+          <details>
+            <summary>{t('Earlier stage observations', 'আগের পর্যায়ের পর্যবেক্ষণ')}</summary>
+            <p>
+              {t(
+                'Use the daily field update above. Earlier observations remain below; a legacy “Harvested” note alone does not confirm final harvest.',
+                'উপরের দিনের খবর ব্যবহার করুন। আগের পর্যবেক্ষণ নিচে আছে; পুরোনো “তোলা হয়েছে” নোট একা শেষ তোলা নিশ্চিত করে না।',
+              )}
+            </p>
+            {farm.observations
+              .slice(-5)
+              .reverse()
+              .map((o, i) => (
+                <p key={`${o.date}-${i}`}>
+                  <ShortDate value={o.date} /> · {stageLabel(o.stage, language)} · {o.note}
+                </p>
+              ))}
+          </details>
+        )}
+      </section>
+    </>
+  );
+  const thermalBlock = (
+    <>
+      <ThermalModelSettings
+        key={farm.id}
+        farm={farm}
+        series={thermal.series}
+        error={thermal.error}
+      />
+    </>
+  );
+  const methodBlock = (
+    <>
+      <details className="card season-method" data-tour="nasa-seasonal">
+        <summary>
+          {t('This land’s climate, source dates & methods', 'এই জমির জলবায়ু, উৎসের দিন ও পদ্ধতি')}
+        </summary>
+        <p>
+          {t(
+            'Planned dates are references. Actual planting starts the day counter; it does not turn a broad source growing-period range into a cultivar-specific harvest forecast.',
+            'পরিকল্পিত দিন তথ্যসূত্র। আসল রোপণ থেকে দিনের গণনা শুরু; উৎসের সময়সীমা নির্দিষ্ট জাতের কাটার পূর্বাভাস হয়ে যায় না।',
+          )}
+        </p>
+        <p>
+          {farm.selection.planKind === 'perennial-review'
+            ? t('Care review date', 'পরিচর্যা পর্যালোচনার দিন')
+            : t('Indicative planning end', 'পরিকল্পনার আনুমানিক শেষ')}
+          : <ShortDate value={addDays(actualStart, farm.selection.durationMin - 1)} />
+          {farm.selection.durationMax !== farm.selection.durationMin && (
+            <>
+              {' '}
+              — <ShortDate value={addDays(actualStart, farm.selection.durationMax - 1)} />
+            </>
+          )}
+        </p>
+        <p>
+          {t(
+            'NASA 1991–2020 climate baseline · annual rain',
+            'নাসার ১৯৯১–২০২০ জলবায়ু · বার্ষিক বৃষ্টি',
+          )}
+          : {farm.context.normal?.annualRain.toFixed(0)} mm
+        </p>
+        <ul>
+          {farm.selection.reasons.map((r) => (
+            <li key={r}>{r}</li>
+          ))}
+          {farm.selection.cautions.map((r) => (
+            <li key={r}>{r}</li>
+          ))}
+        </ul>
+        {farm.context.normal && (
+          <a href={farm.context.normal.sourceUrl} target="_blank" rel="noreferrer">
+            NASA POWER original data <ExternalLink size={12} />
+          </a>
+        )}
+        <p>
+          <a href="https://gaez.fao.org/pages/ecocrop" target="_blank" rel="noreferrer">
+            FAO ECOCROP
+          </a>{' '}
+          ·{' '}
+          <a
+            href="https://sage.nelson.wisc.edu/data-and-models/datasets/crop-calendar-dataset/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Sacks et al. (2010) calendar methods
+          </a>
+        </p>
+      </details>
+    </>
+  );
+  const toolsBlock = (
+    <>
+      <div className="season-record-tools">
+        <Link className="button secondary" href="/farms">
+          <Plus size={17} />
+          {t('Back to my lands & plots', 'আমার জমি ও প্লটে ফিরুন')}
+        </Link>
+        <button className="button secondary" onClick={exportRecords}>
+          <Download size={17} />
+          {t('Export all records', 'সব হিসাব নামান')}
+        </button>
+      </div>
+    </>
+  );
   return (
     <FarmRecordScope key={preview ? 'preview' : 'recorded'} write={writeFarm}>
       <div className="season-page season-workspace" data-preview={preview !== null}>
@@ -1118,18 +1691,18 @@ function FarmWorkspace({
           <div>
             <Link href="/farms" className="season-back">
               <ArrowLeft size={15} />
-              {t('All my farms', 'সব খামার')}
+              {t('All my lands', 'আমার সব জমি')}
             </Link>
-            <h1>{farm.field.name || plantDisplayName(crop, language) + t(' farm', ' খামার')}</h1>
+            <h1>{farm.field.name || plantDisplayName(crop, language) + t(' crop', ' ফসল')}</h1>
             <p>
               <MapPin size={16} />
               {farm.site.name} · {farm.field.area} ha
             </p>
           </div>
           <label className="season-farm-switch">
-            {t('Switch farm', 'অন্য খামার খুলুন')}
+            {t('Switch crop', 'অন্য ফসল খুলুন')}
             <select
-              aria-label={t('Switch farm', 'অন্য খামার খুলুন')}
+              aria-label={t('Switch crop', 'অন্য ফসল খুলুন')}
               value={farm.id}
               onChange={(e) => seasonStore.activate(e.target.value)}
             >
@@ -1141,532 +1714,32 @@ function FarmWorkspace({
             </select>
           </label>
         </header>
-        <section
-          className={`card calendar-preview-controls ${preview ? 'preview-active' : ''}`}
-          aria-label={t('Calendar date preview', 'ক্যালেন্ডারের দিনের প্রিভিউ')}
-        >
-          {preview ? (
-            <>
-              <strong>
-                {t('Preview mode', 'প্রিভিউ চলছে')} · <ShortDate value={today} />
-              </strong>
-              <p>
-                {t(
-                  'Changes here are temporary. Your saved farms are unchanged.',
-                  'এখানকার পরিবর্তন সাময়িক। সংরক্ষিত খামার বদলাবে না।',
-                )}
-              </p>
-              <label>
-                {t('Preview date', 'প্রিভিউর দিন')}
-                <input
-                  type="date"
-                  aria-label={t('Preview date', 'প্রিভিউর দিন')}
-                  min="1900-01-01"
-                  max={addDays(actualToday, 730)}
-                  value={today}
-                  onChange={(e) => chooseDay(e.target.value)}
-                />
-              </label>
-              <button
-                className="button secondary"
-                disabled={today <= '1900-01-01'}
-                onClick={() => chooseDay(addDays(today, -1))}
-              >
-                {t('Previous preview day', 'আগের প্রিভিউ দিন')}
-              </button>
-              <button
-                className="button primary"
-                disabled={today >= addDays(actualToday, 730)}
-                onClick={() => chooseDay(addDays(today, 1))}
-              >
-                {t('Next preview day', 'পরের প্রিভিউ দিন')}
-              </button>
-              <button
-                className="button secondary"
-                onClick={() => {
-                  setPreview(null);
-                  setDay(null);
-                  setMonth(null);
-                }}
-              >
-                {t('Finish preview', 'প্রিভিউ শেষ করুন')}
-              </button>
-            </>
-          ) : (
-            <>
-              <p>
-                {t(
-                  'Move through the calendar to review the growing period and daily work.',
-                  'ক্যালেন্ডারে এগিয়ে চাষের সময় ও প্রতিদিনের কাজ দেখুন।',
-                )}
-              </p>
-              <button
-                className="button secondary"
-                onClick={() => {
-                  const date = day;
-                  setPreview({ farm: structuredClone(storedFarm), date });
-                  setDay(date);
-                  setMonth(date.slice(0, 7));
-                }}
-              >
-                {t('Preview another day', 'অন্য দিনের প্রিভিউ')}
-              </button>
-            </>
-          )}
-        </section>
-        {!saved && (
-          <p className="notice-amber" role="alert">
-            {t(
-              'Not saved to browser storage. Export before closing.',
-              'ব্রাউজারে রাখা যায়নি। বন্ধের আগে হিসাব নামান।',
-            )}
-          </p>
-        )}
-        <section className="season-farm-hero" data-tour="calendar-main">
-          <FarmLandscape crop={crop.id} />
-          <div className="season-hero-info">
-            <span className="eyebrow">
-              {farm.selection.planKind === 'perennial-review'
-                ? t('YOUR PERENNIAL CARE PLAN', 'আপনার বহুবর্ষজীবী পরিচর্যা')
-                : t('YOUR SINGLE-SEASON FARM', 'আপনার এক মৌসুমের খামার')}
-            </span>
-            <h2>{plantDisplayName(crop, language)}</h2>
-            <p>
-              <CycleStatus farm={farm} today={today} />
-            </p>
-            {age !== null &&
-              age > 0 &&
-              (!farm.harvestedDate || farm.selection.planKind === 'perennial-review') && (
-                <p>{`${t('Day', 'দিন')} ${age} ${t('since planting', 'রোপণের পরে')}`}</p>
-              )}
-            <div className="season-hero-facts">
-              <span>
-                <CalendarDays size={18} />
-                {t('Planned start', 'শুরুর পরিকল্পনা')}
-                <strong>
-                  <ShortDate value={farm.selection.start} />
-                </strong>
-              </span>
-              <span>
-                <Leaf size={18} />
-                {farm.selection.planKind === 'perennial-review'
-                  ? t('Care review horizon', 'পরিচর্যা পর্যালোচনার সময়')
-                  : t('Indicative duration', 'আনুমানিক সময়')}
-                <strong>
-                  {timing.cultivar
-                    ? `${timing.cultivar.durationMin}–${timing.cultivar.durationMax}`
-                    : farm.selection.durationMin === farm.selection.durationMax
-                      ? farm.selection.durationMax
-                      : `${farm.selection.durationMin}–${farm.selection.durationMax}`}{' '}
-                  {t('days', 'দিন')}
-                </strong>
-              </span>
-            </div>
-            {farm.selection.planKind === 'perennial-review' && (
-              <p className="season-crop-caution">
-                {t(
-                  'Keep this perennial planting active through repeated harvests. Review its care after one year.',
-                  'বারবার ফল তোলার পরেও বহুবর্ষজীবী চাষ চালু থাকবে। এক বছর পরে পরিচর্যা পর্যালোচনা করুন।',
-                )}
-              </p>
-            )}
-          </div>
-        </section>
-        <SeasonProgress
-          farm={farm}
-          today={today}
-          estimate={estimate}
-          onCheckIn={() => {
-            setDay(null);
-            setMonth(null);
-          }}
-        />
-        <div className="season-work-grid">
-          <section className="card season-calendar" data-tour="calendar-dates">
-            <div className="season-section-heading">
-              <h2>
-                <CalendarDays size={21} />
-                {t('Farm calendar', 'খামারের ক্যালেন্ডার')}
-              </h2>
-              <div className="season-month-nav">
-                <button
-                  aria-label={t('Previous month', 'আগের মাস')}
-                  onClick={() => changeMonth(-1)}
-                >
-                  <ArrowLeft size={18} />
-                </button>
-                <strong>
-                  {new Intl.DateTimeFormat(language === 'bn' ? 'bn-BD' : 'en-GB', {
-                    month: 'long',
-                    year: 'numeric',
-                    timeZone: 'UTC',
-                  }).format(new Date(first + 'T12:00:00Z'))}
-                </strong>
-                <button aria-label={t('Next month', 'পরের মাস')} onClick={() => changeMonth(1)}>
-                  <ArrowRight size={18} />
-                </button>
-              </div>
-            </div>
-            <div
-              className="season-calendar-grid"
-              role="group"
-              aria-label={t('Choose a calendar day', 'ক্যালেন্ডারের দিন বাছুন')}
-            >
-              {(language === 'bn'
-                ? ['সোম', 'মঙ্গল', 'বুধ', 'বৃহ', 'শুক্র', 'শনি', 'রবি']
-                : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-              ).map((d) => (
-                <span className="calendar-weekday" key={d}>
-                  {d}
-                </span>
-              ))}
-              {Array.from({ length: weekday }, (_, i) => (
-                <span key={`empty-${i}`} />
-              ))}
-              {Array.from({ length: count }, (_, i) => {
-                const date = `${month}-${String(i + 1).padStart(2, '0')}`,
-                  forecast =
-                    weather.error || !weather.data || !weatherIsRecent(weather.data)
-                      ? undefined
-                      : weather.data?.days.find((d) => d.date === date);
-                const planted = date === farm.plantedDate,
-                  planned = !farm.plantedDate && date === farm.selection.start;
-                const { growing, scheduled, extended } = farmCalendarDay(farm, date, today);
-                const reference = date >= timing.early && date <= timing.late;
-                const harvested = date === farm.harvestedDate;
-                const projected = date === estimate.projectedDate;
-                return (
-                  <button
-                    key={date}
-                    className={`${day === date ? 'selected' : ''} ${date === today ? 'today' : ''} ${planted || planned ? 'planting' : ''} ${growing ? 'growing-day' : ''} ${scheduled ? 'scheduled-day' : ''} ${extended ? 'extended-day' : ''} ${reference ? 'reference-day' : ''} ${harvested ? 'harvested-day' : ''} ${projected ? 'projected-day' : ''}`}
-                    data-growing-period={scheduled || growing}
-                    aria-pressed={day === date}
-                    aria-label={`${date}${date === today ? t(' · Today', ' · আজ') : ''}${planted ? t(' · Actual planting', ' · আসল রোপণ') : planned ? t(' · Planned planting', ' · পরিকল্পিত রোপণ') : ''}${reference ? t(' · Reference window, not confirmed maturity', ' · উৎসের সময়, পরিপক্বতা নিশ্চিত নয়') : ''}${extended ? t(' · Continuing beyond reference', ' · উৎসের সময়ের পরেও চলছে') : ''}${harvested ? t(' · Actual harvest recorded', ' · আসল তোলা লেখা আছে') : ''}${projected ? t(' · Forecast heat-threshold projection', ' · পূর্বাভাসে তাপের সীমার হিসাব') : ''}`}
-                    onClick={() => chooseDay(date)}
-                  >
-                    <span>{i + 1}</span>
-                    {(planted || planned) && <Sprout size={13} />}
-                    {(harvested || projected) && (
-                      <span className="season-calendar-event" aria-hidden="true">
-                        {harvested ? '✓' : '≈'}
-                      </span>
-                    )}
-                    <small>
-                      {forecast?.rain === null || forecast?.rain === undefined
-                        ? ''
-                        : `${forecast.rain.toFixed(1)} mm`}
-                    </small>
-                  </button>
-                );
-              })}
-            </div>
-            <div className="season-calendar-legend">
-              <span>
-                <i className="scheduled-key" />
-                {t('Growing period', 'চাষের সময়')}
-              </span>
-              <span>
-                <i />
-                {t('Selected day', 'বাছা দিন')}
-              </span>
-              <span>
-                <Sprout size={14} />
-                {t('Planting', 'রোপণ')}
-              </span>
-              <span>{t('Rain figures = forecast', 'বৃষ্টির সংখ্যা = পূর্বাভাস')}</span>
-              <span>
-                <i className="reference-key" />
-                {t('Dotted outline = reference window', 'বিন্দুর রেখা = উৎসের সময়')}
-              </span>
-              <span>
-                <i className="extended-key" />
-                {t('Amber = continuing beyond reference', 'হলুদ = উৎসের সময় পেরিয়েও চলছে')}
-              </span>
-              <span>
-                {t('✓ Actual harvest · ≈ heat projection', '✓ আসল তোলা · ≈ তাপের পূর্বানুমান')}
-              </span>
-            </div>
-            <div className="button-row calendar-day-nav">
-              <button className="button secondary" onClick={() => chooseDay(addDays(day, -1))}>
-                {t('Previous day', 'আগের দিন')}
-              </button>
-              <ShortDate value={day} />
-              <button className="button secondary" onClick={() => chooseDay(addDays(day, 1))}>
-                {t('Next day', 'পরের দিন')}
-              </button>
-              <button className="text-button" onClick={() => chooseDay(actualStart)}>
-                {t('Go to planting', 'রোপণের দিনে যান')}
-              </button>
-              <button className="text-button" onClick={() => chooseDay(timing.late)}>
-                {t('Go to estimated end', 'আনুমানিক শেষ দিনে যান')}
-              </button>
-            </div>
-            <button
-              className="text-button"
-              onClick={() => {
-                if (preview) chooseDay(actualToday);
-                else {
-                  setDay(null);
-                  setMonth(null);
-                }
-              }}
-            >
-              {t('Back to today', 'আজকে ফিরুন')}
-            </button>
-          </section>
-          <section className="card season-daily" data-tour="daily-actions">
-            <div className="season-section-heading">
-              <h2>
-                {day === today
-                  ? t('Today’s farm guidance', 'আজকের চাষের নির্দেশনা')
-                  : t('Farm guidance for this day', 'এই দিনের চাষের নির্দেশনা')}
-              </h2>
-              <ShortDate value={day} />
-            </div>
-            {(!weather.data ||
-              weather.error ||
-              !weatherIsRecent(weather.data) ||
-              !weather.data.days.some((d) => d.date === day)) && (
-              <p className="season-small-note">
-                {t(
-                  'No current forecast is available for this date.',
-                  'এই তারিখের বর্তমান পূর্বাভাস নেই।',
-                )}
-              </p>
-            )}
-            <ul className="season-task-list">
-              {actions.map((action) => {
-                const copy = actionCopy(action, language);
-                return (
-                  <li key={action.id}>
-                    <div className="season-guidance-copy">
-                      <strong>{copy.title}</strong>
-                      <p>{copy.detail}</p>
-                    </div>
-                    {action.id === 'record-planting' && (
-                      <button
-                        className="button secondary"
-                        disabled={day > today}
-                        onClick={() => setActivity('plantedDate', day)}
-                      >
-                        {t('I planted on this day', 'এই দিনে রোপণ করেছি')}
-                      </button>
-                    )}
-                    <a href={action.source} target="_blank" rel="noreferrer">
-                      {t('Source', 'উৎস')}
-                      <ExternalLink size={12} />
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        </div>
-        <section className="card" data-tour="track-weather">
-          <WeatherContent site={farm.site} result={weather} />
-        </section>
-        <WaterBudgetPanel
-          key={`${farm.id}:${day}`}
-          farm={farm}
-          date={day}
-          today={today}
-          weather={weather.error ? null : weather.data}
-        />
-        <CultivarReferencePanel key={`cultivar:${farm.id}`} farm={farm} />
-        <section className="card">
-          <SoilReferencePanel site={farm.site} />
-          <SoilEvidenceForm
-            key={`${farm.id}:${JSON.stringify(farm.field.soilEvidence)}`}
-            value={farm.field.soilEvidence}
-            today={today}
-            onSave={(soilEvidence) =>
-              writeFarm(farm.id, { field: { ...farm.field, soilEvidence } })
-            }
-          />
-        </section>
-        <section
-          id="farm-daily-update"
-          className="card season-observations"
-          data-tour="track-records"
-        >
-          <div className="season-section-heading">
-            <h2>{t('What actually happened?', 'বাস্তবে কী হয়েছে?')}</h2>
-            <span className="season-source-pill">
-              {t('Saved automatically', 'নিজে থেকে সংরক্ষিত')}
-            </span>
-          </div>
-          <div className="season-form-grid">
-            <label>
-              {t('Actual planting date', 'আসল রোপণের দিন')}
-              <input
-                type="date"
-                aria-label={t('Actual planting date', 'আসল রোপণের দিন')}
-                max={today}
-                value={farm.plantedDate}
-                onChange={(e) => setActivity('plantedDate', e.target.value)}
-              />
-              <small>
-                {t(
-                  'For transplanted crops, record the main-field transplanting date.',
-                  'চারা রোপণের ফসলে মূল জমিতে রোপণের দিন লিখুন।',
-                )}
-              </small>
-            </label>
-            <label>
-              {t('Actual harvest date', 'আসল ফসল কাটার দিন')}
-              <input
-                type="date"
-                aria-label={t('Actual harvest date', 'আসল ফসল কাটার দিন')}
-                min={farm.plantedDate || undefined}
-                max={today}
-                value={farm.harvestedDate}
-                onChange={(e) => setActivity('harvestedDate', e.target.value)}
-              />
-              <small>
-                {farm.selection.planKind === 'perennial-review'
-                  ? t(
-                      'Records this harvest; perennial care continues.',
-                      'এই দফার তোলা রাখে; বহুবর্ষজীবী পরিচর্যা চলবে।',
-                    )
-                  : t(
-                      'Final harvest only: this completes the season. Record partial pickings in the daily field update. Clear an accidental final date to resume tracking.',
-                      'শুধু শেষ তোলা: এতে মৌসুম শেষ হয়। আংশিক তোলা দিনের খবরে লিখুন। ভুল শেষ তারিখ মুছলে আবার হিসাব চলবে।',
-                    )}
-              </small>
-            </label>
-          </div>
-          {activityError && (
-            <p role="alert" className="notice-amber">
-              {activityError}
-            </p>
-          )}
-          <label>
-            {t('Field notes', 'জমির নোট')}
-            <textarea
-              aria-label={t('Field notes', 'জমির নোট')}
-              maxLength={10000}
-              value={farm.notes}
-              rows={3}
-              onChange={(e) => writeFarm(farm.id, { notes: e.target.value })}
-              placeholder={t(
-                'Describe the crop, soil, water or work you observed.',
-                'ফসল, মাটি, পানি বা দেখা কাজ লিখুন।',
-              )}
+        {plotPlan ? (
+          <>
+            {savedNotice}
+            <RotationCalendar
+              farm={farm}
+              today={today}
+              weather={weather.error ? null : (weather.data ?? null)}
             />
-          </label>
-          <DailyCheckInForm
-            key={`${farm.id}-${day}`}
-            farm={farm}
-            day={day}
-            today={today}
-            onNextDay={() => {
-              const next = addDays(day, 1);
-              chooseDay(next);
-              document.querySelector('[data-tour="daily-actions"]')?.scrollIntoView({
-                behavior:
-                  window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
-                  document.documentElement.dataset.motion === 'off'
-                    ? 'instant'
-                    : 'smooth',
-                block: 'start',
-              });
-            }}
-          />
-          {!!farm.observations.length && (
-            <details>
-              <summary>{t('Earlier stage observations', 'আগের পর্যায়ের পর্যবেক্ষণ')}</summary>
-              <p>
-                {t(
-                  'Use the daily field update above. Earlier observations remain below; a legacy “Harvested” note alone does not confirm final harvest.',
-                  'উপরের দিনের খবর ব্যবহার করুন। আগের পর্যবেক্ষণ নিচে আছে; পুরোনো “তোলা হয়েছে” নোট একা শেষ তোলা নিশ্চিত করে না।',
-                )}
-              </p>
-              {farm.observations
-                .slice(-5)
-                .reverse()
-                .map((o, i) => (
-                  <p key={`${o.date}-${i}`}>
-                    <ShortDate value={o.date} /> · {stageLabel(o.stage, language)} · {o.note}
-                  </p>
-                ))}
-            </details>
-          )}
-        </section>
-        <ThermalModelSettings
-          key={farm.id}
-          farm={farm}
-          series={thermal.series}
-          error={thermal.error}
-        />
-        <details className="card season-method" data-tour="nasa-seasonal">
-          <summary>
-            {t(
-              'This farm’s climate, source dates & methods',
-              'এই জমির জলবায়ু, উৎসের দিন ও পদ্ধতি',
-            )}
-          </summary>
-          <p>
-            {t(
-              'Planned dates are references. Actual planting starts the day counter; it does not turn a broad source growing-period range into a cultivar-specific harvest forecast.',
-              'পরিকল্পিত দিন তথ্যসূত্র। আসল রোপণ থেকে দিনের গণনা শুরু; উৎসের সময়সীমা নির্দিষ্ট জাতের কাটার পূর্বাভাস হয়ে যায় না।',
-            )}
-          </p>
-          <p>
-            {farm.selection.planKind === 'perennial-review'
-              ? t('Care review date', 'পরিচর্যা পর্যালোচনার দিন')
-              : t('Indicative planning end', 'পরিকল্পনার আনুমানিক শেষ')}
-            : <ShortDate value={addDays(actualStart, farm.selection.durationMin - 1)} />
-            {farm.selection.durationMax !== farm.selection.durationMin && (
-              <>
-                {' '}
-                — <ShortDate value={addDays(actualStart, farm.selection.durationMax - 1)} />
-              </>
-            )}
-          </p>
-          <p>
-            {t(
-              'NASA 1991–2020 climate baseline · annual rain',
-              'নাসার ১৯৯১–২০২০ জলবায়ু · বার্ষিক বৃষ্টি',
-            )}
-            : {farm.context.normal?.annualRain.toFixed(0)} mm
-          </p>
-          <ul>
-            {farm.selection.reasons.map((r) => (
-              <li key={r}>{r}</li>
-            ))}
-            {farm.selection.cautions.map((r) => (
-              <li key={r}>{r}</li>
-            ))}
-          </ul>
-          {farm.context.normal && (
-            <a href={farm.context.normal.sourceUrl} target="_blank" rel="noreferrer">
-              NASA POWER original data <ExternalLink size={12} />
-            </a>
-          )}
-          <p>
-            <a href="https://gaez.fao.org/pages/ecocrop" target="_blank" rel="noreferrer">
-              FAO ECOCROP
-            </a>{' '}
-            ·{' '}
-            <a
-              href="https://sage.nelson.wisc.edu/data-and-models/datasets/crop-calendar-dataset/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Sacks et al. (2010) calendar methods
-            </a>
-          </p>
-        </details>
-        <div className="season-record-tools">
-          <Link className="button secondary" href="/farms">
-            <Plus size={17} />
-            {t('Manage or add another farm', 'অন্য খামার যোগ বা পরিচালনা করুন')}
-          </Link>
-          <button className="button secondary" onClick={exportRecords}>
-            <Download size={17} />
-            {t('Export all farm records', 'সব খামারের হিসাব নামান')}
-          </button>
-        </div>
+          </>
+        ) : (
+          <>
+            {previewBlock}
+            {savedNotice}
+            {heroBlock}
+            {progressBlock}
+            {workBlock}
+            {weatherBlock}
+            {waterBlock}
+            {cultivarBlock}
+            {soilBlock}
+            {notesBlock}
+            {thermalBlock}
+            {methodBlock}
+          </>
+        )}
+        {toolsBlock}
       </div>
     </FarmRecordScope>
   );

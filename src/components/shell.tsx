@@ -10,10 +10,10 @@ import {
   CircleAlert,
   CircleHelp,
   Earth,
-  House,
   Layers3,
   Sprout,
   LayoutDashboard,
+  NotebookPen,
 } from 'lucide-react';
 import { usePlanner } from './planner-provider';
 import { Dialog } from './dialog';
@@ -27,6 +27,11 @@ import { EvidenceSourcesView } from './evidence-views';
 import { useSeasonFarms, seasonStore } from '../lib/season-store';
 import { fieldConfirmationKey } from '../domain/field-confirmation';
 import { localToday } from '../domain/global-season';
+import { useFieldLog } from '../lib/field-log-store';
+import { dueReminders } from '../domain/field-log';
+import { localDigits } from '../domain/numerals';
+import { ReminderAlert } from './notes/reminder-alert';
+import { useToday } from '../lib/use-today';
 
 export function Shell({ children }: { children: ReactNode }) {
   const path = usePathname();
@@ -43,7 +48,10 @@ export function Shell({ children }: { children: ReactNode }) {
         planner.site,
         planner.from || localToday(planner.site.timezone),
       );
-  const inSetup = path === '/farm' || path === '/crops';
+  // Once the open plot has a year plan, step 2 shows that plan instead of suggestions,
+  // and visiting it no longer locks the calendar.
+  const hasPlan = !!season.state.plots?.find((p) => p.id === season.state.draftPlotId)?.plan;
+  const inSetup = path === '/farm' || path === '/plot' || (path === '/crops' && !hasPlan);
   const activeFarm =
     !inSetup &&
     season.state.calendarAccessId === season.state.activeId &&
@@ -53,57 +61,84 @@ export function Shell({ children }: { children: ReactNode }) {
   }, [loaded, inSetup]);
   const redirect =
     path === '/crops' && !landConfirmed
-      ? '/farm'
+      ? '/farms'
       : (path === '/plan' || path === '/track') && !activeFarm
         ? landConfirmed
           ? '/crops'
-          : '/farm'
+          : '/farms'
         : null;
   useEffect(() => {
     if (loaded && redirect) router.replace(redirect);
   }, [loaded, redirect, router]);
   const saved = farmSaved && demoSaved && journeySaved && season.saved;
   const [modal, setModal] = useState<'about' | null>(null);
-  const stepPath = path === '/track' ? '/plan' : path;
+  // Lands and plots are set up from the dashboard, so they stay under step 1.
+  const stepPath =
+    path === '/track' ? '/plan' : path === '/plot' || path === '/farm' ? '/farms' : path;
+  const subPage =
+    path === '/plot' ? ` · ${t('Plot', 'প্লট')}` : path === '/farm' ? ` · ${t('Land', 'জমি')}` : '';
+  const fieldLog = useFieldLog();
+  const deviceToday = useToday(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  // Notes of a plot no longer used do not count.
+  const dueCount = fieldLog.ready
+    ? dueReminders(
+        fieldLog.state.notes.filter(
+          (n) =>
+            !season.state.plots?.some(
+              (p) => p.id === n.plotId && !!p.endDate && p.endDate < deviceToday,
+            ),
+        ),
+        deviceToday,
+      ).length
+    : 0;
   const nav = [
     {
       href: '/farms',
+      completed: landConfirmed,
       label: t('Dashboard', 'ড্যাশবোর্ড'),
       icon: LayoutDashboard,
-      description: t('My farms & seasons', 'আমার খামার ও মৌসুম'),
-    },
-    {
-      href: '/farm',
-      completed: landConfirmed,
-      label: t('Land details', 'জমির তথ্য'),
-      icon: House,
-      description: t('Soil, water & location', 'মাটি, সেচ ও স্থান'),
+      description: t('Your lands & plots', 'আপনার জমি ও প্লট'),
     },
     {
       href: '/crops',
       completed: activeFarm,
-      lockedReason: !landConfirmed
-        ? t('Confirm land details first', 'আগে জমির তথ্য নিশ্চিত করুন')
-        : undefined,
-      label: t('Suggested crops', 'প্রস্তাবিত ফসল'),
+      lockedReason: !landConfirmed ? t('Open a plot first', 'আগে একটি প্লট খুলুন') : undefined,
+      label: hasPlan ? t('Your plan', 'আপনার পরিকল্পনা') : t('Suggested plans', 'পরামর্শ'),
       icon: Sprout,
-      description: t('Choose one crop for a season', 'এক মৌসুমের একটি ফসল বাছুন'),
+      description: hasPlan
+        ? t('This year’s crops and why', 'এ বছরের ফসল ও কারণ')
+        : t('Crops for the whole year', 'পুরো বছরের ফসল'),
     },
     {
       href: '/plan',
       lockedReason: !activeFarm
-        ? t('Choose a crop and create a farm first', 'আগে ফসল বেছে খামার তৈরি করুন')
+        ? t('Choose a crop for a plot first', 'আগে প্লটের জন্য ফসল বাছুন')
         : undefined,
-      label: t('Farm calendar', 'খামারের ক্যালেন্ডার'),
+      label: t('Crop calendar', 'ফসলের ক্যালেন্ডার'),
       icon: Layers3,
       description: t('Daily checks & weather', 'দৈনিক যাচাই ও আবহাওয়া'),
     },
+    {
+      href: '/notes',
+      lockedReason: !season.state.plots?.length
+        ? t('Add a plot first', 'আগে একটি প্লট যোগ করুন')
+        : undefined,
+      label: t('Your notes', 'আপনার নোট'),
+      icon: NotebookPen,
+      description: t('Notes & reminders', 'নোট ও রিমাইন্ডার'),
+      badge: dueCount ? localDigits(dueCount, language) : undefined,
+    },
   ];
-  const stepIndex = nav.findIndex((item) => item.href === stepPath);
+  const steps = nav;
+  const stepIndex = steps.findIndex((item) => item.href === stepPath);
+  const stepNumber = localDigits(stepIndex + 1, language);
+  const stepCount = t(`of ${steps.length}`, `/ ${localDigits(steps.length, 'bn')}`);
   const pageTitle =
     stepIndex >= 0
-      ? `${t('Step', 'ধাপ')} ${stepIndex + 1} ${t('of 4', '/ ৪')} · ${nav[stepIndex].label} — RITU`
-      : t('Data sources & methods — RITU', 'তথ্যের উৎস ও পদ্ধতি — ঋতু');
+      ? `${t('Step', 'ধাপ')} ${stepNumber} ${stepCount} · ${steps[stepIndex].label}${subPage} — RITU`
+      : path === '/notes'
+        ? t('Your notes — RITU', 'আপনার নোট — ঋতু')
+        : t('Data sources & methods — RITU', 'তথ্যের উৎস ও পদ্ধতি — ঋতু');
   useEffect(() => {
     document.title = pageTitle;
   }, [pageTitle]);
@@ -125,8 +160,10 @@ export function Shell({ children }: { children: ReactNode }) {
           </Link>
           <p className="header-context">
             {stepIndex >= 0
-              ? `${t('Step', 'ধাপ')} ${stepIndex + 1} ${t('of 4', '/ ৪')} · ${nav[stepIndex].label}`
-              : t('Sources & methods', 'উৎস ও পদ্ধতি')}
+              ? `${t('Step', 'ধাপ')} ${stepNumber} ${stepCount} · ${steps[stepIndex].label}${subPage}`
+              : path === '/notes'
+                ? t('Your notes', 'আপনার নোট')
+                : t('Sources & methods', 'উৎস ও পদ্ধতি')}
           </p>
           <div className="header-tools">
             <TourGuide key={path} enabled={loaded && !redirect} />
@@ -164,7 +201,8 @@ export function Shell({ children }: { children: ReactNode }) {
       <main id="main" className="main-content" tabIndex={-1}>
         {stepIndex >= 0 && (
           <p className="workflow-step">
-            {t('Step', 'ধাপ')} {stepIndex + 1} {t('of 4', '/ ৪')} · {nav[stepIndex].label}
+            {t('Step', 'ধাপ')} {stepNumber} {stepCount} · {steps[stepIndex].label}
+            {subPage}
           </p>
         )}
         {loaded && !redirect ? (
@@ -173,7 +211,7 @@ export function Shell({ children }: { children: ReactNode }) {
           <p role="status">
             {redirect
               ? t('Opening the next required step…', 'আগে প্রয়োজনীয় ধাপ খোলা হচ্ছে…')
-              : t('Loading your farm…', 'জমির তথ্য লোড হচ্ছে…')}
+              : t('Loading your lands…', 'জমির তথ্য লোড হচ্ছে…')}
           </p>
         )}
       </main>
@@ -200,6 +238,7 @@ export function Shell({ children }: { children: ReactNode }) {
         </div>
       </footer>
       <BottomTabBar items={nav} path={stepPath} label={t('Main navigation', 'মূল নেভিগেশন')} />
+      {loaded && <ReminderAlert />}
       {modal === 'about' && (
         <Dialog title={t('Sources & methods', 'উৎস ও পদ্ধতি')} onClose={() => setModal(null)}>
           <EvidenceSourcesView embedded onNavigate={() => setModal(null)} />

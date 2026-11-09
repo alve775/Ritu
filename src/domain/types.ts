@@ -65,6 +65,8 @@ export interface Farm {
   required: HouseholdCrop[];
   unavailableMonths: number[];
   current: CropPeriod[];
+  /** Last year's crop per season ('fallow' = left empty), asked before crop suggestions. */
+  lastYear?: Record<'pre-monsoon' | 'monsoon' | 'winter', CropId | 'unknown'>;
 }
 export interface Localized {
   en: string;

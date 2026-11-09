@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { rajshahiRegion } from '../data/regions/rajshahi';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -1639,6 +1640,19 @@ export function EvidenceSourcesView({
             </li>
           ))}
         </ul>
+      </section>
+      <section className="card">
+        <h2>{t('Pilot region for rotation comparison', 'ফসলচক্র তুলনার পাইলট অঞ্চল')}</h2>
+        <p>
+          {t(
+            'Rotations are compared for the DAE/BAMIS Rajshahi region: Rajshahi, Chapainawabganj, Naogaon and Natore districts, where the regional crop calendars on this page apply. A field belongs to the region when its map pin falls inside one of these district boundaries.',
+            'ফসলচক্রের তুলনা করা হয় DAE/BAMIS-এর রাজশাহী অঞ্চলের জন্য: রাজশাহী, চাঁপাইনবাবগঞ্জ, নওগাঁ ও নাটোর জেলা, যেখানে এই পাতার আঞ্চলিক ফসল পঞ্জিকা প্রযোজ্য। জমির ম্যাপ-পিন এই জেলাগুলোর সীমানার ভেতরে পড়লে জমিটি অঞ্চলের অংশ ধরা হয়।',
+          )}
+        </p>
+        <SourceLink href={rajshahiRegion.boundary.url}>geoBoundaries</SourceLink> ·{' '}
+        <SourceLink href={rajshahiRegion.boundary.sourceUrl}>
+          BBS · OCHA ROAP ({rajshahiRegion.boundary.license})
+        </SourceLink>
       </section>
       <section className="card">
         <h2>{t('Field-area units', 'জমির আয়তনের একক')}</h2>

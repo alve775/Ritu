@@ -1,4 +1,5 @@
 import type { Farm } from './types';
+import { validLastYear } from './plot';
 import { cropIds } from './types';
 import type { FarmSite } from './farm-site';
 import { samePoint, validSite } from './farm-site';
@@ -45,6 +46,7 @@ export function validRegisteredField(raw: unknown): raw is RegisteredField {
     new Set(p.current.map((c) => c?.crop)).size === p.current.length &&
     p.current.every((c) => !!c && cropIds.includes(c.crop)) &&
     (p.soilEvidence === undefined || validSoilEvidence(p.soilEvidence)) &&
+    (p.lastYear === undefined || validLastYear(p.lastYear)) &&
     (f.site === undefined || validSite(f.site))
   );
 }

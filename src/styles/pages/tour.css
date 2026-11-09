@@ -194,7 +194,7 @@
     color: var(--color-ink-muted);
   }
   .tour-card h2 {
-    font-family: var(--font-display);
+    font-family: var(--font-heading);
     font-size: 1.4rem;
     line-height: 1.35;
     outline: none;
@@ -418,7 +418,7 @@
     background: var(--color-surface-raised);
   }
   .not-found h1 {
-    font-family: var(--font-display);
+    font-family: var(--font-heading);
     font-size: 2rem;
     font-weight: 500;
   }

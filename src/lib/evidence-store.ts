@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { validLastYear } from '../domain/plot';
 import type { CropId, Farm, Language, Priority } from '../domain/types';
 import { cropIds } from '../domain/types';
 import { validSite } from '../domain/farm-site';
@@ -106,6 +107,7 @@ function validateEvidenceState(value: unknown): value is EvidenceState {
     f.current.length > cropIds.length ||
     new Set(f.current.map((x) => x?.crop)).size !== f.current.length ||
     f.current.some((p) => !p || !cropIds.includes(p.crop)) ||
+    (f.lastYear !== undefined && !validLastYear(f.lastYear)) ||
     !['water', 'diversity', 'familiar', 'resilience', 'soil'].includes(v.priority) ||
     typeof v.district !== 'string' ||
     v.district.length > 80 ||

@@ -9,7 +9,8 @@ export function climateNormalUrl(latitude: number, longitude: number) {
     throw Error('Invalid coordinates');
   const url = new URL('https://power.larc.nasa.gov/api/temporal/climatology/point');
   url.search = new URLSearchParams({
-    parameters: 'T2M,PRECTOTCORR',
+    // T2M_RANGE is the average daily range; POWER's climatology T2M_MAX/T2M_MIN are the extremes.
+    parameters: 'T2M,T2M_RANGE,PRECTOTCORR,GWETTOP',
     community: 'AG',
     latitude: latitude.toFixed(2),
     longitude: longitude.toFixed(2),
@@ -86,7 +87,23 @@ export function parseClimateNormal(
       rate > 1000
     )
       throw Error('Missing climate values');
-    return { month: i + 1, temperature, rain: rate * lengths[i] };
+    const range = p?.T2M_RANGE?.[key],
+      wetness = p?.GWETTOP?.[key];
+    const spread =
+      typeof range === 'number' && Number.isFinite(range) && range >= 0 && range <= 60
+        ? range / 2
+        : undefined;
+    return {
+      month: i + 1,
+      temperature,
+      rain: rate * lengths[i],
+      maximum: spread === undefined ? undefined : temperature + spread,
+      minimum: spread === undefined ? undefined : temperature - spread,
+      wetness:
+        typeof wetness === 'number' && Number.isFinite(wetness) && wetness >= 0 && wetness <= 1
+          ? wetness
+          : undefined,
+    };
   });
   return {
     latitude,

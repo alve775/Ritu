@@ -25,7 +25,7 @@ export function ResetDataControl({ compact = false }: { compact?: boolean }) {
         >
           <p>
             {t(
-              'This clears ALL farms and their locations, crop choices, calendars, observations and notes, including previous-version records on this device. The form will be empty. Language and reading/sound settings stay. Export your records first if you need them.',
+              'This clears ALL lands, plots and their locations, crop choices, calendars, observations and notes, including previous-version records on this device. The form will be empty. Language and reading/sound settings stay. Export your records first if you need them.',
               'এতে এই ডিভাইসের জমির তথ্য, স্থান, ফসল, ক্যালেন্ডার, পর্যবেক্ষণ, নোট ও আগের সংস্করণের হিসাব মুছবে। ফরম ফাঁকা হবে। ভাষা, পড়া ও শব্দের পছন্দ থাকবে। দরকার হলে আগে হিসাব ডাউনলোড করুন।',
             )}
           </p>

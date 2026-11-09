@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { LocateFixed, MapPin, Search } from 'lucide-react';
 import { usePlanner } from './planner-provider';
 import { climateFor, climateMatchesSite, siteFor } from '../data/region-environment';
-import { inPilotRegion, validSite } from '../domain/farm-site';
+import { inPilotRegion, samePoint, validSite } from '../domain/farm-site';
 import type { FarmSite } from '../domain/farm-site';
 import { validPowerClimate } from '../domain/nasa-power';
 import { FarmMap } from './farm-map';
@@ -52,7 +52,35 @@ export function FarmLocation({ worldwide = false }: { worldwide?: boolean }) {
     latitude: String(site.latitude),
     longitude: String(site.longitude),
   });
+  const placeLookup = useRef(0),
+    latestSite = useRef(environment.site);
+  useEffect(() => {
+    latestSite.current = environment.site;
+  }, [environment.site]);
+  /** Replace a generic pin label with the area name, unless the pin has moved since. */
+  const nameSite = (next: FarmSite) => {
+    const ticket = ++placeLookup.current;
+    void fetch(
+      `/api/places/reverse?lat=${next.latitude}&lon=${next.longitude}&language=${language}`,
+    )
+      .then((response) => (response.ok ? response.json() : null))
+      .then((body: { name?: unknown } | null) => {
+        const current = latestSite.current;
+        if (
+          ticket !== placeLookup.current ||
+          typeof body?.name !== 'string' ||
+          !current ||
+          !samePoint(current, next)
+        )
+          return;
+        update.current({ site: { ...current, name: body.name } });
+      })
+      .catch(() => {
+        /* Keep the generic label; the coordinates are what matter. */
+      });
+  };
   const chooseSite = (next: FarmSite) => {
+    placeLookup.current++;
     gpsRequest.current++;
     setGps('');
     setEnvironment({ site: next });
@@ -161,7 +189,7 @@ export function FarmLocation({ worldwide = false }: { worldwide?: boolean }) {
   return (
     <section className="card farm-location" id="farm-location" aria-labelledby="location-heading">
       <header>
-        <h2 id="location-heading">{t('Where is your farm?', 'আপনার জমি কোথায়?')}</h2>
+        <h2 id="location-heading">{t('Where is your land?', 'আপনার জমি কোথায়?')}</h2>
         <p>
           {t(
             'Type a town, city or postal code, choose the right place, then move the pin onto your field.',
@@ -273,11 +301,13 @@ export function FarmLocation({ worldwide = false }: { worldwide?: boolean }) {
               navigator.geolocation.getCurrentPosition(
                 (position) => {
                   if (request !== gpsRequest.current) return;
-                  chooseSite({
+                  const next = {
                     latitude: Number(position.coords.latitude.toFixed(5)),
                     longitude: Number(position.coords.longitude.toFixed(5)),
                     name: t('My GPS-selected field', 'GPS-এ বাছা জমি'),
-                  });
+                  };
+                  chooseSite(next);
+                  nameSite(next);
                   setGps(
                     t(
                       `Device accuracy: about ${Math.round(position.coords.accuracy)} m. Adjust the pin if needed.`,
@@ -305,7 +335,7 @@ export function FarmLocation({ worldwide = false }: { worldwide?: boolean }) {
           <div className="selected-location" aria-live="polite">
             <strong>
               {environment.site
-                ? t('Selected field', 'বাছা জমি')
+                ? t('Selected land', 'বাছা জমি')
                 : t('Map center · choose your field', 'মানচিত্রের কেন্দ্র · জমি বাছুন')}
             </strong>
             <p>{site.name}</p>
@@ -341,13 +371,15 @@ export function FarmLocation({ worldwide = false }: { worldwide?: boolean }) {
               <button
                 className="button secondary"
                 disabled={!coordValid}
-                onClick={() =>
-                  chooseSite({
+                onClick={() => {
+                  const next = {
                     latitude: Number(coordinates.latitude),
                     longitude: Number(coordinates.longitude),
                     name: t('My pinned field', 'পিনে বাছা জমি'),
-                  })
-                }
+                  };
+                  chooseSite(next);
+                  nameSite(next);
+                }}
               >
                 {t('Use these coordinates', 'এই স্থানাঙ্ক বাছুন')}
               </button>
@@ -368,7 +400,13 @@ export function FarmLocation({ worldwide = false }: { worldwide?: boolean }) {
             · CC BY 4.0
           </p>
         </div>
-        <FarmMap site={site} onChange={chooseSite} />
+        <FarmMap
+          site={site}
+          onChange={(next) => {
+            chooseSite(next);
+            nameSite(next);
+          }}
+        />
       </div>
       <details className="location-weather">
         <summary>
@@ -407,7 +445,7 @@ export function FarmLocation({ worldwide = false }: { worldwide?: boolean }) {
             <p role="status">
               {!environment.site
                 ? t(
-                    'Select your farm pin to load its NASA context.',
+                    'Select your land pin to load its NASA context.',
                     'জমির নাসার তথ্য আনতে নিজের পিন বাছুন।',
                   )
                 : historyError === historyKey

@@ -5,10 +5,11 @@ export interface FarmSite {
   countryCode?: string;
   timezone?: string;
 }
+/** The location search result for Rajshahi, so the pin sits just above the city label. */
 export const defaultSite: FarmSite = {
-  latitude: 24.37,
-  longitude: 88.6,
-  name: 'Rajshahi, Bangladesh',
+  latitude: 24.374,
+  longitude: 88.60114,
+  name: 'Rajshahi, Rajshahi Division, Bangladesh',
   countryCode: 'BD',
   timezone: 'Asia/Dhaka',
 };

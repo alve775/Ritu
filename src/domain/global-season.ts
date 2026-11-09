@@ -24,7 +24,16 @@ export interface ClimateNormal {
   sourceUrl: string;
   retrievedAt: string;
   annualRain: number;
-  months: { month: number; temperature: number; rain: number }[];
+  months: {
+    month: number;
+    temperature: number;
+    rain: number;
+    /** Average daily maximum and minimum, °C; absent in normals saved before November 2026. */
+    maximum?: number;
+    minimum?: number;
+    /** NASA GWETTOP top-soil wetness 0–1; absent in older saved normals. */
+    wetness?: number;
+  }[];
 }
 export interface LocalCropCalendar {
   crop: string;
@@ -79,6 +88,10 @@ export interface SeasonFarm {
   /** Idempotency receipt for a confirmed crop choice; absent in older records. */
   creationKey?: string;
   fieldId?: string;
+  /** The persistent plot this planting belongs to; absent in older records. */
+  plotId?: string;
+  /** Which season of the plot's year plan this planting is; absent for single-crop records. */
+  rotationSeason?: import('./evidence-planner').Season;
   cultivarReference?: import('../data/cultivar-references').CultivarReference;
   waterRecords?: import('./water-balance').WaterDayRecord[];
   id: string;
@@ -94,6 +107,22 @@ export interface SeasonFarm {
   observations: { date: string; stage: string; note: string }[];
   /** Optional so existing saved farms remain readable. Final harvest is harvestedDate. */
   harvestStartedDate?: string;
+  /** A sowing day chosen ahead (after today, not sown yet); the calendar asks about it on the day. */
+  plannedSowDate?: string;
+  /** A harvest day chosen ahead, after sowing. */
+  plannedHarvestDate?: string;
+  /** Cancelled before sowing by the farmer, with the day and why. */
+  cancelled?: { date: string; reason: import('./rotation/crop-end').CancelReason };
+  /** A sown crop destroyed before harvest (flood, pests...), with the day and why. */
+  lost?: { date: string; reason: import('./rotation/crop-end').LossReason };
+  /** The harvest was early: cut green or for fodder, before the crop was ripe. */
+  earlyHarvest?: boolean;
+  /** Earlier sowings of this crop that were lost before it was sown again. */
+  lostTries?: {
+    plantedDate: string;
+    date: string;
+    reason: import('./rotation/crop-end').LossReason;
+  }[];
   checkIns?: DailyFieldCheckIn[];
   thermalProfile?: MaizeThermalProfile | null;
 }

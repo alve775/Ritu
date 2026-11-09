@@ -7,6 +7,8 @@ import { evidenceStore, useEvidence, profileKey } from '../lib/evidence-store';
 import type { RegionEnvironment } from '../data/region-environment';
 import { tr } from '../lib/translate';
 import { seasonStore } from '../lib/season-store';
+import { fieldLogStore } from '../lib/field-log-store';
+import { clearPhotos } from '../lib/note-photos';
 function usePlannerState() {
   useSyncExternalStore(
     displayStore.subscribe,
@@ -27,6 +29,8 @@ function usePlannerState() {
   const reset = () => {
     evidenceStore.reset();
     seasonStore.reset();
+    fieldLogStore.reset();
+    void clearPhotos();
     setResetEpoch((n) => n + 1);
     setMonth(0);
     setFieldOpen(false);

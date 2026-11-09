@@ -8,8 +8,11 @@ export function Dialog({
   title,
   onClose,
   children,
+  className = '',
 }: {
   title: string;
+  /** Extra class, e.g. `sheet` for a bottom sheet on phones. */
+  className?: string;
   onClose: () => void;
   children: ReactNode;
 }) {
@@ -30,7 +33,7 @@ export function Dialog({
   return (
     <dialog
       ref={ref}
-      className="dialog"
+      className={`dialog ${className}`}
       aria-labelledby="dialog-title"
       onCancel={onClose}
       onClick={(e) => {

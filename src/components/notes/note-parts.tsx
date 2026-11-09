@@ -20,6 +20,7 @@ import { deletePhoto, putPhoto, shrinkPhoto, useNotePhoto } from '../../lib/note
 import type { LiveWeather } from '../../domain/live-weather';
 import type { Language } from '../../domain/types';
 import {
+  isClockTime,
   noteTags,
   noteTextLimit,
   noteWeatherFor,
@@ -31,16 +32,37 @@ import {
   type NoteWeather,
   type ReminderTime,
 } from '../../domain/field-log';
+import { localDigits } from '../../domain/numerals';
 import { plusDays } from '../../domain/rotation';
 import { rotationText } from '../rotation/rotation-text';
 
 type Translate = (en: string, bn: string) => string;
-export const reminderTimeLabel = (time: ReminderTime, t: Translate) =>
-  ({
-    morning: t('7 am', 'সকাল ৭টা'),
-    noon: t('12 noon', 'দুপুর ১২টা'),
-    evening: t('6 pm', 'সন্ধ্যা ৬টা'),
-  })[time];
+export const reminderTimeLabel = (time: ReminderTime, t: Translate) => {
+  if (time === 'morning') return t('7 am', 'সকাল ৭টা');
+  if (time === 'noon') return t('12 noon', 'দুপুর ১২টা');
+  if (time === 'evening') return t('6 pm', 'সন্ধ্যা ৬টা');
+  const [h, m] = time.split(':').map(Number);
+  return t(clockText(h, m, 'en'), clockText(h, m, 'bn'));
+};
+/** A clock time as farmers say it: "7:50 pm", "সন্ধ্যা ৭:৫০". */
+function clockText(h: number, m: number, language: Language) {
+  const mm = String(m).padStart(2, '0'),
+    h12 = ((h + 11) % 12) + 1;
+  if (language === 'en') return `${h12}:${mm} ${h < 12 ? 'am' : 'pm'}`;
+  const part =
+    h < 5
+      ? 'রাত'
+      : h < 12
+        ? 'সকাল'
+        : h < 16
+          ? 'দুপুর'
+          : h < 18
+            ? 'বিকেল'
+            : h < 20
+              ? 'সন্ধ্যা'
+              : 'রাত';
+  return `${part} ${localDigits(h12, 'bn')}:${localDigits(mm, 'bn')}`;
+}
 export const noteTagLabel = (tag: NoteTag, t: Translate) =>
   ({
     pest: t('Pests', 'পোকা'),
@@ -161,6 +183,8 @@ export function NoteComposer({
     [quick, setQuick] = useState<QuickDay>(1),
     [remDate, setRemDate] = useState(plusDays(date, 1)),
     [remTime, setRemTime] = useState<ReminderTime>('morning'),
+    // "Other time": any time of day, kept while switching between the quick choices.
+    [customTime, setCustomTime] = useState<`${number}:${number}`>('19:00'),
     [message, setMessage] = useState<{ kind: 'error' | 'ok'; text: string } | null>(null),
     [busy, setBusy] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -341,7 +365,30 @@ export function NoteComposer({
               {reminderTimeLabel(time, t)}
             </button>
           ))}
-          <small>{tx.date(reminderDay)}</small>
+          <button
+            type="button"
+            className="note-option"
+            aria-pressed={isClockTime(remTime)}
+            onClick={() => setRemTime(customTime)}
+          >
+            {t('Other time', 'অন্য সময়')}
+          </button>
+          {isClockTime(remTime) && (
+            <input
+              type="time"
+              className="note-time"
+              value={remTime}
+              aria-label={t('Reminder time', 'রিমাইন্ডারের সময়')}
+              onChange={(e) => {
+                if (!isClockTime(e.target.value)) return;
+                setCustomTime(e.target.value);
+                setRemTime(e.target.value);
+              }}
+            />
+          )}
+          <small>
+            {tx.date(reminderDay)} · {reminderTimeLabel(remTime, t)}
+          </small>
         </div>
       )}
       <div className="note-save-row">

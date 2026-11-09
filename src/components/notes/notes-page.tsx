@@ -10,7 +10,7 @@ import { calendarDayHref, calendarFarmFor } from '../../lib/plot-calendar';
 import {
   noteTags,
   reminderStatus,
-  reminderTimes,
+  reminderMinutes,
   type FieldNote,
   type NoteTag,
 } from '../../domain/field-log';
@@ -27,7 +27,7 @@ const urlPlot = () =>
   typeof window === 'undefined' ? null : new URLSearchParams(window.location.search).get('plot');
 
 /**
- * Your notes: a header band with the land and plot dropdowns (nothing chosen until the farmer picks,
+ * Your diary: a header band with the land and plot dropdowns (nothing chosen until the farmer picks,
  * except when opened from a plot's calendar), the upcoming reminders across all plots, then the chosen
  * plot's note box and field diary.
  */
@@ -59,7 +59,7 @@ export function NotesPage() {
       <div className="page notes-page">
         <header className="page-header">
           <div>
-            <h1>{t('Your notes', 'আপনার নোট')}</h1>
+            <h1>{t('Your diary', 'আপনার ডায়েরি')}</h1>
             <p>{t('Notes are kept for each plot.', 'প্রতিটি প্লটের নোট আলাদা থাকে।')}</p>
           </div>
         </header>
@@ -136,7 +136,7 @@ export function NotesPage() {
     .sort(
       (a, b) =>
         a.reminder!.date.localeCompare(b.reminder!.date) ||
-        reminderTimes.indexOf(a.reminder!.time) - reminderTimes.indexOf(b.reminder!.time),
+        reminderMinutes(a.reminder!.time) - reminderMinutes(b.reminder!.time),
     );
   const toggleNotify = async () => {
     setNotifyMessage('');
@@ -167,14 +167,14 @@ export function NotesPage() {
     t(`${count} ${count === 1 ? one : many}`, `${tx.n(count)} ${bn}`);
   return (
     <div className="page notes-page">
-      <section className="notes-hero" aria-label={t('Your notes', 'আপনার নোট')}>
+      <section className="notes-hero" aria-label={t('Your diary', 'আপনার ডায়েরি')}>
         <div className="notes-hero-top">
           <div>
             <span className="notes-hero-eyebrow">
               <NotebookPen size={16} aria-hidden="true" />
               {t('NOTES & REMINDERS', 'নোট ও রিমাইন্ডার')}
             </span>
-            <h1>{t('Your notes', 'আপনার নোট')}</h1>
+            <h1>{t('Your diary', 'আপনার ডায়েরি')}</h1>
           </div>
           <button
             type="button"

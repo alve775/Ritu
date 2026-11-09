@@ -2162,14 +2162,198 @@
     background: var(--color-primary);
     color: var(--color-on-primary);
   }
-  .rot-check {
+  .rot-end-check {
     display: flex;
     align-items: center;
     gap: 8px;
   }
-  .rot-check input {
+  .rot-end-check input {
     width: 20px;
     height: 20px;
     accent-color: var(--color-primary);
+  }
+}
+
+/* Diary reminders and notes on the month calendar, like calendar events; dots and a day list on phones. */
+@layer pages {
+  .rot-month {
+    --ev-remind: #7a3d96;
+    --ev-remind-bg: #efe2f5;
+    --ev-note: #1f6fa0;
+    --ev-note-bg: #e3eef7;
+  }
+  .rot-cell {
+    grid-template-rows: none;
+    grid-auto-rows: min-content;
+    align-content: start;
+    min-height: 96px;
+  }
+  .rot-cell .tag {
+    align-self: start;
+  }
+  .rot-ev {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    min-width: 0;
+    max-width: 100%;
+    padding: 1px 5px;
+    border-radius: 6px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  .rot-ev > span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .rot-ev svg {
+    flex: none;
+  }
+  .rot-ev.rem {
+    background: var(--ev-remind);
+    color: #fff;
+  }
+  .rot-ev.rem.done {
+    background: var(--ev-remind-bg);
+    color: var(--ev-remind);
+    text-decoration: line-through;
+    opacity: 0.75;
+  }
+  .rot-ev.note {
+    border-left: 3px solid var(--tag-ink, var(--ev-note));
+    border-radius: 3px 6px 6px 3px;
+    background: var(--tag-bg, var(--ev-note-bg));
+    color: var(--tag-ink, var(--ev-note));
+  }
+  .rot-ev-more {
+    padding-left: 4px;
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: var(--color-ink-muted);
+  }
+  .rot-ev-dots {
+    display: none;
+    gap: 2px;
+    justify-content: center;
+  }
+  .rot-ev-dots i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--tag-ink, var(--ev-note));
+  }
+  .rot-ev-dots i.rem {
+    background: var(--ev-remind);
+  }
+  .rot-cal-legend i.rem {
+    background: var(--ev-remind);
+  }
+  .rot-cal-legend i.note {
+    border-left: 3px solid var(--ev-note);
+    background: var(--ev-note-bg);
+  }
+  /* The day list under the month: only on phones, where the cells have no room for text. */
+  .rot-agenda {
+    display: none;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .rot-agenda h3 {
+    margin: 0;
+    font-size: 1rem;
+  }
+  .rot-ag {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 8px;
+    align-items: start;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .rot-ag .when {
+    padding-top: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--color-ink-muted);
+  }
+  .rot-ag .box {
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+  }
+  .rot-ag .box.rem {
+    background: var(--ev-remind);
+    color: #fff;
+  }
+  .rot-ag .box.rem.done {
+    background: var(--ev-remind-bg);
+    color: var(--ev-remind);
+    text-decoration: line-through;
+  }
+  .rot-ag .box.note {
+    border-left: 3px solid var(--tag-ink, var(--ev-note));
+    background: var(--tag-bg, var(--ev-note-bg));
+  }
+  .rot-ag .box.job {
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+    font-weight: 700;
+  }
+  .rot-ag .box.job.water {
+    background: #dcecf7;
+    color: #1f5f8a;
+  }
+  @media (max-width: 640px) {
+    .rot-cell {
+      min-height: 58px;
+    }
+    .rot-ev,
+    .rot-ev-more {
+      display: none;
+    }
+    .rot-ev-dots {
+      display: flex;
+    }
+    .rot-agenda {
+      display: grid;
+    }
+  }
+}
+
+/* A cancelled crop on the wheel: a faint dashed outline keeps the gap visible; its pill is crossed out. */
+@layer pages {
+  .rot-glance .crop.cancelled {
+    fill: var(--rot-season);
+    fill-opacity: 0.15;
+    stroke: var(--rot-season);
+    stroke-width: 1.5;
+    stroke-dasharray: 5 4;
+  }
+  .rot-glance .crop-label.cancelled {
+    opacity: 0.45;
+    text-decoration: line-through;
+  }
+  .rot-glance-seq .pill.ended {
+    opacity: 0.45;
+    text-decoration: line-through;
+  }
+}
+
+@layer pages {
+  .rot-agenda-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+  }
+  .rot-agenda-head .text-button {
+    font-size: 0.88rem;
   }
 }

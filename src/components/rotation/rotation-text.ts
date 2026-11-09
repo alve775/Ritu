@@ -170,6 +170,25 @@ export function rotationText(t: Translate, language: Language) {
           `Grows poorly on ${soilName(soil)} soil.`,
           `${soilName(soil)} মাটিতে ভালো হয় না।`,
         );
+      case 'ph': {
+        const [lo, hi] = r.range,
+          side = r.ph > hi ? t('above', 'বেশি') : t('below', 'কম');
+        const tested = r.measured
+          ? t(' (your soil test)', ' (আপনার মাটি পরীক্ষা)')
+          : t(
+              '. From the soil map; a soil test on your land would be more exact',
+              '। মাটির মানচিত্র থেকে; জমির মাটি পরীক্ষা করলে আরও ঠিক হবে',
+            );
+        return r.ph > hi
+          ? t(
+              `Soil pH ${r.ph.toFixed(1)} is above what ${crop(c)} tolerates (${lo}–${hi})${tested}.`,
+              `মাটির pH ${n(r.ph.toFixed(1))}, ${crop(c)} সহ্য করে ${n(lo)}–${n(hi)} পর্যন্ত; এটি ${side}${tested}।`,
+            )
+          : t(
+              `Soil pH ${r.ph.toFixed(1)} is below what ${crop(c)} tolerates (${lo}–${hi})${tested}.`,
+              `মাটির pH ${n(r.ph.toFixed(1))}, ${crop(c)} সহ্য করে ${n(lo)}–${n(hi)} পর্যন্ত; এটি ${side}${tested}।`,
+            );
+      }
       case 'drainage':
         return t(
           'Water stands on this plot, and this crop’s roots rot in wet soil.',

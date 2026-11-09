@@ -1,14 +1,19 @@
 'use client';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Bell, ChevronLeft, ChevronRight, Cloud, CloudRain, NotebookPen, Sun } from 'lucide-react';
+import { Bell, ChevronLeft, ChevronRight, Cloud, CloudRain, Sun } from 'lucide-react';
 import { usePlanner } from '../planner-provider';
+import { useSoilReference } from '../../lib/use-soil-reference';
 import { seasonStore, useSeasonFarms } from '../../lib/season-store';
 import { fieldLogStore, useFieldLog } from '../../lib/field-log-store';
 import type { SeasonFarm } from '../../domain/global-season';
 import type { LiveWeather } from '../../domain/live-weather';
-import { dueReminders, type FieldNote } from '../../domain/field-log';
+import {
+  dueReminders,
+  reminderMinutes,
+  type FieldNote,
+  type NoteReminder,
+} from '../../domain/field-log';
 import {
   assessPlan,
   bigEvents,
@@ -60,7 +65,7 @@ import {
   type WeatherIcon,
 } from './day-text';
 import { Dialog } from '../dialog';
-import { NoteComposer, NoteList } from '../notes/note-parts';
+import { NoteComposer, NoteList, reminderTimeLabel } from '../notes/note-parts';
 import { farmForPlanCrop } from '../../lib/rotation-farm';
 import { openPlotPlan } from '../plot-setup';
 import { plotProfile } from '../../domain/plot';
@@ -220,10 +225,12 @@ function GlanceCard({
       b = isoOf(m === 11 ? y + 1 : y, m === 11 ? 1 : m + 2, 1);
     return { a, b, m };
   });
-  const windows = pcs.flatMap((c) => c.windows).filter((w) => w.status !== 'past');
+  // A cancelled crop keeps a faint outline on the wheel, but its irrigation and heat are gone.
+  const live = pcs.filter((c) => c.end?.kind !== 'cancelled');
+  const windows = live.flatMap((c) => c.windows).filter((w) => w.status !== 'past');
   const done = windows.filter((w) => w.status === 'done').length;
   const next = bigEvents(pcs, today, 1)[0];
-  const hotCrop = pcs.find((c) => !c.harvested && c.a.weeks.some((w) => w.hot));
+  const hotCrop = live.find((c) => !c.harvested && c.a.weeks.some((w) => w.hot));
   const hotWeek = hotCrop?.a.weeks.find((w) => w.hot);
   const [hx, hy] = polar(176, today),
     [ix, iy] = polar(54, today);
@@ -278,7 +285,7 @@ function GlanceCard({
             );
           })}
           <circle className="heat-track" cx={C} cy={C} r={66} />
-          {pcs.flatMap((c) =>
+          {live.flatMap((c) =>
             c.a.weeks
               .filter((w) => w.hot)
               .map((w) => (
@@ -301,7 +308,7 @@ function GlanceCard({
             return (
               <g key={c.a.item.crop.id + c.a.item.sow} className={seasonClass(c.a.item.season)}>
                 <path
-                  className={`crop ${c === current ? 'current' : ''}`}
+                  className={`crop ${c === current ? 'current' : ''} ${c.end?.kind === 'cancelled' ? 'cancelled' : ''}`}
                   style={{ animationDelay: `${i * 120}ms` }}
                   d={sector(76, 124, c.a.item.sow, end)}
                   role="button"
@@ -313,7 +320,12 @@ function GlanceCard({
                   onClick={() => onPick(c.a.item.sow)}
                   onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onPick(c.a.item.sow)}
                 />
-                <text className="crop-label" x={lx} y={ly + 5} textAnchor="middle">
+                <text
+                  className={`crop-label ${c.end?.kind === 'cancelled' ? 'cancelled' : ''}`}
+                  x={lx}
+                  y={ly + 5}
+                  textAnchor="middle"
+                >
                   {tx.crop(c.a.item.crop).replace(/ (ধান|ডাল|rice|bean)$/, '')}
                 </text>
               </g>
@@ -366,7 +378,9 @@ function GlanceCard({
                   →
                 </span>
               )}
-              <span className={`pill ${seasonClass(c.a.item.season)}`}>
+              <span
+                className={`pill ${seasonClass(c.a.item.season)} ${c.end && c.end.kind !== 'closed' ? 'ended' : ''}`}
+              >
                 {tx.crop(c.a.item.crop)}
               </span>
             </span>
@@ -1215,7 +1229,7 @@ function EndSheet({
                     onChange={(e) => setText(e.target.value)}
                   />
                 </div>
-                <div className="rot-check">
+                <div className="rot-end-check">
                   <input
                     id="end-note"
                     type="checkbox"
@@ -1223,7 +1237,7 @@ function EndSheet({
                     onChange={(e) => setSaveNote(e.target.checked)}
                   />
                   <label htmlFor="end-note">
-                    {t('Also save it in Your notes', 'আপনার নোটেও রাখুন')}
+                    {t('Also save it in Your diary', 'আপনার ডায়েরিতেও রাখুন')}
                   </label>
                 </div>
               </>
@@ -1304,6 +1318,99 @@ function WeekDays({ ctx, onOpen }: { ctx: Ctx; onOpen: (d: string) => void }) {
   );
 }
 
+/** A diary reminder or note shown on a calendar day. */
+interface DayEvent {
+  key: string;
+  kind: 'reminder' | 'note';
+  text: string;
+  time?: NoteReminder['time'];
+  done?: boolean;
+  tagClass: string;
+}
+/**
+ * The diary on one day: reminders due that day (by time), then notes written for that day. A note
+ * whose reminder is on the same day shows once, as the reminder.
+ */
+function dayEvents(notes: FieldNote[], date: string, t: Translate): DayEvent[] {
+  const text = (n: FieldNote) => n.text.trim() || t('Photo note', 'ছবির নোট');
+  const reminders = notes
+    .filter((n) => n.reminder?.date === date)
+    .sort((a, b) => reminderMinutes(a.reminder!.time) - reminderMinutes(b.reminder!.time))
+    .map((n): DayEvent => ({
+      key: `r${n.id}`,
+      kind: 'reminder',
+      text: text(n),
+      time: n.reminder!.time,
+      done: n.reminder!.done,
+      tagClass: n.tags?.[0] ? `tag-${n.tags[0]}` : '',
+    }));
+  const written = notes
+    .filter((n) => n.date === date && n.reminder?.date !== date)
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    .map((n): DayEvent => ({
+      key: `n${n.id}`,
+      kind: 'note',
+      text: text(n),
+      tagClass: n.tags?.[0] ? `tag-${n.tags[0]}` : '',
+    }));
+  return [...reminders, ...written];
+}
+function EventChip({ e, t }: { e: DayEvent; t: Translate }) {
+  return e.kind === 'reminder' ? (
+    <span className={`rot-ev rem${e.done ? ' done' : ''}`}>
+      <Bell size={11} aria-hidden="true" />
+      <span>
+        {reminderTimeLabel(e.time!, t)} {e.text}
+      </span>
+    </span>
+  ) : (
+    <span className={`rot-ev note ${e.tagClass}`}>
+      <span>{e.text}</span>
+    </span>
+  );
+}
+/** On a phone the month shows dots; the chosen day (or today) is listed under it. */
+function DayAgenda({ ctx, date, onOpen }: { ctx: Ctx; date: string; onOpen: (d: string) => void }) {
+  const { pcs, notes, tx, t, areaHa } = ctx;
+  const items = dayItems(pcs, date),
+    evs = dayEvents(notes, date, t);
+  return (
+    <div className="rot-agenda">
+      <div className="rot-agenda-head">
+        <h3>{tx.dateMain(date)}</h3>
+        <button className="text-button" type="button" onClick={() => onOpen(date)}>
+          {t('Open the day · add a note', 'দিনটি খুলুন · নোট লিখুন')}
+        </button>
+      </div>
+      {!items.length && !evs.length && (
+        <p className="rot-note-small">{t('Nothing on this day.', 'এই দিনে কিছু নেই।')}</p>
+      )}
+      {evs
+        .filter((e) => e.kind === 'reminder')
+        .map((e) => (
+          <button key={e.key} type="button" className="rot-ag" onClick={() => onOpen(date)}>
+            <span className="when">{reminderTimeLabel(e.time!, t)}</span>
+            <span className={`box rem${e.done ? ' done' : ''}`}>{e.text}</span>
+          </button>
+        ))}
+      {items.map((it, i) => (
+        <button key={`i${i}`} type="button" className="rot-ag" onClick={() => onOpen(date)}>
+          <span className="when">{t('All day', 'সারাদিন')}</span>
+          <span className={`box job ${itemClass(it)}`}>{itemText(it, tx, t, areaHa)}</span>
+        </button>
+      ))}
+      {evs
+        .filter((e) => e.kind === 'note')
+        .map((e) => (
+          <button key={e.key} type="button" className="rot-ag" onClick={() => onOpen(date)}>
+            <span className="when">{t('Note', 'নোট')}</span>
+            <span className={`box note ${e.tagClass}`}>{e.text}</span>
+          </button>
+        ))}
+    </div>
+  );
+}
+
 function MonthCalendar({
   ctx,
   month,
@@ -1318,6 +1425,13 @@ function MonthCalendar({
   onOpen: (d: string) => void;
 }) {
   const { pcs, today, tx, t, notes, areaHa } = ctx;
+  // On a phone a tap picks the day for the list under the month; elsewhere it opens the day.
+  const [picked, setPicked] = useState<string | null>(null);
+  const tap = (d: string) => {
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 640px)').matches)
+      setPicked(d);
+    else onOpen(d);
+  };
   const first = `${month}-01`,
     count = daysInMonth(first);
   // Weeks start on Saturday, as on Bangladeshi wall calendars.
@@ -1326,7 +1440,10 @@ function MonthCalendar({
     const m = monthIndex(first) + k;
     setMonth(isoOf(yearOf(first) + Math.floor(m / 12), (((m % 12) + 12) % 12) + 1, 1).slice(0, 7));
   };
-  const windows = pcs.flatMap((c) => c.windows).filter((w) => w.status !== 'past');
+  const windows = pcs
+    .filter((c) => c.end?.kind !== 'cancelled')
+    .flatMap((c) => c.windows)
+    .filter((w) => w.status !== 'past');
   const done = windows.filter((w) => w.status === 'done').length,
     missed = windows.filter((w) => w.status === 'missed').length;
   const bStart = tx.dateSub(first)?.split(' ')[1],
@@ -1407,10 +1524,8 @@ function MonthCalendar({
                   (x.kind === 'irrigate' && x.first) ||
                   (x.kind === 'missed' && x.window.start === d),
               );
-            const hasNote = notes.some((n) => n.date === d);
-            const hasReminder = notes.some(
-              (n) => n.reminder && !n.reminder.done && n.reminder.date === d,
-            );
+            const evs = dayEvents(notes, d, t),
+              shown = evs.slice(0, main ? 2 : 3);
             const sub = tx.dateSub(d);
             return (
               <button
@@ -1422,27 +1537,43 @@ function MonthCalendar({
                   sowWindow ? 'window' : '',
                   items.some((x) => x.kind === 'heat') ? 'hot' : '',
                   d === today ? 'today' : '',
-                  d === selected ? 'sel' : '',
+                  d === (selected ?? picked) ? 'sel' : '',
                 ].join(' ')}
-                aria-label={`${tx.date(d)}${items.length ? ': ' + items.map((x) => itemText(x, tx, t, areaHa)).join(', ') : ''}${hasNote ? t(', has a note', ', নোট আছে') : ''}`}
-                onClick={() => onOpen(d)}
+                aria-label={`${tx.date(d)}${items.length ? ': ' + items.map((x) => itemText(x, tx, t, areaHa)).join(', ') : ''}${evs.length ? ` · ${evs.map((e) => e.text).join(', ')}` : ''}`}
+                onClick={() => tap(d)}
               >
                 {w && (
                   <span
                     className={`band ${w.status === 'done' ? 'done' : w.status === 'missed' ? 'missed' : w.status === 'past' ? 'past' : 'due'}`}
                   />
                 )}
-                {(hasNote || hasReminder) && (
-                  <span className="marks" aria-hidden="true">
-                    {hasReminder && <Bell size={11} />}
-                    {hasNote && <i />}
-                  </span>
-                )}
                 <span className="g">{tx.n(Number(d.slice(8, 10)))}</span>
                 <span className="b">
                   {sub ? (sub.startsWith(`${tx.n(1)} `) ? sub : sub.split(' ')[0]) : ''}
                 </span>
                 {main && <span className={`tag ${itemClass(main)}`}>{itemTag(main, t)}</span>}
+                {/* Diary reminders and notes, as events; on a phone they shrink to dots. */}
+                {shown.map((e) => (
+                  <EventChip key={e.key} e={e} t={t} />
+                ))}
+                {evs.length > shown.length && (
+                  <span className="rot-ev-more">
+                    {t(
+                      `+${evs.length - shown.length} more`,
+                      `আরও ${tx.n(evs.length - shown.length)}টি`,
+                    )}
+                  </span>
+                )}
+                {evs.length > 0 && (
+                  <span className="rot-ev-dots" aria-hidden="true">
+                    {evs.slice(0, 3).map((e) => (
+                      <i
+                        key={e.key}
+                        className={e.kind === 'reminder' ? 'rem' : `note ${e.tagClass}`}
+                      />
+                    ))}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -1475,18 +1606,19 @@ function MonthCalendar({
             </span>
           ))}
           <span>
-            <i className="dot" />
-            {t('Has a note', 'নোট আছে')}
+            <i className="rem" />
+            {t('Reminder', 'রিমাইন্ডার')}
           </span>
           <span>
-            <Bell size={12} aria-hidden="true" />
-            {t('Reminder', 'রিমাইন্ডার')}
+            <i className="note" />
+            {t('Diary note (colour of its tag)', 'ডায়েরির নোট (ট্যাগের রঙে)')}
           </span>
           <span>
             <i className="today" />
             {t('Today', 'আজ')}
           </span>
         </p>
+        <DayAgenda ctx={ctx} date={picked ?? today} onOpen={onOpen} />
       </div>
     </section>
   );
@@ -1859,59 +1991,6 @@ function DaySheet({ ctx, date, onClose }: { ctx: Ctx; date: string; onClose: () 
   );
 }
 
-function PlotNotes({
-  ctx,
-  plotName,
-  onOpen,
-}: {
-  ctx: Ctx;
-  plotName: string;
-  onOpen: (d: string) => void;
-}) {
-  const { notes, today, t, plotId, weather, pcs, tx } = ctx;
-  const latest = [...notes]
-    .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt))
-    .slice(0, 3);
-  return (
-    <section className="rot-block" aria-label={t('Notes', 'নোট')}>
-      <div className="rot-block-head">
-        <h2>
-          <NotebookPen size={20} aria-hidden="true" />{' '}
-          {t(`${plotName} notes`, `${plotName}-এর নোট`)}
-        </h2>
-        <Link className="text-button" href={`/notes?plot=${plotId}`}>
-          {t('See all notes →', 'সব নোট দেখুন →')}
-        </Link>
-      </div>
-      <div className="card rot-notes">
-        <NoteComposer
-          key={today}
-          plotId={plotId}
-          date={today}
-          weather={weather}
-          placeholder={t(
-            'What did you see or do in the field today?',
-            'আজ খেতে কী দেখলেন বা করলেন?',
-          )}
-        />
-        <NoteList
-          notes={latest}
-          today={today}
-          byDay
-          weather={weather}
-          cropFor={(d) => {
-            const c = cropOn(pcs, d);
-            return c
-              ? { label: tx.crop(c.a.item.crop), className: seasonClass(c.a.item.season) }
-              : undefined;
-          }}
-          openDay={(n) => () => onOpen(n.reminder && !n.reminder.done ? n.reminder.date : n.date)}
-        />
-      </div>
-    </section>
-  );
-}
-
 function BigEvents({ ctx, onOpen }: { ctx: Ctx; onOpen: (d: string) => void }) {
   const { pcs, today, tx, t, areaHa } = ctx;
   const events = bigEvents(pcs, today);
@@ -1970,6 +2049,10 @@ export function RotationCalendar({
     [farm.context.normal],
   );
   const plan = plot?.plan;
+  // Soil pH: the farmer's test when there is one, otherwise the soil-map estimate at the pin.
+  const soilMap = useSoilReference(farm.site).soil;
+  const phValue = farm.field.soilEvidence?.ph ?? soilMap?.median,
+    phMeasured = farm.field.soilEvidence !== undefined;
   const assessment = useMemo(
     () =>
       plan && climate
@@ -1980,9 +2063,19 @@ export function RotationCalendar({
             irrigation: plot?.overrides?.irrigation ?? farm.field.irrigation,
             areaHa: plot!.areaHa,
             lastYear: plot!.lastYear,
+            ...(phValue !== undefined ? { ph: { value: phValue, measured: phMeasured } } : {}),
           })
         : null,
-    [plan, climate, farm.field.soil, farm.field.drainage, farm.field.irrigation, plot],
+    [
+      plan,
+      climate,
+      farm.field.soil,
+      farm.field.drainage,
+      farm.field.irrigation,
+      plot,
+      phValue,
+      phMeasured,
+    ],
   );
   // Opened from a reminder or a note: /plan?day=YYYY-MM-DD.
   const [sheet, setSheet] = useState<string | null>(() => dayParam()),
@@ -2287,7 +2380,6 @@ export function RotationCalendar({
         selected={sheet}
         onOpen={open}
       />
-      <PlotNotes ctx={ctx} plotName={plot.name} onOpen={open} />
       <BigEvents ctx={ctx} onOpen={open} />
       <details className="card rot-details">
         <summary>

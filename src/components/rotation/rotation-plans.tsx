@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { usePlanner } from '../planner-provider';
+import { useSoilReference } from '../../lib/use-soil-reference';
 import { seasonStore, useSeasonFarms } from '../../lib/season-store';
 import { calendarFarmFor } from '../../lib/plot-calendar';
 import { farmForPlanCrop } from '../../lib/rotation-farm';
@@ -66,6 +67,10 @@ export function RotationPlansView({
     router = useRouter();
   const tx = rotationText(t, language);
   const climate = useMemo(() => monthlyClimate(context.normal!), [context.normal]);
+  // Soil pH: the farmer's test when there is one, otherwise the soil-map estimate at the land's pin.
+  const soilMap = useSoilReference(site).soil;
+  const phValue = profile.soilEvidence?.ph ?? soilMap?.median,
+    phMeasured = profile.soilEvidence !== undefined;
   const conditions: PlotConditions = useMemo(
     () => ({
       soil: profile.soil,
@@ -73,8 +78,17 @@ export function RotationPlansView({
       irrigation: profile.irrigation,
       areaHa: plot.areaHa,
       lastYear: plot.lastYear,
+      ...(phValue !== undefined ? { ph: { value: phValue, measured: phMeasured } } : {}),
     }),
-    [profile.soil, profile.drainage, profile.irrigation, plot.areaHa, plot.lastYear],
+    [
+      profile.soil,
+      profile.drainage,
+      profile.irrigation,
+      plot.areaHa,
+      plot.lastYear,
+      phValue,
+      phMeasured,
+    ],
   );
   const { state } = useSeasonFarms();
   // Seasons already sown on this plot keep their crop in every plan offered.

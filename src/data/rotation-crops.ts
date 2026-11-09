@@ -33,6 +33,8 @@ export interface RotationCrop {
   heat?: { from: number; to: number; limitC: number; stage: HeatStage };
   /** How the crop does on each soil texture. */
   soil: { clay: SoilFit; loam: SoilFit; sandy: SoilFit };
+  /** Soil pH the crop tolerates (FAO ECOCROP PHMIN-PHMAX, as in data/global/crop-requirements.json). */
+  ph: [number, number];
 }
 export type RotationCropId = Extract<
   CropId,
@@ -67,6 +69,7 @@ export const rotationCrops: Record<RotationCropId, RotationCrop> = {
     kc: [0.35, 1.0, 0.35],
     heat: { from: 0.35, to: 0.6, limitC: 30, stage: 'flowering' },
     soil: { clay: 'ok', loam: 'good', sandy: 'ok' },
+    ph: [5, 8],
   },
   wheat: {
     id: 'wheat',
@@ -82,6 +85,7 @@ export const rotationCrops: Record<RotationCropId, RotationCrop> = {
     kc: [0.3, 1.15, 0.4],
     heat: { from: 0.6, to: 0.9, limitC: 30, stage: 'grain' },
     soil: { clay: 'ok', loam: 'good', sandy: 'ok' },
+    ph: [5.5, 8.5],
   },
   lentil: {
     id: 'lentil',
@@ -98,6 +102,7 @@ export const rotationCrops: Record<RotationCropId, RotationCrop> = {
     pulse: true,
     heat: { from: 0.55, to: 0.85, limitC: 32, stage: 'pod' },
     soil: { clay: 'ok', loam: 'good', sandy: 'ok' },
+    ph: [4.5, 8.2],
   },
   potato: {
     id: 'potato',
@@ -114,6 +119,7 @@ export const rotationCrops: Record<RotationCropId, RotationCrop> = {
     heat: { from: 0.4, to: 0.9, limitC: 30, stage: 'tuber' },
     family: 'nightshade',
     soil: { clay: 'poor', loam: 'good', sandy: 'good' },
+    ph: [4.2, 8.5],
   },
   boro: {
     id: 'boro',
@@ -130,6 +136,7 @@ export const rotationCrops: Record<RotationCropId, RotationCrop> = {
     rice: true,
     heat: { from: 0.6, to: 0.75, limitC: 35, stage: 'flowering' },
     soil: { clay: 'good', loam: 'good', sandy: 'poor' },
+    ph: [4.5, 9],
   },
   /**
    * Winter maize: 112 days, season from week 46, as in the DAE/BAMIS Rajshahi maize calendar in
@@ -151,6 +158,7 @@ export const rotationCrops: Record<RotationCropId, RotationCrop> = {
     kc: [0.3, 1.2, 0.35],
     heat: { from: 0.5, to: 0.65, limitC: 35, stage: 'flowering' },
     soil: { clay: 'ok', loam: 'good', sandy: 'ok' },
+    ph: [4.5, 8.5],
   },
   /**
    * Winter tomato, transplanted. Window: planting-date trials in Bangladesh found October best
@@ -174,6 +182,7 @@ export const rotationCrops: Record<RotationCropId, RotationCrop> = {
     family: 'nightshade',
     heat: { from: 0.3, to: 0.7, limitC: 32, stage: 'flowering' },
     soil: { clay: 'ok', loam: 'good', sandy: 'ok' },
+    ph: [5, 7.5],
   },
   mung: {
     id: 'mung',
@@ -190,6 +199,7 @@ export const rotationCrops: Record<RotationCropId, RotationCrop> = {
     pulse: true,
     heat: { from: 0.4, to: 0.6, limitC: 38, stage: 'flowering' },
     soil: { clay: 'ok', loam: 'good', sandy: 'ok' },
+    ph: [4.3, 8.3],
   },
   aus: {
     id: 'aus',
@@ -206,6 +216,7 @@ export const rotationCrops: Record<RotationCropId, RotationCrop> = {
     rice: true,
     heat: { from: 0.6, to: 0.75, limitC: 35, stage: 'flowering' },
     soil: { clay: 'good', loam: 'good', sandy: 'poor' },
+    ph: [4.5, 9],
   },
   jute: {
     id: 'jute',
@@ -220,6 +231,7 @@ export const rotationCrops: Record<RotationCropId, RotationCrop> = {
     days: 110,
     kc: [0.5, 1.05, 0.6],
     soil: { clay: 'ok', loam: 'good', sandy: 'ok' },
+    ph: [5, 8.6],
   },
   sesame: {
     id: 'sesame',
@@ -235,6 +247,7 @@ export const rotationCrops: Record<RotationCropId, RotationCrop> = {
     kc: [0.35, 1.1, 0.25],
     heat: { from: 0.35, to: 0.6, limitC: 40, stage: 'flowering' },
     soil: { clay: 'poor', loam: 'good', sandy: 'good' },
+    ph: [4.5, 8],
   },
   aman: {
     id: 'aman',
@@ -251,6 +264,7 @@ export const rotationCrops: Record<RotationCropId, RotationCrop> = {
     rice: true,
     heat: { from: 0.6, to: 0.75, limitC: 35, stage: 'flowering' },
     soil: { clay: 'good', loam: 'good', sandy: 'poor' },
+    ph: [4.5, 9],
   },
 };
 export const rotationCropIds = Object.keys(rotationCrops) as RotationCropId[];

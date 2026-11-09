@@ -123,7 +123,7 @@ export function Shell({ children }: { children: ReactNode }) {
       lockedReason: !season.state.plots?.length
         ? t('Add a plot first', 'আগে একটি প্লট যোগ করুন')
         : undefined,
-      label: t('Your notes', 'আপনার নোট'),
+      label: t('Your diary', 'আপনার ডায়েরি'),
       icon: NotebookPen,
       description: t('Notes & reminders', 'নোট ও রিমাইন্ডার'),
       badge: dueCount ? localDigits(dueCount, language) : undefined,
@@ -137,7 +137,7 @@ export function Shell({ children }: { children: ReactNode }) {
     stepIndex >= 0
       ? `${t('Step', 'ধাপ')} ${stepNumber} ${stepCount} · ${steps[stepIndex].label}${subPage} — RITU`
       : path === '/notes'
-        ? t('Your notes — RITU', 'আপনার নোট — ঋতু')
+        ? t('Your diary — RITU', 'আপনার ডায়েরি — ঋতু')
         : t('Data sources & methods — RITU', 'তথ্যের উৎস ও পদ্ধতি — ঋতু');
   useEffect(() => {
     document.title = pageTitle;
@@ -162,7 +162,7 @@ export function Shell({ children }: { children: ReactNode }) {
             {stepIndex >= 0
               ? `${t('Step', 'ধাপ')} ${stepNumber} ${stepCount} · ${steps[stepIndex].label}${subPage}`
               : path === '/notes'
-                ? t('Your notes', 'আপনার নোট')
+                ? t('Your diary', 'আপনার ডায়েরি')
                 : t('Sources & methods', 'উৎস ও পদ্ধতি')}
           </p>
           <div className="header-tools">

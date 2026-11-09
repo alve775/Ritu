@@ -1,9 +1,21 @@
 import { validDate } from './evidence-planner';
 import type { LiveWeather } from './live-weather';
 
-/** When in the day a reminder is due. */
+/** Quick choices for when in the day a reminder is due. */
 export const reminderTimes = ['morning', 'noon', 'evening'] as const;
-export type ReminderTime = (typeof reminderTimes)[number];
+export type ReminderPreset = (typeof reminderTimes)[number];
+/** A quick choice, or a clock time the farmer picked, 'HH:MM' on a 24-hour clock. */
+export type ReminderTime = ReminderPreset | `${number}:${number}`;
+export const isClockTime = (time: string): time is `${number}:${number}` =>
+  /^([01]\d|2[0-3]):[0-5]\d$/.test(time);
+/** Minutes after midnight when a reminder is due: 7 am, 12 noon, 6 pm or the picked time. */
+export function reminderMinutes(time: ReminderTime) {
+  if (time === 'morning') return 7 * 60;
+  if (time === 'noon') return 12 * 60;
+  if (time === 'evening') return 18 * 60;
+  const [h, m] = time.split(':').map(Number);
+  return h * 60 + m;
+}
 export interface NoteReminder {
   date: string;
   time: ReminderTime;
@@ -77,7 +89,12 @@ const time = (v: unknown) => typeof v === 'string' && Number.isFinite(Date.parse
 export function validReminder(value: unknown): value is NoteReminder {
   if (!value || typeof value !== 'object') return false;
   const r = value as NoteReminder;
-  return validDate(r.date) && reminderTimes.includes(r.time) && typeof r.done === 'boolean';
+  return (
+    validDate(r.date) &&
+    typeof r.time === 'string' &&
+    ((reminderTimes as readonly string[]).includes(r.time) || isClockTime(r.time)) &&
+    typeof r.done === 'boolean'
+  );
 }
 const reading = (v: unknown, lo: number, hi: number) =>
   v === null || (typeof v === 'number' && Number.isFinite(v) && v >= lo && v <= hi);

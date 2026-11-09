@@ -209,6 +209,16 @@
     background: var(--note-remind-bg);
     color: var(--note-remind);
   }
+  .note-reminder-fields input.note-time {
+    width: auto;
+    min-height: 36px;
+    padding: 0 10px;
+    border: 1.5px solid var(--note-remind);
+    border-radius: 10px;
+    background: var(--color-surface);
+    color: var(--note-remind);
+    font-weight: 700;
+  }
   .note-reminder-fields input[type='date'] {
     width: auto;
     min-height: 36px;

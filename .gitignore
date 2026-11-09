@@ -32,3 +32,6 @@ __pycache__/
 /output/
 /docs/
 /.claude/
+/.agents/
+/NASA_DATA_GUIDE.md
+/.nasa-cache/

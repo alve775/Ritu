@@ -31,11 +31,14 @@ export interface PlotConditions {
   irrigation: Farm['irrigation'];
   areaHa: number;
   lastYear: Plot['lastYear'];
+  /** Soil pH: the farmer's test (measured) or the soil-map estimate; absent when neither is known. */
+  ph?: { value: number; measured: boolean };
 }
 export type Verdict = 'good' | 'ok' | 'risky' | 'no';
 export type Reason =
   | { kind: 'timing'; problem: TimingProblem }
   | { kind: 'water' | 'heat' | 'soil' | 'wear' | 'drainage' | 'rainfed'; watch: true }
+  | { kind: 'ph'; watch: true; ph: number; measured: boolean; range: [number, number] }
   | { kind: 'pulse' | 'rain' | 'cool' | 'soil-good'; watch: false };
 export interface CropAssessment {
   item: ScheduledCrop;
@@ -76,6 +79,9 @@ function cropLevels(item: ScheduledCrop, weeks: CropWeek[], plan: YearPlan, c: P
   let soil = key ? { good: 1, ok: 2, poor: 5 }[crop.soil[key]] : 2;
   const waterlogged = c.drainage === 'poor' && !crop.rice;
   if (waterlogged) soil = Math.min(5, soil + 2);
+  // Outside the pH range the crop tolerates: poor for a tested pH, doubtful for a map estimate.
+  const phOut = !!c.ph && (c.ph.value < crop.ph[0] || c.ph.value > crop.ph[1]);
+  if (phOut) soil = Math.max(soil, c.ph!.measured ? 5 : 4);
   const others = yearSeasons
     .filter((s) => s !== item.season)
     .map((s) => plan[s])
@@ -101,6 +107,7 @@ function cropLevels(item: ScheduledCrop, weeks: CropWeek[], plan: YearPlan, c: P
     irrigations,
     hottest: hot.length ? hot.reduce((a, b) => (b.maxC > a.maxC ? b : a)) : null,
     waterlogged,
+    phOut,
     sameFamilyAs,
     levels: {
       water: clamp(water),
@@ -138,15 +145,24 @@ export function assessPlan(
         (k) => l.levels[k] === worst,
       );
       const k = order[0];
-      reason = {
-        kind:
-          k === 'soil' && l.waterlogged
-            ? 'drainage'
-            : k === 'water' && (c.irrigation === 'rainfed' || c.irrigation === 'severe')
-              ? 'rainfed'
-              : k,
-        watch: true,
-      };
+      reason =
+        k === 'soil' && l.phOut && !l.waterlogged
+          ? {
+              kind: 'ph',
+              watch: true,
+              ph: c.ph!.value,
+              measured: c.ph!.measured,
+              range: item.crop.ph,
+            }
+          : {
+              kind:
+                k === 'soil' && l.waterlogged
+                  ? 'drainage'
+                  : k === 'water' && (c.irrigation === 'rainfed' || c.irrigation === 'severe')
+                    ? 'rainfed'
+                    : k,
+              watch: true,
+            };
     } else
       reason = {
         kind: item.crop.pulse

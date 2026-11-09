@@ -7,7 +7,7 @@ import { Dialog } from '../dialog';
 import { seasonStore, useSeasonFarms } from '../../lib/season-store';
 import { fieldLogStore, useFieldLog } from '../../lib/field-log-store';
 import { calendarDayHref, calendarFarmFor } from '../../lib/plot-calendar';
-import { dueReminders, type FieldNote } from '../../domain/field-log';
+import { dueReminders, reminderMinutes, type FieldNote } from '../../domain/field-log';
 import { plusDays } from '../../domain/rotation';
 import { rotationText } from '../rotation/rotation-text';
 import { reminderTimeLabel } from './note-parts';
@@ -15,7 +15,6 @@ import { useToday } from '../../lib/use-today';
 
 const seenKey = 'ritu-reminders-seen',
   notifiedKey = 'ritu-reminders-notified';
-const hourOf = { morning: 7, noon: 12, evening: 18 } as const;
 
 /**
  * Due reminders pop up when Ritu opens (once a day per tab). With notifications allowed, the phone
@@ -54,6 +53,12 @@ export function ReminderAlert() {
       f = state.fields?.find((x) => x.id === p?.fieldId);
     return p ? `${p.name}${f ? ` · ${f.name}` : ''}` : '';
   };
+  // Checked again every minute, so a reminder set for a clock time is sent at that minute.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setTick((n) => n + 1), 60000);
+    return () => clearInterval(timer);
+  }, []);
   // Phone notifications, at most once a day per reminder, from its time of day.
   useEffect(() => {
     if (
@@ -62,7 +67,8 @@ export function ReminderAlert() {
       Notification.permission !== 'granted'
     )
       return;
-    const hour = new Date().getHours();
+    const now = new Date(),
+      minutes = now.getHours() * 60 + now.getMinutes();
     let sent: Record<string, string> = {};
     try {
       sent = JSON.parse(localStorage.getItem(notifiedKey) ?? '{}');
@@ -71,7 +77,10 @@ export function ReminderAlert() {
     }
     let changed = false;
     for (const n of due) {
-      if (sent[n.id] === today || (n.reminder!.date === today && hour < hourOf[n.reminder!.time]))
+      if (
+        sent[n.id] === today ||
+        (n.reminder!.date === today && minutes < reminderMinutes(n.reminder!.time))
+      )
         continue;
       try {
         new Notification(t('Ritu reminder', 'ঋতু রিমাইন্ডার'), {

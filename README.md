@@ -1,28 +1,6 @@
 # RITU — grow with the seasons
 
-Latest repairs: [calendar access, automatic page guides and audio](docs/NAVIGATION_AND_AUDIO_REPAIRS_2026-11-03.md). A stale active farm no longer unlocks a new setup's calendar; old global tour flags no longer suppress page guides. Explicit Play/click activation recovers from a muted volume, and tour steps can be read aloud with an available matching browser voice.
-
-Latest navigation update: [dashboard-first pages and independent page tours](docs/PAGE_TOURS_AND_DASHBOARD_2026-11-03.md). The entry order is Dashboard → Land details → Suggested crops → Farm calendar. Each guide ends on its own page; prerequisite checks prevent skipping new-farm setup. Existing farms resume from the dashboard.
-
-Latest browser implementation: [soil evidence, live SoilGrids predictions, FAO-56 daily water accounting, bounded named-variety references and weather-update controls](docs/SCIENTIFIC_IMPLEMENTATION_2026-11-03.md). These optional features preserve measured/model/forecast distinctions and do not certify seasonal water supply or local crop performance.
-
-Latest scientific review: [methods, source limits and the route to local validation](docs/SCIENTIFIC_REVIEW_2026-11-03.md), with a [38-claim evidence matrix](docs/SCIENTIFIC_EVIDENCE_MATRIX_2026-11-03.csv). Established water and crop-timing methods were checked against primary sources; field-specific water and cultivar accuracy remain unconfirmed. The Sources page now distinguishes connected providers from researched candidates.
-
-Latest recommendation audit: [first-section inputs and source-to-screen verification, 3 November](docs/RECOMMENDATION_AUDIT_2026-11-03.md). Repaired drainage, duration-window, source-name and input-propagation defects. **131,760 setup/date evaluations, 547 unit/API tests and 118 distinct browser cases passed.** Every retained source record was compared with the pinned original. These checks verify preliminary screening and software behavior; seasonal water adequacy, cultivar performance and field suitability remain unvalidated. Earlier audit counts below describe older revisions.
-
-Latest tracking update: [adaptive lifecycle, daily check-ins and documented grain-corn heat model](docs/ADAPTIVE_TRACKING_2026-11-03.md). Crops remain active beyond their reference dates; only confirmed final harvest finishes a seasonal farm. A supported model can update short-range timing from real daily weather and confirmed milestones. Other plants keep observation-based guidance without invented numerical predictions.
-
-Latest farmer-facing labels: [common English/Bangla names](docs/COMMON_NAMES_2026-11-02.md). Latin names stay in source details; unavailable translations remain explicit. This follow-up passed 499 unit/API tests, 20 browser checks and the production build.
-
 A bilingual, worldwide field-planning application: describe land, choose **one planting plan** (seasonal crop or perennial care), then manage its calendar, daily field checks and forecast. Each field/crop gets a separate saved farm. The active workflow combines NASA POWER climate, published species requirements and historical regional crop calendars. It starts with the farmer's own inputs; no sample farm or fabricated weather is substituted.
-
-Latest catalogue/image changes: [complete plant catalogue and live image API](docs/PLANT_CATALOGUE_AND_IMAGES_2026-11-01.md).
-
-Earlier exhaustive verification: [six-country source and setup audit](docs/GLOBAL_AUDIT_2026-11-01.md), including every retained source entry, all supported land profiles, independent calendar comparisons and explicit scientific limitations. The matrix passed 263,160 setup/date evaluations; 495 unit/API tests and 752 unique browser cases passed after documented reruns. Review the [per-plant CSV](output/audit/RITU_Plant_Audit.csv), [machine-readable summary](output/audit/RITU_Audit_Summary.json) and [10-page screenshot walkthrough](output/pdf/RITU_Worldwide_Verification_and_Farm_Walkthrough.pdf). Image completion, missing source data and initial failures remain explicit; earlier passing counts describe earlier revisions.
-
-Current implementation and continuation record: [Worldwide single-season workflow](docs/GLOBAL_SINGLE_SEASON_2026-10-31.md) and [working tracker](docs/WORK_TRACKER.md). Abid's latest instructions supersede the annual-rotation interface. Earlier audits and the rotation walkthrough PDF remain historical evidence, not a description of this workflow.
-
-Latest visual repair: [canal-to-soil seam correction](docs/EDGE_CORRECTION_2026-10-26.md), with matching before/after crops and contour/pixel checks. The user clarified that the pale band inside the illustration was the target; earlier outer-layout changes addressed the wrong area.
 
 ## Run
 
@@ -65,7 +43,7 @@ The former DAE/BAMIS rotation library remains available for previous records; it
 - **OpenStreetMap / Leaflet:** attributed map tiles and a draggable/touch/keyboard farm pin. The pin is not a surveyed farm boundary. No bulk tile download is included.
 - **Daily field guidance:** [FAO crop water needs](https://www.fao.org/4/s2022e/s2022e02.htm) and [integrated pest-management observation principles](https://www.fao.org/agriculture/crops/thematic-sitemap/theme/spi/scpi-home/managing-ecosystems/integrated-pest-management/ipm-how/en/). Checks combine actual planting status, observed stage and fresh, correctly located forecasts. No exact irrigation, fertilizer or pesticide dose is generated.
 - **Retained regional references:** DAE/BAMIS calendars and the named 2016 CIMMYT/CSISA mung guide remain in previous-record tools. Their region/variety-specific methods are not silently generalized worldwide. BARC, IRAS, IMERG, SMAP and FAO's separate Crop Calendar API are not integrated current providers.
-- **Crop photographs:** the active catalogue loads images through `/api/plant-photo`, using Wikipedia scientific-name records, Wikidata botanical identity/image statements and Wikimedia Commons licensing/credit metadata. Requests are batched, paced and cached. There is no observation-photo or manually placed local-image fallback. Unresolved source images remain unavailable. Public-domain, CC0, CC BY and CC BY-SA photographs are attributed per card. [API implementation and limits](docs/PLANT_CATALOGUE_AND_IMAGES_2026-11-01.md). The earlier [static photo credits](docs/CROP_PHOTO_CREDITS.md) remain historical evidence; retained crop-photo components now use the live API too.
+- **Crop photographs:** the active catalogue loads images through `/api/plant-photo`, using Wikipedia scientific-name records, Wikidata botanical identity/image statements and Wikimedia Commons licensing/credit metadata. Requests are batched, paced and cached. There is no observation-photo or manually placed local-image fallback. Unresolved source images remain unavailable. Public-domain, CC0, CC BY and CC BY-SA photographs are attributed per card.
 
 No synthetic climate perturbations, rainfall credits, yield forecasts, measured water savings or proven soil-health gains are presented. Local cultivar dates, soil chemistry, actual root-zone water and field effectiveness still need field evidence and agricultural review. The app does not control irrigation hardware or run unattended background/cloud farming jobs.
 
@@ -73,7 +51,7 @@ No synthetic climate perturbations, rainfall credits, yield forecasts, measured 
 
 The white workspace has four large desktop sidebar steps and mobile navigation, English/Bangla, comfortable/larger text, replayable Mati tours, opt-in synthesized farm ambience, volume/mute and click feedback. No sound autoplays. Tours explain actual screens and setup gates without injecting fictional data.
 
-The original **2D** landing illustration follows one farm through **sow → care → grow → harvest**. Only one activity is mounted at a time. Chapter selection pauses for inspection; Play continues and Replay starts at sowing. Motion pauses offscreen, in hidden tabs and under reduced-motion settings. Controls stay outside the artwork. See [research and storyboard](docs/FARM_ANIMATION_STORYBOARD.md). The art is decorative, not a growth/spacing model or NASA imagery; no WebGL is required.
+The original **2D** landing illustration follows one farm through **sow → care → grow → harvest**. Only one activity is mounted at a time. Chapter selection pauses for inspection; Play continues and Replay starts at sowing. Motion pauses offscreen, in hidden tabs and under reduced-motion settings. Controls stay outside the artwork. The art is decorative, not a growth/spacing model or NASA imagery; no WebGL is required.
 
 ## Records and test boundaries
 
@@ -85,14 +63,12 @@ The current browser contract is `tests/e2e/season-workflow.spec.ts`, plus preser
 
 ## Team
 
-Start continuation work with [the detailed requirements and working checklist](docs/WORK_TRACKER.md). [The QA matrix](docs/QA_MATRIX.md) records coverage and outstanding physical-device/farmer checks.
-
 | Member                   | Responsibility                                                                |
 | ------------------------ | ----------------------------------------------------------------------------- |
 | Kamruzzaman Khan Alve    | Research, NASA data, crop evidence, verified comparison rules and methodology |
 | Abid Al Hossain Swakkhar | Architecture, calendar, integration, testing and preview application          |
 | Mahia Ribahna            | Visual design, graphics, storytelling and presentation assets                 |
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for file ownership, conventions and checks. Dependencies are pinned in the lockfile. [The supplied plan](docs/PROJECT_PLAN.md) is preserved verbatim; Abid's subsequent instruction on October 2 authorizes this pre-event concept preview and selects Next.js. This preview does not establish official challenge eligibility or replace the full challenge brief.
+Dependencies are pinned in the lockfile.
 
 Repository: [alve775/Ritu](https://github.com/alve775/Ritu). Publishing, project licensing and the final hosting account remain team decisions. No project license has been assumed.

@@ -22,3 +22,13 @@ __pycache__/
 /.agent-browser/
 
 .superpowers/
+
+# Kept on the team's machines, not published: AI tool notes, video production files,
+# audit captures and internal work logs.
+/CLAUDE.md
+/AGENTS.md
+/CONTRIBUTING.md
+/video/
+/output/
+/docs/
+/.claude/

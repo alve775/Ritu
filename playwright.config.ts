@@ -1,10 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests/e2e',
-  // Earlier annual-rotation acceptance files remain as historical evidence.
-  // The current product is one crop per season with multiple saved farms.
+  // Older full-tour acceptance files remain as historical evidence.
   testMatch: [
     '**/season-*.spec.ts',
+    '**/tours.spec.ts',
     '**/farm-audio.spec.ts',
     '**/finalization-animation.spec.ts',
     '**/finalization-edge.spec.ts',

@@ -1,6 +1,7 @@
 import type { RotationCrop } from '../../data/rotation-crops';
 import type { MonthlyClimate } from './climate';
 import { dayCount, daysInMonth, monthIndex, plusDays } from './dates';
+import { nasaWeekOn } from '../nasa-local';
 
 export type CropStage = 'sow' | 'young' | 'grow' | 'flower' | 'harvest';
 export interface CropWeek {
@@ -40,15 +41,35 @@ export function cropCoefficient(crop: RotationCrop, share: number) {
   return mid + ((Math.min(share, 1) - 0.8) / 0.2) * (end - mid);
 }
 
+/** Below this usual root-zone wetness (SMAP, 0–1) the field gets one irrigation before sowing. */
+export const presowBelow = 0.5;
+
+/**
+ * Soil water a crop starts with. Rice starts on a dry field it puddles. With NASA SMAP for the land,
+ * other crops start with the root-zone water usual in the sowing week; when that is below half, one
+ * irrigation before sowing fills the soil (presow, mm). Without SMAP: full after the monsoon
+ * (October to December), half otherwise.
+ */
+export function startSoil(crop: RotationCrop, sow: string, climate: MonthlyClimate) {
+  const wetness = nasaWeekOn(climate.nasa, sow)?.root ?? null;
+  if (crop.rice) return { store: 0, presow: 0, wetness };
+  if (wetness === null) {
+    const m0 = monthIndex(sow);
+    return { store: m0 >= 9 && m0 <= 11 ? soilStoreMm : soilStoreMm / 2, presow: 0, wetness };
+  }
+  const store = Math.round(soilStoreMm * wetness);
+  if (wetness < presowBelow)
+    return { store: soilStoreMm, presow: Math.ceil((soilStoreMm - store) / 5) * 5, wetness };
+  return { store, presow: 0, wetness };
+}
+
 /**
  * Week by week through one crop's season from average weather: how much water it uses, how much rain
  * falls, when the soil store runs out (irrigate) and when its sensitive stage meets heat.
  */
 export function cropWeeks(crop: RotationCrop, sow: string, climate: MonthlyClimate): CropWeek[] {
   const weeks: CropWeek[] = [];
-  // Crops sown just after the monsoon (October to December) start on a wet profile.
-  const m0 = monthIndex(sow);
-  let store = crop.rice ? 0 : m0 >= 9 && m0 <= 11 ? soilStoreMm : soilStoreMm / 2;
+  let store = startSoil(crop, sow, climate).store;
   for (let offset = 0; offset < crop.days; offset += 7) {
     const start = plusDays(sow, offset);
     const days = Math.min(7, crop.days - offset);

@@ -650,3 +650,46 @@
     font-weight: 700;
   }
 }
+
+/* Removing a land: the plot pattern, below the land form; stopped lands under the dashboard. */
+@layer pages {
+  .land-remove-button {
+    color: var(--color-danger);
+  }
+  .land-remove-choices {
+    display: grid;
+    gap: 10px;
+  }
+  .land-remove-choice {
+    display: grid;
+    gap: 2px;
+    text-align: left;
+    padding: 12px 14px;
+    border: 1.5px solid var(--color-line);
+    border-radius: 14px;
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font: inherit;
+    cursor: pointer;
+  }
+  .land-remove-choice span {
+    color: var(--color-ink-muted);
+    font-size: 0.92rem;
+  }
+  .land-remove-choice:hover,
+  .land-remove-choice:focus-visible {
+    border-color: var(--color-primary);
+  }
+  .land-remove-choice.danger strong {
+    color: var(--color-danger);
+  }
+  .land-stopped {
+    margin-top: 16px;
+    padding: 0;
+  }
+  .land-stopped .field-help {
+    margin: 0;
+    padding: 10px 14px 12px;
+    border-top: 1px solid var(--color-line);
+  }
+}

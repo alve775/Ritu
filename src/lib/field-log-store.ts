@@ -90,6 +90,17 @@ export const fieldLogStore = {
       ),
     });
   },
+  /** Delete every note and irrigation record of these plots; returns the deleted notes. */
+  removePlots(plotIds: readonly string[]) {
+    const ids = new Set(plotIds);
+    const gone = current().notes.filter((n) => ids.has(n.plotId));
+    save({
+      ...current(),
+      notes: current().notes.filter((n) => !ids.has(n.plotId)),
+      irrigations: current().irrigations.filter((r) => !ids.has(r.plotId)),
+    });
+    return gone;
+  },
   removeNote(id: string) {
     const note = current().notes.find((n) => n.id === id);
     save({ ...current(), notes: current().notes.filter((n) => n.id !== id) });

@@ -1,7 +1,8 @@
 'use client';
-import { useState, type FormEvent, type ReactNode } from 'react';
+import { useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { changePlanKey } from '../lib/change-plan';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowRight, Check, Plus } from 'lucide-react';
 import { usePlanner } from './planner-provider';
 import { seasonStore, useSeasonFarms } from '../lib/season-store';
@@ -22,7 +23,13 @@ import {
   type PlotCrop,
   type PlotOverrides,
 } from '../domain/plot';
-import { areaFromHectares, areaToHectares, type AreaUnit } from '../domain/area-units';
+import {
+  areaFromHectares,
+  areaToHectares,
+  areaUnits,
+  areaUnitOptionLabel,
+  type AreaUnit,
+} from '../domain/area-units';
 import { pilotRegionFor } from '../data/regions';
 import { localDigits } from '../domain/numerals';
 import { PlotPlanSequence } from './rotation/plot-plan';
@@ -119,6 +126,13 @@ export function openPlotPlan(
     reviewed: null,
     selected: null,
   });
+  // Also kept for the page itself: leaving the calendar can redirect to /crops without the query.
+  try {
+    if (change) sessionStorage.setItem(changePlanKey, plot.id);
+    else sessionStorage.removeItem(changePlanKey);
+  } catch {
+    /* The query below still carries it. */
+  }
   seasonStore.selectField(field.id, false, plot.id);
   seasonStore.confirm(fieldConfirmationKey(farm, field.site, from));
   router.push(change ? '/crops?change=1' : '/crops');
@@ -148,7 +162,11 @@ export function FieldPlots({
     stopped = all.filter((p) => p.fieldId === field.id && !!p.endDate && p.endDate < today),
     free = Math.max(0, field.profile.area - usedArea(all, field.id, today));
   return (
-    <div className="field-plots" aria-label={`${t('Plots in', 'প্লট')}: ${field.name}`}>
+    <div
+      className="field-plots"
+      data-tour="dashboard-plots"
+      aria-label={`${t('Plots in', 'প্লট')}: ${field.name}`}
+    >
       <div className="field-plots-heading">
         <h3>
           {t('Plots', 'প্লট')} <small>({localDigits(plots.length, language)})</small>
@@ -284,7 +302,7 @@ function PlotDifferences({
   const chips = plotDifferenceText(value, t);
   return (
     <details className="plot-diff" open={open || undefined}>
-      <summary>
+      <summary data-tour="plot-differences">
         <span className="plot-diff-chev" aria-hidden="true">
           ›
         </span>
@@ -426,9 +444,14 @@ function StoppedPlots({ plots }: { plots: Plot[] }) {
   );
 }
 
-export function PlotSetupView({ fieldId, plotId }: { fieldId?: string; plotId?: string }) {
+export function PlotSetupView(props: { fieldId?: string; plotId?: string }) {
   const { t } = usePlanner(),
     { state, ready } = useSeasonFarms();
+  // Read from the address bar too: a new plot replaces the address with its own (see savePlot),
+  // and Back must then open that plot, not the empty form.
+  const params = useSearchParams();
+  const fieldId = params.get('field') ?? props.fieldId,
+    plotId = params.get('plot') ?? props.plotId;
   const field = state.fields?.find((f) => f.id === fieldId),
     existing = state.plots?.find((p) => p.id === plotId && p.fieldId === fieldId);
   if (!ready)
@@ -457,6 +480,7 @@ export function PlotSetupView({ fieldId, plotId }: { fieldId?: string; plotId?: 
 }
 
 function PlotForm({ field, existing }: { field: RegisteredField; existing?: Plot }) {
+  const created = useRef<Plot | null>(null);
   const { t, language } = usePlanner(),
     { state } = useSeasonFarms(),
     router = useRouter();
@@ -469,7 +493,8 @@ function PlotForm({ field, existing }: { field: RegisteredField; existing?: Plot
       existing?.name ?? `${t('Plot', 'প্লট')} ${localDigits(count + 1, language)}`,
     ),
     [unit, setUnit] = useState<AreaUnit>('hectares'),
-    [area, setArea] = useState(existing?.areaHa ?? hectares(free)),
+    // Prefilled with the exact free area: a rounded hectare figure shows as 19.99997 acres.
+    [area, setArea] = useState(existing?.areaHa ?? free),
     [from, setFrom] = useState(today),
     [askLastYear, setAskLastYear] = useState<Partial<Plot['lastYear']> | null>(null),
     [error, setError] = useState(''),
@@ -527,10 +552,13 @@ function PlotForm({ field, existing }: { field: RegisteredField; existing?: Plot
   /** Saves the plot and returns it, or shows the error and returns null. */
   function savePlot(lastYear: Plot['lastYear']): Plot | null {
     try {
-      if (existing) {
+      // A plot this form already created (a second tap before the page moves on) is updated,
+      // never added again.
+      const current = existing ?? created.current;
+      if (current) {
         const patch = { name: name.trim(), areaHa: area, lastYear, overrides: ownOverrides() };
-        seasonStore.updatePlot(existing.id, patch);
-        return { ...existing, ...patch };
+        seasonStore.updatePlot(current.id, patch);
+        return { ...current, ...patch };
       }
       const plot: Plot = {
         id: crypto.randomUUID(),
@@ -543,6 +571,10 @@ function PlotForm({ field, existing }: { field: RegisteredField; existing?: Plot
         ...(ownOverrides() ? { overrides: ownOverrides() } : {}),
       };
       seasonStore.addPlot(plot);
+      created.current = plot;
+      // From now on this page is the new plot's page: going Back to it edits the plot instead of
+      // showing an empty "Add a plot" form that would save a second copy.
+      window.history.replaceState(window.history.state, '', plotHref(field.id, plot.id));
       return plot;
     } catch (err) {
       setError(
@@ -602,7 +634,7 @@ function PlotForm({ field, existing }: { field: RegisteredField; existing?: Plot
         </div>
       </header>
       <form className="card plot-form" onSubmit={showCrops} noValidate>
-        <div className="plot-form-basics">
+        <div className="plot-form-basics" data-tour="plot-basics">
           <div className="form-field">
             <label htmlFor="plot-name">{t('Plot name', 'প্লটের নাম')}</label>
             <input
@@ -623,7 +655,7 @@ function PlotForm({ field, existing }: { field: RegisteredField; existing?: Plot
                 min="0"
                 step="any"
                 inputMode="decimal"
-                value={area ? areaFromHectares(area, unit) : ''}
+                value={area ? Number(areaFromHectares(area, unit).toFixed(4)) : ''}
                 onChange={(e) =>
                   setArea(e.target.value === '' ? 0 : areaToHectares(Number(e.target.value), unit))
                 }
@@ -635,9 +667,11 @@ function PlotForm({ field, existing }: { field: RegisteredField; existing?: Plot
                 value={unit}
                 onChange={(e) => setUnit(e.target.value as AreaUnit)}
               >
-                <option value="hectares">{t('Hectares', 'হেক্টর')}</option>
-                <option value="acres">{t('Acres', 'একর')}</option>
-                <option value="decimal">{t('Decimal / shotok', 'শতক')}</option>
+                {areaUnits.map((u) => (
+                  <option key={u} value={u}>
+                    {areaUnitOptionLabel(u, t)}
+                  </option>
+                ))}
               </select>
             </div>
             <small id="plot-area-help">
@@ -677,7 +711,7 @@ function PlotForm({ field, existing }: { field: RegisteredField; existing?: Plot
           </p>
         )}
         <div className="plot-form-actions">
-          <button className="button primary" type="submit">
+          <button className="button primary" type="submit" data-tour="plot-suggest">
             {t('Show suggested plans', 'পরামর্শ দেখুন')}
             <ArrowRight size={18} />
           </button>

@@ -137,7 +137,8 @@ export function validIrrigation(value: unknown): value is IrrigationRecord {
   return (
     id(r.plotId) &&
     typeof r.key === 'string' &&
-    /^(winter|pre-monsoon|monsoon):\d{4}-\d{2}-\d{2}$/.test(r.key) &&
+    // A week's irrigation, or the one before sowing (season:presow:window start).
+    /^(winter|pre-monsoon|monsoon):(presow:)?\d{4}-\d{2}-\d{2}$/.test(r.key) &&
     validDate(r.date) &&
     time(r.savedAt)
   );

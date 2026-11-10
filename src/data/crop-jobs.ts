@@ -16,9 +16,193 @@ export interface CropJob {
  * day. Local advice, the variety and the season's weather can move them by a week or more.
  */
 export const cropJobs: Record<RotationCropId, CropJob[]> = {
-  // No field-job guide found yet for these two: their calendars show no job reminders until one is.
-  maize: [],
-  tomato: [],
+  // DAE/BAMIS maize package of practice: thin and weed within a month of germination; urea at
+  // 25-30 and 40-50 days after germination (about 5 days after sowing); irrigate at cob emergence
+  // (60-70 days) and avoid standing water at flowering and grain filling.
+  maize: [
+    {
+      day: 28,
+      kind: 'care',
+      en: 'Thin the seedlings and weed',
+      bn: 'চারা পাতলা করুন, নিড়ানি দিন',
+    },
+    {
+      day: 32,
+      kind: 'fertiliser',
+      en: 'Top-dress urea while the soil is moist',
+      bn: 'মাটি ভেজা থাকতে ইউরিয়া উপরি প্রয়োগ করুন',
+    },
+    {
+      day: 50,
+      kind: 'fertiliser',
+      en: 'Second urea top-dressing',
+      bn: 'দ্বিতীয় কিস্তি ইউরিয়া উপরি প্রয়োগ করুন',
+    },
+    {
+      day: 65,
+      kind: 'key-stage',
+      en: 'Cobs coming: keep the soil moist, no standing water',
+      bn: 'মোচা আসছে: মাটি ভেজা রাখুন, পানি জমতে দেবেন না',
+    },
+    { day: 105, kind: 'care', en: 'Get ready to harvest', bn: 'কাটার প্রস্তুতি নিন' },
+  ],
+  // DAE/BAMIS tomato guidance: urea and potash 10, 25 and 40 days after transplanting; weed at
+  // 25-30 days; spray against fruit borer only when found; pick ripe and half-ripe fruit.
+  tomato: [
+    {
+      day: 10,
+      kind: 'fertiliser',
+      en: 'First top-dressing of urea and potash',
+      bn: 'প্রথম কিস্তি ইউরিয়া ও পটাশ উপরি প্রয়োগ করুন',
+    },
+    {
+      day: 25,
+      kind: 'fertiliser',
+      en: 'Weed, then second urea and potash',
+      bn: 'নিড়ানি দিয়ে দ্বিতীয় কিস্তি ইউরিয়া ও পটাশ দিন',
+    },
+    {
+      day: 40,
+      kind: 'fertiliser',
+      en: 'Third urea and potash',
+      bn: 'তৃতীয় কিস্তি ইউরিয়া ও পটাশ দিন',
+    },
+    {
+      day: 45,
+      kind: 'key-stage',
+      en: 'Fruits setting: check for fruit borer',
+      bn: 'ফল ধরছে: ফল ছিদ্রকারী পোকা দেখুন',
+    },
+    {
+      day: 75,
+      kind: 'care',
+      en: 'Pick ripe and half-ripe fruit with care',
+      bn: 'পাকা ও আধপাকা ফল সাবধানে তুলুন',
+    },
+  ],
+  // DAE/BAMIS chickpea guidance: weed at 25-30 days; if the soil dries out, a light irrigation;
+  // hold irrigation where plants are wilting from root rot, as water spreads it.
+  chickpea: [
+    { day: 25, kind: 'care', en: 'Weed the field', bn: 'নিড়ানি দিন, আগাছা তুলুন' },
+    {
+      day: 55,
+      kind: 'key-stage',
+      en: 'Flowering: check for pod borer and wilting plants',
+      bn: 'ফুল আসছে: ফল ছিদ্রকারী পোকা ও ঢলে পড়া গাছ দেখুন',
+    },
+    {
+      day: 115,
+      kind: 'care',
+      en: 'Pods ripening: get ready to harvest',
+      bn: 'শুঁটি পাকছে: কাটার প্রস্তুতি নিন',
+    },
+  ],
+  // Same jobs as mung bean, the other Vigna pulse; harvest prep 8 days before the end.
+  blackgram: [
+    { day: 18, kind: 'care', en: 'Weed the field', bn: 'নিড়ানি দিন' },
+    {
+      day: 32,
+      kind: 'key-stage',
+      en: 'Flowers coming: check for pests and yellow mosaic',
+      bn: 'ফুল আসছে: পোকা ও হলুদ মোজাইক রোগ দেখুন',
+    },
+    {
+      day: 70,
+      kind: 'care',
+      en: 'Pods ripening: get ready to harvest',
+      bn: 'শুঁটি পাকছে: কাটার প্রস্তুতি নিন',
+    },
+  ],
+  groundnut: [
+    {
+      day: 20,
+      kind: 'care',
+      en: 'Thin the seedlings and weed',
+      bn: 'চারা পাতলা করুন, নিড়ানি দিন',
+    },
+    {
+      day: 35,
+      kind: 'key-stage',
+      en: 'Flowering: weed lightly, keep the soil loose',
+      bn: 'ফুল আসছে: হালকা নিড়ানি দিন, মাটি ঝুরঝুরে রাখুন',
+    },
+    { day: 115, kind: 'care', en: 'Get ready to harvest', bn: 'তোলার প্রস্তুতি নিন' },
+  ],
+  // DAE/BAMIS onion guidance: half the urea and potash at planting, the rest at 25 and 50 days;
+  // weed after irrigating; sprays for purple blotch at 10-15 day intervals when it appears;
+  // harvest when 70-80% of the leaves have fallen.
+  onion: [
+    {
+      day: 25,
+      kind: 'fertiliser',
+      en: 'Weed, then top-dress urea and potash',
+      bn: 'নিড়ানি দিয়ে ইউরিয়া ও পটাশ উপরি প্রয়োগ করুন',
+    },
+    {
+      day: 45,
+      kind: 'key-stage',
+      en: 'Check the leaves for purple blotch',
+      bn: 'পাতায় বেগুনি দাগ রোগ দেখুন',
+    },
+    {
+      day: 50,
+      kind: 'fertiliser',
+      en: 'Second urea and potash',
+      bn: 'দ্বিতীয় কিস্তি ইউরিয়া ও পটাশ দিন',
+    },
+    {
+      day: 100,
+      kind: 'care',
+      en: 'Harvest when most leaves have fallen over',
+      bn: 'বেশিরভাগ পাতা নুয়ে পড়লে তুলুন',
+    },
+  ],
+  // DAE/BAMIS garlic guidance: first weeding at 20-25 days; urea and potash at 25 and 50 days;
+  // sprays against downy mildew when it appears; stop irrigating 3 weeks before harvest.
+  garlic: [
+    { day: 22, kind: 'care', en: 'Weed the field', bn: 'নিড়ানি দিন, আগাছা তুলুন' },
+    {
+      day: 25,
+      kind: 'fertiliser',
+      en: 'Top-dress urea and potash',
+      bn: 'ইউরিয়া ও পটাশ উপরি প্রয়োগ করুন',
+    },
+    {
+      day: 50,
+      kind: 'fertiliser',
+      en: 'Second urea and potash',
+      bn: 'দ্বিতীয় কিস্তি ইউরিয়া ও পটাশ দিন',
+    },
+    {
+      day: 60,
+      kind: 'key-stage',
+      en: 'Check the leaves for blight and mildew',
+      bn: 'পাতায় ঝলসানো ও মিলডিউ রোগ দেখুন',
+    },
+    {
+      day: 119,
+      kind: 'care',
+      en: 'Stop irrigating: harvest in 3 weeks',
+      bn: 'সেচ বন্ধ করুন: ৩ সপ্তাহ পরে তুলবেন',
+    },
+  ],
+  // DAE/BAMIS brinjal guidance: first top-dressing 10-15 days after transplanting; weed at 25-30
+  // days; the Rajshahi-region calendar is built around the shoot and fruit borer.
+  brinjal: [
+    {
+      day: 12,
+      kind: 'fertiliser',
+      en: 'First top-dressing of urea and potash',
+      bn: 'প্রথম কিস্তি ইউরিয়া ও পটাশ উপরি প্রয়োগ করুন',
+    },
+    { day: 27, kind: 'care', en: 'Weed the field', bn: 'নিড়ানি দিন, আগাছা তুলুন' },
+    {
+      day: 40,
+      kind: 'key-stage',
+      en: 'Flowering: cut off wilted shoots (shoot and fruit borer)',
+      bn: 'ফুল আসছে: ঢলে পড়া ডগা কেটে ফেলুন (ডগা ও ফল ছিদ্রকারী পোকা)',
+    },
+  ],
   mustard: [
     {
       day: 18,

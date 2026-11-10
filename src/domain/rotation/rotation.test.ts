@@ -152,6 +152,14 @@ describe('plans', () => {
     expect(a.crops[0].levels.soil).toBe(5);
     expect(a.crops[0].verdict).toBe('risky');
   });
+  it('suggests black gram in place of Aman only where no Aman plan fits', () => {
+    const ids = (soil: PlotConditions['soil']) =>
+      suggestPlans('2026-11-07', climate, { ...plot, soil }).map((p) => p.id);
+    expect(ids('clay').some((id) => id.endsWith('blackgram'))).toBe(false);
+    const sandy = ids('sandy');
+    expect(sandy).toHaveLength(3);
+    expect(sandy.slice(1).every((id) => id.endsWith('blackgram'))).toBe(true);
+  });
   it('marks rice after rice as wearing out the soil', () => {
     const a = assessPlan(
       { winter: 'boro', 'pre-monsoon': null, monsoon: 'aman' },

@@ -139,3 +139,101 @@ describe('plot store', () => {
     expect(validSeasonState({ ...state, farms: [{ ...farm, plotId: '' }] })).toBe(false);
   });
 });
+
+describe('removing a land', () => {
+  const onPlot = (id: string, plantedDate: string) =>
+    trackingFarm({ id, fieldId: 'land-1', plotId: 'plot-a', plantedDate, harvestedDate: '' });
+  beforeEach(() => {
+    seasonStore.addPlot(plot());
+    seasonStore.addPlot(plot({ id: 'plot-b', name: 'Plot B', areaHa: 0.4 }));
+  });
+  it('deletes a land with nothing sown, with its plots and calendars not started', () => {
+    seasonStore.create(onPlot('calendar', ''));
+    expect(seasonStore.getSnapshot().state.calendarAccessId).toBe('calendar');
+    expect(seasonStore.removeField('land-1').sort()).toEqual(['plot-a', 'plot-b']);
+    const s = seasonStore.getSnapshot().state;
+    expect(s.fields).toEqual([]);
+    expect(s.plots).toEqual([]);
+    expect(s.farms).toEqual([]);
+    expect(s.activeId).toBeNull();
+    expect(s.calendarAccessId).toBeNull();
+    expect(validSeasonState(saved())).toBe(true);
+  });
+  it('refuses to delete a land with a sown crop unless the records go too', () => {
+    seasonStore.create(onPlot('sown', '2026-01-01'));
+    expect(() => seasonStore.removeField('land-1')).toThrow(/Stop using it instead/);
+    expect(seasonStore.getSnapshot().state.fields).toHaveLength(1);
+    seasonStore.removeField('land-1', true);
+    expect(seasonStore.getSnapshot().state.farms).toEqual([]);
+    expect(() => seasonStore.removeField('land-1')).toThrow(/no longer exists/);
+  });
+  it('stops a land and its plots, closes its calendar, keeps every record, and reopens', () => {
+    seasonStore.create(onPlot('sown', '2026-01-01'));
+    seasonStore.endField('land-1', '2026-11-09');
+    let s = seasonStore.getSnapshot().state;
+    expect(s.fields?.[0].endDate).toBe('2026-11-09');
+    expect(s.plots?.map((p) => p.endDate)).toEqual(['2026-11-09', '2026-11-09']);
+    expect(s.farms.map((f) => f.id)).toEqual(['sown']);
+    expect(s.activeId).toBeNull();
+    expect(s.calendarAccessId).toBeNull();
+    expect(validSeasonState(saved())).toBe(true);
+    expect(() => seasonStore.endField('land-1', '2026-11-10')).toThrow(/already stopped/);
+    seasonStore.reopenField('land-1');
+    s = seasonStore.getSnapshot().state;
+    expect(s.fields?.[0].endDate).toBeUndefined();
+    // Its plots stay stopped until each is used again.
+    expect(s.plots?.every((p) => p.endDate === '2026-11-09')).toBe(true);
+  });
+  it('ends a plot that starts after the stop day on its own start day', () => {
+    seasonStore.endPlot('plot-b', '2026-01-01');
+    seasonStore.addPlot(
+      plot({ id: 'plot-c', name: 'Plot C', areaHa: 0.4, startDate: '2026-12-01' }),
+    );
+    seasonStore.endField('land-1', '2026-11-09');
+    const ends = Object.fromEntries(
+      seasonStore.getSnapshot().state.plots!.map((p) => [p.id, p.endDate]),
+    );
+    expect(ends).toEqual({
+      'plot-a': '2026-11-09',
+      'plot-b': '2026-01-01',
+      'plot-c': '2026-12-01',
+    });
+  });
+  it('rejects a malformed stop date on a saved land', () => {
+    const state = seasonStore.getSnapshot().state;
+    expect(validSeasonState({ ...state, fields: [{ ...state.fields![0], endDate: 'soon' }] })).toBe(
+      false,
+    );
+  });
+});
+
+describe('changing a plan', () => {
+  it('drops crops of the old plan not started, and closes the calendar that showed one', () => {
+    seasonStore.addPlot(plot());
+    const plan = (winter: 'mustard' | 'wheat') => ({
+      from: '2026-11-10',
+      seasons: { winter, 'pre-monsoon': null, monsoon: 'aman' as const },
+      chosenAt: '2026-11-10T00:00:00Z',
+      source: 'suggested' as const,
+    });
+    seasonStore.choosePlan('plot-a', plan('mustard') as never);
+    seasonStore.create(
+      trackingFarm({
+        id: 'unsown',
+        fieldId: 'land-1',
+        plotId: 'plot-a',
+        rotationSeason: 'winter',
+        plantedDate: '',
+        harvestedDate: '',
+      }),
+    );
+    expect(seasonStore.getSnapshot().state.calendarAccessId).toBe('unsown');
+    seasonStore.choosePlan('plot-a', plan('wheat') as never);
+    const s = seasonStore.getSnapshot().state;
+    expect(s.farms).toEqual([]);
+    expect(s.activeId).toBeNull();
+    expect(s.calendarAccessId).toBeNull();
+    expect(s.plots?.[0].plan?.seasons.winter).toBe('wheat');
+    expect(validSeasonState(saved())).toBe(true);
+  });
+});

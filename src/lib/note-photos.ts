@@ -30,6 +30,32 @@ async function run<T>(mode: IDBTransactionMode, work: (s: IDBObjectStore) => IDB
 export const putPhoto = (id: string, blob: Blob) => run('readwrite', (s) => s.put(blob, id));
 export const getPhoto = (id: string) => run<Blob | undefined>('readonly', (s) => s.get(id));
 export const deletePhoto = (id: string) => run('readwrite', (s) => s.delete(id));
+/**
+ * Several photos read in one transaction: a delete started meanwhile waits until all are read,
+ * so a backup taken before a delete always has every photo.
+ */
+export async function getPhotos(ids: readonly string[]) {
+  const db = await open();
+  return new Promise<Map<string, Blob>>((resolve, reject) => {
+    const tx = db.transaction(storeName, 'readonly'),
+      store = tx.objectStore(storeName),
+      out = new Map<string, Blob>();
+    for (const id of ids) {
+      const request = store.get(id);
+      request.onsuccess = () => {
+        if (request.result instanceof Blob) out.set(id, request.result);
+      };
+    }
+    tx.oncomplete = () => {
+      db.close();
+      resolve(out);
+    };
+    tx.onerror = () => {
+      db.close();
+      reject(tx.error);
+    };
+  });
+}
 export async function clearPhotos() {
   try {
     await run('readwrite', (s) => s.clear());

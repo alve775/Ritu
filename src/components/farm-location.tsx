@@ -197,7 +197,7 @@ export function FarmLocation({ worldwide = false }: { worldwide?: boolean }) {
           )}
         </p>
       </header>
-      <div className="location-map-grid environment-controls">
+      <div className="location-map-grid environment-controls" data-tour="farm-location">
         <div className="location-search-panel">
           <label htmlFor="place-search">
             <Search size={20} />

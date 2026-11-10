@@ -120,7 +120,7 @@ export function PlantBrowser({
       className="plant-browser"
       aria-label={t('Suggested crops', 'প্রস্তাবিত ফসল')}
     >
-      <div className="card plant-search">
+      <div className="card plant-search" data-tour="one-season-search">
         <h2>{t('Find what you want to grow', 'কী চাষ করতে চান খুঁজুন')}</h2>
         <p>
           {t(

@@ -18,10 +18,13 @@ export function StepProgress({
   items,
   path,
   label,
+  numbered = true,
 }: {
   items: StepItem[];
   path: string;
   label: string;
+  /** Show 1, 2, 3 on the icons; off when the items are places rather than steps in order. */
+  numbered?: boolean;
 }) {
   const current = items.findIndex((item) => item.href === path);
   const number = (index: number) => items.slice(0, index + 1).filter((item) => !item.sub).length;
@@ -34,7 +37,7 @@ export function StepProgress({
             <>
               <span className="step-icon" aria-hidden="true">
                 <item.icon size={22} />
-                {!item.sub && <span className="step-number">{number(index)}</span>}
+                {numbered && !item.sub && <span className="step-number">{number(index)}</span>}
               </span>
               <span className="nav-text">
                 <strong>{item.label}</strong>

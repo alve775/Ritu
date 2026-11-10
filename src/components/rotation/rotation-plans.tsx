@@ -1,9 +1,11 @@
 'use client';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { changePlanKey } from '../../lib/change-plan';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { usePlanner } from '../planner-provider';
 import { useSoilReference } from '../../lib/use-soil-reference';
+import { useNasaClimate } from '../../lib/use-nasa-climate';
 import { seasonStore, useSeasonFarms } from '../../lib/season-store';
 import { calendarFarmFor } from '../../lib/plot-calendar';
 import { farmForPlanCrop } from '../../lib/rotation-farm';
@@ -34,6 +36,7 @@ import { rotationText } from './rotation-text';
 import {
   IntensityBars,
   IrrigationCompare,
+  NasaNotes,
   VerdictPill,
   YearChart,
   YearKey,
@@ -66,7 +69,12 @@ export function RotationPlansView({
   const { t, language } = usePlanner(),
     router = useRouter();
   const tx = rotationText(t, language);
-  const climate = useMemo(() => monthlyClimate(context.normal!), [context.normal]);
+  // NASA IMERG rain and SMAP soil for lands in the Rajshahi box join the NASA POWER climate.
+  const nasa = useNasaClimate(site);
+  const climate = useMemo(() => {
+    const c = monthlyClimate(context.normal!);
+    return nasa ? { ...c, nasa } : c;
+  }, [context.normal, nasa]);
   // Soil pH: the farmer's test when there is one, otherwise the soil-map estimate at the land's pin.
   const soilMap = useSoilReference(site).soil;
   const phValue = profile.soilEvidence?.ph ?? soilMap?.median,
@@ -143,12 +151,24 @@ export function RotationPlansView({
   // Once a plan is chosen this page shows it; the suggestions come back only after "Change plan" is confirmed.
   const [changing, setChanging] = useState(false);
   // From the dashboard's "Change plan": /crops?change=1 opens the change question straight away.
-  const [askChange, setAskChange] = useState(
-    () =>
-      !!plot.plan &&
-      typeof window !== 'undefined' &&
-      new URLSearchParams(window.location.search).get('change') === '1',
-  );
+  const [askChange, setAskChange] = useState(() => {
+    if (!plot.plan || typeof window === 'undefined') return false;
+    let asked = false;
+    try {
+      asked = sessionStorage.getItem(changePlanKey) === plot.id;
+    } catch {
+      /* Storage blocked: the query is enough. */
+    }
+    return asked || new URLSearchParams(window.location.search).get('change') === '1';
+  });
+  // The request is used once.
+  useEffect(() => {
+    try {
+      sessionStorage.removeItem(changePlanKey);
+    } catch {
+      /* Nothing to clear. */
+    }
+  }, []);
   const [asking, setAsking] = useState<{
     id: string;
     title: string;
@@ -249,7 +269,7 @@ export function RotationPlansView({
   const sownNames = Object.values(sown)
     .map((k) => tx.crop(rotationCrops[k]))
     .join(language === 'bn' ? ' ও ' : ' and ');
-  const planBody = (a: PlanAssessment, last: number | null) => (
+  const planBody = (a: PlanAssessment, last: number | null, tour?: string) => (
     <>
       <YearChart
         crops={chartCrops(a)}
@@ -275,6 +295,7 @@ export function RotationPlansView({
         </div>
         <IntensityBars rows={planRows(a, tx, t)} t={t} />
       </div>
+      <NasaNotes crops={a.crops} tx={tx} t={t} areaHa={plot.areaHa} tour={tour} />
     </>
   );
 
@@ -353,7 +374,7 @@ export function RotationPlansView({
           </button>
         </header>
         {lastYearLine}
-        <article className="card rot-plan best rot-chosen">
+        <article className="card rot-plan best rot-chosen" data-tour="year-plan-saved">
           <div className="rot-plan-head">
             <h2>{a.crops.map((c) => tx.crop(c.item.crop)).join(' → ')}</h2>
             <span className="rot-badge">
@@ -433,7 +454,7 @@ export function RotationPlansView({
             {t('Back to plans', 'পরামর্শে ফিরুন')}
           </button>
         </header>
-        <div className="rot-builder">
+        <div className="rot-builder" data-tour="year-plan-builder">
           {order.map((s) => {
             const id = custom[s];
             const mine = id ? customAssessment.crops.find((c) => c.item.crop.id === id) : undefined;
@@ -549,6 +570,7 @@ export function RotationPlansView({
                           </b>{' '}
                           {tx.reason(a.reason, a, profile.soil)}
                         </span>
+                        <NasaNotes crops={[a]} tx={tx} t={t} areaHa={plot.areaHa} inline />
                       </button>
                     ))}
                   </div>
@@ -597,6 +619,7 @@ export function RotationPlansView({
                   />
                   <IntensityBars rows={planRows(customAssessment, tx, t)} t={t} />
                 </div>
+                <NasaNotes crops={customAssessment.crops} tx={tx} t={t} areaHa={plot.areaHa} />
               </>
             )}
           </section>
@@ -693,7 +716,11 @@ export function RotationPlansView({
       )}
       <div className="rot-plans">
         {plans.map((p, i) => (
-          <article key={p.id} className={`card rot-plan ${p.a.score === best ? 'best' : ''}`}>
+          <article
+            key={p.id}
+            className={`card rot-plan ${p.a.score === best ? 'best' : ''}`}
+            data-tour="year-plan"
+          >
             <div className="rot-plan-head">
               <h2>
                 {p.source === 'custom'
@@ -707,10 +734,11 @@ export function RotationPlansView({
                 </span>
               )}
             </div>
-            {planBody(p.a, p.id === 'last-year' ? null : lastIrrigations)}
+            {planBody(p.a, p.id === 'last-year' ? null : lastIrrigations, 'year-plan-nasa')}
             <div className="button-row">
               <button
                 className="button primary"
+                data-tour="year-plan-choose"
                 onClick={() => setAsking({ id: p.id, title: p.title, a: p.a, source: p.source })}
               >
                 {t('Choose this plan', 'এই পরিকল্পনা নিন')}
@@ -737,6 +765,7 @@ export function RotationPlansView({
         <span>{t('None of these fit?', 'এগুলোর কোনোটা পছন্দ না?')}</span>
         <button
           className="button secondary"
+          data-tour="year-plan-custom"
           onClick={() => {
             setPicking(order[0]);
             setMode('builder');

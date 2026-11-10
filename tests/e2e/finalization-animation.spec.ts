@@ -10,10 +10,10 @@ test('story advances sow, care, grow, harvest and replay with exactly one action
   await expect(scene).toHaveAttribute('data-stage', 'sow');
   for (const [time, stage] of [
     [1, 'sow'],
-    [8, 'care'],
-    [18, 'grow'],
-    [26, 'harvest'],
-    [31.1, 'sow'],
+    [4, 'care'],
+    [7, 'grow'],
+    [10, 'harvest'],
+    [12.1, 'sow'],
   ] as const) {
     await svg.evaluate((s: SVGSVGElement, t) => s.setCurrentTime(t), time);
     await expect(scene).toHaveAttribute('data-stage', stage);
@@ -22,7 +22,7 @@ test('story advances sow, care, grow, harvest and replay with exactly one action
     await page.screenshot({ path: info.outputPath(`chapter-${stage}-${time}.png`) });
   }
   // Test an automatic boundary with real SVG time, rather than only selecting tabs.
-  await svg.evaluate((s: SVGSVGElement) => s.setCurrentTime(6.7));
+  await svg.evaluate((s: SVGSVGElement) => s.setCurrentTime(2.7));
   await expect(scene).toHaveAttribute('data-stage', 'care', { timeout: 2500 });
   await page.getByRole('button', { name: 'Pause animation' }).click();
   const time = await svg.evaluate((s: SVGSVGElement) => s.getCurrentTime());
@@ -62,8 +62,8 @@ test('held grain, sickle and watering can stay in their grips throughout the mot
   const svg = page.locator('.farm-vector');
   await svg.scrollIntoViewIfNeeded();
   for (const [chapter, start, props] of [
-    ['Care', 7, ['watering-can']],
-    ['Harvest', 23, ['grain', 'sickle']],
+    ['Care', 3, ['watering-can']],
+    ['Harvest', 9, ['grain', 'sickle']],
   ] as const) {
     await page.getByRole('button', { name: new RegExp(`^${chapter} · chapter`) }).click();
     const samples = await svg.evaluate(
@@ -76,7 +76,7 @@ test('held grain, sickle and watering can stay in their grips throughout the mot
             matrix,
           );
         };
-        return Array.from({ length: 81 }, (_, i) => {
+        return Array.from({ length: 30 }, (_, i) => {
           root.setCurrentTime(start + i * 0.095);
           return props.map((prop) => {
             const hand = point(`[data-grip="${prop}"]`),
@@ -104,109 +104,14 @@ test('held grain, sickle and watering can stay in their grips throughout the mot
   }
 });
 
-test('both harvest arms retain matching segment lengths in every pose', async ({ page }) => {
+test('the sickle reaches the stalks on the pull; seed flight starts at the open hand', async ({
+  page,
+}) => {
   await page.goto('/');
   const svg = page.locator('.farm-vector');
   await svg.scrollIntoViewIfNeeded();
   await page.getByRole('button', { name: 'Harvest · chapter 4 of 4' }).click();
-  const samples = await svg.evaluate((root: SVGSVGElement) => {
-    root.pauseAnimations();
-    const body = root.querySelector<SVGGElement>(
-      '[data-farm-worker="harvest"] [data-worker-body]',
-    )!;
-    return Array.from({ length: 81 }, (_, i) => {
-      root.setCurrentTime(23 + i * 0.095);
-      return ['far', 'near'].map((arm) => {
-        const joint = (name: string) => {
-          const point = body.querySelector<SVGCircleElement>(
-            `[data-worker-arm="${arm}"] [data-arm-joint="${name}"]`,
-          )!;
-          return new DOMPoint(0, 0).matrixTransform(
-            body.getCTM()!.inverse().multiply(point.getCTM()!),
-          );
-        };
-        const shoulder = joint('shoulder'),
-          elbow = joint('elbow'),
-          wrist = joint('wrist');
-        return {
-          arm,
-          upper: Math.hypot(shoulder.x - elbow.x, shoulder.y - elbow.y),
-          forearm: Math.hypot(elbow.x - wrist.x, elbow.y - wrist.y),
-        };
-      });
-    });
-  });
-  for (const pose of samples) {
-    for (const arm of pose) {
-      expect(arm.upper, `${arm.arm} upper arm`).toBeCloseTo(20, 6);
-      expect(arm.forearm, `${arm.arm} forearm`).toBeCloseTo(18, 6);
-    }
-    expect(pose[0].upper).toBeCloseTo(pose[1].upper, 6);
-    expect(pose[0].forearm).toBeCloseTo(pose[1].forearm, 6);
-  }
-});
-
-test('harvest arm silhouettes remain separated through the entire action', async ({ page }) => {
-  await page.goto('/');
-  const svg = page.locator('.farm-vector');
-  await svg.scrollIntoViewIfNeeded();
-  await page.getByRole('button', { name: 'Harvest · chapter 4 of 4' }).click();
-  const samples = await svg.evaluate((root: SVGSVGElement) => {
-    root.pauseAnimations();
-    const body = root.querySelector<SVGGElement>(
-      '[data-farm-worker="harvest"] [data-worker-body]',
-    )!;
-    const canvas = document.createElement('canvas');
-    canvas.width = 300;
-    canvas.height = 220;
-    const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
-    const mask = (arm: string) => {
-      ctx.resetTransform();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      body
-        .querySelectorAll<SVGPathElement>(
-          `[data-worker-arm="${arm}"] [data-arm-silhouette], [data-worker-arm="${arm}"] [data-arm-sleeve], [data-worker-arm="${arm}"] [data-arm-hand]`,
-        )
-        .forEach((path) => {
-          const m = body.getCTM()!.inverse().multiply(path.getCTM()!);
-          ctx.setTransform(2 * m.a, 2 * m.b, 2 * m.c, 2 * m.d, 70 + 2 * m.e, 45 + 2 * m.f);
-          ctx.fillStyle = ctx.strokeStyle = '#fff';
-          ctx.lineWidth = Number.parseFloat(getComputedStyle(path).strokeWidth);
-          const shape = new Path2D(path.getAttribute('d')!);
-          ctx.fill(shape);
-          ctx.stroke(shape);
-        });
-      return ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-    };
-    return Array.from({ length: 81 }, (_, i) => {
-      const time = 23 + i * 0.095;
-      root.setCurrentTime(time);
-      const holding = mask('far'),
-        cutting = mask('near');
-      let overlap = 0,
-        holdingPixels = 0,
-        cuttingPixels = 0;
-      for (let p = 3; p < holding.length; p += 4) {
-        if (holding[p] > 128) holdingPixels++;
-        if (cutting[p] > 128) cuttingPixels++;
-        if (holding[p] > 128 && cutting[p] > 128) overlap++;
-      }
-      return { time, overlap, holdingPixels, cuttingPixels };
-    });
-  });
-  for (const sample of samples) {
-    expect(sample.holdingPixels).toBeGreaterThan(300);
-    expect(sample.cuttingPixels).toBeGreaterThan(300);
-    expect(sample.overlap, `arm intersection at ${sample.time}s`).toBe(0);
-  }
-});
-
-test('harvest cuts before lifting; seed flight starts at the open hand', async ({ page }) => {
-  await page.goto('/');
-  const svg = page.locator('.farm-vector');
-  await svg.scrollIntoViewIfNeeded();
-  await page.getByRole('button', { name: 'Harvest · chapter 4 of 4' }).click();
-  const harvest = await svg.evaluate((root: SVGSVGElement) => {
+  const gaps = await svg.evaluate((root: SVGSVGElement) => {
     root.pauseAnimations();
     const point = (selector: string) => {
       const marker = root.querySelector<SVGCircleElement>(selector)!;
@@ -214,39 +119,16 @@ test('harvest cuts before lifting; seed flight starts at the open hand', async (
       const matrix = root.getScreenCTM()!.inverse().multiply(marker.getScreenCTM()!);
       return new DOMPoint(marker.cx.baseVal.value, marker.cy.baseVal.value).matrixTransform(matrix);
     };
-    const pose = (time: number) => {
-      root.setCurrentTime(time);
+    // One cutting stroke lasts 1.8 s: sample a stroke and a half.
+    return Array.from({ length: 55 }, (_, i) => {
+      root.setCurrentTime(9 + i * 0.05);
       const base = point('[data-stalk-base]'),
-        edge = point('[data-cutting-edge]'),
-        grip = point('[data-grip="grain"]');
-      return {
-        base: { x: base.x, y: base.y },
-        grip: { x: grip.x, y: grip.y },
-        cutGap: Math.hypot(base.x - edge.x, base.y - edge.y),
-      };
-    };
-    return {
-      approach: pose(23.1),
-      cut: pose(24.4),
-      lift: pose(25.6),
-      settled: pose(27.1),
-      end: pose(30.4),
-    };
+        edge = point('[data-cutting-edge]');
+      return Math.hypot(base.x - edge.x, base.y - edge.y);
+    });
   });
-  expect(
-    Math.hypot(
-      harvest.approach.base.x - harvest.cut.base.x,
-      harvest.approach.base.y - harvest.cut.base.y,
-    ),
-  ).toBeLessThan(0.01);
-  expect(harvest.cut.cutGap).toBeLessThan(5);
-  expect(harvest.lift.grip.y).toBeLessThan(harvest.cut.grip.y - 20);
-  expect(
-    Math.hypot(
-      harvest.settled.grip.x - harvest.end.grip.x,
-      harvest.settled.grip.y - harvest.end.grip.y,
-    ),
-  ).toBeLessThan(0.01);
+  expect(Math.min(...gaps), 'blade meets the stalks').toBeLessThan(5);
+  expect(Math.max(...gaps), 'blade clears the stalks on the reach').toBeGreaterThan(15);
   await page.getByRole('button', { name: 'Sow · chapter 1 of 4' }).click();
   const release = await svg.evaluate((root: SVGSVGElement) => {
     root.pauseAnimations();

@@ -5,13 +5,15 @@ import type { FarmSite } from './farm-site';
 import { samePoint, validSite } from './farm-site';
 import type { SeasonFarm } from './global-season';
 import { validSoilEvidence } from './soil-evidence';
-import { addDays } from './evidence-planner';
+import { addDays, validDate } from './evidence-planner';
 
 export interface RegisteredField {
   id: string;
   name: string;
   profile: Farm;
   site?: FarmSite;
+  /** Last day the land was used; it and its plots are off the dashboard after it. Records stay. */
+  endDate?: string;
 }
 export function validRegisteredField(raw: unknown): raw is RegisteredField {
   if (!raw || typeof raw !== 'object') return false;
@@ -47,7 +49,8 @@ export function validRegisteredField(raw: unknown): raw is RegisteredField {
     p.current.every((c) => !!c && cropIds.includes(c.crop)) &&
     (p.soilEvidence === undefined || validSoilEvidence(p.soilEvidence)) &&
     (p.lastYear === undefined || validLastYear(p.lastYear)) &&
-    (f.site === undefined || validSite(f.site))
+    (f.site === undefined || validSite(f.site)) &&
+    (f.endDate === undefined || validDate(f.endDate))
   );
 }
 export function fieldReady(field: RegisteredField) {

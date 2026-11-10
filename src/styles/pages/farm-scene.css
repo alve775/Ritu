@@ -25,8 +25,29 @@
   .farm-world {
     transform-origin: 480px 400px;
   }
-  .farm-action {
+  /* Between chapters only the crop fades. People and their tools stay solid,
+     so a farmer is never see-through. */
+  .farm-action [data-activity] > * {
     opacity: var(--shot-opacity, 1);
+  }
+  .farm-action [data-activity] > .farm-solid {
+    opacity: 1;
+  }
+  [data-farm-worker] {
+    animation: farm-worker-arrive 0.4s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  }
+  @keyframes farm-worker-arrive {
+    from {
+      transform: translateY(5px);
+    }
+  }
+  html[data-motion='off'] [data-farm-worker] {
+    animation: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-farm-worker] {
+      animation: none;
+    }
   }
   html[data-motion='off'] .farm-world {
     transition: none;

@@ -1,5 +1,5 @@
 'use client';
-import { type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { Droplets, Layers, LandPlot, MapPin, Pencil, Plus, Ruler } from 'lucide-react';
 import { usePlanner } from './planner-provider';
@@ -14,6 +14,7 @@ import { RegionBadge } from './region-badge';
 import { localDigits } from '../domain/numerals';
 import { FieldPlots, plotAreaInUse } from './plot-setup';
 import { useToday } from '../lib/use-today';
+import { RemoveLand } from './land-remove';
 
 type Translate = (en: string, bn: string) => string;
 
@@ -73,32 +74,91 @@ export function FieldRegistryDashboard({
 }) {
   const { t } = usePlanner(),
     { state } = useSeasonFarms();
-  const fields = state.fields ?? [];
+  // A stopped land leaves the dashboard; it waits under "Lands no longer used".
+  const all = state.fields ?? [],
+    fields = all.filter((f) => !f.endDate),
+    stopped = all.filter((f) => !!f.endDate);
+  const stoppedList = stopped.length > 0 && <StoppedLands fields={stopped} />;
   if (!fields.length)
     return (
-      <section className="land-empty card">
-        <span className="land-empty-mark" aria-hidden="true">
-          <LandPlot size={34} />
-        </span>
-        <h2>{t('Add your first land', 'আপনার প্রথম জমি যোগ করুন')}</h2>
-        <p>
-          {t(
-            'Mark where the land is and how big it is. Then divide it into plots and get crop suggestions for each plot.',
-            'জমি কোথায় ও কত বড় তা দিন। তারপর জমিকে প্লটে ভাগ করে প্রতিটি প্লটের জন্য ফসলের পরামর্শ নিন।',
-          )}
-        </p>
-        <button className="button primary" onClick={onAddLand}>
-          <Plus size={19} />
-          {t('Add land', 'জমি যোগ করুন')}
-        </button>
-      </section>
+      <>
+        <section className="land-empty card">
+          <span className="land-empty-mark" aria-hidden="true">
+            <LandPlot size={34} />
+          </span>
+          <h2>{t('Add your first land', 'আপনার প্রথম জমি যোগ করুন')}</h2>
+          <p>
+            {t(
+              'Mark where the land is and how big it is. Then divide it into plots and get crop suggestions for each plot.',
+              'জমি কোথায় ও কত বড় তা দিন। তারপর জমিকে প্লটে ভাগ করে প্রতিটি প্লটের জন্য ফসলের পরামর্শ নিন।',
+            )}
+          </p>
+          <button className="button primary" onClick={onAddLand} data-tour="dashboard-add-land">
+            <Plus size={19} />
+            {t('Add land', 'জমি যোগ করুন')}
+          </button>
+        </section>
+        {stoppedList}
+      </>
     );
   return (
-    <div className="field-registry land-grid">
-      {fields.map((field) => (
-        <LandCard key={field.id} field={field} renderCrop={renderCrop} renderFarm={renderFarm} />
-      ))}
-    </div>
+    <>
+      <div className="field-registry land-grid">
+        {fields.map((field) => (
+          <LandCard key={field.id} field={field} renderCrop={renderCrop} renderFarm={renderFarm} />
+        ))}
+      </div>
+      {stoppedList}
+    </>
+  );
+}
+
+/** Lands stopped from Edit land, with their records kept; each can be used again. */
+function StoppedLands({ fields }: { fields: RegisteredField[] }) {
+  const { t, language } = usePlanner();
+  const [error, setError] = useState('');
+  return (
+    <details className="plot-stopped land-stopped card">
+      <summary>
+        {t('Lands no longer used', 'আর ব্যবহার হচ্ছে না এমন জমি')} (
+        {localDigits(fields.length, language)})
+      </summary>
+      <ul>
+        {fields.map((f) => (
+          <li key={f.id}>
+            <span>
+              <strong>{f.name}</strong>
+              {f.site?.name ? ` · ${f.site.name}` : ''}
+            </span>
+            <button
+              className="text-button"
+              type="button"
+              onClick={() => {
+                try {
+                  seasonStore.reopenField(f.id);
+                  setError('');
+                } catch (e) {
+                  setError(e instanceof Error ? e.message : '');
+                }
+              }}
+            >
+              {t('Use again', 'আবার ব্যবহার করুন')}
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p className="field-help">
+        {t(
+          'Its plots stay stopped; use each again from the land’s "Plots no longer used".',
+          'এর প্লটগুলো বন্ধই থাকবে; জমির "আর ব্যবহার হচ্ছে না এমন প্লট" থেকে প্রতিটি আবার চালু করুন।',
+        )}
+      </p>
+      {error && (
+        <p className="notice-amber" role="alert">
+          {error}
+        </p>
+      )}
+    </details>
   );
 }
 
@@ -125,7 +185,15 @@ function LandCard({
     inPlots = farms.filter((f) => f.plotId && plotIds.has(f.plotId) && !farmFinished(f, today)),
     // A plot with a year plan shows its own done, now and next crops, so its calendars are not repeated here.
     planned = new Set(plots.filter((p) => p.plan).map((p) => p.id)),
-    other = farms.filter((f) => !inPlots.includes(f) && !(f.plotId && planned.has(f.plotId))),
+    // A stopped plot's calendars that were never started are not crops on this land any more.
+    stoppedPlot = (id?: string) =>
+      !!id && !plotIds.has(id) && (state.plots ?? []).some((p) => p.id === id),
+    other = farms.filter(
+      (f) =>
+        !inPlots.includes(f) &&
+        !(f.plotId && planned.has(f.plotId)) &&
+        !(stoppedPlot(f.plotId) && !f.plantedDate && !f.harvestedDate),
+    ),
     used = plotAreaInUse(state.plots ?? [], field.id, today),
     area = field.profile.area,
     share = area > 0 ? Math.min(100, (used / area) * 100) : 0,
@@ -156,11 +224,7 @@ function LandCard({
             <Pencil size={16} />
             {ready ? t('Edit land', 'জমির তথ্য বদলান') : t('Finish setup', 'তথ্য সম্পূর্ণ করুন')}
           </button>
-          {!farms.length && !plots.length && (
-            <button className="text-button" onClick={() => seasonStore.removeField(field.id)}>
-              {t('Remove', 'সরান')}
-            </button>
-          )}
+          <RemoveLand field={field} />
         </div>
       </header>
       {ready ? (

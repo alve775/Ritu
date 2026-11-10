@@ -1,11 +1,11 @@
 /** Editorial storyboard timing, in seconds. This is a compressed illustration, not a growing calendar. */
 export const farmChapters = [
-  { id: 'sow', start: 0, duration: 7 },
-  { id: 'care', start: 7, duration: 7 },
-  { id: 'grow', start: 14, duration: 9 },
-  { id: 'harvest', start: 23, duration: 8 },
+  { id: 'sow', start: 0, duration: 3 },
+  { id: 'care', start: 3, duration: 3 },
+  { id: 'grow', start: 6, duration: 3 },
+  { id: 'harvest', start: 9, duration: 3 },
 ] as const;
-export const farmStoryDuration = 31;
+export const farmStoryDuration = 12;
 export function farmStoryFrame(time: number) {
   const elapsed = Number.isFinite(time)
     ? ((time % farmStoryDuration) + farmStoryDuration) % farmStoryDuration

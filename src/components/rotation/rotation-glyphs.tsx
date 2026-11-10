@@ -150,6 +150,11 @@ export function DetailChart({ c, tx, t }: { c: CropAssessment; tx: RotationText;
             )}
           </g>
         ))}
+        {c.presow > 0 && (
+          <circle className="irr presow" cx={X(0) + 4} cy={top + wH + 10} r={5}>
+            <title>{t('Irrigation before sowing', 'বোনার আগে সেচ')}</title>
+          </circle>
+        )}
         <polyline
           className="need"
           points={wk.map((w, i) => `${X(i) + W / 2},${wy(w.use)}`).join(' ')}

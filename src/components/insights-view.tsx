@@ -183,8 +183,8 @@ export function InsightsView() {
             </ul>
             <p>
               {t(
-                'NASA POWER history is integrated; crop photographs are fetched through the Wikimedia APIs with separate author/license credits. The remaining gap is validated local agronomy and field/user testing. IMERG and SMAP are not ingested.',
-                'নাসা POWER ইতিহাস যুক্ত; ফসলের ছবি উইকিমিডিয়ার API থেকে আলোকচিত্রী ও লাইসেন্সের তথ্যসহ আসে। স্থানীয় কৃষি নিয়ম এবং মাঠে/ব্যবহারকারীর পরীক্ষা বাকি। IMERG ও SMAP যুক্ত নয়।',
+                'NASA POWER history is integrated, and for the Rajshahi region so are NASA GPM IMERG rain (dry spells) and SMAP root-zone soil moisture (soil water at sowing). Crop photographs are fetched through the Wikimedia APIs with separate author/license credits. The remaining gap is validated local agronomy and field/user testing.',
+                'নাসা POWER ইতিহাস যুক্ত, আর রাজশাহী অঞ্চলের জন্য নাসা GPM IMERG বৃষ্টি (খরা) ও SMAP শিকড়ের স্তরের মাটির আর্দ্রতাও (বোনার সময় মাটির পানি) যুক্ত। ফসলের ছবি উইকিমিডিয়ার API থেকে আলোকচিত্রী ও লাইসেন্সের তথ্যসহ আসে। স্থানীয় কৃষি নিয়ম এবং মাঠে/ব্যবহারকারীর পরীক্ষা বাকি।',
               )}
             </p>
             <ul className="model-references">

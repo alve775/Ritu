@@ -105,10 +105,10 @@ export function GrowingScene({ language }: { language: Language }) {
     };
   }, [paused]);
   const chooseChapter = (index: number) => {
-    svg.current?.setCurrentTime(farmChapters[index].start + 1);
+    // Jump past the fade-in and keep playing; a paused story stays paused.
+    svg.current?.setCurrentTime(farmChapters[index].start + 0.5);
     activeChapter.current = index;
     setStage(index);
-    setPaused(true);
     svg.current?.style.setProperty('--shot-opacity', '1');
   };
   const stages = [

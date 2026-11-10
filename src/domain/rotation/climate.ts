@@ -1,4 +1,5 @@
 import type { ClimateNormal } from '../global-season';
+import type { NasaClimate } from '../nasa-local';
 
 /** Twelve monthly values (January first) for one location, from the NASA POWER 1991–2020 normal. */
 export interface MonthlyClimate {
@@ -15,6 +16,8 @@ export interface MonthlyClimate {
   et0: number[];
   /** True when max/min had to be estimated because an older saved normal lacks them. */
   estimated: boolean;
+  /** NASA IMERG rain and SMAP soil weeks at the pin, when the land is inside the Rajshahi box. */
+  nasa?: NasaClimate;
 }
 
 /** FAO-56 eq. 21: extraterrestrial radiation in mm/day of evaporation for a latitude and day of year. */

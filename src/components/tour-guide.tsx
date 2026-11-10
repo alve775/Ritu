@@ -3,8 +3,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Check, Compass, Flag, X } from 'lucide-react';
 import { usePlanner } from './planner-provider';
-import { stepsForPageTour } from '../data/tours';
-import { markPageTourSeen, pageTourSeen, pageTourPrompted, tourPages } from '../lib/page-tours';
+import { stepsForPageTour, tourMission } from '../data/tours';
+import { markPageTourSeen, pageTourSeen, pageTourPrompted } from '../lib/page-tours';
 import type { TourStep } from '../data/tours';
 import { animateFrame, prefersReducedMotion } from '../lib/motion';
 import { StreamText } from './stream-text';
@@ -22,6 +22,19 @@ function cardOffset(previous: DOMRect, next: DOMRect) {
 interface Run {
   path: string;
   index: number;
+  steps: TourStep[];
+}
+
+function findTourTarget(step: TourStep) {
+  if (!step.target) return undefined;
+  return Array.from(document.querySelectorAll<HTMLElement>(step.target)).find(
+    (element) =>
+      element.getClientRects().length > 0 && getComputedStyle(element).visibility === 'visible',
+  );
+}
+
+function availableSteps(steps: TourStep[]) {
+  return steps.filter((step) => !step.target || findTourTarget(step));
 }
 
 export function TourGuide({ enabled = true }: { enabled?: boolean }) {
@@ -34,31 +47,38 @@ export function TourGuide({ enabled = true }: { enabled?: boolean }) {
     return () => setTourPreview(false);
   }, [touring, setTourPreview]);
   useEffect(() => {
-    if (
-      !ready ||
-      !enabled ||
-      !tourPages.includes(path as (typeof tourPages)[number]) ||
-      pageTourSeen(path)
-    )
-      return;
-    // Wait for this page's actual controls, including asynchronously loaded
-    // crop suggestions. Never navigate elsewhere to make a target exist.
+    const steps = stepsForPageTour(path);
+    if (!ready || !enabled || !steps.length || pageTourSeen(path)) return;
+    // Wait for the actual page rather than its loading state, and let open dialogs finish first.
     let timer: number | undefined;
     const prompt = () => {
       if (
         timer !== undefined ||
-        !stepsForPageTour(path).every((step) => !step.target || document.querySelector(step.target))
+        document.querySelector('dialog[open]') ||
+        !steps.some(findTourTarget)
       )
         return;
       timer = window.setTimeout(() => {
+        timer = undefined;
+        if (pageTourSeen(path)) {
+          observer.disconnect();
+          return;
+        }
+        if (document.querySelector('dialog[open]')) return;
+        const available = availableSteps(steps);
+        if (!available.some((step) => step.target)) return;
         observer.disconnect();
-        if (pageTourSeen(path)) return;
         pageTourPrompted(path);
-        setRun({ path, index: 0 });
+        setRun({ path, index: 0, steps: available });
       }, 200);
     };
     const observer = new MutationObserver(prompt);
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['open', 'data-tour'],
+    });
     prompt();
     return () => {
       observer.disconnect();
@@ -79,8 +99,10 @@ export function TourGuide({ enabled = true }: { enabled?: boolean }) {
         title={t('Tour this page', 'এই পাতার পরিচিতি')}
         disabled={!enabled || !steps.length}
         onClick={() => {
+          const available = availableSteps(steps);
+          if (!available.length) return;
           pageTourPrompted(path);
-          setRun({ path, index: 0 });
+          setRun({ path, index: 0, steps: available });
         }}
       >
         <Compass size={20} aria-hidden="true" />
@@ -89,7 +111,7 @@ export function TourGuide({ enabled = true }: { enabled?: boolean }) {
       {touring && run && (
         <TourOverlay
           key={run.path}
-          steps={steps}
+          steps={run.steps}
           index={run.index}
           onMove={(index) => setRun({ ...run, index })}
           onClose={finish}
@@ -110,8 +132,7 @@ function TourOverlay({
   onMove: (index: number) => void;
   onClose: () => void;
 }) {
-  const { t, language, setLanguage, setFieldOpen } = usePlanner();
-  const path = usePathname();
+  const { t, language, setLanguage } = usePlanner();
   const step = steps[index];
   const dialog = useRef<HTMLDialogElement>(null);
   const title = useRef<HTMLHeadingElement>(null);
@@ -125,7 +146,6 @@ function TourOverlay({
   const [copyRevealed, setCopyRevealed] = useState(false);
   const [instantText, setInstantText] = useState(false);
   const [canPan, setCanPan] = useState(false);
-  const [canPanCalendar, setCanPanCalendar] = useState(false);
   const stopPan = useRef<() => void>(() => {});
   const flip = useRef<{ light: DOMRect | null; card: DOMRect | null } | null>(null);
   const origin = useRef<{ light: DOMRect | null; card: DOMRect | null } | null>(null);
@@ -182,9 +202,6 @@ function TourOverlay({
       delete document.documentElement.dataset.tourLayout;
     };
   }, [step.target]);
-  useEffect(() => {
-    if (step.scope === 'field') setFieldOpen(true);
-  }, [step.scope, setFieldOpen]);
   useLayoutEffect(() => {
     if (prefersReducedMotion() || !origin.current?.card || !card.current) return;
     const next = card.current.getBoundingClientRect();
@@ -228,7 +245,6 @@ function TourOverlay({
     return () => animations.forEach((animation) => animation.cancel());
   }, [rect, placement]);
   useEffect(() => {
-    if (step.route && path !== step.route) return;
     let frame = 0;
     let started = false;
     let revealed = false;
@@ -237,7 +253,6 @@ function TourOverlay({
     let cancelled = false;
     let stopScroll = () => {};
     const animations: Animation[] = [];
-    const opened: HTMLDetailsElement[] = [];
     locked.current = true;
     leaving.current?.cancel();
     if (copy.current) {
@@ -284,21 +299,11 @@ function TourOverlay({
     };
     const measure = () => {
       if (started || cancelled) return;
-      const target = step.target
-        ? (document.querySelector<HTMLElement>(step.target) ??
-          document.querySelector<HTMLElement>('.evidence-gate, .page-header, #main'))
-        : null;
-      let ancestor = target?.parentElement;
-      while (ancestor) {
-        if (ancestor instanceof HTMLDetailsElement && !ancestor.open) {
-          ancestor.open = true;
-          opened.push(ancestor);
-        }
-        ancestor = ancestor.parentElement;
-      }
-      if (step.target && (!target || !target.offsetHeight)) {
+      const target = findTourTarget(step);
+      if (step.target && !target) {
         travelDone = true;
         started = true;
+        setCanPan(false);
         setRect(null);
         reveal();
         return;
@@ -311,9 +316,6 @@ function TourOverlay({
       const desktop = window.innerWidth >= 1200;
       const available = desktop ? window.innerHeight - 32 : window.innerHeight - cardHeight - 40;
       setCanPan(Boolean(original && original.height > available + 8));
-      setCanPanCalendar(
-        Boolean(target?.matches('.calendar-scroll') && target.scrollWidth > target.clientWidth),
-      );
       const desiredTop = original ? 16 + Math.max(0, (available - original.height) / 2) : 0;
       const fromScroll = window.scrollY;
       const toScroll = original
@@ -402,13 +404,14 @@ function TourOverlay({
       cancelAnimationFrame(frame);
       observer.disconnect();
       window.removeEventListener('resize', resized);
-      opened.forEach((details) => {
-        if (details.isConnected) details.open = false;
-      });
     };
-  }, [step, path, language]);
-  const move = (next: number) => {
+  }, [step, language]);
+  const move = (direction: -1 | 1) => {
     if (locked.current) return;
+    let next = index + direction;
+    while (steps[next]?.target && !findTourTarget(steps[next])) next += direction;
+    if (next < 0) return;
+    if (next >= steps.length) return onClose();
     locked.current = true;
     stopPan.current();
     setBusy(true);
@@ -438,8 +441,8 @@ function TourOverlay({
   };
   const isWelcome = step.id === 'welcome';
   const panSection = (direction: number) => {
-    if (busy || !step.target) return;
-    const target = document.querySelector<HTMLElement>(step.target);
+    if (busy) return;
+    const target = findTourTarget(step);
     if (!target || !card.current) return;
     stopPan.current();
     const desktop = window.innerWidth >= 1200;
@@ -471,7 +474,6 @@ function TourOverlay({
       });
     });
   };
-  const navigating = Boolean(step.route && path !== step.route);
   const changeLanguage = (next: 'en' | 'bn') => {
     if (language === next || locked.current) return;
     locked.current = true;
@@ -525,7 +527,7 @@ function TourOverlay({
           <FarmGuide step={step.id} />
           <span>
             <Flag size={17} />
-            {step.mission[language]}
+            {tourMission[language]}
           </span>
           <button
             className="icon-button"
@@ -591,58 +593,26 @@ function TourOverlay({
             {t('Show text instantly', 'সব লেখা একসঙ্গে দেখুন')}
           </button>
         </div>
-        {(canPan || canPanCalendar) && !isWelcome && (
+        {canPan && !isWelcome && (
           <div
             className="tour-section-navigation"
             role="group"
             aria-label={t('Explore the highlighted section', 'চিহ্নিত অংশ দেখুন')}
           >
-            {canPan && (
-              <>
-                <button
-                  disabled={busy}
-                  onClick={() => panSection(-1)}
-                  aria-label={t('Show upper part of section', 'অংশের ওপরের ভাগ দেখুন')}
-                >
-                  ↑
-                </button>
-                <button
-                  disabled={busy}
-                  onClick={() => panSection(1)}
-                  aria-label={t('Show lower part of section', 'অংশের নিচের ভাগ দেখুন')}
-                >
-                  ↓
-                </button>
-              </>
-            )}
-            {canPanCalendar && (
-              <>
-                <button
-                  disabled={busy}
-                  onClick={() =>
-                    document.querySelector(step.target!)?.scrollBy({
-                      left: -300,
-                      behavior: prefersReducedMotion() ? 'instant' : 'smooth',
-                    })
-                  }
-                  aria-label={t('Earlier calendar months', 'ক্যালেন্ডারের আগের মাস')}
-                >
-                  ←
-                </button>
-                <button
-                  disabled={busy}
-                  onClick={() =>
-                    document.querySelector(step.target!)?.scrollBy({
-                      left: 300,
-                      behavior: prefersReducedMotion() ? 'instant' : 'smooth',
-                    })
-                  }
-                  aria-label={t('Later calendar months', 'ক্যালেন্ডারের পরের মাস')}
-                >
-                  →
-                </button>
-              </>
-            )}
+            <button
+              disabled={busy}
+              onClick={() => panSection(-1)}
+              aria-label={t('Show upper part of section', 'অংশের ওপরের ভাগ দেখুন')}
+            >
+              ↑
+            </button>
+            <button
+              disabled={busy}
+              onClick={() => panSection(1)}
+              aria-label={t('Show lower part of section', 'অংশের নিচের ভাগ দেখুন')}
+            >
+              ↓
+            </button>
             <span>{t('Explore this section', 'এই অংশ দেখুন')}</span>
           </div>
         )}
@@ -652,16 +622,12 @@ function TourOverlay({
           </button>
           <div>
             {index > 0 && (
-              <button className="button secondary" disabled={busy} onClick={() => move(index - 1)}>
+              <button className="button secondary" disabled={busy} onClick={() => move(-1)}>
                 <ArrowLeft size={17} />
                 {t('Back', 'আগের ধাপ')}
               </button>
             )}
-            <button
-              className="button primary"
-              disabled={navigating || busy}
-              onClick={() => (index === steps.length - 1 ? onClose() : move(index + 1))}
-            >
+            <button className="button primary" disabled={busy} onClick={() => move(1)}>
               {index === steps.length - 1 ? (
                 <>
                   <Check size={17} />

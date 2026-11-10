@@ -2357,3 +2357,65 @@
     font-size: 0.88rem;
   }
 }
+
+/* NASA IMERG dry-spell and SMAP pre-sowing lines on plans and in the calendar. */
+@layer pages {
+  .rot-nasa {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .rot-nasa > * {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px;
+    align-items: baseline;
+    padding: 8px 10px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--rot-rain) 30%, var(--color-surface));
+    font-size: 0.92rem;
+  }
+  .rot-nasa > .high {
+    background: var(--color-warn-bg);
+  }
+  .rot-nasa-tag {
+    white-space: nowrap;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--rot-rain-ink);
+  }
+  .rot-nasa > .high .rot-nasa-tag {
+    color: var(--color-warn-ink);
+  }
+  .rot-wx-nasa {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--color-ink-muted);
+  }
+  .rot-detail .irr.presow {
+    fill: var(--rot-rain-ink);
+  }
+  @media (max-width: 520px) {
+    .rot-nasa > * {
+      grid-template-columns: 1fr;
+      gap: 2px;
+    }
+  }
+}
+
+/* Change plan, always next to the plot's crops on the calendar. */
+@layer pages {
+  .rot-change-plan {
+    margin-inline-start: 4px;
+    background: var(--stage-ink);
+    color: var(--stage-bg);
+  }
+  .rot-change-plan:hover {
+    background: var(--stage-accent);
+  }
+  .rot-change-plan:focus-visible {
+    outline-color: var(--stage-accent);
+  }
+}

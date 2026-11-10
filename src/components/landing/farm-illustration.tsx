@@ -347,10 +347,10 @@ export function FarmIllustration({
                   ))}
                 </g>
               ))}
-              <g transform="translate(358 576) scale(2.05)">
+              <g className="farm-solid" transform="translate(358 576) scale(2.05)">
                 <Farmer kind="sow" prefix={id} />
               </g>
-              <g transform="translate(253 730)">
+              <g className="farm-solid" transform="translate(253 730)">
                 <use href={`#${p('basket')}`} x="-37" y="-27" width="74" height="54" />
               </g>
             </g>
@@ -377,7 +377,7 @@ export function FarmIllustration({
                   </g>
                 ))}
               </g>
-              <g transform="translate(426 576) scale(2.05)">
+              <g className="farm-solid" transform="translate(426 576) scale(2.05)">
                 <Farmer kind="water" prefix={id} />
               </g>
             </g>
@@ -396,8 +396,8 @@ export function FarmIllustration({
                           attributeName="transform"
                           type="scale"
                           values="1 .35;1 1"
-                          begin="14s"
-                          dur="7s"
+                          begin="6s"
+                          dur="2.4s"
                           fill="freeze"
                           calcMode="spline"
                           keyTimes="0;1"
@@ -420,8 +420,8 @@ export function FarmIllustration({
                           <animate
                             attributeName="opacity"
                             values="0;1"
-                            begin="18s"
-                            dur="4.5s"
+                            begin="7s"
+                            dur="1.6s"
                             fill="freeze"
                           />
                           <use
@@ -466,10 +466,10 @@ export function FarmIllustration({
                   </g>
                 ))}
               </g>
-              <g transform="translate(438 576) scale(2.05)">
+              <g className="farm-solid" transform="translate(385 576) scale(2.05)">
                 <Farmer kind="harvest" prefix={id} />
               </g>
-              <g transform="translate(300 705) rotate(-18)">
+              <g className="farm-solid" transform="translate(300 705) rotate(-18)">
                 {Array.from({ length: 10 }, (_, i) => (
                   <use
                     key={i}
@@ -482,7 +482,7 @@ export function FarmIllustration({
                 ))}
                 <path d="M-17 0h39m-38 5h37" stroke="#ab7c41" strokeWidth="3" />
               </g>
-              <g transform="translate(219 739)">
+              <g className="farm-solid" transform="translate(219 739)">
                 <use href={`#${p('basket')}`} x="-37" y="-27" width="74" height="54" />
               </g>
             </g>
@@ -500,520 +500,326 @@ export function FarmIllustration({
   );
 }
 
-/** Original adult characters with articulated silhouettes and cel-style shading. */
+/** Three different field workers drawn in the same flat style as the scenery: no outlines, two tones per colour. */
 function Farmer({ kind, prefix }: { kind: 'sow' | 'water' | 'harvest'; prefix: string }) {
-  const harvest = kind === 'harvest',
-    watering = kind === 'water',
-    shirt = harvest ? '#7199a5' : '#d9a365',
-    shade = harvest ? '#4e7584' : '#b87b45',
-    outline = '#533c32',
-    skin = '#bc825c',
-    light = '#d49b70';
   return (
-    <g data-farm-worker={kind} strokeLinejoin="round" strokeLinecap="round">
-      <ellipse cx="1" cy="80" rx="32" ry="5" fill="#3e4431" opacity=".18" />
-      {/* Planted foot and bent knee give the figure weight. */}
-      <path
-        d="M-17 42-18 59-22 73q1 5 7 3l7-23 3-11M5 43l6 19 7 13q6 3 6-2l-6-23-2-9"
-        fill={skin}
-        stroke={outline}
-        strokeWidth=".9"
-      />
-      <path d="m-17 51-1 16m32-14 5 16" fill="none" stroke="#9c6549" strokeWidth="1.6" />
-      <path
-        d="M-23 73q7-2 10 0l-1 5-15 1q-3-3 6-6M17 73q5-2 8 1l8 3q2 4-4 3l-12-2Z"
-        fill="#78634e"
-        stroke={outline}
-        strokeWidth=".9"
-      />
-      <path
-        d="m-23 74 7 2m3-3-3 4m35-3 5 3m-5-3-2 3"
-        fill="none"
-        stroke="#dbbc89"
-        strokeWidth="1.2"
-      />
-      <g data-worker-body="">
-        {kind !== 'sow' && (
-          <animateTransform
-            attributeName="transform"
-            type="rotate"
-            values={harvest ? '8 0 40;8 0 40;4 0 40;4 0 40;2 0 40' : '-.7 0 40;1 0 40;-.7 0 40'}
-            keyTimes={harvest ? '0;.45;.65;.8;1' : '0;.5;1'}
-            begin={harvest ? '23s' : '7s'}
-            dur="4s"
-            calcMode="spline"
-            keySplines={
-              harvest
-                ? '.42 0 .58 1;.42 0 .58 1;.42 0 .58 1;.42 0 .58 1'
-                : '.42 0 .58 1;.42 0 .58 1'
-            }
-            repeatCount={harvest ? '1' : 'indefinite'}
-            fill="freeze"
-          />
-        )}
-        {/* Supporting arms stay behind the torso; the harvesting reach crosses in front. */}
-        {!harvest && (
-          <g data-worker-arm="far">
-            {kind === 'sow' && (
-              <g data-held-prop="seed-basket" transform="translate(-27 31)">
-                <use href={`#${prefix}-basket`} x="-24" y="-17" width="48" height="35" />
-              </g>
-            )}
-            <path
-              d={
-                kind === 'sow'
-                  ? 'M-17-7q-8 7-10 21l1 12 5 4 4-3-3-4 2-10 9-14Z'
-                  : 'M-17-7q-9 8-10 20 5 9 18 12l6-2-3-4-12-8 9-12Z'
-              }
-              fill={skin}
-              stroke={outline}
-              strokeWidth=".9"
-            />
-          </g>
-        )}
-        {watering ? (
-          <g>
-            <path
-              d="M-18 15 15 15l12 52q-24 9-51-1Z"
-              fill="#a35048"
-              stroke={outline}
-              strokeWidth="1"
-            />
-            <path
-              d="M-17 17q4 27-3 49m12-48 1 49m10-49 8 49m1-48 13 44"
-              fill="none"
-              stroke="#743c3a"
-              strokeWidth="1.3"
-            />
-            <path d="m-23 63 49 1 1 4q-23 9-51-1Z" fill="#e1bc7f" />
-            <path d="m-21 65 45 1" stroke="#754c38" strokeWidth=".7" />
-          </g>
-        ) : (
-          <g>
-            <path d="M-18 19h34l8 31q-21 8-47 0Z" fill="#668788" stroke={outline} strokeWidth="1" />
-            <path d="M-18 19h34l8 31q-21 8-47 0Z" fill={`url(#${prefix}-cloth)`} />
-            <path
-              d="m-16 22-2 25m11-23-2 27m9-28 4 28m8-27 8 24"
-              stroke="#355960"
-              strokeWidth="1"
-              opacity=".7"
-              fill="none"
-            />
-            <path d="M-21 49q23 7 44 0" fill="none" stroke="#d8d7b7" strokeWidth="1.7" />
-            <path d="m-13 23 15 3 12-5-3 9-9-1" fill="#46686c" stroke="#34565b" strokeWidth=".8" />
-          </g>
-        )}
-        <path d="M-7-25v12q7 7 15-1L7-29Z" fill={light} stroke={outline} strokeWidth=".8" />
-        <path d="m-6-24 13-2v7q-7 4-13-1" fill="#a56b4e" />
-        <path
-          d={
-            harvest
-              ? 'M-8-17q-12 1-14 10l5 16 1 15q17 5 34-1l-1-17 9-4-7-11-11-7-5 5Z'
-              : 'M-8-17q-12 1-16 10l-4 11 12 5 1 15q17 5 34-1l-1-17 9-4-7-11-11-7-5 5Z'
-          }
-          fill={watering ? '#c47a59' : shirt}
-          stroke={outline}
-          strokeWidth="1"
-        />
-        <path
-          d={
-            harvest
-              ? 'm11-9 6 9 2 19-5 1 1-16-6-7'
-              : 'm-23-5 9 5-1 21-5-1-1-12-7-3m39-14 6 9 2 19-5 1 1-16-6-7'
-          }
-          fill={watering ? '#a95b45' : shade}
-        />
-        {watering ? (
-          <g>
-            {/* Sari border follows the drape across the shoulder and waist. */}
-            <path
-              d="m-9-18 12 1 17 38-13 7-23-10 8-1 12 3Z"
-              fill="#b45d50"
-              stroke="#77453b"
-              strokeWidth=".8"
-            />
-            <path d="m-8-18 4 1 15 37 8 1-3 3-10-2Z" fill="#e9c98a" />
-            <path d="m-4-9 7 18m-13 8 13 5" stroke="#863f3a" strokeWidth=".9" fill="none" />
-          </g>
-        ) : (
-          <g>
-            <path
-              d="m-8-18 8 8 6-7 4 6-6 5-4-4-6 6-6-7Z"
-              fill="#f0cf97"
-              stroke={shade}
-              strokeWidth=".8"
-            />
-            <path
-              d="M1-8v30m-17-16 3 4m25-1-3 7m-19 1-6 3"
-              fill="none"
-              stroke={shade}
-              strokeWidth="1"
-            />
-            <path d="M7-4h9v9q-5 3-9-1Z" fill={shade} stroke={outline} strokeWidth=".5" />
-            <path d="m7-3 9 1" stroke="#d9d8bc" strokeWidth=".8" />
-            {[0, 8, 16].map((y) => (
-              <circle
-                key={y}
-                cx="2.5"
-                cy={y}
-                r=".9"
-                fill="#f8e7bf"
-                stroke={shade}
-                strokeWidth=".4"
-              />
-            ))}
-            <path d="M-14 21q15 3 29 0" fill="none" stroke={shade} strokeWidth="1" />
-            <path d="m-14-14 6-3-3 34-6-1Z" fill="#eee0bd" stroke="#907b5d" strokeWidth=".6" />
-            <path d="m-14-5 5 1m-6 6 5 1m-6 6 5 1m-6 6 5 1" stroke="#9e614e" strokeWidth="1.2" />
-          </g>
-        )}
-        {harvest && <HarvestArm holding prefix={prefix} />}
-        {/* Brow, eyelids, nose bridge, cheek and jaw remain legible at hero size. */}
-        <g transform="translate(1 -4) scale(.8)">
-          <g>
-            <animateTransform
-              attributeName="transform"
-              type="rotate"
-              values="-1 0 -29;1 0 -29;-1 0 -29"
-              dur="5s"
-              repeatCount="indefinite"
-            />
-            {watering && (
-              <ellipse
-                cx="-12"
-                cy="-43"
-                rx="9"
-                ry="9"
-                fill="#30332c"
-                stroke={outline}
-                strokeWidth="1"
-              />
-            )}
-            <path
-              d="M-10-48q3-12 15-9 11 3 10 17l3 8-5 2q-2 10-11 11-9-2-12-13Z"
-              fill={light}
-              stroke={outline}
-              strokeWidth="1"
-            />
-            <path d="M-10-46q-3 11 1 19 4 7 11 8-10 1-14-7l-3-12Z" fill={skin} />
-            <path d="M-10-36q-8-5-7 3 1 6 7 5" fill={light} stroke={outline} strokeWidth=".8" />
-            <path d="m-12-31-2-3 3 1" fill="none" stroke="#9e6347" strokeWidth=".8" />
-            <path
-              d="M-13-37q-7-19 5-23 14-6 22 6l2 10-6-9q-6 4-12 1l-4 8Z"
-              fill="#33362d"
-              stroke={outline}
-              strokeWidth=".8"
-            />
-            <path d="M-8-55q11-5 17 1" fill="none" stroke="#62604a" strokeWidth="1" />
-            <path d="m2-43 8-1M1-39q4 2 9-1" stroke="#4a372c" strokeWidth="1" fill="none" />
-            <g>
-              <animate
-                attributeName="opacity"
-                values="1;1;0;1;1"
-                keyTimes="0;.45;.47;.49;1"
-                dur="4.8s"
-                repeatCount="indefinite"
-              />
-              <path d="M1-39q4-4 9-1-4 4-9 1Z" fill="#fff7df" stroke={outline} strokeWidth=".65" />
-              <ellipse cx="7" cy="-39.5" rx="1.6" ry="1.9" fill="#342e26" />
-              <circle cx="7.5" cy="-40" r=".5" fill="#fff" stroke="none" />
-            </g>
-            <path d="m11-40 1 7 3 1-3 2" fill="none" stroke="#935e44" strokeWidth=".8" />
-            <path d="m6-26 6-1m-4 3 3-.3" stroke="#774936" strokeWidth=".8" fill="none" />
-            <path d="m-2-31 3-1" stroke="#dfa67b" strokeWidth="2" />
-            {watering ? (
-              <g>
-                <circle
-                  cx="-11"
-                  cy="-26"
-                  r="1.6"
-                  fill="#e6bc58"
-                  stroke="#8a6638"
-                  strokeWidth=".6"
-                />
-                <circle cx="11" cy="-47" r=".9" fill="#a64e3e" />
-                <path d="M-10-54q6 1 10-4" stroke="#79704b" strokeWidth=".7" fill="none" />
-              </g>
-            ) : (
-              <path d="M6-29q3-3 5-1l3 1-1 1-4-1-3 1Z" fill="#4d3c2d" stroke="none" />
-            )}
-            {!watering &&
-              (harvest ? (
-                <g>
-                  <path
-                    d="M-15-50q0-12 14-12 16 0 18 13l-13 1-13-1-5 8Z"
-                    fill="#e7d8ad"
-                    stroke={outline}
-                    strokeWidth=".8"
-                  />
-                  <path
-                    d="m-13-53 27-2m-27 6 28-1m-27-6 3 9m6-11 3 9m6-8 3 8"
-                    stroke="#a9684e"
-                    strokeWidth="1.2"
-                  />
-                  <path
-                    d="m-14-48-6 17 5 2 4-17"
-                    fill="#e7d8ad"
-                    stroke={outline}
-                    strokeWidth=".7"
-                  />
-                </g>
-              ) : (
-                <use href={`#${prefix}-hat`} x="-34" y="-76" width="68" height="32" />
-              ))}
-          </g>
-        </g>
-        {/* Separate sleeve, elbow, palm and fingers make the action readable. */}
-        {harvest ? (
-          <HarvestArm holding={false} prefix={prefix} />
-        ) : (
-          <g data-worker-arm="near">
-            <animateTransform
-              attributeName="transform"
-              type="rotate"
-              values={
-                kind === 'sow'
-                  ? '12 16 -5;-24 16 -5;-24 16 -5;12 16 -5;12 16 -5'
-                  : '-2 16 -5;2 16 -5;-2 16 -5'
-              }
-              keyTimes={kind === 'sow' ? '0;.34;.44;.82;1' : '0;.5;1'}
-              begin={watering ? '7s' : '0s'}
-              dur={kind === 'sow' ? '2.6s' : '4s'}
-              calcMode="spline"
-              keySplines={
-                watering
-                  ? '.42 0 .58 1;.42 0 .58 1'
-                  : '.42 0 .58 1;.42 0 .58 1;.42 0 .58 1;.42 0 .58 1'
-              }
-              repeatCount="indefinite"
-              fill="freeze"
-            />
-            {watering && <WateringCan />}
-            <path
-              d="M17-6q6 0 11 11l4 5 8 3-2 7-12-3-12-16Z"
-              fill={light}
-              stroke={outline}
-              strokeWidth=".9"
-            />
-            <path d="m18 3 8 10 7 3" stroke="#b67a56" strokeWidth="1" fill="none" />
-            <path
-              d="M17-10q8 2 11 15l-10 5-7-13Z"
-              fill={watering ? '#c47a59' : shirt}
-              stroke={outline}
-              strokeWidth=".9"
-            />
-            <path d="m18 7 9-4" stroke={watering ? '#8e4f3e' : shade} strokeWidth="1.8" />
-            <g transform="translate(37 16)">
-              <path
-                d={
-                  watering
-                    ? 'M-3-3q1-4 5-4l6 1 1 5-2 4-4-1V-1L0 1l-3-1Z'
-                    : 'M-2-3 3-5q3-2 4 0l-2 3 7 1q2 1 0 2l-6 1 5 1q2 2-1 2H3l-5-2Z'
-                }
-                fill={light}
-                stroke={outline}
-                strokeWidth=".7"
-              />
-              <path
-                d={watering ? 'm3-4 4 1m-4 1 4 1' : 'm4 0 6 1m-6 1 5 1'}
-                stroke="#a86c4e"
-                strokeWidth=".6"
-              />
-              {watering && <path d="m-2-3 1 6" stroke="#e6bd64" strokeWidth="1.6" />}
-              {watering && <circle data-grip="watering-can" cx="0" cy="0" r="0" />}
-            </g>
-            {kind === 'sow' && <circle data-release-point="" cx="45" cy="17" r="0" />}
-          </g>
-        )}
-        {kind === 'sow' && <SownSeeds prefix={prefix} />}
-      </g>
+    <g data-farm-worker={kind} strokeLinecap="round" strokeLinejoin="round">
+      {kind === 'sow' && <Sower prefix={prefix} />}
+      {kind === 'water' && <Waterer />}
+      {kind === 'harvest' && <Reaper prefix={prefix} />}
     </g>
   );
 }
 
-// Both limbs use the same geometry. Only shoulder/elbow/wrist rotations change.
-const WORKER_UPPER_ARM = 20;
-const WORKER_FOREARM = 18;
-function HarvestArm({ holding, prefix }: { holding: boolean; prefix: string }) {
-  const upperAngle = holding ? 70 : 65,
-    forearmAngle = holding ? -40 : 20,
-    role = holding ? 'holding' : 'cutting',
-    grip = holding ? 'grain' : 'sickle';
+const EASE = '.42 0 .58 1';
+
+/** An older farmer in a bamboo mathal, vest and lungi, broadcasting seed from a basket. */
+function Sower({ prefix }: { prefix: string }) {
+  const skin = '#8a5a3c',
+    dark = '#724830',
+    vest = '#f4ecd9',
+    vestShade = '#dccfb3',
+    lungi = '#2f6b5a',
+    grey = '#ece7dc';
   return (
-    <g
-      data-worker-arm={holding ? 'far' : 'near'}
-      transform={holding ? 'translate(16 -9)' : 'translate(-17 -7)'}
-    >
+    <g>
+      <ellipse cx="5" cy="80" rx="30" ry="4.5" fill="#3e4431" opacity=".18" />
+      {/* Legs in a walking stride */}
+      <path d="M-3 28-10 56-14 76" fill="none" stroke={dark} strokeWidth="7" />
+      <path d="M-20 80q0-5 5-5h6q6 1 8 5Z" fill={dark} />
+      <path d="M3 28 13 54 17 76" fill="none" stroke={skin} strokeWidth="7.5" />
+      <path d="M12 80q0-5 5-5h7q7 1 9 5Z" fill={skin} />
+      <path d="M-9 13H9q7 21 13 44-18 7-40 1 5-24 9-45Z" fill={lungi} />
+      <path
+        d="M-13 31q15 4 29 0m-32 14q18 5 36-1M-2 14q-3 22-7 45M5 14q4 22 7 45"
+        fill="none"
+        stroke="#6fa391"
+        strokeWidth="1.2"
+        opacity=".75"
+      />
+      <path d="M-18 58q22 6 40-1" fill="none" stroke="#e9e4d0" strokeWidth="1.6" />
+      {/* Far arm carries the seed basket in front of the waist */}
+      <path d="M3-19 8-2 20 7" fill="none" stroke={dark} strokeWidth="6" />
+      <g data-held-prop="seed-basket">
+        <use href={`#${prefix}-basket`} x="8" y="-4" width="32" height="23" />
+      </g>
+      <path d="m35.5 6-5 1m5.5 2.5-5 1m4.5 2.5-4.5.8" stroke={dark} strokeWidth="2.4" />
+      <path d="M-7-24q-4 16-2 38H9q2-14 0-26-1-8-4-12-6-3-12 0Z" fill={vest} />
+      <path d="M-7-24q-4 16-2 38h5q-3-20 1-38Z" fill={vestShade} />
+      <circle cx="8" cy="14.5" r="3" fill="#24554a" />
+      <path d="M0-24 2-30" fill="none" stroke={skin} strokeWidth="7" />
+      {/* Gamcha over the shoulder */}
+      <path d="M-6-25q-5 15-4 31l6 1q-1-17 4-31Z" fill="#c2453a" />
+      <path d="m-9.5-13 6 .7m-6.6 6.3 6 .6m-5.8 6.4 6 .6" stroke="#f3d9c8" strokeWidth="1.1" />
       <g>
         <animateTransform
           attributeName="transform"
           type="rotate"
-          values={holding ? '0;0;-24;-24;-12' : '8;0;6;6;4'}
-          keyTimes={holding ? '0;.45;.65;.8;1' : '0;.35;.45;.78;1'}
-          begin="23s"
-          dur="4s"
-          repeatCount="1"
-          fill="freeze"
-          calcMode="spline"
-          keySplines=".42 0 .58 1;.42 0 .58 1;.42 0 .58 1;.42 0 .58 1"
+          values="-1.5 3 -28;1.5 3 -28;-1.5 3 -28"
+          dur="5s"
+          repeatCount="indefinite"
         />
-        <circle data-arm-joint="shoulder" cx="0" cy="0" r="0" />
-        <g transform={`rotate(${upperAngle})`}>
+        <path d="M-7-42q0-10 11-9 9 1 9 9l2.5 5-2.5 1q0 6-7 7-10 1-13-7Z" fill={skin} />
+        <ellipse cx="-1" cy="-39" rx="2.2" ry="3" fill={dark} />
+        <path d="M-7-44q-2 8 2 11l2-5q-1-4 0-7Z" fill="#cfc9bc" />
+        <path d="M-3-34q0 7 9 6.5 6-.5 7-6.5-4 3-8 2.5-5-.5-8-2.500Z" fill={grey} />
+        <path d="M8-35.800q4-1.6 6.5.6-3 1-6.5.4Z" fill={grey} />
+        <ellipse cx="8" cy="-41.5" rx="1.1" ry="1.5" fill="#2a211c" />
+        <path d="M5.5-44.500q3-1.5 5.5 0" fill="none" stroke={grey} strokeWidth="1.2" />
+        {/* Bamboo mathal */}
+        <path d="M-21-48Q3-74 28-48 3-42-21-48Z" fill="#e6c67f" />
+        <path d="M-21-48Q3-42 28-48 3-45.5-21-48Z" fill="#b99548" />
+        <path
+          d="M-9-56q12 4 25 0m-31 5q18 5 37 0M3.5-61v14m-9-11-4 10m22-10 4 10"
+          fill="none"
+          stroke="#c9a557"
+          strokeWidth="1"
+        />
+      </g>
+      {/* Near arm swings from the basket to the throw */}
+      <g data-worker-arm="near">
+        <animateTransform
+          attributeName="transform"
+          type="rotate"
+          values="36 -1 -19;-8 -1 -19;-8 -1 -19;36 -1 -19;36 -1 -19"
+          keyTimes="0;.34;.44;.82;1"
+          dur="2.6s"
+          calcMode="spline"
+          keySplines={`${EASE};${EASE};${EASE};${EASE}`}
+          repeatCount="indefinite"
+        />
+        <path d="M-1-19 13-9 30-13" fill="none" stroke={skin} strokeWidth="6.5" />
+        <path d="m30-16 6-1.500m-5 4.5 6.5.5m-7.5 2.5 5.5 2" stroke={skin} strokeWidth="2.2" />
+        <circle cx="31" cy="-13.5" r="3.6" fill={skin} />
+        <circle data-release-point="" cx="36" cy="-13" r="0" />
+      </g>
+      <circle cx="-1" cy="-19" r="4.2" fill={skin} />
+      <SownSeeds prefix={prefix} />
+    </g>
+  );
+}
+
+/** A woman in a marigold sari with a red border, tipping a watering can with both hands. */
+function Waterer() {
+  const skin = '#a36a47',
+    dark = '#8a563a',
+    sari = '#dd9a2b',
+    sariShade = '#bf7f1d',
+    red = '#a8362e',
+    hair = '#2b2320';
+  return (
+    <g>
+      <ellipse cx="3" cy="80" rx="28" ry="4.5" fill="#3e4431" opacity=".18" />
+      <path d="M-13 80q0-4 4-4h6q4 1 5 4Z" fill={dark} />
+      <path d="M3 80q0-4 4-4h6q5 1 6 4Z" fill={skin} />
+      <g>
+        <animateTransform
+          attributeName="transform"
+          type="rotate"
+          values="4 0 40;5.5 0 40;4 0 40"
+          dur="4s"
+          calcMode="spline"
+          keySplines={`${EASE};${EASE}`}
+          repeatCount="indefinite"
+        />
+        <path d="M-9 12H8q6 32 9 62-17 5-36 0 6-34 10-62Z" fill={sari} />
+        <path
+          d="M4 14q5 30 6 62M0 14q3 30 3 63m-7-63q0 30-1 63"
+          fill="none"
+          stroke={sariShade}
+          strokeWidth="1.2"
+        />
+        <path d="M-19 74q19 5 36 0l-.5-4.500q-17 5-34.8 0Z" fill={red} />
+        {/* Anchal tail down the back */}
+        <path d="M-8-20q-6 12-7 28l6 1q0-17 5-30Z" fill={sariShade} />
+        <path d="m-15 8 6 1" stroke={red} strokeWidth="2" />
+        {/* Far arm steadies the can from below */}
+        <path d="M4-16 12 1 25 9" fill="none" stroke={dark} strokeWidth="5.5" />
+        <path d="M-8-4H7l1 16H-9Z" fill={skin} />
+        <path d="M-7-21q-3 9-1 18H8q2-9-2-18-6-3-13 0Z" fill={red} />
+        <path d="M8 12 9 4Q6-10-3-22l-5 2q6 14 6 32Z" fill={sari} />
+        <path d="M9 4Q6-10-3-22" fill="none" stroke={red} strokeWidth="1.6" />
+        <path d="M0-22 1.5-28" fill="none" stroke={skin} strokeWidth="6.5" />
+        <g>
           <path
-            data-arm-silhouette={role}
-            d={`M0-4Q10-4.5 ${WORKER_UPPER_ARM}-3.3Q${WORKER_UPPER_ARM + 4} 0 ${WORKER_UPPER_ARM} 3.3Q10 4.5 0 4Z`}
-            fill={holding ? '#bc825c' : '#d49b70'}
-            stroke="#533c32"
-            strokeWidth=".9"
+            d="M-7-39q0-9 10-9 9 1 9.5 8l2 4.5-2 1q-.5 5.5-6.5 7-9 .5-12.5-5.500Z"
+            fill={skin}
           />
           <path
-            data-arm-sleeve={role}
-            d="M-4-7Q3-8 10-6L11 6Q3 8-4 7Z"
-            fill="#7199a5"
-            stroke="#533c32"
-            strokeWidth=".9"
+            d="M-7.5-37q-1.5-13 10.5-13.5 8 .5 9.5 7.5-6.5-3-11.5 1-3 3-4 9-3 0-4.5-4Z"
+            fill={hair}
           />
-          <path d="M9-5.5 10 5.5" stroke="#4e7584" strokeWidth="1.5" />
-          <g transform={`translate(${WORKER_UPPER_ARM} 0) rotate(${forearmAngle - upperAngle})`}>
-            <circle data-arm-joint="elbow" cx="0" cy="0" r="0" />
-            <path
-              data-arm-silhouette={role}
-              d={`M0-3.1Q9-3.8 ${WORKER_FOREARM}-2.6L${WORKER_FOREARM} 2.6Q9 3.8 0 3.1Z`}
-              fill={holding ? '#bc825c' : '#d49b70'}
-              stroke="#533c32"
-              strokeWidth=".9"
-            />
-            <path d="M2 1.5Q8 2.5 14 1.8" stroke="#a86c4e" strokeWidth=".7" fill="none" />
-            <g transform={`translate(${WORKER_FOREARM} 0) rotate(${-forearmAngle})`}>
-              <circle data-arm-joint="wrist" cx="0" cy="0" r="0" />
-              <g>
-                {holding && (
-                  <animateTransform
-                    attributeName="transform"
-                    type="rotate"
-                    values="0;0;24;24;12"
-                    keyTimes="0;.45;.65;.8;1"
-                    begin="23s"
-                    dur="4s"
-                    repeatCount="1"
-                    fill="freeze"
-                    calcMode="spline"
-                    keySplines=".42 0 .58 1;.42 0 .58 1;.42 0 .58 1;.42 0 .58 1"
-                  />
-                )}
-                {holding ? <HarvestGrain prefix={prefix} /> : <HarvestSickle />}
-                <path
-                  data-arm-hand={role}
-                  d={
-                    holding
-                      ? 'M-4-3q3-4 7-2l2 5-2 4-4-1-4-3Z'
-                      : 'M-3-3q1-4 5-4l6 1 1 5-2 4-4-1V-1L0 1l-3-1Z'
-                  }
-                  fill="#d49b70"
-                  stroke="#533c32"
-                  strokeWidth=".7"
-                />
-                <path d="m0-3 3 1m-3 2 3 1" stroke="#9b6347" strokeWidth=".7" />
-                <circle data-grip={grip} cx="0" cy="0" r="0" />
-              </g>
-            </g>
+          <circle cx="-9.5" cy="-37" r="5.5" fill={hair} />
+          <ellipse cx=".5" cy="-36.5" rx="2" ry="2.6" fill={dark} />
+          <circle cx=".5" cy="-33" r="1.3" fill="#e6bc58" />
+          <ellipse cx="8" cy="-38.5" rx="1.1" ry="1.5" fill="#2a211c" />
+          <path d="M5.5-41.500q3-1.4 5.2-.2" fill="none" stroke={hair} strokeWidth="1" />
+          <circle cx="10.5" cy="-43" r=".9" fill={red} />
+          <path d="M10.5-31.500h2.5" stroke="#8a3d33" strokeWidth="1" />
+        </g>
+        {/* Near arm and can tip together */}
+        <g data-worker-arm="near">
+          <animateTransform
+            attributeName="transform"
+            type="rotate"
+            values="-3 -1 -17;3 -1 -17;-3 -1 -17"
+            dur="4s"
+            calcMode="spline"
+            keySplines={`${EASE};${EASE}`}
+            repeatCount="indefinite"
+          />
+          <circle data-contact="watering-can" cx="34.5" cy="-9.7" r="0" />
+          <circle data-grip="watering-can" cx="34.5" cy="-9.7" r="0" />
+          <g data-held-prop="watering-can" transform="translate(30 6) rotate(18)">
+            <path d="M-11-4Q-20 1-11 9" fill="none" stroke="#3f7480" strokeWidth="2.6" />
+            <path d="M10 6 30-8l2 4-21 16Z" fill="#5f97a3" />
+            <path d="m29-11 6 3-3 8-6-3Z" fill="#8fbcc4" />
+            <path d="M-11-8h22l-2 20H-9Z" fill="#5f97a3" />
+            <path d="M-10 0h20" stroke="#8fbcc4" strokeWidth="1.4" />
+            <ellipse cy="-8" rx="11" ry="3" fill="#8fbcc4" />
+            <path d="M-8-9Q0-21 8-9" fill="none" stroke="#3f7480" strokeWidth="2.6" />
           </g>
+          <g data-water-outlet="" transform="translate(62 12)">
+            <path
+              d="M0 0q5 22 8 64M-1.5 1q3 22 4 64M1.5 0q8 22 13 62"
+              fill="none"
+              stroke="#8fc3cc"
+              strokeWidth=".9"
+              opacity=".55"
+            />
+            {Array.from({ length: 12 }, (_, i) => (
+              <ellipse key={i} cx={i % 3} cy="0" rx=".8" ry="1.5" fill="#8fc3cc" opacity="0">
+                <animateTransform
+                  attributeName="transform"
+                  type="translate"
+                  values={`0 0;${3 + (i % 3)} 24;${6 + (i % 3) * 3} 64`}
+                  keyTimes="0;.45;1"
+                  dur=".9s"
+                  begin={`${(i * 0.075).toFixed(3)}s`}
+                  repeatCount="indefinite"
+                />
+                <animate
+                  attributeName="opacity"
+                  values="0;.9;.75;0"
+                  keyTimes="0;.1;.8;1"
+                  dur=".9s"
+                  begin={`${(i * 0.075).toFixed(3)}s`}
+                  repeatCount="indefinite"
+                />
+              </ellipse>
+            ))}
+          </g>
+          <path d="M-1-17 12-2 34-9.5" fill="none" stroke={skin} strokeWidth="6" />
+          <path d="M-1-17 4.5-10.5" fill="none" stroke={red} strokeWidth="7.5" />
+          <path d="m27-5.5 1.5-4m1.5 5 1.5-4" stroke="#e6bc58" strokeWidth="1.3" />
+          <circle cx="34.5" cy="-9.7" r="3.5" fill={skin} />
         </g>
       </g>
     </g>
   );
 }
 
-function HarvestGrain({ prefix }: { prefix: string }) {
+/** A young man bent low with a sickle, head wrapped in a gamcha, lungi folded to the knee. */
+function Reaper({ prefix }: { prefix: string }) {
+  const skin = '#94603f',
+    dark = '#7b4c31',
+    shirt = '#3f7f93',
+    shirtShade = '#2f6577',
+    lungi = '#3b4a73',
+    hair = '#2b2320';
   return (
-    <g data-held-prop="grain">
-      {Array.from({ length: 7 }, (_, i) => (
-        <g key={i}>
-          <use href={`#${prefix}-wheat`} x={-18 + i * 3} y="-50" width="21" height="65" />
-          <path
-            d={`M${-10 + i * 3} -25Q${-5 + i * 1.5} -6 ${-3 + i} 14`}
-            fill="none"
-            stroke={i % 2 ? '#c9ad5c' : '#e4c878'}
-            strokeWidth="1.1"
-          />
-        </g>
-      ))}
-      <path d="m-6 0 14-1" stroke="#ac7e43" strokeWidth="2" />
-      <circle data-contact="grain" cx="0" cy="0" r="0" />
-      <circle data-stalk-base="" cx="0" cy="14" r="0" />
-    </g>
-  );
-}
-
-function HarvestSickle() {
-  return (
-    <g data-held-prop="sickle">
+    <g>
+      <ellipse cx="8" cy="80" rx="38" ry="4.5" fill="#3e4431" opacity=".18" />
+      <path d="M-13 26-22 52-22 76" fill="none" stroke={dark} strokeWidth="7.5" />
+      <path d="M-27 80q0-5 5-5h6q6 1 8 5Z" fill={dark} />
+      <path d="M-8 26 10 46 6 76" fill="none" stroke={skin} strokeWidth="8" />
+      <path d="M1 80q0-5 5-5h7q7 1 9 5Z" fill={skin} />
+      <path d="M-20 14q-7 20-7 38 19 8 42-2-5-16-13-34Z" fill={lungi} />
       <path
-        d="M9-5C16 7 34 5 33-12Q31-2 28-5Q20-5 9-5Z"
-        fill="#c1c9bd"
-        stroke="#52685b"
-        strokeWidth=".8"
+        d="M-25 34q18 6 34-2m-36 14q20 7 40-2"
+        fill="none"
+        stroke="#8a95bd"
+        strokeWidth="1.3"
+        opacity=".8"
       />
-      <path d="m-3 2 12-7" stroke="#533c32" strokeWidth="4.6" />
-      <path d="m-3 2 12-7" stroke="#a77d4e" strokeWidth="3" />
-      <circle data-contact="sickle" cx="0" cy="0" r="0" />
-      <circle data-cutting-edge="" cx="28" cy="-5" r="0" />
-    </g>
-  );
-}
-
-/** The handle, rose and stream inherit the same shoulder and wrist transforms. */
-function WateringCan() {
-  return (
-    <g data-held-prop="watering-can" transform="translate(37 16)">
-      <circle data-contact="watering-can" cx="0" cy="0" r="0" />
-      <g transform="rotate(22)">
-        <path d="M-9 12Q-10-3 0-3 11-3 10 12" fill="none" stroke="#426b70" strokeWidth="3" />
-        <path d="M-12 12h26l-2 21H-10Z" fill="#65959a" stroke="#426b70" strokeWidth=".8" />
-        <ellipse cx="1" cy="12" rx="13" ry="4" fill="#9bbec0" stroke="#426b70" strokeWidth=".8" />
-        <path d="M-6 16v12m4-11v12" fill="none" stroke="#a1c3bd" strokeWidth="1.3" />
-        <path d="m13 24 23-14-2-5-21 9" fill="#65959a" stroke="#426b70" strokeWidth="1" />
-        <path d="m34 3 6 3-4 10-6-3Z" fill="#94b7b5" stroke="#426b70" strokeWidth=".8" />
-        <g data-water-outlet="" transform="translate(37 11)">
-          <circle data-nozzle="" cx="0" cy="0" r="0" />
-          <path
-            d="M0 0q7 9 11 25m-9-24q9 9 13 26m-12-26q11 8 16 24"
-            fill="none"
-            stroke="#78adb3"
-            strokeWidth=".8"
-            opacity=".5"
-          />
-          {Array.from({ length: 12 }, (_, i) => (
-            <ellipse key={i} cx={i % 3} cy="0" rx=".65" ry="1.2" fill="#75aeb7" opacity="0">
-              <animateTransform
-                attributeName="transform"
-                type="translate"
-                values={`0 0;${6 + (i % 3)} 12;${12 + (i % 3) * 2} 34`}
-                keyTimes="0;.5;1"
-                dur=".8s"
-                begin={`${7 + i * 0.067}s`}
-                repeatCount="indefinite"
-              />
-              <animate
-                attributeName="opacity"
-                values="0;.85;.7;0"
-                keyTimes="0;.1;.75;1"
-                dur=".8s"
-                begin={`${7 + i * 0.067}s`}
-                repeatCount="indefinite"
-              />
-            </ellipse>
+      <path d="M-6 16q6 16 8 36" fill="none" stroke="#2c3858" strokeWidth="1.4" />
+      <g>
+        <animateTransform
+          attributeName="transform"
+          type="rotate"
+          values="0 -10 24;3.5 -10 24;3.5 -10 24;0 -10 24"
+          keyTimes="0;.3;.55;1"
+          dur="1.8s"
+          calcMode="spline"
+          keySplines={`${EASE};${EASE};${EASE}`}
+          repeatCount="indefinite"
+        />
+        {/* Far arm grips a handful of standing stalks */}
+        <path d="M21 18 32 33 39 47" fill="none" stroke={dark} strokeWidth="6" />
+        <g data-held-prop="grain">
+          <circle data-contact="grain" cx="39.5" cy="48" r="0" />
+          <circle data-stalk-base="" cx="39" cy="65" r="0" />
+          {Array.from({ length: 5 }, (_, i) => (
+            <g key={i} transform={`rotate(${(i - 2) * 5} 41 80)`}>
+              <use href={`#${prefix}-wheat`} x={23 + i * 3} y="14" width="24" height="75" />
+            </g>
           ))}
         </g>
+        <circle data-grip="grain" cx="39.5" cy="48" r="0" />
+        <ellipse cx="39.5" cy="48" rx="5.2" ry="3.6" transform="rotate(-12 39.5 48)" fill={dark} />
+        <path d="M-10 22Q4 11 20 17" fill="none" stroke={shirt} strokeWidth="21" />
+        <path d="M-12 30Q2 22 20 26" fill="none" stroke={shirtShade} strokeWidth="4" />
+        <path d="M25 15 30 12" fill="none" stroke={skin} strokeWidth="7" />
+        <g transform="translate(32 50) rotate(35 3 -40)">
+          <path d="M-7-42q0-10 11-9 9 1 9 9l2.5 5-2.5 1q0 6-7 7-10 1-13-7Z" fill={skin} />
+          <ellipse cx="-1" cy="-39" rx="2.2" ry="3" fill={dark} />
+          <path d="M-7-43q-2 7 1 10l2-4q-1-3 0-6Z" fill={hair} />
+          <path d="M8.5-35.200q3-1.3 5 .4-2.5 1.2-5 .8Z" fill={hair} />
+          <ellipse cx="8" cy="-41" rx="1.1" ry="1.5" fill="#2a211c" />
+          <path d="M5.5-44q3-1.5 5.5 0" fill="none" stroke={hair} strokeWidth="1.2" />
+          {/* Gamcha tied round the head */}
+          <path d="M-8-41q-1-12 12-11.5 9 .5 9.5 9-11-3-21.5 2.500Z" fill="#c2453a" />
+          <path d="M-8-43q-6 0-8 6l4 1q1-4 5-4Z" fill="#a8362e" />
+          <path
+            d="M-5-47q9-4 17-2m-14-2 2 6m5-8 1 6"
+            fill="none"
+            stroke="#f3d9c8"
+            strokeWidth="1"
+          />
+        </g>
+        {/* Near arm pulls the sickle through the stalks */}
+        <g data-worker-arm="near">
+          <animateTransform
+            attributeName="transform"
+            type="rotate"
+            values="-7 18 19;9 18 19;9 18 19;-7 18 19"
+            keyTimes="0;.3;.55;1"
+            dur="1.8s"
+            calcMode="spline"
+            keySplines={`${EASE};${EASE};${EASE}`}
+            repeatCount="indefinite"
+          />
+          <g data-held-prop="sickle">
+            <circle data-contact="sickle" cx="27.5" cy="60.5" r="0" />
+            <circle data-cutting-edge="" cx="45" cy="61" r="0" />
+            <path d="M33 63.500q14 10 22-9-8 11-20 4.500Z" fill="#dfe5dc" />
+            <path d="M33 63.500q14 10 22-9" fill="none" stroke="#8fa39a" strokeWidth=".9" />
+            <path d="m24.5 60 9.5 4" stroke="#7a5536" strokeWidth="3.6" />
+          </g>
+          <path d="M18 19 14 40 27 60" fill="none" stroke={skin} strokeWidth="6.5" />
+          <path d="M18 19 16 29" fill="none" stroke={shirtShade} strokeWidth="9" />
+          <circle cx="27.5" cy="60.5" r="3.8" fill={skin} />
+          <circle data-grip="sickle" cx="27.5" cy="60.5" r="0" />
+        </g>
       </g>
     </g>
   );
 }
 
-/** Seeds leave the open fingers during the outward hold, then fly independently of the arm. */
+/** Seeds leave the open hand at the top of the throw and fall on their own. */
 function SownSeeds({ prefix }: { prefix: string }) {
   return (
-    <g data-seed-release="" transform="translate(51 3)">
+    <g data-seed-release="" transform="translate(36.5 -18.2)">
       <circle data-seed-origin="" cx="0" cy="0" r="0" />
       {Array.from({ length: 6 }, (_, i) => {
         const release = 0.34 + i * 0.012,
@@ -1023,7 +829,7 @@ function SownSeeds({ prefix }: { prefix: string }) {
             <animateTransform
               attributeName="transform"
               type="translate"
-              values={`0 0;0 0;${19 + i * 2} ${8 + i};${35 + i * 3} ${62 + i * 2};${35 + i * 3} ${62 + i * 2}`}
+              values={`0 0;0 0;${17 + i * 2} ${10 + i};${30 + i * 3} ${86 + i * 2};${30 + i * 3} ${86 + i * 2}`}
               keyTimes={times}
               begin="0s"
               dur="2.6s"

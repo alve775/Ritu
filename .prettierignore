@@ -6,3 +6,6 @@ docs/PROJECT_PLAN.md
 next-env.d.ts
 # Reproducible source-data packages; regenerate with scripts/prepare-global-crops.py.
 src/data/global/*.json
+# Compact NASA IMERG and SMAP weekly summaries for the Rajshahi region (generated once from NASA data).
+src/data/nasa/rajshahi-imerg.json
+src/data/nasa/rajshahi-smap.json

@@ -1,9 +1,11 @@
 'use client';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, ChevronLeft, ChevronRight, Cloud, CloudRain, Sun } from 'lucide-react';
+import { Bell, ChevronLeft, ChevronRight, Cloud, CloudRain, Pencil, Sun } from 'lucide-react';
 import { usePlanner } from '../planner-provider';
 import { useSoilReference } from '../../lib/use-soil-reference';
+import { useNasaClimate } from '../../lib/use-nasa-climate';
+import { nasaWeekOn } from '../../domain/nasa-local';
 import { seasonStore, useSeasonFarms } from '../../lib/season-store';
 import { fieldLogStore, useFieldLog } from '../../lib/field-log-store';
 import type { SeasonFarm } from '../../domain/global-season';
@@ -33,6 +35,9 @@ import {
   dayCount,
   dayItems,
   daysInMonth,
+  drySpell,
+  drySpellFrom,
+  drySpellHigh,
   isoOf,
   monthIndex,
   monthlyClimate,
@@ -40,6 +45,7 @@ import {
   plusDays,
   pumpHours,
   quietDay,
+  startSoil,
   weekOn,
   windowOn,
   yearOf,
@@ -48,11 +54,13 @@ import {
   type PlanCrop,
 } from '../../domain/rotation';
 import { rotationText, type RotationText, type Translate } from './rotation-text';
-import { seasonClass } from './rotation-visuals';
+import { NasaNotes, seasonClass } from './rotation-visuals';
 import { DetailChart, PlantGlyph } from './rotation-glyphs';
 import {
   dayWeather,
   eventText,
+  rootWord,
+  weekRainText,
   inDays,
   itemClass,
   itemTag,
@@ -164,6 +172,9 @@ function todayKind(c: PlanCrop | null, index: number, today: string): Kind {
   return today >= plusDays(harvest, -10) ? 'harvest' : 'growing';
 }
 
+/** Days ahead the Today card mentions the irrigation before sowing. */
+const presowNotice = 10;
+
 /** A weather hint only when the weather changes today's job. */
 function weatherHint(kind: Kind, due: boolean, w: DayWeather, rainSoon: number, ctx: Ctx) {
   const { t, tx } = ctx;
@@ -257,7 +268,11 @@ function GlanceCard({
           ),
         ];
   return (
-    <section className="rot-glance" aria-label={t('This plot at a glance', 'এক নজরে এই প্লট')}>
+    <section
+      className="rot-glance"
+      data-tour="year-at-a-glance"
+      aria-label={t('This plot at a glance', 'এক নজরে এই প্লট')}
+    >
       <div className="rot-glance-wheel">
         <svg
           viewBox="0 0 360 360"
@@ -385,6 +400,12 @@ function GlanceCard({
               </span>
             </span>
           ))}
+          {ctx.changePlan && (
+            <button className="button rot-change-plan" type="button" onClick={ctx.changePlan}>
+              <Pencil size={17} aria-hidden="true" />
+              {t('Change plan', 'পরিকল্পনা বদলান')}
+            </button>
+          )}
         </p>
         <div className="rot-glance-stat">
           <span>{t('Irrigation', 'সেচ')}</span>
@@ -789,6 +810,57 @@ function TodayCard({
         </span>
       );
   }
+  // NASA SMAP: the irrigation before sowing, from a week before it until sowing is recorded.
+  const pre = !current.sown ? current.windows.find((x) => x.presow) : undefined;
+  if (pre && pre.status === 'done' && pre.doneOn)
+    extra = t(
+      `✓ Watered before sowing (${tx.dateMain(pre.doneOn)})`,
+      `✓ বোনার আগে সেচ দেওয়া হয়েছে (${tx.dateMain(pre.doneOn)})`,
+    );
+  else if (pre && pre.status === 'due') {
+    extra = t(
+      `Water the field once before sowing, by ${tx.date(pre.end)}: the soil here is usually dry now (NASA SMAP). About ${pumpHours(pre.mm, areaHa)} pump hours.`,
+      `বোনার আগে ${tx.date(pre.end)}-এর মধ্যে জমিতে একবার সেচ দিন: এখন এখানের মাটি সাধারণত শুকনো থাকে (নাসা SMAP)। পাম্পে প্রায় ${tx.n(pumpHours(pre.mm, areaHa))} ঘণ্টা।`,
+    );
+    action = (
+      <>
+        {action}
+        <button
+          className="button secondary water"
+          type="button"
+          onClick={() => {
+            fieldLogStore.recordIrrigation(plotId, pre.key, today);
+            setUndo({ kind: 'irrigation', key: pre.key });
+          }}
+        >
+          {t('I watered the field today', 'আজ জমিতে সেচ দিয়েছি')}
+        </button>
+      </>
+    );
+  } else if (pre && pre.status === 'later' && pre.start <= plusDays(today, presowNotice))
+    extra = t(
+      `Before sowing: water the field once between ${tx.date(pre.start)} and ${tx.date(pre.end)}. The soil here is usually dry then (NASA SMAP).`,
+      `বোনার আগে ${tx.date(pre.start)} থেকে ${tx.date(pre.end)}-এর মধ্যে জমিতে একবার সেচ দিন। তখন এখানের মাটি সাধারণত শুকনো থাকে (নাসা SMAP)।`,
+    );
+  // NASA IMERG: when this week is usually dry and the forecast shows no rain, don't wait for it.
+  const usual = nasaWeekOn(climate.nasa, today),
+    ahead = (weather?.days ?? []).filter((d) => d.date >= today && d.date < plusDays(today, 7)),
+    dryAhead =
+      ahead.length >= 3 && ahead.every((d) => (d.rain ?? 0) < 1 && (d.rainProbability ?? 0) < 50),
+    nextWater = current.sown
+      ? current.windows.find(
+          (x) =>
+            !x.presow &&
+            (x.status === 'due' || (x.status === 'later' && x.start <= plusDays(today, 7))),
+        )
+      : undefined;
+  const nasaHint =
+    !hint && nextWater && usual?.dry != null && usual.dry >= drySpellHigh && (dryAhead || !weather)
+      ? t(
+          `${dryAhead ? 'Little or no rain in the forecast, and this' : 'This'} week is usually dry here: a 3-week dry spell covers it in ${usual.dryYears} of ${usual.drySamples} years (NASA IMERG). Don't wait for rain: irrigate ${nextWater.status === 'due' ? 'this week' : `from ${tx.date(nextWater.start)}`} as planned.`,
+          `${dryAhead ? 'পূর্বাভাসে বৃষ্টি প্রায় নেই, আর ' : ''}এখানে এই সপ্তাহ সাধারণত শুকনো যায়: ${tx.n(usual.drySamples)} বছরের ${tx.n(usual.dryYears)} বছরে টানা ৩ সপ্তাহ বৃষ্টি হয়নি (নাসা IMERG)। বৃষ্টির অপেক্ষা না করে ${nextWater.status === 'due' ? 'এই সপ্তাহেই' : `${tx.date(nextWater.start)} থেকে`} পরিকল্পনামতো সেচ দিন।`,
+        )
+      : '';
   const endLink = !current.sown ? (
     <button
       className="text-button rot-end-link"
@@ -810,6 +882,7 @@ function TodayCard({
     <>
       <section
         className={`card rot-today2 ${tone} ${kind === 'empty' ? 'empty' : seasonClass(current.a.item.season)}`}
+        data-tour="year-today"
         aria-label={t('What to do today', 'আজ কী করবেন')}
       >
         <div className="rot-today2-top">
@@ -862,7 +935,7 @@ function TodayCard({
               })}
             </span>
           )}
-          {hint && <p className="hint">{hint}</p>}
+          {(hint || nasaHint) && <p className="hint">{hint || nasaHint}</p>}
         </div>
         {reminders.length > 0 && (
           <div className="rot-today-reminder">
@@ -1449,7 +1522,7 @@ function MonthCalendar({
   const bStart = tx.dateSub(first)?.split(' ')[1],
     bEnd = tx.dateSub(plusDays(first, count - 1))?.split(' ')[1];
   return (
-    <section className="rot-block" aria-label={t('Calendar', 'ক্যালেন্ডার')}>
+    <section className="rot-block" data-tour="year-month" aria-label={t('Calendar', 'ক্যালেন্ডার')}>
       <div className="rot-block-head">
         <h2>{t('Calendar', 'ক্যালেন্ডার')}</h2>
         <span>
@@ -1895,18 +1968,42 @@ function DaySheet({ ctx, date, onClose }: { ctx: Ctx; date: string; onClose: () 
             </>
           ) : (
             <>
-              <div>
-                {t('Rain this month', 'মাসে বৃষ্টি')}
-                <b>{t(`${Math.round(w.monthRain)} mm`, `${tx.n(Math.round(w.monthRain))} মিমি`)}</b>
-              </div>
-              <div>
-                {t('Topsoil (NASA)', 'উপরের মাটি (নাসা)')}
-                <b>{wetWord(w.wetness, t)}</b>
-              </div>
+              {w.nasa?.rain != null ? (
+                <div>
+                  {t('Rain this week', 'এই সপ্তাহে বৃষ্টি')}
+                  <b>{weekRainText(w.nasa.rain, tx, t)}</b>
+                </div>
+              ) : (
+                <div>
+                  {t('Rain this month', 'মাসে বৃষ্টি')}
+                  <b>
+                    {t(`${Math.round(w.monthRain)} mm`, `${tx.n(Math.round(w.monthRain))} মিমি`)}
+                  </b>
+                </div>
+              )}
+              {w.nasa?.root != null ? (
+                <div>
+                  {t('Root zone (NASA SMAP)', 'শিকড়ের মাটি (নাসা SMAP)')}
+                  <b>{rootWord(w.nasa.root, t)}</b>
+                </div>
+              ) : (
+                <div>
+                  {t('Topsoil (NASA)', 'উপরের মাটি (নাসা)')}
+                  <b>{wetWord(w.wetness, t)}</b>
+                </div>
+              )}
             </>
           )}
         </div>
       </div>
+      {w.kind === 'usual' && w.nasa?.dry != null && w.nasa.dry >= drySpellFrom && (
+        <p className="rot-wx-nasa">
+          {t(
+            `A 3-week dry spell covers this week in ${w.nasa.dryYears} of ${w.nasa.drySamples} years in this area (NASA IMERG).`,
+            `এই এলাকায় ${tx.n(w.nasa.drySamples)} বছরের ${tx.n(w.nasa.dryYears)} বছরে এই সপ্তাহ টানা ৩ সপ্তাহের খরার মধ্যে পড়েছে (নাসা IMERG)।`,
+          )}
+        </p>
+      )}
       {date < today && w.kind === 'usual' && (
         <p className="rot-note-small">
           {t(
@@ -1996,7 +2093,11 @@ function BigEvents({ ctx, onOpen }: { ctx: Ctx; onOpen: (d: string) => void }) {
   const events = bigEvents(pcs, today);
   if (!events.length) return null;
   return (
-    <section className="rot-block" aria-label={t('Big events ahead', 'সামনের বড় ঘটনা')}>
+    <section
+      className="rot-block"
+      data-tour="year-events"
+      aria-label={t('Big events ahead', 'সামনের বড় ঘটনা')}
+    >
       <div className="rot-block-head">
         <h2>{t('Big events ahead', 'সামনের বড় ঘটনা')}</h2>
         <span>{t(`Next ${events.length}`, `পরের ${tx.n(events.length)}টি`)}</span>
@@ -2044,10 +2145,13 @@ export function RotationCalendar({
     log = useFieldLog().state;
   const tx = rotationText(t, language);
   const plot = state.plots?.find((p) => p.id === farm.plotId);
-  const climate = useMemo(
-    () => (farm.context.normal ? monthlyClimate(farm.context.normal) : null),
-    [farm.context.normal],
-  );
+  // NASA IMERG rain and SMAP soil for lands in the Rajshahi box join the NASA POWER climate.
+  const nasa = useNasaClimate(farm.site);
+  const climate = useMemo(() => {
+    if (!farm.context.normal) return null;
+    const c = monthlyClimate(farm.context.normal);
+    return nasa ? { ...c, nasa } : c;
+  }, [farm.context.normal, nasa]);
   const plan = plot?.plan;
   // Soil pH: the farmer's test when there is one, otherwise the soil-map estimate at the pin.
   const soilMap = useSoilReference(farm.site).soil;
@@ -2107,6 +2211,8 @@ export function RotationCalendar({
     const weeks = cropWeeks(c.item.crop, sowDay, climate).filter(
       (w) => !lostOn || w.start < lostOn,
     );
+    // The irrigation before sowing and the dry-spell risk follow the real sowing day too.
+    const { presow } = startSoil(c.item.crop, sowDay, climate);
     return {
       ...c,
       item: {
@@ -2116,7 +2222,15 @@ export function RotationCalendar({
           f.harvestedDate || lostOn || f.plannedHarvestDate || plusDays(sowDay, c.item.crop.days),
       },
       weeks,
-      irrigations: weeks.filter((w) => w.irrigate > 0).length,
+      presow,
+      dry: drySpell(
+        c.item.crop,
+        weeks,
+        climate,
+        plot.overrides?.irrigation ?? farm.field.irrigation,
+      ),
+      irrigations: weeks.filter((w) => w.irrigate > 0).length + (presow > 0 ? 1 : 0),
+      irrigationMm: weeks.reduce((s, w) => s + w.irrigate, presow),
     };
   });
   const irrigated = Object.fromEntries(
@@ -2382,7 +2496,7 @@ export function RotationCalendar({
       />
       <BigEvents ctx={ctx} onOpen={open} />
       <details className="card rot-details">
-        <summary>
+        <summary data-tour="year-weekly-details">
           {t(
             `Details: ${tx.crop(detail.a.item.crop)} water and heat, week by week (NASA data)`,
             `বিস্তারিত (${tx.crop(detail.a.item.crop)}): সপ্তাহ ধরে পানি ও গরম (নাসার তথ্য)`,
@@ -2412,11 +2526,17 @@ export function RotationCalendar({
           </p>
         </div>
         <DetailChart c={detail.a} tx={tx} t={t} />
+        <NasaNotes crops={[detail.a]} tx={tx} t={t} areaHa={plot.areaHa} />
         <p className="rot-source">
           {t(
             `NASA POWER 1991–2020 averages for this location. Crop water use: FAO-56 with Hargreaves ET0. Field jobs are typical days after sowing; check them with your local agriculture office${climate.estimated ? '. Day max/min estimated from the mean until the climate refreshes' : ''}.`,
             `এই জায়গার নাসা POWER ১৯৯১–২০২০ গড়। ফসলের পানির হিসাব: FAO-56, Hargreaves ET0। মাঠের কাজের দিনগুলো বোনার পরে সাধারণত যেদিন হয়; স্থানীয় কৃষি অফিসে মিলিয়ে নিন${climate.estimated ? '। জলবায়ু আবার আনার আগ পর্যন্ত দিনের সর্বোচ্চ/সর্বনিম্ন গড় থেকে আন্দাজ' : ''}।`,
           )}
+          {climate.nasa &&
+            t(
+              ` Dry spells: NASA GPM IMERG daily rain ${climate.nasa.rainPeriod[0].slice(0, 4)}–${climate.nasa.rainPeriod[1].slice(0, 4)}. Soil water at sowing: NASA SMAP L4 root zone ${climate.nasa.soilPeriod[0].slice(0, 4)}–${climate.nasa.soilPeriod[1].slice(0, 4)}, for this area (a grid square of about 10 km).`,
+              ` খরা: নাসা GPM IMERG দৈনিক বৃষ্টি ${tx.n(climate.nasa.rainPeriod[0].slice(0, 4))}–${tx.n(climate.nasa.rainPeriod[1].slice(0, 4))}। বোনার সময় মাটির পানি: নাসা SMAP L4 শিকড়ের স্তর ${tx.n(climate.nasa.soilPeriod[0].slice(0, 4))}–${tx.n(climate.nasa.soilPeriod[1].slice(0, 4))}, এই এলাকার জন্য (প্রায় ১০ কিমির একটি ঘর)।`,
+            )}
         </p>
       </details>
       <FixDates
@@ -2568,7 +2688,7 @@ function FixDates({
       open={open}
       onToggle={(e) => setOpen(e.currentTarget.open)}
     >
-      <summary>
+      <summary data-tour="year-fix-dates">
         {t('Wrong sowing or harvest date? Fix it', 'বোনা বা কাটার তারিখ ভুল? ঠিক করুন')}
       </summary>
       {pcs.length > 1 && (

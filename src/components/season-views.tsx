@@ -32,13 +32,10 @@ import { WeatherContent } from './weather-panel';
 import { Dialog } from './dialog';
 import { ResetDataControl } from './reset-data-control';
 import { useSeasonContext } from '../lib/use-season-context';
-import {
-  seasonStore,
-  useSeasonFarms,
-  seasonStorageKey,
-  validSeasonState,
-} from '../lib/season-store';
+import { seasonStore, useSeasonFarms, validSeasonState } from '../lib/season-store';
 import { blankFarm, evidenceStore } from '../lib/evidence-store';
+import { exportRecords } from '../lib/export-records';
+import { pilotRegionFor } from '../data/regions';
 import { useLiveWeather } from '../lib/use-live-weather';
 import { globalCrop, localToday, daysBetween } from '../domain/global-season';
 import type { SeasonFarm, CropSuggestion } from '../domain/global-season';
@@ -57,7 +54,6 @@ import { CultivarReferencePanel } from './cultivar-reference-panel';
 import { FieldRegistryDashboard } from './field-registry-dashboard';
 import { RotationPlansView } from './rotation/rotation-plans';
 import { RotationCalendar } from './rotation/rotation-calendar';
-import { fieldLogStore, fieldLogStorageKey } from '../lib/field-log-store';
 import { farmCalendarDay } from '../domain/farm-calendar';
 import { FarmRecordScope, type FarmRecordWriter } from './farm-record-scope';
 import { defaultSite, type FarmSite } from '../domain/farm-site';
@@ -80,58 +76,6 @@ function newField() {
   });
   seasonStore.confirm('');
   seasonStore.activate(null);
-}
-function exportRecords() {
-  const records: Record<string, unknown> = {
-    [seasonStorageKey]: seasonStore.getSnapshot().state,
-    'ritu-evidence-v2': evidenceStore.getSnapshot().state,
-    // Note text and reminders; photos stay in the phone's photo store.
-    [fieldLogStorageKey]: fieldLogStore.getSnapshot().state,
-  };
-  try {
-    const original = localStorage.getItem('ritu-evidence-v2');
-    if (original && original !== JSON.stringify(records['ritu-evidence-v2'])) {
-      records['ritu-evidence-v2-stored-original'] = original;
-    }
-  } catch {
-    /* The in-tab draft remains exportable when storage is unavailable. */
-  }
-  try {
-    if (seasonStore.getSnapshot().recovery) {
-      const original = localStorage.getItem(seasonStorageKey);
-      if (original) records[`${seasonStorageKey}-unreadable-original`] = original;
-    }
-  } catch {
-    /* The valid in-tab state is still exported. */
-  }
-  for (const key of [
-    'ritu-evidence-v2-recovery',
-    'ritu-preview-v1',
-    `${seasonStorageKey}-recovery`,
-  ]) {
-    try {
-      const raw = localStorage.getItem(key);
-      if (raw) {
-        try {
-          records[key] = JSON.parse(raw);
-        } catch {
-          records[key] = raw;
-        }
-      }
-    } catch {
-      /* In-tab farms remain exportable. */
-    }
-  }
-  const blob = new Blob(
-    [JSON.stringify({ exportedAt: new Date().toISOString(), records }, null, 2)],
-    { type: 'application/json' },
-  );
-  const url = URL.createObjectURL(blob),
-    a = document.createElement('a');
-  a.href = url;
-  a.download = 'ritu-farm-records.json';
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 function ShortDate({ value }: { value: string }) {
   const { language } = usePlanner();
@@ -544,7 +488,10 @@ export function SeasonCropsView() {
   };
   const draftPlot = state.plots?.find((x) => x.id === state.draftPlotId),
     draftField = state.fields?.find((f) => f.id === state.draftFieldId);
-  if (confirmed && !single && draftPlot && draftField && p.site && context.data?.normal)
+  // Year plans use the Rajshahi region's crop calendars and NASA rain and soil data, so they are
+  // offered only for land inside it; elsewhere the plot gets one crop for one season.
+  const inPilot = !!p.site && !!pilotRegionFor(p.site);
+  if (confirmed && !single && inPilot && draftPlot && draftField && p.site && context.data?.normal)
     return (
       <RotationPlansView
         site={p.site}
@@ -583,6 +530,14 @@ export function SeasonCropsView() {
           {state.draftPlotId ? t('Back to plot', 'প্লটে ফিরুন') : t('My lands', 'আমার জমি')}
         </Link>
       </header>
+      {confirmed && draftPlot && p.site && !inPilot && (
+        <p className="notice-amber" role="note">
+          {t(
+            'Whole-year plans are made for the Rajshahi region pilot (Rajshahi, Chapainawabganj, Natore and Naogaon), from its crop calendars and NASA rain and soil data. This land is outside it, so choose one crop for one season here.',
+            'পুরো বছরের পরিকল্পনা রাজশাহী অঞ্চলের পাইলটের (রাজশাহী, চাঁপাইনবাবগঞ্জ, নাটোর ও নওগাঁ) ফসল পঞ্জিকা এবং নাসার বৃষ্টি ও মাটির তথ্য দিয়ে বানানো। এই জমি তার বাইরে, তাই এখানে এক মৌসুমের জন্য একটি ফসল বাছুন।',
+          )}
+        </p>
+      )}
       {!confirmed ? (
         <section className="card evidence-gate" data-tour="crop-suggestions">
           <h2>{t('Open a plot first', 'আগে একটি প্লট খুলুন')}</h2>
@@ -729,7 +684,8 @@ export function FarmsView() {
         <div>
           <span className="eyebrow">{t('DASHBOARD', 'ড্যাশবোর্ড')}</span>
           <h1>
-            {t('My lands', 'আমার জমি')} <small>({state.fields?.length ?? 0})</small>
+            {t('My lands', 'আমার জমি')}{' '}
+            <small>({state.fields?.filter((f) => !f.endDate).length ?? 0})</small>
           </h1>
           <p>
             {t(
@@ -738,8 +694,8 @@ export function FarmsView() {
             )}
           </p>
         </div>
-        {!!state.fields?.length && (
-          <button className="button primary" onClick={addLand}>
+        {!!state.fields?.some((f) => !f.endDate) && (
+          <button className="button primary" onClick={addLand} data-tour="dashboard-add-land">
             <Plus size={19} />
             {t('Add land', 'জমি যোগ করুন')}
           </button>
@@ -1110,6 +1066,9 @@ function FarmWorkspace({
   const { state: seasonState } = useSeasonFarms();
   const plotPlan =
     !!farm.rotationSeason && !!seasonState.plots?.find((p) => p.id === farm.plotId)?.plan;
+  const switchLabel = plotPlan
+    ? t('Switch plot', 'অন্য প্লট খুলুন')
+    : t('Switch crop', 'অন্য ফসল খুলুন');
   const previewBlock = (
     <>
       <section
@@ -1293,6 +1252,7 @@ function FarmWorkspace({
           </div>
           <div
             className="season-calendar-grid"
+            data-tour="one-season-dates"
             role="group"
             aria-label={t('Choose a calendar day', 'ক্যালেন্ডারের দিন বাছুন')}
           >
@@ -1700,9 +1660,9 @@ function FarmWorkspace({
             </p>
           </div>
           <label className="season-farm-switch">
-            {t('Switch crop', 'অন্য ফসল খুলুন')}
+            {switchLabel}
             <select
-              aria-label={t('Switch crop', 'অন্য ফসল খুলুন')}
+              aria-label={switchLabel}
               value={farm.id}
               onChange={(e) => seasonStore.activate(e.target.value)}
             >

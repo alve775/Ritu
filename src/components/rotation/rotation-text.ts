@@ -5,6 +5,7 @@ import {
   banglaDate,
   banglaMonths,
   monthIndex,
+  pumpHours,
   type CropAssessment,
   type Reason,
   type Verdict,
@@ -202,8 +203,12 @@ export function rotationText(t: Translate, language: Language) {
             )
           : a.sameFamilyAs
             ? t(
-                `Same plant family as last year's ${crop(rotationCrops[a.sameFamilyAs])}: they share soil diseases such as bacterial wilt.`,
-                `গত বছরের ${crop(rotationCrops[a.sameFamilyAs])}-এর একই গোত্রের ফসল: মাটির একই রোগ (যেমন ঢলে পড়া রোগ) থেকে যায়।`,
+                a.item.crop.family === 'allium'
+                  ? `Same plant family as last year's ${crop(rotationCrops[a.sameFamilyAs])}: they share soil diseases such as basal rot.`
+                  : `Same plant family as last year's ${crop(rotationCrops[a.sameFamilyAs])}: they share soil diseases such as bacterial wilt.`,
+                a.item.crop.family === 'allium'
+                  ? `গত বছরের ${crop(rotationCrops[a.sameFamilyAs])}-এর একই গোত্রের ফসল: মাটির একই রোগ (যেমন গোড়া পচা রোগ) থেকে যায়।`
+                  : `গত বছরের ${crop(rotationCrops[a.sameFamilyAs])}-এর একই গোত্রের ফসল: মাটির একই রোগ (যেমন ঢলে পড়া রোগ) থেকে যায়।`,
               )
             : t('Same crop as last year in this season.', 'গত বছরও এই মৌসুমে একই ফসল ছিল।');
       case 'pulse':
@@ -222,7 +227,47 @@ export function rotationText(t: Translate, language: Language) {
         return t('Suits this land’s soil.', 'এই জমির মাটিতে ভালো হয়।');
     }
   }
+  /** NASA IMERG dry-spell risk in a crop's flowering weeks, with what to prepare. */
+  function dry(a: CropAssessment, areaHa: number) {
+    const d = a.dry;
+    if (!d) return '';
+    const c = a.item.crop,
+      st = c.heat ? stage(c.heat.stage) : t('flowering', 'ফুল আসার'),
+      hours = pumpHours(d.reliedMm, areaHa),
+      count = t(
+        `${d.extra} extra irrigation${d.extra === 1 ? '' : 's'}`,
+        `বাড়তি ${n(d.extra)}টি সেচ`,
+      );
+    const base = t(
+      `In ${d.years} of ${d.samples} years a 3-week dry spell hit ${crop(c)}'s ${st} weeks in this area (NASA IMERG). Keep ${count} ready (about ${hours} pump hours on this plot).`,
+      `এই এলাকায় ${n(d.samples)} বছরের ${n(d.years)} বছরে ${crop(c)}-এর ${st} সময়ে টানা ৩ সপ্তাহ বৃষ্টি হয়নি (নাসা IMERG)। ${count}-এর প্রস্তুতি রাখুন (এই প্লটে পাম্পে প্রায় ${n(hours)} ঘণ্টা)।`,
+    );
+    return d.raisesWater
+      ? base +
+          t(
+            ' This plot has little water to spare, so the risk is high.',
+            ' এই প্লটে বাড়তি পানি কম, তাই ঝুঁকি বেশি।',
+          )
+      : d.high
+        ? base +
+          t(
+            ' With a reliable pump this is only extra pumping.',
+            ' নির্ভরযোগ্য পাম্প থাকলে শুধু বাড়তি সেচ লাগবে।',
+          )
+        : base;
+  }
+  /** The irrigation before sowing that NASA SMAP calls for. */
+  function presow(a: CropAssessment, areaHa: number) {
+    if (!a.presow) return '';
+    const hours = pumpHours(a.presow, areaHa);
+    return t(
+      `Water the field once before sowing ${crop(a.item.crop)}: the soil here is usually dry in ${month(a.item.sow)} (NASA SMAP). About ${hours} pump hours.`,
+      `${crop(a.item.crop)} বোনার আগে জমিতে একবার সেচ দিন: ${month(a.item.sow)}-এ এখানের মাটি সাধারণত শুকনো থাকে (নাসা SMAP)। পাম্পে প্রায় ${n(hours)} ঘণ্টা।`,
+    );
+  }
   return {
+    dry,
+    presow,
     n,
     date,
     dateMain,

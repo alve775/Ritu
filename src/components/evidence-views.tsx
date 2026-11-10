@@ -1465,7 +1465,7 @@ export function EvidenceSourcesView({
     <div className="page evidence-page sources-page">
       {!embedded && (
         <header className="page-header">
-          <h1>{t('Data sources & methods', 'তথ্যের উৎস ও পদ্ধতি')}</h1>
+          <h1 data-tour="sources-heading">{t('Data sources & methods', 'তথ্যের উৎস ও পদ্ধতি')}</h1>
         </header>
       )}
       <section className="card">
@@ -1584,25 +1584,47 @@ export function EvidenceSourcesView({
       <section className="card">
         <h2>
           {t(
+            'Rain and soil water in the Rajshahi region: NASA GPM IMERG and SMAP',
+            'রাজশাহী অঞ্চলে বৃষ্টি ও মাটির পানি: নাসা GPM IMERG ও SMAP',
+          )}
+        </h2>
+        <p>
+          {t(
+            'For lands inside 87.9–89.45° E, 24.0–25.3° N, Ritu uses weekly summaries it built once from two NASA products and ships with the app; no login is needed to use it. GPM IMERG Final Run daily rain (V07, 0.1°, 1 Jan 2001 to 30 Sep 2025): mean rain per ISO week and the share of years in which a run of 21 or more days below 1 mm touched that week. SMAP L4 root-zone soil moisture (V8, 9 km, 1 Apr 2015 to 31 Dec 2025, the 3-hour value nearest 12:00 Bangladesh time): mean per ISO week, scaled from the driest to the wettest week anywhere in the region. Both were retrieved on 10 Nov 2026. They are values for a grid square of about 10 km, not for one field.',
+            'রাজশাহী অঞ্চলের (৮৭.৯–৮৯.৪৫° পূর্ব, ২৪.০–২৫.৩° উত্তর) জমির জন্য ঋতু নাসার দুটি তথ্যভান্ডার থেকে একবার বানানো সাপ্তাহিক সারাংশ অ্যাপের সঙ্গেই রাখে; ব্যবহারে কোনো লগইন লাগে না। GPM IMERG ফাইনাল দৈনিক বৃষ্টি (V07, ০.১°, ১ জানুয়ারি ২০০১ থেকে ৩০ সেপ্টেম্বর ২০২৫): প্রতি সপ্তাহের গড় বৃষ্টি, আর কত বছরে টানা ২১ দিন বা বেশি ১ মিমির কম বৃষ্টি সেই সপ্তাহ ছুঁয়েছে। SMAP L4 শিকড়ের স্তরের মাটির আর্দ্রতা (V8, ৯ কিমি, ১ এপ্রিল ২০১৫ থেকে ৩১ ডিসেম্বর ২০২৫, বাংলাদেশ সময় দুপুর ১২টার কাছের ৩ ঘণ্টার মান): প্রতি সপ্তাহের গড়, অঞ্চলের সবচেয়ে শুকনো থেকে সবচেয়ে ভেজা সপ্তাহের মাপে। দুটিই ১০ নভেম্বর ২০২৬-এ নেওয়া। এগুলো প্রায় ১০ কিমির একটি ঘরের মান, একটি জমির নয়।',
+          )}
+        </p>
+        <p>
+          {t(
+            'How Ritu uses them. Dry spells: the rain a crop’s water plan counts on in its flowering and grain weeks becomes extra irrigation in a dry year; the plan’s score drops by that many irrigations times the share of years with a dry spell (from 20% of years; from 40% the crop’s water bar also goes up one step on plots with limited water or rain only). Soil water at sowing: non-rice crops start with the root-zone water usual in their sowing week; below half, Ritu adds one irrigation before sowing. The calendar shows the usual weekly rain, root-zone wetness and dry-spell chance for days beyond the forecast.',
+            'ঋতু যেভাবে ব্যবহার করে। খরা: ফুল ও দানা আসার সপ্তাহে ফসলের পানির হিসাব যে বৃষ্টির ওপর ভরসা করে, শুকনো বছরে তা বাড়তি সেচ হয়ে যায়; খরার বছরের ভাগ দিয়ে গুণ করে সেই সংখ্যক সেচ পরিকল্পনার নম্বর থেকে কমে (২০% বছর থেকে; ৪০% থেকে কম পানি বা শুধু বৃষ্টির প্লটে ফসলের পানির দাগও এক ধাপ বাড়ে)। বোনার সময় মাটির পানি: ধান ছাড়া অন্য ফসল বোনার সপ্তাহের সাধারণ শিকড়ের স্তরের পানি নিয়ে শুরু করে; অর্ধেকের কম হলে ঋতু বোনার আগে একটি সেচ যোগ করে। পূর্বাভাসের বাইরের দিনে ক্যালেন্ডার সাপ্তাহিক সাধারণ বৃষ্টি, শিকড়ের মাটির ভেজাভাব ও খরার সম্ভাবনা দেখায়।',
+          )}
+        </p>
+        <SourceLink href="https://doi.org/10.5067/GPM/IMERGDF/DAY/07">
+          GPM IMERG Final Precipitation L3 1 day 0.1° V07 (GES DISC)
+        </SourceLink>{' '}
+        ·{' '}
+        <SourceLink href="https://doi.org/10.5067/T5RUATAQREF8">
+          SMAP L4 Global 3-hourly 9 km Surface and Root Zone Soil Moisture V8 (NSIDC DAAC)
+        </SourceLink>
+      </section>
+      <section className="card">
+        <h2>
+          {t(
             'Additional soil data and research candidates',
             'মাটির বাড়তি তথ্য ও গবেষণার সম্ভাবনা',
           )}
         </h2>
         <p>
           {t(
-            'SoilGrids 2.0 supplies modeled pH-in-water and 5th/95th quantiles through ISRIC WCS for three topsoil depths at 250 m resolution. Predictions are kept separate from farmer-reported soil tests. GAEZ, NASA SMAP and GPM IMERG are research references and are not integrated into farm calculations.',
-            'SoilGrids 2.0 থেকে ISRIC WCS দিয়ে ২৫০ মিটার রেজোলিউশনে তিন গভীরতার পানিতে pH-এর মডেল ও ৫ম/৯৫তম কোয়ান্টাইল আসে। কৃষকের মাটি পরীক্ষার তথ্য আলাদা থাকে। GAEZ, নাসা SMAP ও GPM IMERG গবেষণার উৎস; খামারের হিসাবে যুক্ত নয়।',
+            'SoilGrids 2.0 supplies modeled pH-in-water and 5th/95th quantiles through ISRIC WCS for three topsoil depths at 250 m resolution. Predictions are kept separate from farmer-reported soil tests. GAEZ is a research reference and is not integrated into farm calculations.',
+            'SoilGrids 2.0 থেকে ISRIC WCS দিয়ে ২৫০ মিটার রেজোলিউশনে তিন গভীরতার পানিতে pH-এর মডেল ও ৫ম/৯৫তম কোয়ান্টাইল আসে। কৃষকের মাটি পরীক্ষার তথ্য আলাদা থাকে। GAEZ গবেষণার উৎস; খামারের হিসাবে যুক্ত নয়।',
           )}
         </p>
         <SourceLink href="https://www.fao.org/gaez/en">FAO GAEZ</SourceLink> ·{' '}
         <SourceLink href="https://isric.org/explore/soilgrids">
           ISRIC SoilGrids · service status
-        </SourceLink>{' '}
-        ·{' '}
-        <SourceLink href="https://www.earthdata.nasa.gov/data/catalog/nsidc-cprd-spl4smgp-008">
-          NASA SMAP L4
-        </SourceLink>{' '}
-        · <SourceLink href="https://gpm.nasa.gov/data/imerg">NASA GPM IMERG</SourceLink>
+        </SourceLink>
         <p className="field-help">
           {t(
             'Service status checked 3 November 2026; it can change.',

@@ -4,10 +4,12 @@ import {
   isRotationCrop,
   rotationCrops,
   rotationPatterns,
+  type RotationCrop,
   type RotationCropId,
 } from '../../data/rotation-crops';
 import type { MonthlyClimate } from './climate';
-import { cropWeeks, type CropWeek } from './crop-weeks';
+import { cropWeeks, soilStoreMm, startSoil, type CropWeek } from './crop-weeks';
+import { nasaWeek } from '../nasa-local';
 import {
   schedulePlan,
   yearSeasons,
@@ -40,11 +42,87 @@ export type Reason =
   | { kind: 'water' | 'heat' | 'soil' | 'wear' | 'drainage' | 'rainfed'; watch: true }
   | { kind: 'ph'; watch: true; ph: number; measured: boolean; range: [number, number] }
   | { kind: 'pulse' | 'rain' | 'cool' | 'soil-good'; watch: false };
+/**
+ * NASA IMERG dry-spell risk in a crop's flowering and grain weeks. Ritu's water plan counts on
+ * average rain in those weeks; in a year with a 3-week dry spell that rain becomes irrigation.
+ */
+export interface DrySpell {
+  /** Share of years (0–1) with a 21-day dry run in the riskiest of those weeks. */
+  chance: number;
+  years: number;
+  samples: number;
+  /** Start of the riskiest week. */
+  week: string;
+  /** Rain the water plan counts on in those weeks, mm. */
+  reliedMm: number;
+  /** Irrigations that rain stands for in a dry year. */
+  extra: number;
+  /** chance × extra: what the plan's score loses. */
+  expected: number;
+  /** 40% of years or more. */
+  high: boolean;
+  /** High, and the plot has limited water or none: the crop's water level goes up one step. */
+  raisesWater: boolean;
+}
+/** Below this share of years a dry spell is not counted. */
+export const drySpellFrom = 0.2;
+/** From this share of years the risk is high. */
+export const drySpellHigh = 0.4;
+/** Less rain than this share of one irrigation in the weeks at risk is not worth a warning. */
+const drySpellMinExtra = 0.25;
+/** Flowering and grain filling: from the crop's sensitive stage to 85% of its season. */
+const grainEnd = 0.85;
+
+export function drySpell(
+  crop: RotationCrop,
+  weeks: CropWeek[],
+  climate: MonthlyClimate,
+  irrigation: Farm['irrigation'],
+): DrySpell | null {
+  const nasa = climate.nasa;
+  if (!nasa || !crop.heat) return null;
+  let reliedMm = 0,
+    worst: { chance: number; years: number; samples: number; week: string } | null = null,
+    offset = 0;
+  for (const w of weeks) {
+    const f0 = offset / crop.days,
+      f1 = (offset + w.days) / crop.days;
+    offset += w.days;
+    if (!(f1 > crop.heat.from && f0 < grainEnd)) continue;
+    reliedMm += effectiveRainShare * w.rain;
+    const n = nasaWeek(w.start),
+      v = n ? nasa.weeks[n - 1] : undefined;
+    if (v && v.dry !== null && v.drySamples > 0 && (!worst || v.dry > worst.chance))
+      worst = { chance: v.dry, years: v.dryYears, samples: v.drySamples, week: w.start };
+  }
+  const extra = reliedMm / (crop.rice ? riceIrrigationMm : soilStoreMm);
+  if (!worst || worst.chance < drySpellFrom || extra < drySpellMinExtra) return null;
+  const high = worst.chance >= drySpellHigh;
+  return {
+    ...worst,
+    reliedMm: Math.round(reliedMm),
+    extra: Math.max(1, Math.round(extra)),
+    expected: Math.round(worst.chance * extra * 10) / 10,
+    high,
+    raisesWater:
+      high && (irrigation === 'limited' || irrigation === 'rainfed' || irrigation === 'severe'),
+  };
+}
+/** Share of rain that reaches the root zone, as in the weekly water plan. */
+const effectiveRainShare = 0.8;
+/** One irrigation of flooded rice, mm (the plan refills to 50 mm). */
+const riceIrrigationMm = 50;
+
 export interface CropAssessment {
   item: ScheduledCrop;
   weeks: CropWeek[];
+  /** Irrigations in an average year, the one before sowing included. */
   irrigations: number;
   irrigationMm: number;
+  /** Irrigation before sowing, mm; 0 when the soil is usually moist enough (NASA SMAP). */
+  presow: number;
+  /** NASA IMERG dry-spell risk in flowering and grain weeks; null when there is none worth counting. */
+  dry: DrySpell | null;
   hottest: CropWeek | null;
   levels: Levels;
   verdict: Verdict;
@@ -65,13 +143,22 @@ export interface PlanAssessment {
 const clamp = (n: number) => Math.max(1, Math.min(5, Math.round(n))) as Level;
 const soilKey = (soil: Farm['soil']) => (soil === 'unknown' ? null : soil);
 
-function cropLevels(item: ScheduledCrop, weeks: CropWeek[], plan: YearPlan, c: PlotConditions) {
+function cropLevels(
+  item: ScheduledCrop,
+  weeks: CropWeek[],
+  plan: YearPlan,
+  c: PlotConditions,
+  presow: number,
+  dry: DrySpell | null,
+) {
   const crop = item.crop;
-  const irrigations = weeks.filter((w) => w.irrigate > 0).length;
+  const irrigations = weeks.filter((w) => w.irrigate > 0).length + (presow > 0 ? 1 : 0);
   let water =
     irrigations <= 2 ? 1 : irrigations <= 4 ? 2 : irrigations <= 6 ? 3 : irrigations <= 9 ? 4 : 5;
   if ((c.irrigation === 'rainfed' || c.irrigation === 'severe') && irrigations > 1) water = 5;
   if (c.irrigation === 'limited' && irrigations > 8) water = 5;
+  // A likely dry spell at flowering, on a plot without water to spare.
+  if (dry?.raisesWater) water += 1;
   const hot = weeks.filter((w) => w.hot);
   const excess = hot.length ? Math.max(...hot.map((w) => w.maxC)) - crop.heat!.limitC : 0;
   const heat = !hot.length ? 1 : excess <= 1 ? 2 : excess <= 2.5 ? 3 : excess <= 4 ? 4 : 5;
@@ -127,7 +214,9 @@ export function assessPlan(
   const { items, problems } = schedulePlan(plan, from);
   const crops: CropAssessment[] = items.map((item) => {
     const weeks = cropWeeks(item.crop, item.sow, climate);
-    const l = cropLevels(item, weeks, plan, c);
+    const { presow } = startSoil(item.crop, item.sow, climate);
+    const dry = drySpell(item.crop, weeks, climate, c.irrigation);
+    const l = cropLevels(item, weeks, plan, c, presow, dry);
     const problem = problems.find((p) => p.after === item.crop || p.before === item.crop);
     const sum = l.levels.water + l.levels.heat + l.levels.soil + l.levels.wear;
     const worst = Math.max(l.levels.water, l.levels.heat, l.levels.soil, l.levels.wear);
@@ -178,7 +267,9 @@ export function assessPlan(
       item,
       weeks,
       irrigations: l.irrigations,
-      irrigationMm: weeks.reduce((s, w) => s + w.irrigate, 0),
+      irrigationMm: weeks.reduce((s, w) => s + w.irrigate, presow),
+      presow,
+      dry,
       hottest: l.hottest,
       levels: l.levels,
       verdict,
@@ -220,6 +311,8 @@ export function assessPlan(
     3 * (levels.soil - 1) -
     2 * (levels.wear - 1) +
     1.5 * crops.length -
+    // Irrigations a likely dry spell at flowering would add (NASA IMERG).
+    crops.reduce((s, x) => s + (x.dry?.expected ?? 0), 0) -
     (problems.length ? 100 : 0);
   return {
     plan,
@@ -262,13 +355,17 @@ export function suggestPlans(
   const out: SuggestedPlan[] = [];
   if (last)
     out.push({ id: 'last-year', lastYear: true, assessment: assessPlan(last, from, climate, c) });
-  const ranked = rotationPatterns
-    .filter((p) => !last || !samePlan(p.plan, last))
-    .map((p) => ({ id: p.id, lastYear: false, assessment: assessPlan(p.plan, from, climate, c) }))
-    .filter((p) => !p.assessment.problems.length && p.assessment.levels.soil < 5)
-    .sort((a, b) => b.assessment.score - a.assessment.score);
-  // Always three plans: when last year isn't known, a third regional pattern takes Plan A's place.
-  return [...out, ...ranked.slice(0, 3 - out.length)];
+  const rank = (standIn: boolean) =>
+    rotationPatterns
+      .filter((p) => !!p.standIn === standIn && (!last || !samePlan(p.plan, last)))
+      .map((p) => ({ id: p.id, lastYear: false, assessment: assessPlan(p.plan, from, climate, c) }))
+      .filter((p) => !p.assessment.problems.length && p.assessment.levels.soil < 5)
+      .sort((a, b) => b.assessment.score - a.assessment.score);
+  // Always three plans when enough fit: when last year isn't known, a third regional pattern takes
+  // Plan A's place. Stand-in patterns fill the places no regular pattern fits.
+  const ranked = rank(false);
+  const all = ranked.length >= 3 - out.length ? ranked : [...ranked, ...rank(true)];
+  return [...out, ...all.slice(0, 3 - out.length)];
 }
 
 /** Hours of pumping for one irrigation on a plot. A shallow tube well gives about 14 litres a second. */

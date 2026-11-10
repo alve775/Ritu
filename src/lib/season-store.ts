@@ -431,16 +431,85 @@ export const seasonStore = {
       throw Error('The field area cannot be smaller than its allocated farms or plots.');
     save(state);
   },
-  removeField(id: string) {
-    if (snapshot.state.farms.some((f) => f.fieldId === id))
-      throw Error('Remove or archive the farms in this field first.');
+  /**
+   * Delete a land with its plots and crop calendars. A crop sown or harvested on it is a record:
+   * that needs `withRecords`, otherwise the land should be stopped instead. Returns the deleted
+   * plot ids, so their notes and irrigation records can go too.
+   */
+  removeField(id: string, withRecords = false) {
+    if (!snapshot.state.fields?.some((f) => f.id === id))
+      throw Error('This land no longer exists.');
+    const plotIds = new Set(
+      (snapshot.state.plots ?? []).filter((p) => p.fieldId === id).map((p) => p.id),
+    );
+    const own = snapshot.state.farms.filter(
+      (f) => f.fieldId === id || (!!f.plotId && plotIds.has(f.plotId)),
+    );
+    if (!withRecords && own.some((f) => f.plantedDate || f.harvestedDate))
+      throw Error('This land has crop records. Stop using it instead, so they are kept.');
+    const gone = new Set(own.map((f) => f.id));
+    const keep = (farmId: string | null | undefined) =>
+      farmId && gone.has(farmId) ? null : (farmId ?? null);
     save({
       ...snapshot.state,
+      farms: snapshot.state.farms.filter((f) => !gone.has(f.id)),
       fields: snapshot.state.fields?.filter((f) => f.id !== id),
       plots: snapshot.state.plots?.filter((p) => p.fieldId !== id),
+      activeId: keep(snapshot.state.activeId),
+      calendarAccessId: keep(snapshot.state.calendarAccessId),
       draftFieldId: snapshot.state.draftFieldId === id ? null : snapshot.state.draftFieldId,
-      draftPlotId: snapshot.state.draftFieldId === id ? null : snapshot.state.draftPlotId,
+      draftPlotId:
+        snapshot.state.draftFieldId === id || plotIds.has(snapshot.state.draftPlotId ?? '')
+          ? null
+          : snapshot.state.draftPlotId,
       editingFieldId: snapshot.state.editingFieldId === id ? null : snapshot.state.editingFieldId,
+    });
+    return [...plotIds];
+  },
+  /**
+   * Stop using a land from a day on. Its plots stop the same day (or the day they started, if
+   * later); open calendars on it close. Every record stays and the land can be used again.
+   */
+  endField(id: string, endDate: string) {
+    const field = snapshot.state.fields?.find((f) => f.id === id);
+    if (!field) throw Error('This land no longer exists.');
+    if (field.endDate !== undefined) throw Error('This land is already stopped.');
+    const plotIds = new Set(
+      (snapshot.state.plots ?? []).filter((p) => p.fieldId === id).map((p) => p.id),
+    );
+    const onLand = (farmId: string | null | undefined) =>
+      !!farmId &&
+      snapshot.state.farms.some(
+        (f) => f.id === farmId && (f.fieldId === id || (!!f.plotId && plotIds.has(f.plotId))),
+      );
+    const state = {
+      ...snapshot.state,
+      fields: snapshot.state.fields!.map((f) => (f.id === id ? { ...f, endDate } : f)),
+      plots: snapshot.state.plots?.map((p) =>
+        p.fieldId === id && p.endDate === undefined
+          ? { ...p, endDate: p.startDate > endDate ? p.startDate : endDate }
+          : p,
+      ),
+      activeId: onLand(snapshot.state.activeId) ? null : snapshot.state.activeId,
+      calendarAccessId: onLand(snapshot.state.calendarAccessId)
+        ? null
+        : snapshot.state.calendarAccessId,
+      draftFieldId: snapshot.state.draftFieldId === id ? null : snapshot.state.draftFieldId,
+      draftPlotId: plotIds.has(snapshot.state.draftPlotId ?? '')
+        ? null
+        : snapshot.state.draftPlotId,
+      editingFieldId: snapshot.state.editingFieldId === id ? null : snapshot.state.editingFieldId,
+    };
+    if (!validSeasonState(state)) throw Error('This land could not be stopped.');
+    save(state);
+  },
+  /** Use a stopped land again. Its plots stay stopped until each is used again. */
+  reopenField(id: string) {
+    if (!snapshot.state.fields?.some((f) => f.id === id))
+      throw Error('This land no longer exists.');
+    save({
+      ...snapshot.state,
+      fields: snapshot.state.fields!.map((f) => (f.id === id ? { ...f, endDate: undefined } : f)),
     });
   },
   addPlot(plot: Plot) {
@@ -487,12 +556,14 @@ export const seasonStore = {
     const farms = snapshot.state.farms.filter(
       (f) => !(f.plotId === id && f.rotationSeason && !f.plantedDate),
     );
+    const kept = (farmId: string | null | undefined) =>
+      farmId && farms.some((f) => f.id === farmId) ? farmId : null;
     const state = {
       ...snapshot.state,
       farms,
-      activeId: farms.some((f) => f.id === snapshot.state.activeId)
-        ? snapshot.state.activeId
-        : null,
+      activeId: kept(snapshot.state.activeId),
+      // The open calendar may belong to a crop of the old plan that was dropped.
+      calendarAccessId: kept(snapshot.state.calendarAccessId),
       plots: plots.map((p) => (p.id === id ? { ...p, plan } : p)),
     };
     if (!validSeasonState(state)) throw Error('This plan could not be saved.');

@@ -3,7 +3,7 @@ import { farmStoryFrame, farmChapters, farmStoryDuration } from './farm-story';
 describe('sequential two-dimensional farm storyboard', () => {
   it('advances one chapter at a time, then replays sowing', () => {
     expect(
-      [0, 6.99, 7, 13.99, 14, 22.99, 23, 30.99, 31, 38].map(
+      [0, 2.99, 3, 5.99, 6, 8.99, 9, 11.99, 12, 15].map(
         (t) => farmChapters[farmStoryFrame(t).index].id,
       ),
     ).toEqual(['sow', 'sow', 'care', 'care', 'grow', 'grow', 'harvest', 'harvest', 'sow', 'care']);

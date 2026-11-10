@@ -20,7 +20,14 @@ export interface IrrigationWindow {
   mm: number;
   doneOn?: string;
   status: IrrigationStatus;
+  /** The irrigation before sowing (NASA SMAP says the soil is usually dry then). */
+  presow?: boolean;
 }
+
+/** Key of the irrigation before sowing in the irrigation records: one per season and year. */
+export const presowKey = (season: Season, windowStart: string) => `${season}:presow:${windowStart}`;
+/** The irrigation before sowing is given in the three days before the sowing day. */
+export const presowDays = 3;
 /** A crop of the year plan with what the farmer has recorded for it. */
 export interface PlanCrop {
   a: CropAssessment;
@@ -40,6 +47,7 @@ export function planCrops(
 ): PlanCrop[] {
   return crops.map((a) => {
     const sown = recorded.sown.includes(a.item.season);
+    const before = presowWindow(a, sown, recorded.irrigated, today);
     const windows = a.weeks
       .filter((w) => w.irrigate > 0)
       .map((w): IrrigationWindow => {
@@ -66,6 +74,7 @@ export function planCrops(
           status,
         };
       });
+    if (before) windows.unshift(before);
     return {
       a,
       sown,
@@ -74,6 +83,42 @@ export function planCrops(
       jobs: cropJobs[a.item.crop.id] ?? [],
     };
   });
+}
+
+/**
+ * The irrigation before sowing as a window. Until sowing is recorded it stays open up to today, so a
+ * late sowing still gets it; once sown it is never counted as missed, only as past.
+ */
+function presowWindow(
+  a: CropAssessment,
+  sown: boolean,
+  irrigated: Record<string, string>,
+  today: string,
+): IrrigationWindow | null {
+  if (!a.presow) return null;
+  const key = presowKey(a.item.season, a.item.windowStart),
+    doneOn = irrigated[key];
+  let start = plusDays(a.item.sow, -presowDays),
+    end = plusDays(a.item.sow, -1);
+  if (!sown && !doneOn && end < today) start = end = today;
+  const status: IrrigationStatus = doneOn
+    ? 'done'
+    : end >= today
+      ? start <= today
+        ? 'due'
+        : 'later'
+      : 'past';
+  return {
+    key,
+    season: a.item.season,
+    crop: a.item.crop,
+    start,
+    end,
+    mm: a.presow,
+    doneOn,
+    status,
+    presow: true,
+  };
 }
 
 /** The crop in the field on a date (sowing day included, harvest day not). */

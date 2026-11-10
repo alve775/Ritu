@@ -11,7 +11,6 @@ import {
   CircleHelp,
   Earth,
   Layers3,
-  Sprout,
   LayoutDashboard,
   NotebookPen,
 } from 'lucide-react';
@@ -32,6 +31,7 @@ import { dueReminders } from '../domain/field-log';
 import { localDigits } from '../domain/numerals';
 import { ReminderAlert } from './notes/reminder-alert';
 import { useToday } from '../lib/use-today';
+import { calendarFarmFor } from '../lib/plot-calendar';
 
 export function Shell({ children }: { children: ReactNode }) {
   const path = usePathname();
@@ -59,10 +59,29 @@ export function Shell({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (loaded && inSetup) seasonStore.revokeCalendar();
   }, [loaded, inSetup]);
+  // The calendar to open when none is open: the last one used, else the plot opened last, else the
+  // first plot with a plan. Only when no plot has a calendar is the menu item locked.
+  const plots = season.state.plots ?? [];
+  const inUse = (id?: string) => !!id && plots.some((p) => p.id === id && !p.endDate);
+  const last = season.state.farms.find(
+    (f) => f.id === season.state.activeId && (!f.plotId || inUse(f.plotId)),
+  );
+  const fallback =
+    last ??
+    [season.state.draftPlotId ?? undefined, ...plots.filter((p) => p.plan).map((p) => p.id)]
+      .filter(inUse)
+      .map((id) => calendarFarmFor(season.state, id!))
+      .find((f) => !!f) ??
+    null;
+  const onCalendar = path === '/plan' || path === '/track';
+  const opening = onCalendar && !activeFarm && !inSetup && !!fallback;
+  useEffect(() => {
+    if (loaded && opening && fallback) seasonStore.activate(fallback.id);
+  }, [loaded, opening, fallback]);
   const redirect =
     path === '/crops' && !landConfirmed
       ? '/farms'
-      : (path === '/plan' || path === '/track') && !activeFarm
+      : onCalendar && !activeFarm && !opening
         ? landConfirmed
           ? '/crops'
           : '/farms'
@@ -73,10 +92,21 @@ export function Shell({ children }: { children: ReactNode }) {
   const saved = farmSaved && demoSaved && journeySaved && season.saved;
   const [modal, setModal] = useState<'about' | null>(null);
   // Lands and plots are set up from the dashboard, so they stay under step 1.
+  // Land, plot and plan pages are opened from a plot on the dashboard, so they light up Dashboard.
   const stepPath =
-    path === '/track' ? '/plan' : path === '/plot' || path === '/farm' ? '/farms' : path;
+    path === '/track'
+      ? '/plan'
+      : path === '/plot' || path === '/farm' || path === '/crops'
+        ? '/farms'
+        : path;
   const subPage =
-    path === '/plot' ? ` · ${t('Plot', 'প্লট')}` : path === '/farm' ? ` · ${t('Land', 'জমি')}` : '';
+    path === '/plot'
+      ? ` · ${t('Plot', 'প্লট')}`
+      : path === '/farm'
+        ? ` · ${t('Land', 'জমি')}`
+        : path === '/crops'
+          ? ` · ${hasPlan ? t('Your plan', 'আপনার পরিকল্পনা') : t('Suggested plans', 'পরামর্শ')}`
+          : '';
   const fieldLog = useFieldLog();
   const deviceToday = useToday(Intl.DateTimeFormat().resolvedOptions().timeZone);
   // Notes of a plot no longer used do not count.
@@ -100,20 +130,11 @@ export function Shell({ children }: { children: ReactNode }) {
       description: t('Your lands & plots', 'আপনার জমি ও প্লট'),
     },
     {
-      href: '/crops',
-      completed: activeFarm,
-      lockedReason: !landConfirmed ? t('Open a plot first', 'আগে একটি প্লট খুলুন') : undefined,
-      label: hasPlan ? t('Your plan', 'আপনার পরিকল্পনা') : t('Suggested plans', 'পরামর্শ'),
-      icon: Sprout,
-      description: hasPlan
-        ? t('This year’s crops and why', 'এ বছরের ফসল ও কারণ')
-        : t('Crops for the whole year', 'পুরো বছরের ফসল'),
-    },
-    {
       href: '/plan',
-      lockedReason: !activeFarm
-        ? t('Choose a crop for a plot first', 'আগে প্লটের জন্য ফসল বাছুন')
-        : undefined,
+      lockedReason:
+        !activeFarm && !fallback
+          ? t('Choose a plan for a plot first', 'আগে একটি প্লটের পরিকল্পনা বাছুন')
+          : undefined,
       label: t('Crop calendar', 'ফসলের ক্যালেন্ডার'),
       icon: Layers3,
       description: t('Daily checks & weather', 'দৈনিক যাচাই ও আবহাওয়া'),
@@ -129,16 +150,12 @@ export function Shell({ children }: { children: ReactNode }) {
       badge: dueCount ? localDigits(dueCount, language) : undefined,
     },
   ];
-  const steps = nav;
-  const stepIndex = steps.findIndex((item) => item.href === stepPath);
-  const stepNumber = localDigits(stepIndex + 1, language);
-  const stepCount = t(`of ${steps.length}`, `/ ${localDigits(steps.length, 'bn')}`);
-  const pageTitle =
-    stepIndex >= 0
-      ? `${t('Step', 'ধাপ')} ${stepNumber} ${stepCount} · ${steps[stepIndex].label}${subPage} — RITU`
-      : path === '/notes'
-        ? t('Your diary — RITU', 'আপনার ডায়েরি — ঋতু')
-        : t('Data sources & methods — RITU', 'তথ্যের উৎস ও পদ্ধতি — ঋতু');
+  // Places to come back to, not numbered steps: the page name, then the sub-page.
+  const section = nav.find((item) => item.href === stepPath);
+  const where = section ? `${section.label}${subPage}` : t('Sources & methods', 'উৎস ও পদ্ধতি');
+  const pageTitle = section
+    ? `${where} — ${t('RITU', 'ঋতু')}`
+    : t('Data sources & methods — RITU', 'তথ্যের উৎস ও পদ্ধতি — ঋতু');
   useEffect(() => {
     document.title = pageTitle;
   }, [pageTitle]);
@@ -158,13 +175,7 @@ export function Shell({ children }: { children: ReactNode }) {
               loading="eager"
             />
           </Link>
-          <p className="header-context">
-            {stepIndex >= 0
-              ? `${t('Step', 'ধাপ')} ${stepNumber} ${stepCount} · ${steps[stepIndex].label}${subPage}`
-              : path === '/notes'
-                ? t('Your diary', 'আপনার ডায়েরি')
-                : t('Sources & methods', 'উৎস ও পদ্ধতি')}
-          </p>
+          <p className="header-context">{where}</p>
           <div className="header-tools">
             <TourGuide key={path} enabled={loaded && !redirect} />
             <ReadingControls />
@@ -189,23 +200,23 @@ export function Shell({ children }: { children: ReactNode }) {
             loading="eager"
           />
         </Link>
-        <p className="sidebar-heading">{t('YOUR SEASON PLAN', 'আপনার মৌসুমের পরিকল্পনা')}</p>
-        <StepProgress items={nav} path={stepPath} label={t('Main navigation', 'মূল নেভিগেশন')} />
+        <p className="sidebar-heading">{t('YOUR FARM', 'আপনার খামার')}</p>
+        <StepProgress
+          items={nav}
+          path={stepPath}
+          label={t('Main navigation', 'মূল নেভিগেশন')}
+          numbered={false}
+        />
         <div className="sidebar-source">
           <button className="text-button" onClick={() => setModal('about')}>
             <Earth size={18} /> {t('Sources & limits', 'উৎস ও সীমা')}
           </button>
-          <small>NASA POWER · FAO ECOCROP · SAGE · Open-Meteo</small>
+          <small>NASA POWER · GPM IMERG · SMAP · FAO ECOCROP · SAGE · Open-Meteo</small>
         </div>
       </aside>
       <main id="main" className="main-content" tabIndex={-1}>
-        {stepIndex >= 0 && (
-          <p className="workflow-step">
-            {t('Step', 'ধাপ')} {stepNumber} {stepCount} · {steps[stepIndex].label}
-            {subPage}
-          </p>
-        )}
-        {loaded && !redirect ? (
+        {section && <p className="workflow-step">{where}</p>}
+        {loaded && !redirect && !opening ? (
           children
         ) : (
           <p role="status">

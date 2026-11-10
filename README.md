@@ -1,65 +1,75 @@
-# RITU — grow with the seasons
+# RITU (ঋতু) · crop planning with NASA data for Rajshahi farmers
 
-A bilingual, worldwide field-planning application: describe land, choose **one planting plan** (seasonal crop or perennial care), then manage its calendar, daily field checks and forecast. Each field/crop gets a separate saved farm. The active workflow combines NASA POWER climate, published species requirements and historical regional crop calendars. It starts with the farmer's own inputs; no sample farm or fabricated weather is substituted.
+Ritu helps a farmer in the Rajshahi region of Bangladesh plan a whole year on each plot of land: which crops to grow in the three seasons, when to sow, when to irrigate and for how long, and what to watch for. It compares the farmer's own rotation from last year with alternatives, using NASA rain, soil-moisture and climate data for the farmer's location, and then turns the chosen plan into a daily calendar. It works in English and Bangla.
+
+- **Live demo:** https://ritu-three.vercel.app
+- **NASA Space Apps Challenge 2026:** Field Shift: Adapting Farms with NASA Data
+- **Pilot region:** Rajshahi, Chapainawabganj, Natore and Naogaon districts
+
+## What a farmer does
+
+1. **Dashboard:** add a land by pinning it on the map and giving its size. Weather, long-term climate and soil (texture and pH from SoilGrids) load for that point. Divide the land into plots.
+2. **Plot:** give the plot's size and what grew there last year in each season. A plot can have its own water and drainage if they differ from the rest of the land.
+3. **Year plans:** Ritu shows three whole-year plans for the plot, with last year's rotation as Plan A when it is known. Each plan shows the irrigations it needs, heat risk, soil fit and how much it wears out the soil, crop by crop, with the reasons. NASA lines on the plan say where a dry spell usually hits a crop at flowering and where the soil is usually too dry to sow without watering first. The farmer can also build a plan crop by crop.
+4. **Crop calendar:** the chosen plan becomes one calendar for the plot. A Today card says what to do (sow, irrigate with pump hours, harvest, or a field job such as top-dressing urea), with the live forecast and, for days beyond it, the usual weather, rain, root-zone wetness and dry-spell chance for that week. Sowing deadlines, late sowing, cancelled or lost crops and early harvests are handled. The plan can be changed for crops not yet sown; crops already sown stay in it.
+5. **Your diary:** notes with tags, photos and reminders, shown on the calendar.
+
+Lands outside the pilot region get a one-season crop chooser instead of year plans, because the crop calendars and NASA rain and soil summaries cover only the four districts.
+
+## How NASA data is used
+
+| NASA dataset                                                                                                                                                                                    | What Ritu takes from it                                                                                                                                | Where it changes the advice                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [NASA POWER](https://power.larc.nasa.gov/docs/services/api/temporal/climatology/) 1991–2020 monthly climatology at the pin (temperature, maximum and minimum, corrected rain, top-soil wetness) | Monthly rain and reference crop water use (FAO-56 Hargreaves ET0)                                                                                      | Week-by-week water balance of every crop: how many irrigations, in which weeks, and how many pump hours; heat risk at the crop's sensitive stage                                                                                                                                                                                                                                                                                                       |
+| [GPM IMERG Final daily precipitation, V07](https://doi.org/10.5067/GPM/IMERGDF/DAY/07) (GES DISC, 0.1°), 1 Jan 2001 to 30 Sep 2025                                                              | For each week of the year: mean rain, 20th and 80th percentiles, and the share of years in which a run of 21 or more days below 1 mm touched that week | Dry-spell risk in each crop's flowering and grain weeks. The rain the water plan counts on there becomes extra irrigation in a dry year, so the plan's score drops by the expected extra irrigations (from 20% of years); from 40% the crop's water bar also rises on plots with limited water, rain only or a severe shortage. Calendar days show the weekly rain and dry-spell chance; the Today card says not to wait for rain in usually dry weeks |
+| [SMAP L4 surface and root-zone soil moisture, V8](https://doi.org/10.5067/T5RUATAQREF8) (NSIDC DAAC, 9 km), 1 Apr 2015 to 31 Dec 2025                                                           | For each week: mean root-zone wetness (3-hour value nearest 12:00 Bangladesh time), scaled from the driest to the wettest week anywhere in the region  | The soil water a crop other than rice starts with at sowing (rice starts on a puddled field). Below half the regional range, Ritu adds one irrigation before sowing to the plan and the calendar. Calendar days show the usual root-zone wetness                                                                                                                                                                                                       |
+
+The IMERG and SMAP summaries were built once from NASA Earthdata, requesting only the box 87.9–89.45° E, 24.0–25.3° N (slightly larger than the four pilot districts, which decide where year plans are offered) through NASA's OPeNDAP service, and are shipped with the app in `src/data/nasa/` (about 1 MB each). The app reads them through `/api/nasa-local`; no NASA login is needed to run it. All values describe a grid square of about 10 km, not one field, and the app says "in this area".
+
+**No trained model.** Ritu combines counted NASA history (averages, percentiles, how often a dry spell happened), published crop requirements and stated assumptions to estimate irrigation needs and pump time. The assumptions are in the code: for example, pump hours assume a shallow tube well giving 14 litres a second, and the soil-wear bar is a rating from the crop sequence (rice after rice, the same crop again, a pulse). Each figure can be traced to its data or assumption.
+
+## Other data
+
+- **Crop calendars and rotations:** sowing windows and durations are planning values from BARI, BRRI and DAE/BAMIS calendars for north-west Bangladesh. There are 18 crops: chickpea, onion, garlic, brinjal, groundnut and black gram were added from the DAE district crop table and the BAMIS Rajshahi-region calendars. The 36 rotations combine the region's common patterns from those calendars with combinations of the same crops whose seasons fit together; the three with black gram in place of Aman are suggested only where no Aman plan fits the plot. Field jobs (fertiliser, weeding, pest checks) follow the same guidance. Crop coefficients: FAO-56 Table 12. Some heat limits and soil fits are commonly reported values that are marked in the code as not yet checked against a source.
+- **Soil:** [ISRIC SoilGrids](https://isric.org/explore/soilgrids) texture and pH at 5–15 cm, kept separate from a farmer's own soil test. Crop pH ranges: [FAO ECOCROP](https://www.fao.org/geospatial/data-and-tools/data-portals/ecocrop/en).
+- **Weather:** [Open-Meteo](https://open-meteo.com/en/docs) 7-day forecast and place search; [OpenStreetMap](https://www.openstreetmap.org/copyright) map tiles.
+- **Pilot boundary:** geoBoundaries district outlines (BBS, OCHA ROAP).
+
+The Sources page in the app lists every dataset with its period and link.
+
+## Limits
+
+Ritu gives planning values for common varieties, not field-specific prescriptions. NASA values are for a grid square, past years are not a forecast, and the crop values have not been reviewed by an agronomist for this app. It gives no yield forecast and no fertiliser or pesticide doses. Records are stored only in the browser on the device (no account, no server database); "Export all records" downloads them, diary photos included.
 
 ## Run
 
-Node.js 22.13 or newer and npm are required.
+Node.js 22.13 or newer and npm.
 
 ```sh
 npm ci
-npm run dev
+npm run dev          # http://127.0.0.1:3000
 ```
 
-Open http://localhost:3000. No account, database or API key is needed. Location search, map tiles, weather and new NASA requests need internet. Google fonts download during the build and are served locally afterward. This is not an offline-installable PWA.
+No account, database or API key is needed. Location search, map tiles, weather and NASA POWER requests need internet.
 
 ```sh
-npm run lint
 npm run typecheck
-npm test
-npx playwright install chromium
-npm run test:browser
+npm run lint
+npm test             # unit tests (vitest)
 npm run build
-npm start
 ```
 
-## Farmer workflow
+Browser tests (`npm run test:browser`, Playwright) were written for earlier versions of the interface and have not yet been updated to the year-plan screens.
 
-1. **Dashboard:** open saved farms, add a field/crop, export all records, and confirm single-farm deletion or full reset. Existing farms resume without repeating setup. Previous annual-rotation records remain at `/records`.
-2. **Land details:** search anywhere, use GPS or enter coordinates, and pin the field. Enter measured area (hectares, acres, m² or decimal/shotok), ready-to-plant date, known soil/drainage and available water. Unknown facts stay unknown. Climate and weather load automatically; confirm the current details before crop selection.
-3. **Suggested crops:** compare next-season crop options, reasons, indicative timing and remaining field checks. Choose exactly one crop and create a farm. The selection action stays near the top. Missing provider data shows a retry state rather than invented suggestions.
-4. **Farm calendar:** explore reference windows, actual dates, forecast rainfall and conditional field guidance. Record planting, daily observations and partial/final harvest separately. Late crops continue; final harvest completes a seasonal cycle while retaining history, and perennial care continues. An optional documented grain-corn model provides a heat-threshold projection only when the required weather and hybrid evidence exist. Plans are not automatically marked as completed activities.
+## Where things are
 
-Worldwide support does not mean every crop or local cultivar has a verified calendar. The complete source catalogue contains **2,562 plant records**: 2,568 ECOCROP records minus the six retired sorghum entries. It includes vegetables, fruits/nuts, grains, pulses, roots/tubers, forage, trees and other source uses. Search, life-cycle/use filters and 12-result pages expose every retained record, including incomplete ones in catalogue mode. A record needs sufficient temperature, growing-period and field-condition evidence to become selectable. Perennials get an explicitly labelled care/review horizon; generic growing periods do not predict first fruit. Historical calendar observations are used where the selected grid has a record. Otherwise the option is explicitly climate-based and shows a broad source growing-period range. Missing records are never filled from a neighbouring country. This is preliminary screening, not a validated best-crop, yield or optimal-sowing model.
-
-The former DAE/BAMIS rotation library remains available for previous records; its four-district coverage is not applied as a worldwide rule. No retired sorghum crop is reintroduced.
-
-## Data and evidence
-
-- **NASA POWER:** the current crop screen uses explicit **1991–2020 monthly climate normals** (`T2M`, `PRECTOTCORR`), validating the point, baseline, units and all twelve months. Long-term climate participates in matching; it is not a current soil measurement or seasonal forecast. Older daily/yearly history endpoints remain for previous records. [Climatology API](https://power.larc.nasa.gov/docs/services/api/temporal/climatology/).
-- **FAO ECOCROP:** the full retained catalogue's temperature ranges, growing periods and source soil/drainage categories, distributed by [OpenCLIM at a pinned commit](https://github.com/OpenCLIM/ecocrop/blob/f13577f4237604b15d85d8e43741714a2d1eb2d4/EcoCrop_DB.csv). [Original database context](https://gaez.fao.org/pages/ecocrop), [distribution/license](https://zenodo.org/records/10843625). RITU implements an explicit screening heuristic, not the full OpenCLIM model. Annual rainfall supplies context/cautions only; neither annual rain nor qualitative irrigation labels establish crop-season water adequacy or change water-based ranking. FAO reports ECOCROP was discontinued around 2015; it is a historical species reference, not a continuously updated cultivar service.
-- **Sacks/SAGE calendars:** fourteen **unextrapolated** 0.5° crop/season grids from Sacks et al. (2010). Original observation IDs, timing, grid centres and source links remain traceable. Old regional observations do not establish current crop presence or a field-specific optimum. [Original dataset and documentation](https://sage.nelson.wisc.edu/data-and-models/datasets/crop-calendar-dataset/). Rebuild numeric packages with `scripts/prepare-global-crops.py` (Python/numpy/scipy needed only for regeneration).
-- **Open-Meteo / GeoNames:** current model conditions, seven-day forecasts and global place suggestions. Timestamps, missing values and provider failures remain visible. Weather refreshes online while visible; stale conditions do not produce weather-derived prompts.
-- **OpenStreetMap / Leaflet:** attributed map tiles and a draggable/touch/keyboard farm pin. The pin is not a surveyed farm boundary. No bulk tile download is included.
-- **Daily field guidance:** [FAO crop water needs](https://www.fao.org/4/s2022e/s2022e02.htm) and [integrated pest-management observation principles](https://www.fao.org/agriculture/crops/thematic-sitemap/theme/spi/scpi-home/managing-ecosystems/integrated-pest-management/ipm-how/en/). Checks combine actual planting status, observed stage and fresh, correctly located forecasts. No exact irrigation, fertilizer or pesticide dose is generated.
-- **Retained regional references:** DAE/BAMIS calendars and the named 2016 CIMMYT/CSISA mung guide remain in previous-record tools. Their region/variety-specific methods are not silently generalized worldwide. BARC, IRAS, IMERG, SMAP and FAO's separate Crop Calendar API are not integrated current providers.
-- **Crop photographs:** the active catalogue loads images through `/api/plant-photo`, using Wikipedia scientific-name records, Wikidata botanical identity/image statements and Wikimedia Commons licensing/credit metadata. Requests are batched, paced and cached. There is no observation-photo or manually placed local-image fallback. Unresolved source images remain unavailable. Public-domain, CC0, CC BY and CC BY-SA photographs are attributed per card.
-
-No synthetic climate perturbations, rainfall credits, yield forecasts, measured water savings or proven soil-health gains are presented. Local cultivar dates, soil chemistry, actual root-zone water and field effectiveness still need field evidence and agricultural review. The app does not control irrigation hardware or run unattended background/cloud farming jobs.
-
-## Interface and animation
-
-The white workspace has four large desktop sidebar steps and mobile navigation, English/Bangla, comfortable/larger text, replayable Mati tours, opt-in synthesized farm ambience, volume/mute and click feedback. No sound autoplays. Tours explain actual screens and setup gates without injecting fictional data.
-
-The original **2D** landing illustration follows one farm through **sow → care → grow → harvest**. Only one activity is mounted at a time. Chapter selection pauses for inspection; Play continues and Replay starts at sowing. Motion pauses offscreen, in hidden tabs and under reduced-motion settings. Controls stay outside the artwork. The art is decorative, not a growth/spacing model or NASA imagery; no WebGL is required.
-
-## Records and test boundaries
-
-Inputs and actual observations stay in versioned browser local storage; there is no cloud sync, account system or analytics. Old experimental records are retained for export, not silently treated as validated advice. Invalid newer records are backed up for recovery; no sample farm replaces them. Full reset removes device records only after confirmation and retains language/reading/sound preferences. Export first if records matter.
-
-Only environmental coordinates and necessary dates/crop reference identifiers go through the environmental APIs. Farm names, notes and household details are not sent to NASA or weather providers. Open-Meteo's free endpoint has non-commercial/rate-limit terms; production hosting and service capacity need deployment review.
-
-The current browser contract is `tests/e2e/season-workflow.spec.ts`, plus preserved landing-animation/edge checks. Earlier annual-rotation specs are historical and excluded by the default test match. The current matrix enters 256 complete location/soil/drainage/water input-to-farm runs across desktop and phone, alongside recovery, data-outage, accessibility, language/tour and persistence checks. Provider fixtures are labelled QA records and never shipped as live weather. Automated software checks do not establish field effectiveness or universal bug freedom.
+| Path                                                  | What it holds                                                                                                                              |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/domain/rotation/`                                | Scheduling, weekly water balance (`crop-weeks.ts`), plan scoring and dry-spell risk (`assess.ts`), the day-by-day calendar (`day-plan.ts`) |
+| `src/domain/nasa-local.ts`                            | Reading the IMERG and SMAP weekly summaries at a pin                                                                                       |
+| `src/data/rotation-crops.ts`, `src/data/crop-jobs.ts` | Crops, rotations and field jobs, with their sources in comments                                                                            |
+| `src/data/nasa/`                                      | The IMERG and SMAP summaries                                                                                                               |
+| `src/components/rotation/`                            | Year plans and the crop calendar                                                                                                           |
 
 ## Team
 
@@ -69,6 +79,4 @@ The current browser contract is `tests/e2e/season-workflow.spec.ts`, plus preser
 | Abid Al Hossain Swakkhar | Architecture, calendar, integration, testing and preview application          |
 | Mahia Ribahna            | Visual design, graphics, storytelling and presentation assets                 |
 
-Dependencies are pinned in the lockfile.
-
-Repository: [alve775/Ritu](https://github.com/alve775/Ritu). Publishing, project licensing and the final hosting account remain team decisions. No project license has been assumed.
+Repository: [alve775/Ritu](https://github.com/alve775/Ritu). Dependencies are pinned in the lockfile.

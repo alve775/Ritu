@@ -9,6 +9,7 @@ import {
   type MonthlyClimate,
   type QuietDay,
 } from '../../domain/rotation';
+import { nasaWeekOn, type NasaWeek } from '../../domain/nasa-local';
 import type { RotationText, Translate } from './rotation-text';
 
 export type WeatherIcon = 'sun' | 'cloud' | 'rain';
@@ -29,6 +30,8 @@ export type DayWeather =
       min: number;
       monthRain: number;
       wetness: number | null;
+      /** NASA IMERG and SMAP for the date's week, when the land is in the Rajshahi box. */
+      nasa: NasaWeek | null;
       icon: WeatherIcon;
     };
 export function dayWeather(
@@ -57,6 +60,7 @@ export function dayWeather(
     min: climate.min[m],
     monthRain: climate.rain[m],
     wetness: climate.wetness[m],
+    nasa: nasaWeekOn(climate.nasa, date),
     icon: perDay >= 4 ? 'rain' : perDay >= 1 ? 'cloud' : 'sun',
   };
 }
@@ -74,6 +78,21 @@ export const wetWord = (v: number | null, t: Translate) =>
       : v < 0.6
         ? t('Slightly moist', 'মাঝারি ভেজা')
         : t('Wet', 'ভেজা');
+
+/** SMAP root-zone wetness (0 driest to 1 wettest in the Rajshahi region) in words. */
+export const rootWord = (v: number | null, t: Translate) =>
+  v === null
+    ? t('Not available', 'তথ্য নেই')
+    : v < 0.35
+      ? t('Usually dry', 'সাধারণত শুকনো')
+      : v < 0.6
+        ? t('Usually slightly moist', 'সাধারণত একটু ভেজা')
+        : t('Usually moist', 'সাধারণত ভেজা');
+/** Usual IMERG rain for a week in words. */
+export const weekRainText = (mm: number, tx: RotationText, t: Translate) =>
+  mm < 0.5
+    ? t('Usually none', 'সাধারণত হয় না')
+    : t(`Usually ${Math.round(mm)} mm`, `সাধারণত ${tx.n(Math.round(mm))} মিমি`);
 
 export const stageName = (s: CropStage, t: Translate) =>
   ({
@@ -109,6 +128,11 @@ export function itemText(i: DayItem, tx: RotationText, t: Translate, areaHa: num
     case 'lost':
       return t(`${tx.crop(i.crop)} lost`, `${tx.crop(i.crop)} নষ্ট হয়েছে`);
     case 'irrigate':
+      if (i.window.presow)
+        return t(
+          `Water before sowing · about ${pumpHours(i.window.mm, areaHa)} pump hours`,
+          `বোনার আগে সেচ · পাম্পে প্রায় ${tx.n(pumpHours(i.window.mm, areaHa))} ঘণ্টা`,
+        );
       return i.first
         ? t(
             `Irrigate · about ${pumpHours(i.window.mm, areaHa)} pump hours`,
@@ -116,7 +140,9 @@ export function itemText(i: DayItem, tx: RotationText, t: Translate, areaHa: num
           )
         : t('Irrigate this week', 'এই সপ্তাহে সেচ দিন');
     case 'irrigated':
-      return t('Irrigated', 'সেচ দেওয়া হয়েছে');
+      return i.window.presow
+        ? t('Watered before sowing', 'বোনার আগে সেচ দেওয়া হয়েছে')
+        : t('Irrigated', 'সেচ দেওয়া হয়েছে');
     case 'missed':
       return t('Irrigation missed', 'সেচ বাকি রয়ে গেছে');
     case 'heat':
@@ -134,7 +160,8 @@ export function itemTag(i: DayItem, t: Translate) {
     sow: t('Sow', 'বোনা'),
     harvest: t('Harvest', 'কাটা'),
     lost: t('Lost', 'নষ্ট'),
-    irrigate: t('Irrigate', 'সেচ'),
+    irrigate:
+      i.kind === 'irrigate' && i.window.presow ? t('Pre-sow', 'আগে সেচ') : t('Irrigate', 'সেচ'),
     irrigated: t('✓ Irrigated', '✓ সেচ'),
     missed: t('Missed', 'বাকি'),
     heat: t('Hot', 'গরম'),
@@ -167,6 +194,14 @@ export function eventText(e: BigEvent, tx: RotationText, t: Translate, areaHa: n
         ),
       };
     case 'irrigate':
+      if (e.window.presow)
+        return {
+          title: t(`${crop}: water before sowing`, `${crop}: বোনার আগে সেচ`),
+          note: t(
+            `The soil is usually dry then (NASA SMAP) · about ${pumpHours(e.window.mm, areaHa)} pump hours`,
+            `তখন মাটি সাধারণত শুকনো থাকে (নাসা SMAP) · পাম্পে প্রায় ${tx.n(pumpHours(e.window.mm, areaHa))} ঘণ্টা`,
+          ),
+        };
       return {
         title: t(`${crop}: next irrigation`, `${crop}: পরের সেচ`),
         note: t(

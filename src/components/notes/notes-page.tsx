@@ -195,7 +195,7 @@ export function NotesPage() {
             {notifyMessage}
           </p>
         )}
-        <div className="notes-pickers">
+        <div className="notes-pickers" data-tour="diary-pickers">
           <label className="notes-pick">
             <span>{t('Land', 'জমি')}</span>
             <select
@@ -259,7 +259,11 @@ export function NotesPage() {
         )}
       </section>
 
-      <section className="notes-rems" aria-label={t('Upcoming reminders', 'সামনের রিমাইন্ডার')}>
+      <section
+        className="notes-rems"
+        data-tour="diary-reminders"
+        aria-label={t('Upcoming reminders', 'সামনের রিমাইন্ডার')}
+      >
         <div className="notes-rems-head">
           <h2>
             <Bell size={20} aria-hidden="true" /> {t('Upcoming reminders', 'সামনের রিমাইন্ডার')}

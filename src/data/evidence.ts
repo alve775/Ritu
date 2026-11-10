@@ -13,7 +13,14 @@ export const evidenceSources = [
     url: 'https://open-meteo.com/en/docs/geocoding-api',
   },
   { name: 'Open-Meteo · terms and data attribution', url: 'https://open-meteo.com/en/terms' },
-  { name: 'NASA GPM · IMERG precipitation estimates', url: 'https://gpm.nasa.gov/data/imerg' },
+  {
+    name: 'NASA GES DISC · GPM IMERG Final Precipitation L3 1 day 0.1° V07',
+    url: 'https://doi.org/10.5067/GPM/IMERGDF/DAY/07',
+  },
+  {
+    name: 'NASA NSIDC DAAC · SMAP L4 9 km Surface and Root Zone Soil Moisture V8',
+    url: 'https://doi.org/10.5067/T5RUATAQREF8',
+  },
   {
     name: 'NASA POWER · data origins and access',
     url: 'https://power.larc.nasa.gov/docs/faqs/data/',

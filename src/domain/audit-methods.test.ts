@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { areaToHectares, areaFromHectares } from './area-units';
+import {
+  areaToHectares,
+  areaFromHectares,
+  areaUnits,
+  areaUnitOptionLabel,
+  hectaresPerUnit,
+} from './area-units';
 import { planningIssues } from './planning-issues';
 import { blankFarm, emptyEvidenceState, validEvidenceState } from '../lib/evidence-store';
 import { evidencePlans } from './evidence-planner';
@@ -10,6 +16,30 @@ describe('measured area conversion', () => {
     expect(areaToHectares(10000, 'square-metres')).toBe(1);
     expect(areaFromHectares(1, 'square-metres')).toBe(10000);
     expect(areaFromHectares(areaToHectares(12.5, 'decimal'), 'decimal')).toBe(12.5);
+  });
+  it('converts Rajshahi bigha (14,400 sq ft) and katha (720 sq ft) exactly and round-trips cleanly', () => {
+    expect(hectaresPerUnit.bigha).toBeCloseTo(0.1337803776, 15);
+    expect(hectaresPerUnit.katha).toBeCloseTo(0.00668901888, 15);
+    expect(areaToHectares(20, 'katha')).toBeCloseTo(areaToHectares(1, 'bigha'), 15);
+    expect(areaFromHectares(areaToHectares(1, 'bigha'), 'katha')).toBe(20);
+    expect(areaFromHectares(areaToHectares(60, 'katha'), 'bigha')).toBe(3);
+    expect(areaToHectares(1, 'bigha') / areaToHectares(1, 'decimal')).toBeCloseTo(
+      14_400 / 435.6,
+      12,
+    );
+    expect(Math.round(areaFromHectares(areaToHectares(1, 'bigha'), 'decimal'))).toBe(33);
+    expect(areaToHectares(1, 'bigha')).toBeCloseTo(areaToHectares(33, 'decimal'), 3);
+    for (const v of [0.5, 1, 1.5, 2.25, 3, 7, 15, 20]) {
+      expect(areaFromHectares(areaToHectares(v, 'bigha'), 'bigha')).toBe(v);
+      expect(areaFromHectares(areaToHectares(v, 'katha'), 'katha')).toBe(v);
+    }
+  });
+  it('lists area units in farmer order with regional size labels in English and Bangla', () => {
+    expect(areaUnits).toEqual(['bigha', 'katha', 'decimal', 'acres', 'hectares', 'square-metres']);
+    expect(areaUnitOptionLabel('bigha', (en) => en)).toBe('Bigha (33 decimal)');
+    expect(areaUnitOptionLabel('bigha', (_, bn) => bn)).toBe('বিঘা (৩৩ শতক)');
+    expect(areaUnitOptionLabel('katha', (en) => en)).toBe('Katha (720 sq ft)');
+    expect(areaUnitOptionLabel('katha', (_, bn) => bn)).toBe('কাঠা (৭২০ বর্গফুট)');
   });
 });
 it('preserves invalid draft edits rather than resetting the whole stored farm', () => {

@@ -110,7 +110,7 @@ test('read aloud uses the visible step and selected voice; changing steps cancel
   expect((await audit(page)).cancelled).toBe(2);
   await expect(card.getByRole('button', { name: 'Stop speaking', exact: true })).toBeDisabled();
   await card.getByRole('button', { name: 'Read this step aloud', exact: true }).click();
-  expect((await audit(page)).calls.at(-1)?.text).toContain('Area and next season');
+  expect((await audit(page)).calls.at(-1)?.text).toContain(stepsForPageTour('/farm')[1].title.en);
   await card.getByRole('button', { name: 'Close tour', exact: true }).click();
   expect((await audit(page)).cancelled).toBe(3);
 });

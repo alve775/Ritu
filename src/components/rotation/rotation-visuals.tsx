@@ -384,3 +384,64 @@ export const chartCrops = (a: PlanAssessment): ChartCrop[] =>
     harvest: c.item.harvest,
     weeks: c.weeks,
   }));
+
+/**
+ * What NASA rain and soil data add to a plan: a likely dry spell at flowering (IMERG) and an
+ * irrigation before sowing (SMAP), one line per crop. Nothing when neither applies.
+ */
+export function NasaNotes({
+  crops,
+  tx,
+  t,
+  areaHa,
+  inline = false,
+  tour,
+}: {
+  crops: CropAssessment[];
+  tx: RotationText;
+  t: Translate;
+  areaHa: number;
+  /** Spans only, for use inside a button. */
+  inline?: boolean;
+  tour?: string;
+}) {
+  const rows = crops.flatMap((c) => [
+    ...(c.presow
+      ? [
+          {
+            key: `${c.item.crop.id}-presow`,
+            tag: t('Before sowing', 'বোনার আগে'),
+            text: tx.presow(c, areaHa),
+            high: false,
+          },
+        ]
+      : []),
+    ...(c.dry
+      ? [
+          {
+            key: `${c.item.crop.id}-dry`,
+            tag: c.dry.high ? t('Dry spell: high', 'খরা: বেশি') : t('Dry spell', 'খরা'),
+            text: tx.dry(c, areaHa),
+            high: c.dry.raisesWater,
+          },
+        ]
+      : []),
+  ]);
+  if (!rows.length) return null;
+  const List = inline ? 'span' : 'ul',
+    Item = inline ? 'span' : 'li';
+  return (
+    <List
+      className="rot-nasa"
+      data-tour={tour}
+      aria-label={t('From NASA rain and soil data', 'নাসার বৃষ্টি ও মাটির তথ্য থেকে')}
+    >
+      {rows.map((r) => (
+        <Item key={r.key} className={r.high ? 'high' : ''}>
+          <span className="rot-nasa-tag">{r.tag}</span>
+          <span>{r.text}</span>
+        </Item>
+      ))}
+    </List>
+  );
+}

@@ -9,3 +9,4 @@ src/data/global/*.json
 # Compact NASA IMERG and SMAP weekly summaries for the Rajshahi region (generated once from NASA data).
 src/data/nasa/rajshahi-imerg.json
 src/data/nasa/rajshahi-smap.json
+src/data/barc/rajshahi-soil.json

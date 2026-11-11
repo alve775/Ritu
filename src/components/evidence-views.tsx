@@ -1611,6 +1611,27 @@ export function EvidenceSourcesView({
       <section className="card">
         <h2>
           {t(
+            'Soil texture and drainage in Rajshahi, Chapainawabganj, Natore and Naogaon: BARC crop zoning',
+            'রাজশাহী, চাঁপাইনবাবগঞ্জ, নাটোর ও নওগাঁয় মাটির গঠন ও নিষ্কাশন: BARC ফসল জোনিং',
+          )}
+        </h2>
+        <p>
+          {t(
+            'For lands in Rajshahi, Chapainawabganj, Natore and Naogaon, Ritu fills in soil texture and drainage from the soil units of the Bangladesh Agricultural Research Council’s Crop Zoning Information System, built from Soil Resource Development Institute (SRDI) soil surveys; the same data is behind the government’s Khamari app. Ritu sampled the units once, every 0.005° (about 500 m), and ships the result with the app, so a land takes the survey point within about 400 m of its pin. Sand and sandy loam count as sandy soil, loam and clay loam as loam, and clay as clay; well and moderately well drained units fill in “drains well”, poorly and very poorly drained units “poorly drained”, and imperfectly drained units leave the answer to the farmer. The farmer’s own choice always wins. Where there is no soil unit (towns, rivers) and outside the four districts, Ritu uses SoilGrids. Reproduced under the portal’s copyright policy, with this acknowledgement.',
+            'রাজশাহী, চাঁপাইনবাবগঞ্জ, নাটোর ও নওগাঁর জমির জন্য ঋতু মাটির গঠন ও নিষ্কাশন বসায় বাংলাদেশ কৃষি গবেষণা কাউন্সিলের ফসল জোনিং তথ্যব্যবস্থার মাটির একক থেকে, যা মৃত্তিকা সম্পদ উন্নয়ন ইনস্টিটিউটের (SRDI) মাটি জরিপে তৈরি; সরকারের খামারী অ্যাপের পেছনেও এই তথ্য। ঋতু এককগুলো একবার প্রতি ০.০০৫° (প্রায় ৫০০ মিটার) পরপর নিয়ে অ্যাপের সঙ্গে রেখেছে, তাই জমি তার পিনের প্রায় ৪০০ মিটারের মধ্যের জরিপ বিন্দু পায়। বালু ও বেলে দোআঁশ বেলে মাটি, দোআঁশ ও এঁটেল দোআঁশ দোআঁশ, আর এঁটেল এঁটেল ধরা হয়; ভালো ও মোটামুটি ভালো নিষ্কাশনের একক “ভালো নিষ্কাশন”, দুর্বল ও খুব দুর্বল নিষ্কাশনের একক “দুর্বল নিষ্কাশন” বসায়, আর অপূর্ণ নিষ্কাশনের এককে উত্তর কৃষকের ওপর থাকে। কৃষকের নিজের বাছাই সবসময় আগে। যেখানে মাটির একক নেই (শহর, নদী) আর চার জেলার বাইরে ঋতু SoilGrids ব্যবহার করে। পোর্টালের কপিরাইট নীতি অনুযায়ী, এই স্বীকৃতিসহ।',
+          )}
+        </p>
+        <SourceLink href="https://czis.cropzoning.gov.bd">
+          BARC Crop Zoning Information System (CZIS)
+        </SourceLink>{' '}
+        ·{' '}
+        <SourceLink href="https://portal.cropzoning.gov.bd/copyrightPolicy">
+          {t('Copyright policy', 'কপিরাইট নীতি')}
+        </SourceLink>
+      </section>
+      <section className="card">
+        <h2>
+          {t(
             'Additional soil data and research candidates',
             'মাটির বাড়তি তথ্য ও গবেষণার সম্ভাবনা',
           )}

@@ -49,6 +49,7 @@ import { SoilEvidenceForm } from './soil-evidence-form';
 import { WaterBudgetPanel } from './water-budget-panel';
 import { SoilReferencePanel } from './soil-reference-panel';
 import { useSoilTexture } from '../lib/use-soil-texture';
+import { useSoilSurvey } from '../lib/use-soil-survey';
 import { textureNames } from '../domain/soil-texture';
 import { CultivarReferencePanel } from './cultivar-reference-panel';
 import { FieldRegistryDashboard } from './field-registry-dashboard';
@@ -152,12 +153,25 @@ export function SeasonFarmView() {
     farms = useSeasonFarms();
   const context = useSeasonContext(site);
   const soilTexture = useSoilTexture(p.site);
-  // Fill soil texture from SoilGrids once per pin, unless the farmer has chosen it themselves.
+  // BARC crop-zoning soil survey (SRDI) in Rajshahi, Chapainawabganj, Natore and Naogaon; null elsewhere.
+  const survey = useSoilSurvey(p.site),
+    surveyUnit = survey && survey !== 'none' ? survey : null,
+    pinKey = p.site ? `${p.site.latitude},${p.site.longitude}` : '';
+  // Fill soil texture once per pin, unless the farmer has chosen it themselves: from the BARC
+  // survey where it has a soil unit, otherwise from SoilGrids.
   const autoSoil = useRef<{ key: string; soil: Farm['soil'] | null }>({ key: '', soil: null });
   useEffect(() => {
-    const found = soilTexture.texture;
+    if (survey === undefined) return;
+    const found = surveyUnit?.soil
+      ? { key: `barc:${pinKey}`, soil: surveyUnit.soil }
+      : soilTexture.texture
+        ? {
+            key: `${soilTexture.texture.latitude},${soilTexture.texture.longitude}`,
+            soil: soilTexture.texture.soil,
+          }
+        : null;
     if (!found) return;
-    const key = `${found.latitude},${found.longitude}`;
+    const key = found.key;
     if (autoSoil.current.key === key) return;
     const previous = autoSoil.current.soil;
     autoSoil.current = { key, soil: previous };
@@ -165,7 +179,23 @@ export function SeasonFarmView() {
       autoSoil.current = { key, soil: found.soil };
       if (farm.soil !== found.soil) setFarm({ soil: found.soil });
     }
-  }, [soilTexture.texture, farm.soil, setFarm]);
+  }, [survey, surveyUnit, pinKey, soilTexture.texture, farm.soil, setFarm]);
+  // The survey's drainage fills "Does water drain away?" once per pin, unless answered.
+  const autoDrainage = useRef<{ key: string; drainage: Farm['drainage'] | null }>({
+    key: '',
+    drainage: null,
+  });
+  useEffect(() => {
+    if (!surveyUnit || autoDrainage.current.key === pinKey) return;
+    const previous = autoDrainage.current.drainage,
+      next = surveyUnit.drains;
+    autoDrainage.current = { key: pinKey, drainage: previous };
+    if (farm.drainage === 'unknown' || (previous !== null && farm.drainage === previous)) {
+      autoDrainage.current = { key: pinKey, drainage: next };
+      const value = next ?? 'unknown';
+      if (farm.drainage !== value) setFarm({ drainage: value });
+    }
+  }, [surveyUnit, pinKey, farm.drainage, setFarm]);
   const parent = farms.state.fields?.find((f) => f.id === farms.state.draftFieldId);
   // This page only describes land; crops are chosen per plot.
   const editingField = !!parent;
@@ -302,6 +332,27 @@ export function SeasonFarmView() {
             </select>
           </label>
         </div>
+        {surveyUnit && (surveyUnit.soil || surveyUnit.drains) && (
+          <p className="soil-texture-source" aria-live="polite">
+            {`${t('From the BARC crop zoning soil survey (SRDI)', 'BARC ফসল জোনিং মাটি জরিপ (SRDI) থেকে')}: ${[
+              surveyUnit.soil &&
+                { loam: t('Loam', 'দোআঁশ'), clay: t('Clay', 'এঁটেল'), sandy: t('Sandy', 'বেলে') }[
+                  surveyUnit.soil
+                ],
+              surveyUnit.drains &&
+                (surveyUnit.drains === 'good'
+                  ? t('Yes · drains well', 'হ্যাঁ · ভালো নিষ্কাশন')
+                  : t(
+                      'Poorly drained · prolonged saturation',
+                      'দুর্বল নিষ্কাশন · দীর্ঘ জলসম্পৃক্ততা',
+                    )),
+            ]
+              .filter(Boolean)
+              .join(
+                ' · ',
+              )}${t('.', '।')} ${t('Survey point within about 400 m of your pin.', 'আপনার পিন থেকে প্রায় ৪০০ মিটারের মধ্যের জরিপ বিন্দু।')} ${t('Change it if your field is different.', 'আপনার জমি আলাদা হলে বদলে দিন।')}`}
+          </p>
+        )}
         <p className="soil-texture-source" aria-live="polite">
           {soilTexture.texture
             ? `${t('From SoilGrids', 'SoilGrids থেকে')}: ${textureNames[soilTexture.texture.texture][p.language]} (${t('clay', 'এঁটেল')} ${soilTexture.texture.clayPct}%, ${t('sand', 'বালু')} ${soilTexture.texture.sandPct}%, ${t('silt', 'পলি')} ${soilTexture.texture.siltPct}%) · 5–15 cm${soilTexture.texture.distanceM > 0 ? ` · ${t('nearest data', 'নিকটতম তথ্য')} ${(soilTexture.texture.distanceM / 1000).toFixed(1)} km ${t('away', 'দূরে')}` : ''}. ${t('Change it if your field is different.', 'আপনার জমি আলাদা হলে বদলে দিন।')}`

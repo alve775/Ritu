@@ -32,6 +32,7 @@ The IMERG and SMAP summaries were built once from NASA Earthdata, requesting onl
 
 - **Crop calendars and rotations:** sowing windows and durations are planning values from BARI, BRRI and DAE/BAMIS calendars for north-west Bangladesh. There are 18 crops: chickpea, onion, garlic, brinjal, groundnut and black gram were added from the DAE district crop table and the BAMIS Rajshahi-region calendars. The 36 rotations combine the region's common patterns from those calendars with combinations of the same crops whose seasons fit together; the three with black gram in place of Aman are suggested only where no Aman plan fits the plot. Field jobs (fertiliser, weeding, pest checks) follow the same guidance. Crop coefficients: FAO-56 Table 12. Some heat limits and soil fits are commonly reported values that are marked in the code as not yet checked against a source.
 - **Soil:** [ISRIC SoilGrids](https://isric.org/explore/soilgrids) texture and pH at 5–15 cm, kept separate from a farmer's own soil test. Crop pH ranges: [FAO ECOCROP](https://www.fao.org/geospatial/data-and-tools/data-portals/ecocrop/en).
+- **Soil survey (Rajshahi, Chapainawabganj, Natore, Naogaon):** soil texture and drainage are filled in from the soil units of the [BARC Crop Zoning Information System](https://czis.cropzoning.gov.bd) (SRDI soil survey data, the data behind the government's Khamari app), sampled once every 0.005° (about 500 m) and shipped in `src/data/barc/`. Used before SoilGrids texture where there is a soil unit; the farmer's own choice always wins. Reproduced under the portal's [copyright policy](https://portal.cropzoning.gov.bd/copyrightPolicy).
 - **Weather:** [Open-Meteo](https://open-meteo.com/en/docs) 7-day forecast and place search; [OpenStreetMap](https://www.openstreetmap.org/copyright) map tiles.
 - **Pilot boundary:** geoBoundaries district outlines (BBS, OCHA ROAP).
 
@@ -69,6 +70,7 @@ Browser tests (`npm run test:browser`, Playwright) were written for earlier vers
 | `src/domain/nasa-local.ts`                            | Reading the IMERG and SMAP weekly summaries at a pin                                                                                       |
 | `src/data/rotation-crops.ts`, `src/data/crop-jobs.ts` | Crops, rotations and field jobs, with their sources in comments                                                                            |
 | `src/data/nasa/`                                      | The IMERG and SMAP summaries                                                                                                               |
+| `src/data/barc/`                                      | The BARC crop-zoning soil grid for Rajshahi, Chapainawabganj, Natore and Naogaon                                                           |
 | `src/components/rotation/`                            | Year plans and the crop calendar                                                                                                           |
 
 ## Team

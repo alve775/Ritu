@@ -22,6 +22,14 @@ export const evidenceSources = [
     url: 'https://doi.org/10.5067/T5RUATAQREF8',
   },
   {
+    name: 'BARC · Crop Zoning Information System (SRDI soil survey data)',
+    url: 'https://czis.cropzoning.gov.bd',
+  },
+  {
+    name: 'BARC Crop Zoning portal · copyright policy',
+    url: 'https://portal.cropzoning.gov.bd/copyrightPolicy',
+  },
+  {
     name: 'NASA POWER · data origins and access',
     url: 'https://power.larc.nasa.gov/docs/faqs/data/',
   },

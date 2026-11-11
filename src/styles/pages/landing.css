@@ -255,7 +255,9 @@
     padding: 24px clamp(24px, 3vw, 64px);
   }
   .landing__copy {
-    padding: 40px clamp(24px, 3vw, 64px);
+    /* Start the text near the top instead of centring it in the tall column. */
+    justify-content: flex-start;
+    padding: clamp(48px, 16vh, 180px) clamp(24px, 3vw, 64px) 40px;
   }
   .landing__art {
     min-height: 100svh;

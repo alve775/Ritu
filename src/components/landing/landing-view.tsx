@@ -8,7 +8,6 @@ import type { Language } from '../../domain/types';
 
 const COPY = {
   en: {
-    eyebrow: 'Your land. Your crop. Your next growing season.',
     titleA: 'Plan beyond',
     titleB: 'the next crop.',
     lede: 'Pin your land and add its plots. Ritu plans the whole year for each plot with NASA rain, soil-moisture and climate data, then gives you a daily calendar: when to sow, when to irrigate, and how much fertiliser to use.',
@@ -17,7 +16,6 @@ const COPY = {
     home: 'Ritu home',
   },
   bn: {
-    eyebrow: 'আপনার জমি। আপনার ফসল। পরের চাষের মৌসুম।',
     titleA: 'পরের ফসল নয়,',
     titleB: 'পুরো বছর ভাবুন।',
     lede: 'জমির স্থান দিন, প্লট যোগ করুন। নাসার বৃষ্টি, মাটির আর্দ্রতা ও জলবায়ুর তথ্য দিয়ে ঋতু প্রতিটি প্লটের পুরো বছরের পরিকল্পনা করে, তারপর দেয় দৈনিক ক্যালেন্ডার: কবে বুনবেন, কবে সেচ দেবেন, কতটা সার দেবেন।',
@@ -57,10 +55,6 @@ export function LandingView({ lang, languageSwitch, sourceHref = '/sources' }: P
       </div>
 
       <section className="landing__copy" aria-labelledby="landing-title">
-        <p className="landing__eyebrow">
-          <span className="landing__dot" aria-hidden="true" />
-          {t.eyebrow}
-        </p>
         <h1 id="landing-title" className="landing__title">
           {t.titleA}
           <br />

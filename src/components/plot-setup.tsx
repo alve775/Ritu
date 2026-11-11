@@ -6,7 +6,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowRight, Check, Plus } from 'lucide-react';
 import { usePlanner } from './planner-provider';
 import { seasonStore, useSeasonFarms } from '../lib/season-store';
-import { useFieldLog } from '../lib/field-log-store';
+import { fieldLogStore, useFieldLog } from '../lib/field-log-store';
+import { deletePhoto } from '../lib/note-photos';
+import { exportRecords } from '../lib/export-records';
 import { crops } from '../data/crops';
 import { cropIds, type CropId, type Farm, type Language } from '../domain/types';
 import { fieldReady, type RegisteredField } from '../domain/field-registry';
@@ -501,7 +503,7 @@ function PlotForm({ field, existing }: { field: RegisteredField; existing?: Plot
     [from, setFrom] = useState(today),
     [askLastYear, setAskLastYear] = useState<Partial<Plot['lastYear']> | null>(null),
     [error, setError] = useState(''),
-    [removing, setRemoving] = useState(false),
+    [removing, setRemoving] = useState<'stop' | 'delete' | 'purge' | null>(null),
     [overrides, setOverrides] = useState<PlotOverrides>(existing?.overrides ?? {});
   // Only the answers that differ from the land are kept.
   const ownOverrides = (): PlotOverrides | undefined => {
@@ -511,27 +513,51 @@ function PlotForm({ field, existing }: { field: RegisteredField; existing?: Plot
     return o.irrigation || o.drainage ? o : undefined;
   };
   const log = useFieldLog().state;
-  // A plot with crop records, notes or irrigation can only be stopped, so they are kept.
   const records = existing
     ? {
-        sown: state.farms.filter((f) => f.plotId === existing.id && f.plantedDate).length,
+        sown: state.farms.filter(
+          (f) => f.plotId === existing.id && (f.plantedDate || f.harvestedDate),
+        ).length,
         notes: log.notes.filter((n) => n.plotId === existing.id).length,
         irrigations: log.irrigations.filter((r) => r.plotId === existing.id).length,
       }
     : null;
   const hasRecords = !!records && records.sown + records.notes + records.irrigations > 0;
+  const n = (v: number) => localDigits(v, language);
+  const recordCounts = records
+    ? [
+        records.sown > 0 &&
+          t(
+            `${records.sown} crop${records.sown === 1 ? '' : 's'} sown`,
+            `${n(records.sown)}টি ফসল বোনা`,
+          ),
+        records.notes > 0 &&
+          t(`${records.notes} note${records.notes === 1 ? '' : 's'}`, `${n(records.notes)}টি নোট`),
+        records.irrigations > 0 &&
+          t(
+            `${records.irrigations} irrigation${records.irrigations === 1 ? '' : 's'}`,
+            `${n(records.irrigations)}টি সেচ`,
+          ),
+      ]
+        .filter(Boolean)
+        .join(', ')
+    : '';
   const remove = () => {
-    if (!existing) return;
+    if (!existing || !removing) return;
     try {
-      if (hasRecords)
+      if (removing === 'stop')
         seasonStore.endPlot(
           existing.id,
           addDays(today, -1) < existing.startDate ? today : addDays(today, -1),
         );
-      else seasonStore.removePlot(existing.id);
+      else {
+        seasonStore.removePlot(existing.id, removing === 'purge');
+        for (const note of fieldLogStore.removePlots([existing.id]))
+          if (note.photoId) deletePhoto(note.photoId).catch(() => undefined);
+      }
       router.push('/farms');
     } catch (e) {
-      setRemoving(false);
+      setRemoving(null);
       setError(e instanceof Error ? e.message : t('This could not be saved.', 'এটি রাখা যায়নি।'));
     }
   };
@@ -741,37 +767,51 @@ function PlotForm({ field, existing }: { field: RegisteredField; existing?: Plot
             <p>
               {hasRecords
                 ? t(
-                    `${existing.name} has records (${records!.sown} crops sown, ${records!.notes} notes). It can be stopped, not deleted, so they are kept.`,
-                    `${existing.name}-এ হিসাব আছে (${localDigits(records!.sown, 'bn')}টি ফসল বোনা, ${localDigits(records!.notes, 'bn')}টি নোট)। তাই মুছে ফেলা যাবে না, বন্ধ করা যাবে; হিসাব থেকে যাবে।`,
+                    `Crops, notes or irrigation are saved on ${existing.name}: ${recordCounts}. You can stop using it and keep its records, or delete the plot and all its records.`,
+                    `${existing.name}-এ ফসল, নোট বা সেচের হিসাব আছে: ${recordCounts}। হিসাব রেখে প্লটটি বন্ধ করতে পারেন, অথবা প্লট ও এর সব হিসাব মুছে ফেলতে পারেন।`,
                   )
                 : t(
                     `No crops, notes or irrigation are recorded on ${existing.name}.`,
                     `${existing.name}-এ কোনো ফসল, নোট বা সেচ লেখা নেই।`,
                   )}
             </p>
-            <button
-              className="button danger-outline"
-              type="button"
-              onClick={() => setRemoving(true)}
-            >
-              {hasRecords
-                ? t(`Stop using ${existing.name}`, `${existing.name} বন্ধ করুন`)
-                : t(`Delete ${existing.name}`, `${existing.name} মুছুন`)}
-            </button>
+            <div className="button-row">
+              {hasRecords && (
+                <button
+                  className="button secondary"
+                  type="button"
+                  onClick={() => setRemoving('stop')}
+                >
+                  {t(`Stop using ${existing.name}`, `${existing.name} বন্ধ করুন`)}
+                </button>
+              )}
+              <button
+                className="button danger-outline"
+                type="button"
+                onClick={() => setRemoving(hasRecords ? 'purge' : 'delete')}
+              >
+                {t(`Delete ${existing.name}`, `${existing.name} মুছুন`)}
+              </button>
+            </div>
           </div>
         )}
       </form>
       {removing && existing && (
         <Dialog
           title={
-            hasRecords
+            removing === 'stop'
               ? t(`Stop using ${existing.name}?`, `${existing.name} বন্ধ করবেন?`)
-              : t(`Delete ${existing.name}?`, `${existing.name} মুছবেন?`)
+              : removing === 'purge'
+                ? t(
+                    `Delete ${existing.name} and its records?`,
+                    `${existing.name} ও এর হিসাব মুছবেন?`,
+                  )
+                : t(`Delete ${existing.name}?`, `${existing.name} মুছবেন?`)
           }
-          onClose={() => setRemoving(false)}
+          onClose={() => setRemoving(null)}
         >
           <div className="plot-remove-dialog">
-            {hasRecords ? (
+            {removing === 'stop' ? (
               <>
                 <ul>
                   <li>
@@ -795,6 +835,35 @@ function PlotForm({ field, existing }: { field: RegisteredField; existing?: Plot
                   )}
                 </p>
               </>
+            ) : removing === 'purge' ? (
+              <>
+                <ul>
+                  <li>
+                    {t(
+                      `Its ${hectares(existing.areaHa)} ha go back to the land, free for another plot.`,
+                      `এর ${localDigits(hectares(existing.areaHa), 'bn')} হেক্টর জমিতে ফিরে যাবে, অন্য প্লটের জন্য খালি।`,
+                    )}
+                  </li>
+                  <li>
+                    {t(
+                      `Its year plan and records are deleted: ${recordCounts}.`,
+                      `এর বছরের পরিকল্পনা ও হিসাব মুছে যাবে: ${recordCounts}।`,
+                    )}
+                  </li>
+                </ul>
+                <p className="plot-remove-keep">
+                  {t(
+                    'Want a copy first? The file includes the notes and their photos.',
+                    'আগে একটি কপি রাখবেন? ফাইলে নোট ও তার ছবিও থাকবে।',
+                  )}{' '}
+                  <button className="text-button" type="button" onClick={exportRecords}>
+                    {t('Export all records', 'সব হিসাব নামান')}
+                  </button>
+                </p>
+                <p className="plot-remove-warn">
+                  {t('This cannot be undone.', 'এটি ফেরানো যাবে না।')}
+                </p>
+              </>
             ) : (
               <>
                 <p>
@@ -810,11 +879,13 @@ function PlotForm({ field, existing }: { field: RegisteredField; existing?: Plot
             )}
             <div className="button-row">
               <button className="button danger" type="button" onClick={remove}>
-                {hasRecords
+                {removing === 'stop'
                   ? t(`Stop using ${existing.name}`, `${existing.name} বন্ধ করুন`)
-                  : t(`Delete ${existing.name}`, `${existing.name} মুছুন`)}
+                  : removing === 'purge'
+                    ? t('Delete everything', 'সব মুছে ফেলুন')
+                    : t(`Delete ${existing.name}`, `${existing.name} মুছুন`)}
               </button>
-              <button className="button secondary" type="button" onClick={() => setRemoving(false)}>
+              <button className="button secondary" type="button" onClick={() => setRemoving(null)}>
                 {t('Keep it', 'রেখে দিন')}
               </button>
             </div>

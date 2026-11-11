@@ -601,12 +601,15 @@ export const seasonStore = {
       throw Error('This land does not have room for the plot. Make another plot smaller first.');
     save(state);
   },
-  /** Delete a plot with nothing recorded on it, with any crop calendars not started. */
-  removePlot(id: string) {
+  /**
+   * Delete a plot and its crop calendars. A crop sown or harvested on it is a record: that needs
+   * `withRecords`, otherwise the plot should be stopped instead.
+   */
+  removePlot(id: string, withRecords = false) {
     const plots = snapshot.state.plots ?? [];
     if (!plots.some((p) => p.id === id)) throw Error('This plot no longer exists.');
     const own = snapshot.state.farms.filter((f) => f.plotId === id);
-    if (own.some((f) => f.plantedDate || f.harvestedDate))
+    if (!withRecords && own.some((f) => f.plantedDate || f.harvestedDate))
       throw Error('This plot has crop records. Stop using it instead, so they are kept.');
     const gone = new Set(own.map((f) => f.id));
     const farms = snapshot.state.farms.filter((f) => !gone.has(f.id));

@@ -20,7 +20,8 @@ export function useSoilSurvey(site?: {
     if (!key || cache.has(key)) return;
     const controller = new AbortController();
     void fetch(
-      `/api/soil-survey?${new URLSearchParams({ latitude: String(lat), longitude: String(lon) })}`,
+      // `v` changes when the answer's shape changes, so browsers don't reuse a day-old reply.
+      `/api/soil-survey?${new URLSearchParams({ latitude: String(lat), longitude: String(lon), v: '2' })}`,
       { signal: controller.signal },
     )
       .then(async (r) => {

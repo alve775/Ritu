@@ -23,8 +23,10 @@ function usePlannerState() {
   useEffect(() => {
     document.documentElement.lang = state.language;
   }, [state.language]);
+  // Merge into the stored farm, not this render's copy: two changes in a row (soil, then drainage
+  // from the soil survey) must not undo each other.
   const setFarm = (change: Partial<Farm>) =>
-    evidenceStore.update({ farm: { ...state.farm, ...change } });
+    evidenceStore.update({ farm: { ...evidenceStore.getSnapshot().state.farm, ...change } });
   const setEnvironment = (change: Partial<RegionEnvironment>) => evidenceStore.update(change);
   const reset = () => {
     evidenceStore.reset();

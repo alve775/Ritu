@@ -236,4 +236,25 @@ describe('changing a plan', () => {
     expect(s.plots?.[0].plan?.seasons.winter).toBe('wheat');
     expect(validSeasonState(saved())).toBe(true);
   });
+  it('refuses to delete a plot with a sown crop unless withRecords is true', () => {
+    seasonStore.addPlot(plot());
+    seasonStore.create(
+      trackingFarm({
+        id: 'sown-plot-crop',
+        fieldId: 'land-1',
+        plotId: 'plot-a',
+        plantedDate: '2026-01-01',
+        harvestedDate: '',
+      }),
+    );
+    expect(() => seasonStore.removePlot('plot-a')).toThrow(/Stop using it instead/);
+    expect(seasonStore.getSnapshot().state.plots).toHaveLength(1);
+    seasonStore.removePlot('plot-a', true);
+    const s = seasonStore.getSnapshot().state;
+    expect(s.plots).toEqual([]);
+    expect(s.farms).toEqual([]);
+    expect(s.activeId).toBeNull();
+    expect(s.calendarAccessId).toBeNull();
+    expect(validSeasonState(saved())).toBe(true);
+  });
 });

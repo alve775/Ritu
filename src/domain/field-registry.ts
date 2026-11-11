@@ -33,7 +33,7 @@ export function validRegisteredField(raw: unknown): raw is RegisteredField {
     p.area >= 0 &&
     p.area <= 1000 &&
     ['loam', 'clay', 'sandy', 'unknown'].includes(p.soil) &&
-    ['good', 'poor', 'unknown'].includes(p.drainage) &&
+    ['good', 'imperfect', 'poor', 'unknown'].includes(p.drainage) &&
     ['reliable', 'limited', 'severe', 'rainfed', 'unknown'].includes(p.irrigation) &&
     Array.isArray(p.required) &&
     p.required.length <= 3 &&

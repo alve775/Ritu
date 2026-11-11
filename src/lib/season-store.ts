@@ -140,7 +140,7 @@ export function validSeasonState(raw: unknown): raw is SeasonState {
         typeof f.field.name === 'string' &&
         f.field.name.length <= 80 &&
         ['loam', 'clay', 'sandy', 'unknown'].includes(f.field.soil) &&
-        ['good', 'poor', 'unknown'].includes(f.field.drainage) &&
+        ['good', 'imperfect', 'poor', 'unknown'].includes(f.field.drainage) &&
         ['reliable', 'limited', 'severe', 'rainfed', 'unknown'].includes(f.field.irrigation) &&
         f.selection &&
         !!globalCrop(f.selection.crop) &&

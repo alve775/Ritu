@@ -2419,3 +2419,36 @@
     outline-color: var(--stage-accent);
   }
 }
+
+/* BARC fertiliser recommendation for the plot's crops, in the calendar. */
+@layer pages {
+  .rot-fert-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .rot-fert-list > li {
+    display: grid;
+    gap: 4px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--color-soft);
+    border: 1px solid var(--color-line);
+  }
+  .rot-fert-doses {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+  }
+  .rot-fert-notes summary {
+    cursor: pointer;
+    font-size: 0.88rem;
+  }
+  .rot-fert-notes ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
+    font-size: 0.86rem;
+  }
+}

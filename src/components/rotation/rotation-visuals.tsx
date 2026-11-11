@@ -192,22 +192,21 @@ export function IrrigationCompare({
       <p className="rot-compare-big">
         {tx.irrigations(count)} <small>{t('in the year', 'পুরো বছরে')}</small>
       </p>
-      <div className="rot-cmpbar">
-        <span>{t('This plan', 'এই পরিকল্পনা')}</span>
-        <div>
-          <i style={{ width: `${(count / max) * 100}%` }} />
+      {/* Bars only when there is last year's count to compare with; one bar alone says nothing. */}
+      {last !== null && (
+        <div className="rot-cmpbar">
+          <span>{t('This plan', 'এই পরিকল্পনা')}</span>
+          <div>
+            <i style={{ width: `${(count / max) * 100}%` }} />
+          </div>
+          <b>{tx.n(count)}</b>
+          <span>{t('Last year', 'গত বছর')}</span>
+          <div>
+            <i className="last" style={{ width: `${(last / max) * 100}%` }} />
+          </div>
+          <b>{tx.n(last)}</b>
         </div>
-        <b>{tx.n(count)}</b>
-        {last !== null && (
-          <>
-            <span>{t('Last year', 'গত বছর')}</span>
-            <div>
-              <i className="last" style={{ width: `${(last / max) * 100}%` }} />
-            </div>
-            <b>{tx.n(last)}</b>
-          </>
-        )}
-      </div>
+      )}
       {last !== null && (
         <p className={`rot-diff ${diff > 0 ? 'good' : diff < 0 ? 'bad' : ''}`}>
           {diff > 0

@@ -38,7 +38,7 @@ describe('BARC soil survey grid', () => {
       series: 'Amnura',
       aez: 26,
       soil: 'loam',
-      drains: null,
+      drains: 'imperfect',
     });
   });
   it('maps textures and drainage to the app’s own answers', () => {

@@ -160,6 +160,36 @@ describe('plans', () => {
     expect(sandy).toHaveLength(3);
     expect(sandy.slice(1).every((id) => id.endsWith('blackgram'))).toBe(true);
   });
+  it('adds a small wet-soil step for non-rice crops in the field during the rains on imperfectly drained plots', () => {
+    const plan = { winter: 'wheat', 'pre-monsoon': 'jute', monsoon: 'aman' } as const;
+    const at = (drainage: PlotConditions['drainage']) =>
+      Object.fromEntries(
+        assessPlan(plan, '2026-11-07', climate, { ...plot, soil: 'loam', drainage }).crops.map(
+          (c) => [c.item.crop.id, c],
+        ),
+      );
+    const good = at('good'),
+      wet = at('imperfect'),
+      poor = at('poor');
+    // Jute is in the field April to July: one step, half of what poorly drained soil gives.
+    expect(wet.jute.levels.soil - good.jute.levels.soil).toBe(1);
+    expect(poor.jute.levels.soil - good.jute.levels.soil).toBe(2);
+    // Wheat grows on dry winter soil; Aman is rice.
+    expect(wet.wheat.levels.soil).toBe(good.wheat.levels.soil);
+    expect(wet.aman.levels.soil).toBe(good.aman.levels.soil);
+  });
+  it('says the plot stays wet in the rains when that is the main problem', () => {
+    const one = (crop: 'jute' | 'groundnut') =>
+      assessPlan({ winter: null, 'pre-monsoon': crop, monsoon: null }, '2026-11-07', climate, {
+        ...plot,
+        soil: 'clay',
+        drainage: 'imperfect',
+      }).crops[0];
+    // Jute is OK on clay; the wet step makes soil its main problem.
+    expect(one('jute').reason).toMatchObject({ kind: 'drainage', wet: true });
+    // Groundnut is already poor on clay: the reason stays the soil, not the rains.
+    expect(one('groundnut').reason).toMatchObject({ kind: 'soil' });
+  });
   it('marks rice after rice as wearing out the soil', () => {
     const a = assessPlan(
       { winter: 'boro', 'pre-monsoon': null, monsoon: 'aman' },

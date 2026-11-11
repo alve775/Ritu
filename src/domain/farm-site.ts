@@ -6,9 +6,11 @@ export interface FarmSite {
   timezone?: string;
 }
 /** The location search result for Rajshahi, so the pin sits just above the city label. */
+// Farmland about 2 km north-west of Rajshahi city centre: the city pin itself has no BARC soil
+// survey or fertiliser data. The map still opens with Rajshahi in view.
 export const defaultSite: FarmSite = {
-  latitude: 24.374,
-  longitude: 88.60114,
+  latitude: 24.384,
+  longitude: 88.584,
   name: 'Rajshahi, Rajshahi Division, Bangladesh',
   countryCode: 'BD',
   timezone: 'Asia/Dhaka',

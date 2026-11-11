@@ -10,3 +10,4 @@ src/data/global/*.json
 src/data/nasa/rajshahi-imerg.json
 src/data/nasa/rajshahi-smap.json
 src/data/barc/rajshahi-soil.json
+src/data/barc/rajshahi-fertilizer.json

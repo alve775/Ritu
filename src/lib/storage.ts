@@ -46,7 +46,7 @@ export function isSavedState(value: unknown): value is SavedState {
     f.area <= 1000 &&
     ['reliable', 'limited', 'severe', 'rainfed', 'unknown'].includes(f.irrigation) &&
     ['loam', 'clay', 'sandy', 'unknown'].includes(f.soil) &&
-    ['good', 'poor', 'unknown'].includes(f.drainage) &&
+    ['good', 'imperfect', 'poor', 'unknown'].includes(f.drainage) &&
     Array.isArray(f.required) &&
     f.required.every((c) => ['rice', 'pulses', 'potato'].includes(c)) &&
     Array.isArray(f.unavailableMonths) &&

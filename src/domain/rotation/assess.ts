@@ -39,7 +39,9 @@ export interface PlotConditions {
 export type Verdict = 'good' | 'ok' | 'risky' | 'no';
 export type Reason =
   | { kind: 'timing'; problem: TimingProblem }
-  | { kind: 'water' | 'heat' | 'soil' | 'wear' | 'drainage' | 'rainfed'; watch: true }
+  | { kind: 'water' | 'heat' | 'soil' | 'wear' | 'rainfed'; watch: true }
+  /** `wet`: imperfectly drained, wet only for a while in the rains; otherwise water stands. */
+  | { kind: 'drainage'; watch: true; wet?: true }
   | { kind: 'ph'; watch: true; ph: number; measured: boolean; range: [number, number] }
   | { kind: 'pulse' | 'rain' | 'cool' | 'soil-good'; watch: false };
 /**
@@ -166,6 +168,13 @@ function cropLevels(
   let soil = key ? { good: 1, ok: 2, poor: 5 }[crop.soil[key]] : 2;
   const waterlogged = c.drainage === 'poor' && !crop.rice;
   if (waterlogged) soil = Math.min(5, soil + 2);
+  // Imperfectly drained soil stays wet for a while in the rains (June to September): half the
+  // poorly drained step, for non-rice crops in the field then. Winter crops grow on dry soil.
+  const wetInRains =
+    c.drainage === 'imperfect' && !crop.rice && weeks.some((w) => /-0[6-9]-/.test(w.start));
+  // The wet step is named as the reason only where it raised the soil risk (not on soil already poor).
+  const wetRaised = wetInRains && soil < 5;
+  if (wetInRains) soil = Math.min(5, soil + 1);
   // Outside the pH range the crop tolerates: poor for a tested pH, doubtful for a map estimate.
   const phOut = !!c.ph && (c.ph.value < crop.ph[0] || c.ph.value > crop.ph[1]);
   if (phOut) soil = Math.max(soil, c.ph!.measured ? 5 : 4);
@@ -194,6 +203,7 @@ function cropLevels(
     irrigations,
     hottest: hot.length ? hot.reduce((a, b) => (b.maxC > a.maxC ? b : a)) : null,
     waterlogged,
+    wetInRains: wetRaised,
     phOut,
     sameFamilyAs,
     levels: {
@@ -235,7 +245,7 @@ export function assessPlan(
       );
       const k = order[0];
       reason =
-        k === 'soil' && l.phOut && !l.waterlogged
+        k === 'soil' && l.phOut && !l.waterlogged && !l.wetInRains
           ? {
               kind: 'ph',
               watch: true,
@@ -243,15 +253,15 @@ export function assessPlan(
               measured: c.ph!.measured,
               range: item.crop.ph,
             }
-          : {
-              kind:
-                k === 'soil' && l.waterlogged
-                  ? 'drainage'
-                  : k === 'water' && (c.irrigation === 'rainfed' || c.irrigation === 'severe')
+          : k === 'soil' && (l.waterlogged || l.wetInRains)
+            ? { kind: 'drainage', watch: true, ...(l.waterlogged ? {} : { wet: true as const }) }
+            : {
+                kind:
+                  k === 'water' && (c.irrigation === 'rainfed' || c.irrigation === 'severe')
                     ? 'rainfed'
                     : k,
-              watch: true,
-            };
+                watch: true,
+              };
     } else
       reason = {
         kind: item.crop.pulse

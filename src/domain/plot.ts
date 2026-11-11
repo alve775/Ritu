@@ -37,7 +37,7 @@ export interface PlotOverrides {
   drainage?: Exclude<Farm['drainage'], 'unknown'>;
 }
 const plotWater = ['reliable', 'limited', 'severe', 'rainfed'] as const,
-  plotDrainage = ['good', 'poor'] as const;
+  plotDrainage = ['good', 'imperfect', 'poor'] as const;
 const validOverrides = (o: unknown) =>
   o === undefined ||
   (!!o &&

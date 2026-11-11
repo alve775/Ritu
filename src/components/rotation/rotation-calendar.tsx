@@ -55,6 +55,7 @@ import {
 } from '../../domain/rotation';
 import { rotationText, type RotationText, type Translate } from './rotation-text';
 import { NasaNotes, seasonClass } from './rotation-visuals';
+import { FertiliserCard } from './rotation-fertiliser';
 import { DetailChart, PlantGlyph } from './rotation-glyphs';
 import {
   dayWeather,
@@ -2495,6 +2496,14 @@ export function RotationCalendar({
         onOpen={open}
       />
       <BigEvents ctx={ctx} onOpen={open} />
+      <FertiliserCard
+        crops={pcs.map((c) => ({ crop: c.a.item.crop, season: c.a.item.season }))}
+        site={farm.site}
+        areaHa={plot.areaHa}
+        tx={tx}
+        t={t}
+        language={language}
+      />
       <details className="card rot-details">
         <summary data-tour="year-weekly-details">
           {t(

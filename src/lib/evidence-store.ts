@@ -93,7 +93,7 @@ function validateEvidenceState(value: unknown): value is EvidenceState {
     typeof f.area !== 'number' ||
     !Number.isFinite(f.area) ||
     !['loam', 'clay', 'sandy', 'unknown'].includes(f.soil) ||
-    !['good', 'poor', 'unknown'].includes(f.drainage) ||
+    !['good', 'imperfect', 'poor', 'unknown'].includes(f.drainage) ||
     !['reliable', 'limited', 'severe', 'rainfed', 'unknown'].includes(f.irrigation) ||
     !Array.isArray(f.required) ||
     f.required.length > 3 ||

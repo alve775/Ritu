@@ -191,10 +191,15 @@ export function rotationText(t: Translate, language: Language) {
             );
       }
       case 'drainage':
-        return t(
-          'Water stands on this plot, and this crop’s roots rot in wet soil.',
-          'এই প্লটে পানি জমে, আর ভেজা মাটিতে এই ফসলের শিকড় পচে।',
-        );
+        return r.wet
+          ? t(
+              'This plot stays wet for a while in the rains, and this crop is in the field then: its roots can suffer.',
+              'এই প্লট বর্ষায় কিছুদিন ভেজা থাকে, আর তখন এই ফসল মাঠে থাকে: শিকড়ের ক্ষতি হতে পারে।',
+            )
+          : t(
+              'Water stands on this plot, and this crop’s roots rot in wet soil.',
+              'এই প্লটে পানি জমে, আর ভেজা মাটিতে এই ফসলের শিকড় পচে।',
+            );
       case 'wear':
         return c.rice
           ? t(

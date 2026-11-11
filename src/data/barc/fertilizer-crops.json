@@ -1,0 +1,23 @@
+{
+  "source": "BARC Crop Zoning Information System, fertilizer recommendation by point (czis.cropzoning.gov.bd). Crop and variety ids as listed there on 11 Nov 2026; one common variety per crop (doses were the same across the varieties checked, except MoP for mustard).",
+  "crops": {
+    "mustard": { "cropId": 22, "varietyId": 199, "variety": "BARI Sharisa-14" },
+    "wheat": { "cropId": 3, "varietyId": 447, "variety": "BARI Gom-30" },
+    "lentil": { "cropId": 16, "varietyId": 139, "variety": "BARI Masur-8" },
+    "potato": { "cropId": 12, "varietyId": 852, "variety": "BARI Alu-7 (Diamant)" },
+    "boro": { "cropId": 1, "varietyId": 351, "variety": "BRRI dhan28" },
+    "maize": { "cropId": 6, "varietyId": 155, "variety": "BARI hybrid Bhutta-9" },
+    "tomato": { "cropId": 37, "varietyId": 422, "variety": "BARI Tomato-15" },
+    "chickpea": { "cropId": 21, "varietyId": 72, "variety": "BARI Chola-9" },
+    "onion": { "cropId": 28, "varietyId": 209, "variety": "BARI Peyaj-4" },
+    "garlic": { "cropId": 31, "varietyId": 704, "variety": "BARI Rasun-2" },
+    "brinjal": { "cropId": 34, "varietyId": 689, "variety": "BARI Begun-10" },
+    "mung": { "cropId": 112, "varietyId": 747, "variety": "BARI Mung-6" },
+    "aus": { "cropId": 61, "varietyId": 324, "variety": "BRRI dhan48" },
+    "jute": { "cropId": 63, "varietyId": 580, "variety": "BJRI Tossa pat-8" },
+    "sesame": { "cropId": 27, "varietyId": 773, "variety": "BARI Til-4" },
+    "groundnut": { "cropId": 119, "varietyId": 743, "variety": "BARI Chinabadam-12" },
+    "aman": { "cropId": 87, "varietyId": 291, "variety": "BRRI dhan49" },
+    "blackgram": { "cropId": 91, "varietyId": 477, "variety": "BARI Mash-3" }
+  }
+}

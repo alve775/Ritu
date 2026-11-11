@@ -50,8 +50,9 @@ export interface SoilSurvey {
   /** Ritu's soil choice from the survey texture; null when the unit has no texture. */
   soil: Exclude<Farm['soil'], 'unknown'> | null;
   /**
-   * The app's drainage answer: well and moderately well drained units drain well; poorly and very
-   * poorly drained units stay saturated for long; imperfectly drained units have no app answer.
+   * The app's drainage answer: well and moderately well drained units drain well; imperfectly
+   * drained units stay wet for a while in the rains; poorly and very poorly drained units stay
+   * saturated for long.
    */
   drains: Exclude<Farm['drainage'], 'unknown'> | null;
   source: string;
@@ -96,9 +97,11 @@ export function soilSurveyAt(file: SoilSurveyFile, lat: number, lon: number): Su
     drains:
       drainage === 'Well Drained' || drainage === 'Moderately Well Drained'
         ? 'good'
-        : drainage === 'Poorly Drained' || drainage === 'Very Poorly Drained'
-          ? 'poor'
-          : null,
+        : drainage === 'Imperfectly Drained'
+          ? 'imperfect'
+          : drainage === 'Poorly Drained' || drainage === 'Very Poorly Drained'
+            ? 'poor'
+            : null,
     source: file.source,
     sourceUrl: file.sourceUrl,
     retrievedAt: file.retrievedAt,

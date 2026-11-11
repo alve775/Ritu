@@ -265,6 +265,7 @@ const waterText = (w: Farm['irrigation'], t: Translate) =>
 const drainageText = (d: Farm['drainage'], t: Translate) =>
   ({
     good: t('Good: water drains within a day', 'ভালো: এক দিনের মধ্যে পানি নেমে যায়'),
+    imperfect: t('Partly: stays wet for a while in the rains', 'মাঝারি: বর্ষায় কিছুদিন ভেজা থাকে'),
     poor: t('Poor: water stands after rain', 'খারাপ: বৃষ্টির পর পানি জমে থাকে'),
     unknown: t('Not sure', 'জানা নেই'),
   })[d];
@@ -279,9 +280,11 @@ export function plotDifferenceText(o: PlotOverrides | undefined, t: Translate) {
         severe: t('Severe water shortage', 'পানির তীব্র সংকট'),
       }[o.irrigation],
     o?.drainage &&
-      { good: t('Good drainage', 'ভালো নিষ্কাশন'), poor: t('Poor drainage', 'খারাপ নিষ্কাশন') }[
-        o.drainage
-      ],
+      {
+        good: t('Good drainage', 'ভালো নিষ্কাশন'),
+        imperfect: t('Partly wet in the rains', 'বর্ষায় কিছুদিন ভেজা'),
+        poor: t('Poor drainage', 'খারাপ নিষ্কাশন'),
+      }[o.drainage],
   ].filter(Boolean) as string[];
   return parts;
 }
@@ -378,7 +381,7 @@ function PlotDifferences({
                 `জমির মতো (${drainageText(land.drainage, t)})`,
               )}
             </option>
-            {(['good', 'poor'] as const).map((d) => (
+            {(['good', 'imperfect', 'poor'] as const).map((d) => (
               <option key={d} value={d}>
                 {drainageText(d, t)}
               </option>

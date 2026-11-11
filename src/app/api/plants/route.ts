@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     from < '1900-01-01' ||
     from > '2100-12-31' ||
     !['loam', 'clay', 'sandy', 'unknown'].includes(soil) ||
-    !['good', 'poor', 'unknown'].includes(drainage) ||
+    !['good', 'imperfect', 'poor', 'unknown'].includes(drainage) ||
     !['reliable', 'limited', 'rainfed', 'severe', 'unknown'].includes(irrigation) ||
     !Number.isInteger(page) ||
     page < 1 ||

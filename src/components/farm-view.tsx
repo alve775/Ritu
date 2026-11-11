@@ -197,6 +197,9 @@ function FarmForm() {
               onChange={(e) => setFarm({ drainage: e.target.value as Farm['drainage'] })}
             >
               <option value="good">{t('Drains well', 'ভালো নিষ্কাশন')}</option>
+              <option value="imperfect">
+                {t('Partly · wet for a while in the rains', 'মাঝারি · বর্ষায় কিছুদিন ভেজা')}
+              </option>
               <option value="poor">{t('Water collects', 'পানি জমে থাকে')}</option>
               <option value="unknown">{t('Not sure', 'জানা নেই')}</option>
             </select>

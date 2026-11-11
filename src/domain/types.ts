@@ -61,7 +61,7 @@ export interface Farm {
   area: number;
   irrigation: Irrigation;
   soil: 'loam' | 'clay' | 'sandy' | 'unknown';
-  drainage: 'good' | 'poor' | 'unknown';
+  drainage: 'good' | 'imperfect' | 'poor' | 'unknown';
   required: HouseholdCrop[];
   unavailableMonths: number[];
   current: CropPeriod[];

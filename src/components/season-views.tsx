@@ -326,6 +326,12 @@ export function SeasonFarmView() {
             >
               <option value="unknown">{t('Not sure', 'জানা নেই')}</option>
               <option value="good">{t('Yes · drains well', 'হ্যাঁ · ভালো নিষ্কাশন')}</option>
+              <option value="imperfect">
+                {t(
+                  'Partly · stays wet for a while in the rains',
+                  'মাঝারি · বর্ষায় কিছুদিন ভেজা থাকে',
+                )}
+              </option>
               <option value="poor">
                 {t('Poorly drained · prolonged saturation', 'দুর্বল নিষ্কাশন · দীর্ঘ জলসম্পৃক্ততা')}
               </option>
@@ -342,10 +348,15 @@ export function SeasonFarmView() {
               surveyUnit.drains &&
                 (surveyUnit.drains === 'good'
                   ? t('Yes · drains well', 'হ্যাঁ · ভালো নিষ্কাশন')
-                  : t(
-                      'Poorly drained · prolonged saturation',
-                      'দুর্বল নিষ্কাশন · দীর্ঘ জলসম্পৃক্ততা',
-                    )),
+                  : surveyUnit.drains === 'imperfect'
+                    ? t(
+                        'Partly · stays wet for a while in the rains',
+                        'মাঝারি · বর্ষায় কিছুদিন ভেজা থাকে',
+                      )
+                    : t(
+                        'Poorly drained · prolonged saturation',
+                        'দুর্বল নিষ্কাশন · দীর্ঘ জলসম্পৃক্ততা',
+                      )),
             ]
               .filter(Boolean)
               .join(

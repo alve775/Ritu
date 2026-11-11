@@ -58,7 +58,9 @@ export function sourceFieldCompatibility(crop: Requirement, farm: Farm) {
     textures.length > 0 &&
     !textures.includes('wide') &&
     !textures.includes(desiredTexture);
-  const desiredDrain = farm.drainage === 'good' ? 'well' : 'poorly';
+  // ECOCROP has well and poorly drained; imperfect (wet for part of the rains) is closest to well.
+  const desiredDrain =
+    farm.drainage === 'good' || farm.drainage === 'imperfect' ? 'well' : 'poorly';
   const drainageMismatch =
     farm.drainage !== 'unknown' &&
     drains.length > 0 &&
@@ -252,7 +254,7 @@ export function suggestSeason(context: SeasonContext, farm: Farm, from: string):
     from < '1900-01-01' ||
     from > '2100-12-31' ||
     !['loam', 'clay', 'sandy', 'unknown'].includes(farm.soil) ||
-    !['good', 'poor', 'unknown'].includes(farm.drainage) ||
+    !['good', 'imperfect', 'poor', 'unknown'].includes(farm.drainage) ||
     !['reliable', 'limited', 'rainfed', 'severe', 'unknown'].includes(farm.irrigation) ||
     !Number.isFinite(farm.area) ||
     farm.area <= 0 ||
